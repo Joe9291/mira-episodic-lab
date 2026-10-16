@@ -1,0 +1,49 @@
+name: pin-models
+# Milestone 2: record licence, revision and SHA-256 of every model file (protocol
+# section 5). Runs on pushes to main that change the pin request, or manually.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/pin_request.json"
+      - "bench/pin/**"
+      - ".github/workflows/pin-models.yml"
+permissions:
+  contents: read
+concurrency:
+  group: pin-models
+  cancel-in-progress: false
+jobs:
+  pin:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install huggingface_hub==0.30.2
+      - name: Pin
+        id: pin
+        continue-on-error: true
+        run: python bench/pin/pin_models.py config/pin_request.json "$RUNNER_TEMP/model_pins.json"
+      - name: Store on the results branch
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f "$RUNNER_TEMP/model_pins.json" ] || echo '{"schema": "episodic_lab.model_pins.v1", "models": {}, "errors": {"all": "no output"}}' > "$RUNNER_TEMP/model_pins.json"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="pins/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp "$RUNNER_TEMP/model_pins.json" "$dest/model_pins.json"
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} pin-outcome ${{ steps.pin.outcome }}" > "$dest/RUN.txt"
+          git add pins
+          git commit --quiet -m "Model pins, run ${GITHUB_RUN_ID}, ${{ steps.pin.outcome }}"
+          git push origin results
+          [ "${{ steps.pin.outcome }}" = success ]
