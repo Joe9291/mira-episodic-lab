@@ -1,0 +1,65 @@
+{
+ "model": "smollm2-360m",
+ "status": "OK",
+ "answers": [
+  {
+   "notes": 0,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "none",
+   "seconds": 0.37
+  },
+  {
+   "notes": 0,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "Day 3",
+   "seconds": 0.5
+  },
+  {
+   "notes": 0,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "none",
+   "seconds": 0.36
+  },
+  {
+   "notes": 0,
+   "question": "Which happened first? (A) Bob Ray sold the old clock at Reed Harbour. (B) Ann Lee repaired the blue map at Stone Mill. Answer A or B.",
+   "answer": "A",
+   "seconds": 0.37
+  },
+  {
+   "notes": 2,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "none",
+   "seconds": 0.42
+  },
+  {
+   "notes": 2,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "Day 2",
+   "seconds": 0.61
+  },
+  {
+   "notes": 2,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "none",
+   "seconds": 0.44
+  },
+  {
+   "notes": 2,
+   "question": "Which happened first? (A) Bob Ray sold the old clock at Reed Harbour. (B) Ann Lee repaired the blue map at Stone Mill. Answer A or B.",
+   "answer": "A",
+   "seconds": 0.48
+  }
+ ],
+ "load_s": 8.5,
+ "revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+ "weights_hash_s": 1.35,
+ "weights_digest_stable": true,
+ "stats": {
+  "calls": 8,
+  "prompt_tokens": 804,
+  "new_tokens": 20,
+  "truncated": 0
+ },
+ "total_s": 13.4
+}
