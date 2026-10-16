@@ -617,8 +617,8 @@ class VariantTests(unittest.TestCase):
             self.assertIn("Variant: v1", summary)
             self.assertIn("| m | A1 | 1 | 1.00 | 1.00 | 1.00 |", summary)  # E2, E3a, E3a pairs
             o1 = json.loads(json.dumps(good["O1"]))  # one orientation of every pair wrong
-            seen = set()
             for cond in o1["conditions"].values():
+                seen = set()  # pair ids repeat across conditions
                 for r in cond["rows"]:
                     if "pair" in r and (r["phase"], r["pair"]) in seen:
                         r.update(correct=False, category="wrong_value")
@@ -626,6 +626,13 @@ class VariantTests(unittest.TestCase):
             rows = [r for o in ("high", "low") for r in o1["conditions"][o]["rows"]
                     if r["phase"] == "final" and r["criterion"] in collect.POSITIVE]
             weighted = collect.selection_value(rows)
+            for cond in o1["conditions"].values():  # exactly one orientation wrong per pair
+                for phase in ("phase1", "final"):
+                    by_pair = {}
+                    for r in cond["rows"]:
+                        if "pair" in r and r["phase"] == phase:
+                            by_pair.setdefault(r["pair"], []).append(r["correct"])
+                    self.assertTrue(all(sorted(v) == [False, True] for v in by_pair.values()))
             self.assertLess(sum(r["correct"] for r in rows) / len(rows), weighted)
             self.assertIn(f"| m | 1 | {weighted:.3f} | {weighted:.3f} |",
                           "\n".join(collect.selection({("m", "O1", 0): o1})))

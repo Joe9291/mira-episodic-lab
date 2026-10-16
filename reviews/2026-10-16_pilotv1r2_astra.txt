@@ -1,0 +1,23 @@
+1m 21s nachgedacht
+
+scoring grammar, collector checks. This is variant 1 of 3 for A0, A1 and O1.
+---END FILE docs/PILOT_M2.md---
+
+APPROVE für den überarbeiteten Pilotbericht und die explorative Variante v1. Die beiden Pflichtpunkte sind behoben.
+
+- Die Auswahlgewichtung stimmt jetzt. Jede E3a-Orientierung zählt mit ½, jedes andere positive Item mit 1. Damit behält jedes ursprüngliche E3a-Paar insgesamt sein bisheriges Gewicht. selection() verwendet diese Berechnung tatsächlich; anschließend werden weiterhin beide Bedingungen innerhalb einer Welt zusammengeführt und die Welten gleich gewichtet. Der Paarscore bleibt separat.
+- Die Modellwahl wird korrekt neu vorgenommen. Die Regel gilt für v1 erneut über alle vier Kandidaten. Qwen2.5s bisherige Auswahl wird ausdrücklich auf v0 begrenzt.
+- Der Bericht trennt Beobachtung und Erklärung. Die hohen E5-Fehlerraten bleiben als Befund erhalten. Mögliche Ursachen, Qwen3s erwartete Verbesserung und die Wirksamkeit von A3 werden angemessen als offene Hypothesen behandelt. Das Überschreiten der E2-Marge wird ausdrücklich als explorativer Mittelwert eingeordnet.
+- Vergleichbarkeit und Zählweise sind klarer. Der zusätzliche Test prüft nun auch unveränderte Welten, öffentliche Fragetexte und deren Reihenfolge. Paaranzahl und Anzahl gestellter E3a-Fragen sind getrennt dokumentiert.
+
+Aus diesen Änderungen ergibt sich kein weiterer fachlicher Freigabeblocker vor dem v1-Piloten.
+
+Getrennte Verbesserungsideen, ohne zusätzliche Freigabebedingungen:
+
+1. Kleine Korrektur der Testdaten: Im neuen O1-Integrationstest sollte seen innerhalb jeder Bedingung neu angelegt werden. Weil die Paar-IDs zwischen den Bedingungen übereinstimmen, werden aktuell in der zweiten Bedingung beide Orientierungen falsch gesetzt. Der Test unterscheidet weiterhin gewichtete und ungewichtete Auswahl, entspricht aber nicht seiner Beschreibung „eine Orientierung jedes Paars falsch“.
+
+2. Zusätzlich auf dem ursprünglichen Fragensatz vergleichen: Neben dem neuen Hauptscore wäre ein v0–v1-Vergleich ausschließlich der gemeinsamen ursprünglichen Fragen hilfreich. Das trennt Effekte der Instruktionsänderung von Effekten der zusätzlichen E3a-Orientierungen und ihrer Aggregation.
+
+3. „Deutlich über 0,5“ später operationalisieren: Für die Bestätigungsstudie müssen praktisch relevante Marge und Entscheidungsregel vorab feststehen. Im aktuellen explorativen Bericht genügt diese Formulierung als qualitative Einordnung.
+
+Die Prüfung war ausschließlich statisch anhand des Anhangs. Die berichteten Tests wurden nicht unabhängig ausgeführt oder extern verifiziert; Projektdateien wurden nicht verändert.
