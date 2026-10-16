@@ -1,0 +1,91 @@
+6m 37s nachgedacht
+
+Teil 1:
+
+return out
+---END FILE episodic_lab/runner.py---
+
+Teil 2:
+
+unittest.main()
+---END FILE tests/test_arms.py---
+
+REQUEST CHANGES. Der Modellzugriff ist grundsätzlich sinnvoll aufgebaut: Prüfung von Dateimenge und Bytes vor dem Laden, frische Chats, eingefrorene Gewichte und zusätzliche Gewichtsprüfungen. Im gezeigten Ablauf erhalten A0 und A1 kein Goldwissen; der öffentliche Antworttyp ist eine faire Formathilfe.
+
+Vor dem ersten Pilotlauf sollten jedoch die folgenden Punkte geklärt beziehungsweise korrigiert werden.
+
+1. O1 verrät bei Lures bereits durch die Evidenzmenge die Antwort.
+
+Alle positiven O1-Fragen erhalten mindestens eine Zielepisode. Jede E5-Lure erhält dagegen exakt:
+
+Story notes:
+(no notes)
+
+Zusammen mit der Anweisung, bei fehlender Evidenz none auszugeben, ist damit die richtige Zurückweisung unmittelbar erkennbar. O1 prüft hier keine Unterscheidung zwischen bekannten Details und einer falschen Ereignisbindung.
+
+O1 ist als privilegierte Evidenzdiagnostik sinnvoll, insbesondere für positive Abruf- und Schlussfolgerungsaufgaben. Sein E5-Wert misst in dieser Form überwiegend Instruktionsbefolgung bei leerem Kontext.
+
+Erforderliche Änderung:
+
+- Vorab festlegen, welche positiven O1-Aufgaben und welche Aggregation für das Modellwahlkriterium von 0,8 gelten.
+- Die so vereinfachten E5-Aufgaben nicht in dieses Kriterium einmischen.
+- O1-Ergebnisse ausdrücklich als Diagnostik ausweisen. Auch seine E6-Werte belegen keine Speicherpersistenz: Die benötigte Evidenz wird bei jedem Abruf erneut vom Evaluator bereitgestellt.
+
+Falls O1 auch die Verarbeitung schwieriger negativer Evidenz prüfen soll, benötigen Lures passende, verwechselbare Notizen statt einer grundsätzlich leeren Evidenzmenge.
+
+2. Der Collector kann unvollständige Daten als COMPLETE akzeptieren.
+
+collect.load() verlangt nur einen erfolgreichen Status, beide Bedingungen, irgendeinen nichtleeren rows-Wert und symbolic_all_correct=True.
+
+Ein statisch ableitbares Gegenbeispiel ist ein Ergebnis mit beiden Bedingungen, jeweils:
+
+{"rows": [{}], "symbolic_all_correct": true}
+
+Bei zusätzlichem status: "OK" passiert es die Prüfung, obwohl beispielsweise final, phase1 und retention fehlen.
+
+Anschließend geschieht Folgendes:
+
+1. VERDICT wird als COMPLETE geschrieben.
+2. summarise() scheitert an fehlenden Feldern.
+3. Der Fehler landet lediglich als Text in SUMMARY.md.
+4. Das Programm liefert trotzdem Rückgabecode 0; die abschließende Workflow-Prüfung akzeptiert COMPLETE.
+
+Außerdem werden Modell, Arm, Serie und Weltindex im Dateiinhalt nicht mit dem erwarteten Matrixeintrag verglichen. Eine falsch zugeordnete Datei kann deshalb unter fremdem Namen ausgewertet werden.
+
+Erforderliche Änderung: Das Zellenschema einschließlich Identität, Phasen, Zeilenstruktur und benötigter Auswertungsfelder validieren. Fehlende Kriterien und ungültige beziehungsweise nichtendliche Messwerte müssen auffallen. Eine gescheiterte Zusammenfassung darf nicht zusammen mit einem uneingeschränkten Erfolgsstatus stehen bleiben.
+
+Die Collector-Tests sollten realistische vollständige Zellmetadaten enthalten und zusätzlich fehlende Auswertungsfelder sowie vertauschte Zellidentitäten prüfen.
+
+3. Die zugesagten Verarbeitungs- und Provenienzangaben sind noch unvollständig.
+
+Die Ergebnisse enthalten bereits Seeds, Revision, Gewichts-Digest, Laufzeiten und gesamte Tokenzahlen. Der Commit wird im gemeinsamen RUN.txt festgehalten.
+
+Im gezeigten Ablauf fehlen jedoch insbesondere:
+
+- die im Protokoll verlangten Welt- und Konfigurationshashes;
+- eine eindeutige Bindung an das verwendete Pinmanifest;
+- die Verarbeitung pro Episode nach E1b.
+
+Gerade A1 verarbeitet frühe Episoden bei vielen Testfragen erneut im Prompt. Eine Gesamtzahl von Prompt-Tokens beschreibt den Aufwand, ersetzt aber nicht die zugesagte Deklaration der Wiederholungen einzelner Episoden.
+
+Erforderliche Änderung: Diese Angaben vor der Datenerhebung in den Ergebnisbeleg aufnehmen. Sie können in einem gemeinsamen Manifest stehen und müssen nicht unnötig in jeder Antwortzeile wiederholt werden.
+
+4. Die getrennte Berichterstattung der E3b-Untertypen fehlt.
+
+Das Protokoll verlangt getrennte Ergebnisse für at_day und latest. summarise() und SUMMARY.md liefern weiterhin nur den gemeinsamen E3b-Wert.
+
+Die nötige Information bleibt zwar über qtype in den Zeilen erhalten. Für die vorgesehene Auswertung müssen die beiden Untertypen aber getrennt ausgewiesen werden. Bei E5 sollte die Zusammenfassung außerdem die bereits gespeicherte Unsicherheitskategorie zeigen.
+
+Zur Einordnung: Fünf Welten und deskriptive Mittelwerte sind für diesen explorativen Pilot vertretbar. Die beiden Überlappungsbedingungen sind gepaarte Varianten derselben Welten.
+
+Die Prüfung war ausschließlich statisch. Pinmanifest, tatsächliche Modellbytes sowie die berichteten Tests und Smoke-Ergebnisse wurden nicht unabhängig verifiziert. enabled: false ist im beigefügten Pilotplan vorhanden.
+
+
+---
+
+Verbesserungsideen:
+
+- A0 präzise benennen: Durch leere Notizen und die explizite none-Anweisung ist es eine Kontrolle für fehlende Evidenz mit geforderter Abstention. Seine Ergebnisse sollten entsprechend interpretiert werden.
+- Abgeschnittene Antworten markieren: Festhalten, ob die Generierung das 16-Token-Limit erreicht hat. So lassen sich Formatfehler besser von fehlendem Abruf unterscheiden.
+- Teilfortschritt sichern: Bei einem Fehler während einer Bedingung gehen bisher deren bereits erzeugte Antworten verloren. Eine schrittweise Ergebnissicherung würde die Diagnose erleichtern.
+- Gewichtsprüfung für spätere Lernarme anpassen: Bei P1/P2 muss der Vergleichszustand nach dem jeweiligen Encodingblock festgelegt werden. Der derzeitige Vergleich mit den Gewichten vor Weltbeginn würde auch zulässige Lernänderungen zurückweisen.

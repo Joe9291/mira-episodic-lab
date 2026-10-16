@@ -56,7 +56,10 @@ class PinnedModel:
         self.model.requires_grad_(False)
         self.max_new_tokens = max_new_tokens
         self.template_kwargs = {"enable_thinking": False} if slug.startswith("qwen3") else {}
-        self.stats = {"calls": 0, "prompt_tokens": 0, "new_tokens": 0}  # telemetry, not memory
+        # telemetry, not memory: totals plus one entry per call (prompt length, answer
+        # length, and whether the answer was cut off by the token limit)
+        self.stats = {"calls": 0, "prompt_tokens": 0, "new_tokens": 0, "truncated": 0}
+        self.call_log: list[dict] = []
         self._digest = self._weights_hash()
 
     def _weights_hash(self) -> str:
@@ -68,6 +71,10 @@ class PinnedModel:
 
     def weights_digest(self, recompute: bool = False) -> str:
         return self._weights_hash() if recompute else self._digest
+
+    def count_tokens(self, text: str) -> int:
+        """Tokens of a text on its own (E1b: tokens processed per episode)."""
+        return len(self.tokenizer(text, add_special_tokens=False)["input_ids"])
 
     def generate(self, messages: list[dict]) -> str:
         torch = self._torch
@@ -81,4 +88,8 @@ class PinnedModel:
         self.stats["calls"] += 1
         self.stats["prompt_tokens"] += int(ids.shape[1])
         self.stats["new_tokens"] += int(new.shape[0])
+        cut = int(new.shape[0]) >= self.max_new_tokens and int(new[-1]) != self.tokenizer.eos_token_id
+        self.stats["truncated"] += int(cut)
+        self.call_log.append({"prompt_tokens": int(ids.shape[1]), "new_tokens": int(new.shape[0]),
+                              "truncated": bool(cut)})
         return self.tokenizer.decode(new, skip_special_tokens=True).strip()

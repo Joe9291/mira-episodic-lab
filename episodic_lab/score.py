@@ -116,6 +116,11 @@ def summarise(rows: list[dict]) -> dict:
                                                    "uncertain", "other")}}
         if criterion == "E5":
             out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / n
+        if criterion == "E3b":  # the two subtypes are reported separately (protocol E3b)
+            out[criterion]["by_qtype"] = {
+                q: {"n": len(s), "accuracy": sum(r["correct"] for r in s) / len(s)}
+                for q in sorted({r["qtype"] for r in sub})
+                for s in [[r for r in sub if r["qtype"] == q]]}
     return out
 
 

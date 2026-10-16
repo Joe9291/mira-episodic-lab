@@ -50,6 +50,7 @@ jobs:
         run: |
           python bench/pilot/run_pilot.py --model "${{ matrix.model }}" --arm "${{ matrix.arm }}" \
             --series "${{ needs.plan.outputs.series }}" --index "${{ matrix.index }}" \
+            --pins config/model_pins.json --request config/pilot.json \
             --out "out/pilot_${{ matrix.model }}_${{ matrix.arm }}_${{ matrix.index }}.json"
       - name: Keep outputs
         if: always()
@@ -84,12 +85,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           cp bench/pilot/collect.py "$RUNNER_TEMP/collect.py"
           cp config/pilot.json "$RUNNER_TEMP/pilot.json"
+          cp config/model_pins.json "$RUNNER_TEMP/model_pins.json"
           if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
           dest="pilot/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
           mkdir -p "$dest"
           if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
           cp "$RUNNER_TEMP/pilot.json" "$dest/pilot_request.json"
-          python3 "$RUNNER_TEMP/collect.py" "$RUNNER_TEMP/pilot.json" "$dest" || echo INCOMPLETE > "$dest/VERDICT"
+          python3 "$RUNNER_TEMP/collect.py" "$RUNNER_TEMP/pilot.json" "$dest" "$RUNNER_TEMP/model_pins.json" || echo INCOMPLETE > "$dest/VERDICT"
           verdict=$(cat "$dest/VERDICT")
           echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} cells ${{ needs.cell.result }} fetch-outcome ${{ steps.fetch.outcome }} verdict ${verdict}" > "$dest/RUN.txt"
           git add pilot

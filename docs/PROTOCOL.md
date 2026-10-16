@@ -1,6 +1,6 @@
 # Mira Episodic Lab - Research Protocol
 
-Version 0.5 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+Version 0.6 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
 confirmatory preregistration: thresholds, sample size and the final arm list are fixed
 in version 1.0, which needs the reviews of section 10 and the experiment lead's
 signature. Version 0.2 integrated the reviews of 0.1; 0.3 integrated Astra's review of
@@ -9,7 +9,10 @@ frozen memory during tests, world-level statistics); 0.4 integrates Astra's revi
 milestone 1.1 (binding by answer ambiguity, E4 on repeated content, model pinning,
 result registration, narrower claims about frozen memory, two-level thresholds, seed
 procedure); 0.5 integrates Astra's review of milestone 1.2 (balanced E3a quota, robust
-result check, signature details). Reviews: `reviews/`.
+result check, signature details); 0.6 integrates Astra's review of milestone 2 (O1
+confusable evidence for lures and a positive-items selection criterion, strict cell
+schema check, per-cell provenance and E1b counts, E3b subtypes and E5 uncertainty in the
+summary). Reviews: `reviews/`.
 
 ## 1. Question and scope
 
@@ -91,8 +94,8 @@ presented to the system".
 | Arm | Description | Role |
 |---|---|---|
 | S0 | Symbolic event manager: rule-based parser and database over the same texts | How far plain data handling solves the task |
-| O1 | Oracle evidence: the correct episode(s) placed in the prompt | Can the model use the evidence at all |
-| A0 | Model, no memory | Guessing and confabulation floor |
+| O1 | Oracle evidence (diagnostic): the target episode(s) of each question placed in the prompt; for E5 lures, confusable early episodes, one per pair of the lure's details (first in presentation order, deduplicated), so that no lure is answered from an empty context | Can the model use given evidence at all. Not a memory system: the evaluator supplies the evidence at every question, so its E5 and E6 values are no memory results |
+| A0 | Model, no memory: empty notes and the instruction to answer "none" when the notes lack the event | Missing-evidence control with requested abstention; guessing and confabulation floor |
 | A1 | All episodes in the prompt (if they fit) | In-context reference, not episodic memory |
 | A2 | Simple retrieval: lexical search, top-k episodes into the prompt | Standard external memory |
 | A3 | Mira memory: structured event store (time, place, people, provenance), state tracking, retrieval | Mira's architecture |
@@ -129,7 +132,10 @@ Controls:
   and the suitability of this setting is checked in the pilot; otherwise the model is
   not used with greedy decoding.
 - Selection rule: the smallest candidate whose O1 accuracy in the pilot is at least
-  0.8. If none reaches it, the answer format is simplified first, then the next larger
+  0.8. O1 accuracy here is computed on positive items only (final test, criteria E2,
+  E3a, E3b, E4, E7; E5 lures excluded): per world the share of correct answers over these
+  items of both overlap conditions, then the mean over the pilot worlds (the lowest world
+  is reported alongside). If none reaches it, the answer format is simplified first, then the next larger
   candidate is tried (this counts against the variant budget of section 7).
 
 ## 6. Measurement and statistics
@@ -182,6 +188,9 @@ Controls:
   wordings.
 - Weight-based arms also report general abilities (simple language and reasoning
   checks) before and after encoding.
+- Weight-based arms (P1, P2, C1) change weights while encoding, so their frozen-weights
+  check compares against the state after each encoding block, not against the weights
+  before the world (planned for milestone 4).
 
 ## 9. Compute plan
 
@@ -206,7 +215,14 @@ Controls:
 - Workflows run only on pushes to `main` and on manual start, never on pull requests
   from forks, and use no secrets.
 - Every run writes a receipt: commit, configuration hash, model pins, seeds, world
-  hashes, E1b processing counts, metrics, runtime. Results go to a separate `results`
+  hashes, E1b processing counts, metrics, runtime. In the pilot every cell records the
+  code commit, the SHA-256 of the pilot request and of the pins manifest, the model
+  revision and weights digest, the SHA-256 of each world and question set, and per
+  episode: encoding reads, prompt inclusions, tokens in prompts and the arm's declared
+  replays, optimizer steps and store writes; every answer row records its prompt length,
+  answer length and whether the token limit cut it off. The collector validates the
+  full cell schema and identity, requires one code commit and identical worlds across
+  arms and models, and marks the run INCOMPLETE if any cell or the summary fails. Results go to a separate `results`
   branch; every run, including failed ones, is listed.
 - Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
   signs one experiment-series authorization (protocol hash, model pins, maximum number

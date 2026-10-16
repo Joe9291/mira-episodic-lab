@@ -1,0 +1,9 @@
+{
+ "schema": "episodic_lab.pilot_request.v1",
+ "enabled": true,
+ "note": "Technical end-to-end check of the pilot path with real model bytes on a separate series (dryrun-m2), never used for the pilot or any decision. Smallest model, one world.",
+ "series": "dryrun-m2",
+ "models": ["smollm2-135m"],
+ "arms": ["A0", "A1", "O1"],
+ "indices": [0]
+}
