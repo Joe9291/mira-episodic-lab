@@ -1,0 +1,90 @@
+4m 27s nachgedacht
+
+> 8. Report, import into the private repository, external review.
+
+
+
+REQUEST CHANGES. Der Entwurf hat eine gute Grundlage: getrennte Pilot- und Bestätigungsdaten, deterministische Ground Truth, objektive Auswertung und dokumentierte Laufbudgets. Für eine bestätigende Versuchsreihe fehlen jedoch entscheidende Festlegungen zur Definition, zu den Kontrollen und zur statistischen Entscheidung.
+
+E1–E7 sind grundsätzlich passende Kriterien für funktionale episodische Fähigkeiten eines Gesamtsystems. Ereignisse über Inhalt, Zeit, Ort und Beteiligte zu prüfen, entspricht auch bestehenden Forschungsansätzen. Die Kriterien unterscheiden bisher aber nicht ausreichend zwischen dem Erinnern einer bestimmten Episode und dem Abrufen einzelner gespeicherter Fakten. 
+
+Eine Ereignis-Datenbank kann sämtliche Kriterien erfüllen. Das ist innerhalb eurer funktionalen Forschungsfrage zulässig. Ein positives Ergebnis von A3 würde zunächst die Gedächtnisfunktion des Systems aus Modell und Speicher belegen. Für einen zusätzlichen Nutzen der Mira-Architektur braucht ihr den Vergleich mit A2.
+
+Kriterium	Bewertung und erforderliche Präzisierung
+
+E1: einmalige Exposition	Mehrdeutig. Eine einmalige Präsentation durch die Umwelt ist mit internem Replay vereinbar. Eine einmalige Verarbeitung durch das Modell ist etwas anderes. Definiert getrennt: externe Präsentationen, interne Wiederholungen, verarbeitete Tokens und Optimierungsschritte. Sonst bleiben P1 und C1 schwer vergleichbar.
+E2: Abruf durch Hinweisreize	Sinnvoll. Ergänzt neue Frageformulierungen und Ereignisse mit überlappenden Merkmalen. Sonst können Wortübereinstimmung und eindeutige Namen die Aufgabe weitgehend lösen.
+E3: Reihenfolge und letzter Zustand	Sinnvoll, aber zwei getrennte Teilaufgaben. Ereigniszeit und Präsentationsreihenfolge müssen teilweise auseinanderfallen. Prüft außerdem ältere Zustände, damit bloßes Überschreiben des aktuellen Zustands nicht genügt.
+E4: Quellenzuordnung	Wichtig. Derselbe Inhalt sollte in mehreren Episoden vorkommen können. Numerische Episoden-IDs dürfen die Antwort nicht bereits über ihre Reihenfolge verraten.
+E5: erfundene Erinnerungen	Notwendig. Verwendet auch neue Kombinationen bekannter Details als Köder. Nur Fragen nach völlig unbekannten Personen wären zu leicht. Definiert ausdrücklich eine abgeschlossene Welt: Bedeutet none „in den präsentierten Episoden nicht vorhanden“?
+E6: Behalten trotz Interferenz	Noch unzureichend festgelegt. K, Überlappung der Störereignisse, Ausgangsleistung und verzögerte absolute Leistung müssen feststehen. Ein Verhältnis von 0,18/0,20 erfüllt 0,9, obwohl kaum etwas erinnert wird.
+E7: Nutzung für Handlungen	Derzeit wird eine Entscheidungsantwort geprüft. Für tatsächliche Handlungsnutzung müsste die Wahl in einer kleinen Umgebung ausgeführt werden. Beide Episoden müssen nachweislich notwendig sein; Entfernen oder Ändern einer Episode sollte die richtige Entscheidung verändern.
+
+
+Zusätzlich braucht ihr verbindliche Bindungstests: Alle abgefragten Personen, Orte und Gegenstände sind bekannt, aber nur eine bestimmte Kombination gehört zur gesuchten Episode. Das ist der wichtigste Schutz gegen einen Erfolg durch isoliertes Faktenwissen.
+
+Für die jeweils beanspruchte Wirkung fehlen folgende Kontrollen:
+
+1. Symbolische Vergleichsgruppe. Eine einfache regelbasierte Ereignisverwaltung erhält dieselben Erzähltexte und beantwortet dieselben Fragen. Sie zeigt, wie viel die Aufgaben bereits durch gewöhnliche Datenverwaltung lösen lassen. Ergänzend kann eine ausdrücklich als solche bezeichnete Oracle-Bedingung mit korrekter Evidenz prüfen, ob das kleine Modell die Antwort überhaupt verarbeiten kann.
+
+2. Gezielte A3-Ablationen. Entfernt einzeln Zeitinformation, Provenienz oder die spezielle Aktualisierungslogik. A3 gegen A2 allein erklärt nicht, welche Komponente einen Unterschied verursacht. Kontext- und Abrufbudgets müssen dabei vergleichbar sein.
+
+3. Aussagekräftigere falsche Speicher. Ein Speicher aus einer Welt mit völlig anderen Namen ist leicht als unpassend erkennbar. Ergänzt vertauschte Quellen oder Ereignisbindungen bei gleichem Vokabular und ähnlicher Faktenverteilung.
+
+4. Kontrollen für C1. Mindestens: Speicher ohne Konsolidierung, konsolidierte Gewichte ohne Speicher und beides gemeinsam. Die Speicherbeschädigung muss bei A3 und C1 identisch erfolgen. Zusätzliche Trainings-Tokens und Replay-Schritte müssen berücksichtigt werden, damit ein Vorteil nicht lediglich mehr Verarbeitung widerspiegelt.
+
+5. Kontrolle der Interferenz. Vergleicht konkurrierende mit gleich umfangreichen, wenig überlappenden Folgeepisoden. Sonst bleibt unklar, ob E6 spezifisch Interferenz oder allgemein längere Ereignisfolgen misst.
+
+6. Saubere Zustandsgrenzen. Jede Welt beginnt mit frischem Modell-, Adapter-, Optimierer- und Speicherzustand. Testfragen dürfen keine später nutzbaren Spuren hinterlassen. Für P1/P2 müssen beim Abruf auch Gesprächsverlauf, KV-Cache und sonstige Hilfsspeicher ausgeschlossen sein.
+
+Bei P1/P2/C1 fehlt außerdem das genaue Trainings- beziehungsweise Editierziel. Alle daraus erzeugten Trainingsbeispiele oder Fakten müssen ausschließlich aus den sichtbaren Episoden stammen. Die Ground Truth des Evaluators darf dafür nicht verwendet werden.
+
+Die Statistik ist in der jetzigen Form noch nicht sauber genug.
+
+- Die Welt als Replikationseinheit ist richtig. Ein gewöhnliches Wilson-Intervall über sämtliche Fragen behandelt jedoch korrelierte Antworten innerhalb einer Welt als unabhängige Beobachtungen. Das kann die Unsicherheit unterschätzen. Für absolute Leistungen und Armvergleiche braucht ihr eine vorab festgelegte Auswertung, die die Weltstruktur berücksichtigt. Auch Cluster-Bootstrap ist bei wenigen Welten nicht automatisch zuverlässig. 
+- Nutzt dieselben Welten für die verschiedenen Arme und wertet Unterschiede gepaart aus. Die Welten bleiben untereinander unabhängig; der direkte Vergleich wird dadurch genauer.
+- Zehn Welten sind keine Fallzahlbegründung. Legt die Anzahl anhand relevanter Effektgrößen und der Wahrscheinlichkeit fest, die vorgesehenen Erfolgskriterien tatsächlich nachweisen zu können. Pilotvarianz allein genügt nicht.
+- E6 braucht ebenfalls eine Unsicherheitsgrenze, eine Mindestleistung beim verzögerten Abruf und eine Regel für sehr kleine beziehungsweise null Ausgangsleistung.
+- Für E5 braucht ihr eine Methode für seltene Fehler. Ein einfacher Bootstrap liefert bei ausschließlich fehlerfreien Welten unter Umständen das irreführende Intervall [0,0].
+- Die Schwellen benötigen eine Aufgabenbegründung. Bei zwei Antwortoptionen liegt 0,5 am Zufallsniveau. Eine untere Konfidenzgrenze darüber liefert Evidenz gegen Raten, definiert aber noch keinen praktisch überzeugenden Abstand. Antwortmöglichkeiten, Klassenverteilung und gewünschter Mindestabstand fehlen.
+- Nicht überlappende Konfidenzintervalle sind konservativ, kein methodischer Fehler. Ein direktes Intervall für die gepaarte Differenz gegenüber A0 wäre geeigneter. Für Aussagen über einen Architekturgewinn ist zusätzlich A3 gegenüber A2 entscheidend.
+
+Plant Mehrfachvergleiche über Arme und beanspruchte Überlegenheiten. Eine pauschale Bonferroni-Korrektur über E1–E7 ist dagegen nicht automatisch nötig, wenn der einzige Gesamterfolg ausdrücklich das gemeinsame Bestehen aller Kriterien verlangt.
+
+Vorab festzulegen sind außerdem Normalisierung, ungültige Ausgabeformate, Teilantworten und die Gewichtung der Fragen beziehungsweise Welten.
+
+Die Umdenk-Regeln sind als begrenzte explorative Suche vernünftig, brauchen aber Korrekturen.
+
+Die Pilot-Schranke „mindestens 20 Prozentpunkte über A0“ kann bei hoher A0-Leistung unerreichbar werden. „Nicht mehr falsche Erinnerungen als A0“ kann einen leistungsfähigen Arm wegen eines einzelnen Fehlers ausschließen, während A0 überwiegend none ausgibt. Verwendet einen vorab begründeten Leistungsgewinn und eine absolute Fehlertoleranz beziehungsweise eine begründete Nichtunterlegenheitsmarge.
+
+Definiert außerdem, ob drei Varianten insgesamt oder zusätzlich zur Ausgangsversion erlaubt sind, und begrenzt Modell-, Format- und Parametersuche gemeinsam. Drei gescheiterte Varianten ergeben einen negativen Befund für diese Konfigurationen und dieses Budget. Daraus folgt keine Widerlegung des gesamten Mechanismus.
+
+Schwellen nach einer klar getrennten Pilotphase festzulegen, ist zulässig. Sie sollten fachlich begründet werden und vor der Bestätigung unveränderlich feststehen. Ein aus einem Commit abgeleiteter Seed macht den Lauf reproduzierbar; die Commit-Auswahl ist aber beeinflussbar. Fixiert Code und Auswahlregeln vor einer gesonderten, protokollierten Seedziehung.
+
+Unter den genannten 4 CPU-Kernen, 16 GB RAM und sechs Stunden pro Lauf ist ein schlankes Experiment realistisch. Die folgenden Einschätzungen sind Planungsurteile, keine gemessenen Laufzeiten:
+
+Teil	Einschätzung
+
+Generator, Scorer, symbolische Kontrolle	Gut machbar; geringer Rechenbedarf.
+A0–A3 mit 135–600 Mio. Parametern	Plausibel bei kurzen Kontexten und begrenzter Fragenzahl. A3 benötigt zusätzlich Budget für das Extrahieren der Ereignisse.
+P1 mit kleinem LoRA-Adapter	Ein kleiner Pilot erscheint plausibel, besonders bei 135/360 Mio. Parametern. Ob eine einzige Episode mit sehr wenigen Updates zuverlässig abrufbar wird, bleibt eine offene Forschungsfrage.
+P2 mit Rank-one-Edits	Explorativ behandeln. ROME wurde für bestimmte Modelle und Faktenassoziationen untersucht; die Übertragung auf eure kleinen Modelle und vollständige Episoden ist zusätzliche Entwicklungsarbeit. Bei aufeinanderfolgenden Edits wurden außerdem erhebliche Vergessenseffekte beobachtet. 
+C1	Mit kleinem Replay-Budget plausibel; vollständige Variantenserien können insgesamt viele Runner-Stunden benötigen.
+
+
+Zur Größenordnung: 600 Millionen FP32-Parameter benötigen allein ungefähr 2,4 GB. Aktivierungen, Kontext-Cache und Laufzeitumgebung kommen hinzu. LoRA spart trainierbare Parameter, beseitigt aber nicht den Aufwand des Durchrechnens und der notwendigen Rückwärtsrechnung durch das Modell. 
+
+Ein vorsichtiger Start wären etwa 20 Episoden und 100 kurze Testfragen pro Welt, zunächst mit 135/360 Millionen Parametern. Größere Welten bilden eine eigene Belastungsstufe. Vor ihrer Festlegung müssen Modellladen, Encoding und Auswertung auf dem vorgesehenen Runner gemessen werden. Zwanzig parallele Jobs beschleunigen die Serie; ein einzelner Lauf erhält dadurch keine zusätzlichen Kerne.
+
+Ein konkreter Konfigurationsfehler betrifft Qwen3: Der Denkmodus ist standardmäßig aktiviert; die Modellkarte rät dafür ausdrücklich von greedy decoding ab. Wenn greedy verbindlich bleibt, muss mindestens enable_thinking=False festgelegt und die Eignung dieser Konfiguration im Pilot geprüft werden. 
+
+
+---
+
+Zusätzliche Verbesserungsideen, getrennt von den erforderlichen Änderungen:
+
+- Zwei Ergebnisachsen berichten: erfüllte Gedächtnisfunktionen sowie Aufwand für Encoding, Abruf, Speicher und Training. So werden externe und parametrische Verfahren verständlich vergleichbar.
+- Fehler entlang der Verarbeitungskette messen: korrekt extrahiert → korrekt gespeichert → richtige Episode gefunden → richtige Antwort erzeugt.
+- Belastung systematisch steigern: mehr Episoden, stärkere Merkmalsüberlappung, größere zeitliche Distanz und neue Frageformulierungen.
+- Bei Gewichtsänderungen allgemeine Fähigkeiten mitprüfen: Ein Speichergewinn sollte zusammen mit möglichen Verlusten bei Sprachverarbeitung und einfachen Schlussfolgerungen ausgewiesen werden.
+- Den bestätigenden Kern verkleinern: zunächst A0–A3 und gegebenenfalls ein vorab ausgewählter P1-Arm. P2 und C1 können anschließend eigenständige, klar abgegrenzte Versuchsreihen bilden.
