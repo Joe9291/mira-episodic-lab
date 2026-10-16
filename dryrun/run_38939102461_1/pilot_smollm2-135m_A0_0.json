@@ -1,0 +1,5108 @@
+{
+ "arm": "A0",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 22
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 22
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 0
+    },
+    "encode_reads": {
+     "ep-2szmus": 1,
+     "ep-2zg9pj": 1,
+     "ep-349p27": 1,
+     "ep-4ryfku": 1,
+     "ep-4wzzgu": 1,
+     "ep-7pfh2q": 1,
+     "ep-82s4pp": 1,
+     "ep-8hr24k": 1,
+     "ep-an6vjh": 1,
+     "ep-avdymz": 1,
+     "ep-bquqbg": 1,
+     "ep-dh4dwr": 1,
+     "ep-f4bd6w": 1,
+     "ep-fb788n": 1,
+     "ep-fg49rg": 1,
+     "ep-fjusqm": 1,
+     "ep-ggmw85": 1,
+     "ep-h35kbx": 1,
+     "ep-hjx5ph": 1,
+     "ep-hwetu6": 1,
+     "ep-j65sym": 1,
+     "ep-m6nuus": 1,
+     "ep-m9xtd5": 1,
+     "ep-ncmeqz": 1,
+     "ep-ny5jar": 1,
+     "ep-px6qxt": 1,
+     "ep-qgks8c": 1,
+     "ep-qttfxa": 1,
+     "ep-s9v83c": 1,
+     "ep-tkum8z": 1,
+     "ep-tv75tt": 1,
+     "ep-uj6c3c": 1,
+     "ep-vm9te5": 1,
+     "ep-vq4acx": 1,
+     "ep-vvnusy": 1,
+     "ep-w7mwuv": 1,
+     "ep-x2zevj": 1,
+     "ep-xae9fu": 1,
+     "ep-xnw6pv": 1,
+     "ep-xuqejn": 1
+    },
+    "episode_tokens": {
+     "ep-2szmus": 19,
+     "ep-2zg9pj": 22,
+     "ep-349p27": 21,
+     "ep-4ryfku": 22,
+     "ep-4wzzgu": 22,
+     "ep-7pfh2q": 23,
+     "ep-82s4pp": 19,
+     "ep-8hr24k": 21,
+     "ep-an6vjh": 21,
+     "ep-avdymz": 27,
+     "ep-bquqbg": 20,
+     "ep-dh4dwr": 20,
+     "ep-f4bd6w": 26,
+     "ep-fb788n": 21,
+     "ep-fg49rg": 31,
+     "ep-fjusqm": 23,
+     "ep-ggmw85": 19,
+     "ep-h35kbx": 19,
+     "ep-hjx5ph": 26,
+     "ep-hwetu6": 21,
+     "ep-j65sym": 26,
+     "ep-m6nuus": 22,
+     "ep-m9xtd5": 22,
+     "ep-ncmeqz": 20,
+     "ep-ny5jar": 23,
+     "ep-px6qxt": 29,
+     "ep-qgks8c": 22,
+     "ep-qttfxa": 23,
+     "ep-s9v83c": 19,
+     "ep-tkum8z": 21,
+     "ep-tv75tt": 23,
+     "ep-uj6c3c": 24,
+     "ep-vm9te5": 25,
+     "ep-vq4acx": 28,
+     "ep-vvnusy": 22,
+     "ep-w7mwuv": 29,
+     "ep-x2zevj": 28,
+     "ep-xae9fu": 22,
+     "ep-xnw6pv": 28,
+     "ep-xuqejn": 23
+    },
+    "exposure": "none",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 0,
+     "mean": 0.0,
+     "min": 0,
+     "total": 0
+    },
+    "prompt_inclusions": {
+     "ep-2szmus": 0,
+     "ep-2zg9pj": 0,
+     "ep-349p27": 0,
+     "ep-4ryfku": 0,
+     "ep-4wzzgu": 0,
+     "ep-7pfh2q": 0,
+     "ep-82s4pp": 0,
+     "ep-8hr24k": 0,
+     "ep-an6vjh": 0,
+     "ep-avdymz": 0,
+     "ep-bquqbg": 0,
+     "ep-dh4dwr": 0,
+     "ep-f4bd6w": 0,
+     "ep-fb788n": 0,
+     "ep-fg49rg": 0,
+     "ep-fjusqm": 0,
+     "ep-ggmw85": 0,
+     "ep-h35kbx": 0,
+     "ep-hjx5ph": 0,
+     "ep-hwetu6": 0,
+     "ep-j65sym": 0,
+     "ep-m6nuus": 0,
+     "ep-m9xtd5": 0,
+     "ep-ncmeqz": 0,
+     "ep-ny5jar": 0,
+     "ep-px6qxt": 0,
+     "ep-qgks8c": 0,
+     "ep-qttfxa": 0,
+     "ep-s9v83c": 0,
+     "ep-tkum8z": 0,
+     "ep-tv75tt": 0,
+     "ep-uj6c3c": 0,
+     "ep-vm9te5": 0,
+     "ep-vq4acx": 0,
+     "ep-vvnusy": 0,
+     "ep-w7mwuv": 0,
+     "ep-x2zevj": 0,
+     "ep-xae9fu": 0,
+     "ep-xnw6pv": 0,
+     "ep-xuqejn": 0
+    },
+    "prompt_tokens_per_episode": {
+     "ep-2szmus": 0,
+     "ep-2zg9pj": 0,
+     "ep-349p27": 0,
+     "ep-4ryfku": 0,
+     "ep-4wzzgu": 0,
+     "ep-7pfh2q": 0,
+     "ep-82s4pp": 0,
+     "ep-8hr24k": 0,
+     "ep-an6vjh": 0,
+     "ep-avdymz": 0,
+     "ep-bquqbg": 0,
+     "ep-dh4dwr": 0,
+     "ep-f4bd6w": 0,
+     "ep-fb788n": 0,
+     "ep-fg49rg": 0,
+     "ep-fjusqm": 0,
+     "ep-ggmw85": 0,
+     "ep-h35kbx": 0,
+     "ep-hjx5ph": 0,
+     "ep-hwetu6": 0,
+     "ep-j65sym": 0,
+     "ep-m6nuus": 0,
+     "ep-m9xtd5": 0,
+     "ep-ncmeqz": 0,
+     "ep-ny5jar": 0,
+     "ep-px6qxt": 0,
+     "ep-qgks8c": 0,
+     "ep-qttfxa": 0,
+     "ep-s9v83c": 0,
+     "ep-tkum8z": 0,
+     "ep-tv75tt": 0,
+     "ep-uj6c3c": 0,
+     "ep-vm9te5": 0,
+     "ep-vq4acx": 0,
+     "ep-vvnusy": 0,
+     "ep-w7mwuv": 0,
+     "ep-x2zevj": 0,
+     "ep-xae9fu": 0,
+     "ep-xnw6pv": 0,
+     "ep-xuqejn": 0
+    }
+   },
+   "questions_sha256": "2635cd553dfb8e56c57c21cfa878e4515731bb680b8602a7a7c0df51651fa523",
+   "retention": {
+    "final": 0.0,
+    "phase1": 0.0
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q00ce805969",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "q06df2c6e24",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q075cd7475f",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 96,
+     "qid": "q096f9ea7bf",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-vm9te5"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q0c0751a0b7",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q113f3ba282",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q1782ad0338",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 102,
+     "qid": "q217b422d7e",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bquqbg",
+      "ep-8hr24k"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 100,
+     "qid": "q255cc555a6",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-avdymz",
+      "ep-fb788n"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q2b9b6575ed",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q2e3801100f",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl painted at Pellan Library is a painting",
+     "targets": [
+      "ep-avdymz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q310bd4da43",
+     "qtype": "place",
+     "raw": "Tamric Haverl sold the silver lantern to the local blacksmith, Grimbold",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q335d6fc161",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "q362368c054",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "q36b48e7c46",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 96,
+     "qid": "q39d5f55192",
+     "qtype": "day",
+     "raw": "On the 1st day of the 19th month, the",
+     "targets": [
+      "ep-ny5jar"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q44f17af88c",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q476a08b55c",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow painted at Ashgrove Garden is a \"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 96,
+     "qid": "q488c8237ce",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "q4d99a123ac",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q4f3fa929b7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q53311b55e2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-82s4pp",
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 91,
+     "qid": "q551f513849",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl hid at Fenhollow Forge is",
+     "targets": [
+      "ep-uj6c3c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q587e878225",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q5e956d676f",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 99,
+     "qid": "q5ee0656882",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-j65sym",
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 107,
+     "qid": "q5f067f800f",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2zg9pj",
+      "ep-vm9te5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 93,
+     "qid": "q5f4da4d490",
+     "qtype": "day",
+     "raw": "The question asks about the day when Gorvin Pellow painted the copper umbrella at",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q60d570eca7",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 95,
+     "qid": "q61011d66f0",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Haverl painted the copper",
+     "targets": [
+      "ep-fb788n"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q6188e670c9",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q698c595d71",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow hid at Pellan Library is a \"P",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q6dc9a089a0",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q7624f92718",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q7ac68999bc",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 99,
+     "qid": "q7f84dcb776",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ggmw85",
+      "ep-m9xtd5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q853ad077e7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q853b79517a",
+     "qtype": "place",
+     "raw": "Tamric Haverl hid the copper umbrella in the attic of his house.",
+     "targets": [
+      "ep-an6vjh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q86d352f394",
+     "qtype": "at_day",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-s9v83c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 92,
+     "qid": "q8d03c39e75",
+     "qtype": "day",
+     "raw": "On the 1st day, the story notes do not contain the event the",
+     "targets": [
+      "ep-bquqbg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q8f682ddeaa",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q94cb8a9405",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 13.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qa3a0bd3174",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 26.",
+     "targets": [
+      "ep-2zg9pj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 94,
+     "qid": "qa56b610215",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "qa7624558ef",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "qaf6206c4aa",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-dh4dwr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 105,
+     "qid": "qb14f7c3d8d",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-xae9fu",
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "qb2e2cbabbb",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ncmeqz",
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "qc2d4dafdf4",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "qc4a11686d1",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "qc50c6dccd6",
+     "qtype": "object",
+     "raw": "Answer: Carrow Bridge",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qc637ea1826",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event \"At Fenhollow Forge,\"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "qc90583a892",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "qce20b9c321",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-7pfh2q"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qe0c1da0145",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qf13187cea8",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "qf18d59401a",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 94,
+     "qid": "qf623506ff1",
+     "qtype": "day",
+     "raw": "On the 1st day, Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-qgks8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q00ce805969",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 102,
+     "qid": "q052c06122b",
+     "qtype": "find",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-fjusqm",
+      "ep-xnw6pv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q06df2c6e24",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q075cd7475f",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 96,
+     "qid": "q096f9ea7bf",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-vm9te5"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q0c0751a0b7",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q113f3ba282",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q1782ad0338",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 102,
+     "qid": "q217b422d7e",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bquqbg",
+      "ep-8hr24k"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 100,
+     "qid": "q255cc555a6",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-avdymz",
+      "ep-fb788n"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 102,
+     "qid": "q257561a44d",
+     "qtype": "find",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-82s4pp",
+      "ep-vvnusy"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q2b9b6575ed",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q2e3801100f",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl painted at Pellan Library is a painting",
+     "targets": [
+      "ep-avdymz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q310bd4da43",
+     "qtype": "place",
+     "raw": "Tamric Haverl sold the silver lantern to the local blacksmith, Grimbold",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q335d6fc161",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q362368c054",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "q36b48e7c46",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 96,
+     "qid": "q39d5f55192",
+     "qtype": "day",
+     "raw": "On the 1st day of the 19th month, the",
+     "targets": [
+      "ep-ny5jar"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q44f17af88c",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q476a08b55c",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow painted at Ashgrove Garden is a \"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q47761d7aea",
+     "qtype": "find",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-8hr24k",
+      "ep-h35kbx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 96,
+     "qid": "q488c8237ce",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q4d99a123ac",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q4f3fa929b7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q53311b55e2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-82s4pp",
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 91,
+     "qid": "q551f513849",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl hid at Fenhollow Forge is",
+     "targets": [
+      "ep-uj6c3c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q587e878225",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q5e956d676f",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 99,
+     "qid": "q5ee0656882",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-j65sym",
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 107,
+     "qid": "q5f067f800f",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2zg9pj",
+      "ep-vm9te5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 93,
+     "qid": "q5f4da4d490",
+     "qtype": "day",
+     "raw": "The question asks about the day when Gorvin Pellow painted the copper umbrella at",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q60d570eca7",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 95,
+     "qid": "q61011d66f0",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Haverl painted the copper",
+     "targets": [
+      "ep-fb788n"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q6188e670c9",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q672e4f2e03",
+     "qtype": "latest",
+     "raw": "Ilsen Haverl was most recently in the city of Elm Court",
+     "targets": [
+      "ep-xnw6pv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q698c595d71",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow hid at Pellan Library is a \"P",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q6dc9a089a0",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q7624f92718",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q7ac68999bc",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 99,
+     "qid": "q7f84dcb776",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ggmw85",
+      "ep-m9xtd5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q853ad077e7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q853b79517a",
+     "qtype": "place",
+     "raw": "Tamric Haverl hid the copper umbrella in the attic of his house.",
+     "targets": [
+      "ep-an6vjh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q86d352f394",
+     "qtype": "at_day",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-s9v83c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 92,
+     "qid": "q8d03c39e75",
+     "qtype": "day",
+     "raw": "On the 1st day, the story notes do not contain the event the",
+     "targets": [
+      "ep-bquqbg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q8f682ddeaa",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q9479c5224d",
+     "qtype": "find",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz",
+      "ep-h35kbx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q94cb8a9405",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 13.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 84,
+     "qid": "q9ca0334bc4",
+     "qtype": "latest",
+     "raw": "Gorvin Pellow was most recently in the city of Elm Court,",
+     "targets": [
+      "ep-h35kbx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qa3a0bd3174",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 26.",
+     "targets": [
+      "ep-2zg9pj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 94,
+     "qid": "qa56b610215",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "qa7624558ef",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qaf6206c4aa",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-dh4dwr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 105,
+     "qid": "qb14f7c3d8d",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-xae9fu",
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "qb2e2cbabbb",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ncmeqz",
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 85,
+     "qid": "qb72a1175c4",
+     "qtype": "latest",
+     "raw": "Tamric Haverl was most recently in the city of Elm Court,",
+     "targets": [
+      "ep-tv75tt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qc2d4dafdf4",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "qc4a11686d1",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "qc50c6dccd6",
+     "qtype": "object",
+     "raw": "Answer: Carrow Bridge",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qc637ea1826",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event \"At Fenhollow Forge,\"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "qc90583a892",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "qce20b9c321",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-7pfh2q"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qe0c1da0145",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qf13187cea8",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qf18d59401a",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 94,
+     "qid": "qf623506ff1",
+     "qtype": "day",
+     "raw": "On the 1st day, Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-qgks8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qfd370ea7e1",
+     "qtype": "latest",
+     "raw": "The story notes do not contain the event Tellin saw last.",
+     "targets": [
+      "ep-vvnusy"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 88.0,
+   "seed": "dryrun-m2-0-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 124,
+    "new_tokens": 1222,
+    "prompt_tokens": 11302,
+    "truncated": 37
+   },
+   "world_sha256": "68a6ebe2e2458b22f1ebd82309ef3aa99d6405e4a92ebafc77df8a3c113455c7"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 22
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 22
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 0
+    },
+    "encode_reads": {
+     "ep-2szmus": 1,
+     "ep-2zg9pj": 1,
+     "ep-349p27": 1,
+     "ep-4wzzgu": 1,
+     "ep-6csuj8": 1,
+     "ep-6xz82t": 1,
+     "ep-7pfh2q": 1,
+     "ep-82s4pp": 1,
+     "ep-8hr24k": 1,
+     "ep-an6vjh": 1,
+     "ep-avdymz": 1,
+     "ep-bquqbg": 1,
+     "ep-bs2ctn": 1,
+     "ep-dbgvmv": 1,
+     "ep-dh4dwr": 1,
+     "ep-fb788n": 1,
+     "ep-fg49rg": 1,
+     "ep-fjusqm": 1,
+     "ep-ggmw85": 1,
+     "ep-hwetu6": 1,
+     "ep-j4f4tt": 1,
+     "ep-j65sym": 1,
+     "ep-m6nuus": 1,
+     "ep-m9xtd5": 1,
+     "ep-ncmeqz": 1,
+     "ep-ny5jar": 1,
+     "ep-nzcjex": 1,
+     "ep-px6qxt": 1,
+     "ep-qgks8c": 1,
+     "ep-qr4up9": 1,
+     "ep-qttfxa": 1,
+     "ep-s9v83c": 1,
+     "ep-uj6c3c": 1,
+     "ep-vm9te5": 1,
+     "ep-x2zevj": 1,
+     "ep-xae9fu": 1,
+     "ep-xpj6je": 1,
+     "ep-xuqejn": 1,
+     "ep-z7u97r": 1,
+     "ep-zchfce": 1
+    },
+    "episode_tokens": {
+     "ep-2szmus": 19,
+     "ep-2zg9pj": 22,
+     "ep-349p27": 21,
+     "ep-4wzzgu": 22,
+     "ep-6csuj8": 22,
+     "ep-6xz82t": 27,
+     "ep-7pfh2q": 23,
+     "ep-82s4pp": 19,
+     "ep-8hr24k": 21,
+     "ep-an6vjh": 21,
+     "ep-avdymz": 27,
+     "ep-bquqbg": 20,
+     "ep-bs2ctn": 20,
+     "ep-dbgvmv": 29,
+     "ep-dh4dwr": 20,
+     "ep-fb788n": 21,
+     "ep-fg49rg": 31,
+     "ep-fjusqm": 23,
+     "ep-ggmw85": 19,
+     "ep-hwetu6": 21,
+     "ep-j4f4tt": 23,
+     "ep-j65sym": 26,
+     "ep-m6nuus": 22,
+     "ep-m9xtd5": 22,
+     "ep-ncmeqz": 20,
+     "ep-ny5jar": 23,
+     "ep-nzcjex": 21,
+     "ep-px6qxt": 29,
+     "ep-qgks8c": 22,
+     "ep-qr4up9": 19,
+     "ep-qttfxa": 23,
+     "ep-s9v83c": 19,
+     "ep-uj6c3c": 24,
+     "ep-vm9te5": 25,
+     "ep-x2zevj": 28,
+     "ep-xae9fu": 22,
+     "ep-xpj6je": 21,
+     "ep-xuqejn": 23,
+     "ep-z7u97r": 19,
+     "ep-zchfce": 22
+    },
+    "exposure": "none",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 0,
+     "mean": 0.0,
+     "min": 0,
+     "total": 0
+    },
+    "prompt_inclusions": {
+     "ep-2szmus": 0,
+     "ep-2zg9pj": 0,
+     "ep-349p27": 0,
+     "ep-4wzzgu": 0,
+     "ep-6csuj8": 0,
+     "ep-6xz82t": 0,
+     "ep-7pfh2q": 0,
+     "ep-82s4pp": 0,
+     "ep-8hr24k": 0,
+     "ep-an6vjh": 0,
+     "ep-avdymz": 0,
+     "ep-bquqbg": 0,
+     "ep-bs2ctn": 0,
+     "ep-dbgvmv": 0,
+     "ep-dh4dwr": 0,
+     "ep-fb788n": 0,
+     "ep-fg49rg": 0,
+     "ep-fjusqm": 0,
+     "ep-ggmw85": 0,
+     "ep-hwetu6": 0,
+     "ep-j4f4tt": 0,
+     "ep-j65sym": 0,
+     "ep-m6nuus": 0,
+     "ep-m9xtd5": 0,
+     "ep-ncmeqz": 0,
+     "ep-ny5jar": 0,
+     "ep-nzcjex": 0,
+     "ep-px6qxt": 0,
+     "ep-qgks8c": 0,
+     "ep-qr4up9": 0,
+     "ep-qttfxa": 0,
+     "ep-s9v83c": 0,
+     "ep-uj6c3c": 0,
+     "ep-vm9te5": 0,
+     "ep-x2zevj": 0,
+     "ep-xae9fu": 0,
+     "ep-xpj6je": 0,
+     "ep-xuqejn": 0,
+     "ep-z7u97r": 0,
+     "ep-zchfce": 0
+    },
+    "prompt_tokens_per_episode": {
+     "ep-2szmus": 0,
+     "ep-2zg9pj": 0,
+     "ep-349p27": 0,
+     "ep-4wzzgu": 0,
+     "ep-6csuj8": 0,
+     "ep-6xz82t": 0,
+     "ep-7pfh2q": 0,
+     "ep-82s4pp": 0,
+     "ep-8hr24k": 0,
+     "ep-an6vjh": 0,
+     "ep-avdymz": 0,
+     "ep-bquqbg": 0,
+     "ep-bs2ctn": 0,
+     "ep-dbgvmv": 0,
+     "ep-dh4dwr": 0,
+     "ep-fb788n": 0,
+     "ep-fg49rg": 0,
+     "ep-fjusqm": 0,
+     "ep-ggmw85": 0,
+     "ep-hwetu6": 0,
+     "ep-j4f4tt": 0,
+     "ep-j65sym": 0,
+     "ep-m6nuus": 0,
+     "ep-m9xtd5": 0,
+     "ep-ncmeqz": 0,
+     "ep-ny5jar": 0,
+     "ep-nzcjex": 0,
+     "ep-px6qxt": 0,
+     "ep-qgks8c": 0,
+     "ep-qr4up9": 0,
+     "ep-qttfxa": 0,
+     "ep-s9v83c": 0,
+     "ep-uj6c3c": 0,
+     "ep-vm9te5": 0,
+     "ep-x2zevj": 0,
+     "ep-xae9fu": 0,
+     "ep-xpj6je": 0,
+     "ep-xuqejn": 0,
+     "ep-z7u97r": 0,
+     "ep-zchfce": 0
+    }
+   },
+   "questions_sha256": "bb9866a53e3914e31066edbdf9d8222c9846199a9c09ffadb22210284561bd27",
+   "retention": {
+    "final": 0.0,
+    "phase1": 0.0
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q00ce805969",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "q06df2c6e24",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q075cd7475f",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 96,
+     "qid": "q096f9ea7bf",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-vm9te5"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q0c0751a0b7",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q113f3ba282",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q1782ad0338",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 102,
+     "qid": "q217b422d7e",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bquqbg",
+      "ep-8hr24k"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 100,
+     "qid": "q255cc555a6",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-avdymz",
+      "ep-fb788n"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q2b9b6575ed",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q2e3801100f",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl painted at Pellan Library is a painting",
+     "targets": [
+      "ep-avdymz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q310bd4da43",
+     "qtype": "place",
+     "raw": "Tamric Haverl sold the silver lantern to the local blacksmith, Grimbold",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q335d6fc161",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "q362368c054",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "q36b48e7c46",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 96,
+     "qid": "q39d5f55192",
+     "qtype": "day",
+     "raw": "On the 1st day of the 19th month, the",
+     "targets": [
+      "ep-ny5jar"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q44f17af88c",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q476a08b55c",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow painted at Ashgrove Garden is a \"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 96,
+     "qid": "q488c8237ce",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "q4d99a123ac",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q4f3fa929b7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q53311b55e2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-82s4pp",
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 91,
+     "qid": "q551f513849",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl hid at Fenhollow Forge is",
+     "targets": [
+      "ep-uj6c3c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q587e878225",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q5e956d676f",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 99,
+     "qid": "q5ee0656882",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-j65sym",
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 107,
+     "qid": "q5f067f800f",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2zg9pj",
+      "ep-vm9te5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 93,
+     "qid": "q5f4da4d490",
+     "qtype": "day",
+     "raw": "The question asks about the day when Gorvin Pellow painted the copper umbrella at",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q60d570eca7",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 95,
+     "qid": "q61011d66f0",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Haverl painted the copper",
+     "targets": [
+      "ep-fb788n"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q6188e670c9",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q698c595d71",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow hid at Pellan Library is a \"P",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q6dc9a089a0",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q7624f92718",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "q7ac68999bc",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 99,
+     "qid": "q7f84dcb776",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ggmw85",
+      "ep-m9xtd5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q853ad077e7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "q853b79517a",
+     "qtype": "place",
+     "raw": "Tamric Haverl hid the copper umbrella in the attic of his house.",
+     "targets": [
+      "ep-an6vjh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q86d352f394",
+     "qtype": "at_day",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-s9v83c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 92,
+     "qid": "q8d03c39e75",
+     "qtype": "day",
+     "raw": "On the 1st day, the story notes do not contain the event the",
+     "targets": [
+      "ep-bquqbg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q8f682ddeaa",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "q94cb8a9405",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 13.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qa3a0bd3174",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 26.",
+     "targets": [
+      "ep-2zg9pj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 94,
+     "qid": "qa56b610215",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "qa7624558ef",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "qaf6206c4aa",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-dh4dwr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 105,
+     "qid": "qb14f7c3d8d",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-xae9fu",
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "qb2e2cbabbb",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ncmeqz",
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "qc2d4dafdf4",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 86,
+     "qid": "qc4a11686d1",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "qc50c6dccd6",
+     "qtype": "object",
+     "raw": "Answer: Carrow Bridge",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qc637ea1826",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event \"At Fenhollow Forge,\"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 88,
+     "qid": "qc90583a892",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 89,
+     "qid": "qce20b9c321",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-7pfh2q"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qe0c1da0145",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 90,
+     "qid": "qf13187cea8",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 87,
+     "qid": "qf18d59401a",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 94,
+     "qid": "qf623506ff1",
+     "qtype": "day",
+     "raw": "On the 1st day, Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-qgks8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q00ce805969",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q06df2c6e24",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q075cd7475f",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 96,
+     "qid": "q096f9ea7bf",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-vm9te5"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q0c0751a0b7",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q113f3ba282",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q1782ad0338",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 102,
+     "qid": "q217b422d7e",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bquqbg",
+      "ep-8hr24k"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 100,
+     "qid": "q255cc555a6",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-avdymz",
+      "ep-fb788n"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q2b9b6575ed",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q2e3801100f",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl painted at Pellan Library is a painting",
+     "targets": [
+      "ep-avdymz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q310bd4da43",
+     "qtype": "place",
+     "raw": "Tamric Haverl sold the silver lantern to the local blacksmith, Grimbold",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q33036871ee",
+     "qtype": "find",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-xae9fu",
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q335d6fc161",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q362368c054",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "q36b48e7c46",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 96,
+     "qid": "q39d5f55192",
+     "qtype": "day",
+     "raw": "On the 1st day of the 19th month, the",
+     "targets": [
+      "ep-ny5jar"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 85,
+     "qid": "q41abcaab6a",
+     "qtype": "latest",
+     "raw": "Odile Ostrin was most recently in the city of Osterburg",
+     "targets": [
+      "ep-6csuj8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q44f17af88c",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-4wzzgu"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q476a08b55c",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow painted at Ashgrove Garden is a \"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 102,
+     "qid": "q47761d7aea",
+     "qtype": "find",
+     "raw": "To find the person who sold the striped ladder at Ashgrove Garden, you",
+     "targets": [
+      "ep-8hr24k",
+      "ep-349p27"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 96,
+     "qid": "q488c8237ce",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-xae9fu"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "q4d99a123ac",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q4f3fa929b7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q53311b55e2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-82s4pp",
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 91,
+     "qid": "q551f513849",
+     "qtype": "object",
+     "raw": "The object that Tamric Haverl hid at Fenhollow Forge is",
+     "targets": [
+      "ep-uj6c3c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q587e878225",
+     "qtype": "place",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q5e956d676f",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 99,
+     "qid": "q5ee0656882",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-j65sym",
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 107,
+     "qid": "q5f067f800f",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2zg9pj",
+      "ep-vm9te5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 93,
+     "qid": "q5f4da4d490",
+     "qtype": "day",
+     "raw": "The question asks about the day when Gorvin Pellow painted the copper umbrella at",
+     "targets": [
+      "ep-ggmw85"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q60d570eca7",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 95,
+     "qid": "q61011d66f0",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Haverl painted the copper",
+     "targets": [
+      "ep-fb788n"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q6188e670c9",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q698c595d71",
+     "qtype": "object",
+     "raw": "The object that Gorvin Pellow hid at Pellan Library is a \"P",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q6dc9a089a0",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q7624f92718",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "q7ac68999bc",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 99,
+     "qid": "q7f84dcb776",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ggmw85",
+      "ep-m9xtd5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q853ad077e7",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "q853b79517a",
+     "qtype": "place",
+     "raw": "Tamric Haverl hid the copper umbrella in the attic of his house.",
+     "targets": [
+      "ep-an6vjh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 101,
+     "qid": "q864b9f1af8",
+     "qtype": "find",
+     "raw": "To find the person who hid the copper umbrella at Pellan Library, you should",
+     "targets": [
+      "ep-an6vjh",
+      "ep-px6qxt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q86d352f394",
+     "qtype": "at_day",
+     "raw": "At Elm Court",
+     "targets": [
+      "ep-s9v83c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 92,
+     "qid": "q8d03c39e75",
+     "qtype": "day",
+     "raw": "On the 1st day, the story notes do not contain the event the",
+     "targets": [
+      "ep-bquqbg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q8f682ddeaa",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q9479c5224d",
+     "qtype": "find",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz",
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "q94cb8a9405",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 13.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 84,
+     "qid": "q9ca0334bc4",
+     "qtype": "latest",
+     "raw": "Gorvin Pellow was most recently in the city of Elm Court,",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qa3a0bd3174",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event Tellin on day 26.",
+     "targets": [
+      "ep-2zg9pj"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 94,
+     "qid": "qa56b610215",
+     "qtype": "day",
+     "raw": "The question asks about the day when Tamric Haverl painted the silver lantern",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "qa7624558ef",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-fg49rg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qaf6206c4aa",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-dh4dwr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 105,
+     "qid": "qb14f7c3d8d",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-xae9fu",
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "qb2e2cbabbb",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ncmeqz",
+      "ep-fjusqm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qb72a1175c4",
+     "qtype": "latest",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qc2d4dafdf4",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-ncmeqz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 86,
+     "qid": "qc4a11686d1",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "qc50c6dccd6",
+     "qtype": "object",
+     "raw": "Answer: Carrow Bridge",
+     "targets": [
+      "ep-349p27"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qc637ea1826",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event \"At Fenhollow Forge,\"",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 88,
+     "qid": "qc90583a892",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 89,
+     "qid": "qce20b9c321",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-7pfh2q"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qe0c1da0145",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-x2zevj"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 90,
+     "qid": "qf13187cea8",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 87,
+     "qid": "qf18d59401a",
+     "qtype": "person",
+     "raw": "Tom Hill",
+     "targets": [
+      "ep-px6qxt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 94,
+     "qid": "qf623506ff1",
+     "qtype": "day",
+     "raw": "On the 1st day, Tamric Haverl painted the copper umbrella",
+     "targets": [
+      "ep-qgks8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 85,
+     "qid": "qf6fb892a34",
+     "qtype": "latest",
+     "raw": "Quillon Lunsey was most recently in the city of Ashwood, a",
+     "targets": [
+      "ep-bs2ctn"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 101,
+     "qid": "qf760f422f6",
+     "qtype": "act",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-2zg9pj",
+      "ep-hwetu6"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 87.8,
+   "seed": "dryrun-m2-0-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 125,
+    "new_tokens": 1230,
+    "prompt_tokens": 11402,
+    "truncated": 39
+   },
+   "world_sha256": "211c20c5a9c04f12b7a36f725130a012817f59dc55244fb050a36b245ce6c006"
+  }
+ },
+ "index": 0,
+ "max_new_tokens": 16,
+ "model": "smollm2-135m",
+ "provenance": {
+  "code_commit": "502d1e372c290a3c6de83b9d2b3eda7ebf53538a",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "33d5c6010382b205fbb9869f2b0247ed036a930cfa00fc4496d9b4628a87f9bf"
+ },
+ "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+ "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "schema": "episodic_lab.pilot_cell.v2",
+ "series": "dryrun-m2",
+ "status": "OK",
+ "total_seconds": 182.2,
+ "weights_digest": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594"
+}
