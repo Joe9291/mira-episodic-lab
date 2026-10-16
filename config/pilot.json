@@ -1,0 +1,9 @@
+{
+  "schema": "episodic_lab.pilot_request.v1",
+  "enabled": false,
+  "note": "Milestone 2 pilot (exploratory): arms A0, A1, O1 on two models and five worlds of the series 'pilot-m2'. Results are exploratory and never count as confirmation.",
+  "series": "pilot-m2",
+  "models": ["smollm2-135m", "qwen2.5-0.5b"],
+  "arms": ["A0", "A1", "O1"],
+  "indices": [0, 1, 2, 3, 4]
+}

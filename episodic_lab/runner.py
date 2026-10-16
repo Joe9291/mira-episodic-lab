@@ -11,7 +11,13 @@ and after every answer it compares the system's own digest of its memory (for la
 state such as weights, attributes listed in DIGEST_COVERS) AND a fingerprint of every
 other attribute of the system object. A system that changes either while answering is
 rejected. State kept outside the system object (module globals, files) is not covered;
-model adapters must not keep any (protocol section 3, code audit).
+model adapters must not keep any (protocol section 3, code audit). Systems with large
+state (model weights) also offer `deep_digest()`, recomputed from the data itself at the
+start and after every test phase.
+
+Diagnostic oracle arms (O1) offer `answer_with(question, evidence)`; the runner passes
+the texts of the question's target episodes (evaluator knowledge, never stored by the
+arm) in presentation order, and nothing for lures.
 """
 from __future__ import annotations
 
@@ -42,6 +48,11 @@ def fingerprint(system) -> str:
 
 def run_world(system: System, world: dict, questions: dict) -> dict:
     episodes = episodes_of(world)
+    texts = {e.episode_id: e.text for e in episodes}
+    order = {e.episode_id: e.position for e in episodes}
+    oracle = hasattr(system, "answer_with")
+    deep = getattr(system, "deep_digest", None)
+    deep_start = deep() if deep else None
     presented = 0
     answers = {}
     for block, phase in (("early", "phase1"), ("followup", "final")):
@@ -52,13 +63,21 @@ def run_world(system: System, world: dict, questions: dict) -> dict:
         answers[phase] = {}
         for q in questions["public"][phase]:
             before = fingerprint(system)
-            answers[phase][q["qid"]] = system.answer(q["text"])
+            if oracle:
+                targets = sorted(questions["gold"][q["qid"]]["targets"], key=order.get)
+                reply = system.answer_with(q["text"], [texts[t] for t in targets])
+            else:
+                reply = system.answer(q["text"])
+            answers[phase][q["qid"]] = reply
             if fingerprint(system) != before:
                 raise StateChangedWhileAnswering(q["qid"])
+        if deep and deep() != deep_start:
+            raise StateChangedWhileAnswering(f"weights changed during {phase}")
     gold, cands = questions["gold"], questions["candidates"]
     rows = (score_world(gold, cands, answers["phase1"], "phase1")
             + score_world(gold, cands, answers["final"], "final"))
     return {"seed": world["seed"], "overlap": world["overlap"], "episodes_presented": presented,
+            "oracle": oracle,
             "episodes_in_world": len(episodes), "rows": rows,
             "phase1": summarise([r for r in rows if r["phase"] == "phase1"]),
             "final": summarise([r for r in rows if r["phase"] == "final"])}

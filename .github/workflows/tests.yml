@@ -15,4 +15,4 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m unittest -v tests/test_lab.py
+      - run: python -m unittest discover -v -s tests -p "test_*.py"

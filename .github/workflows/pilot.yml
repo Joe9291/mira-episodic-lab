@@ -1,0 +1,98 @@
+name: pilot
+# Milestone 2 pilot (exploratory): one job per model, arm and world, as listed in
+# config/pilot.json. Runs only if that file says "enabled": true. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/pilot.json"
+permissions:
+  contents: read
+concurrency:
+  group: pilot
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      enabled: ${{ steps.plan.outputs.enabled }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      series: ${{ steps.plan.outputs.series }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: python3 bench/pilot/plan.py config/pilot.json
+
+  cell:
+    needs: plan
+    if: needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned packages
+        run: |
+          set -o pipefail
+          mkdir -p out
+          { python -m pip install --upgrade pip==24.3.1 &&
+            pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu &&
+            pip install -r bench/m0/requirements.txt; } 2>&1 | tail -n 40 > "out/install_${{ matrix.model }}_${{ matrix.arm }}_${{ matrix.index }}.log"
+      - name: Run cell
+        run: |
+          python bench/pilot/run_pilot.py --model "${{ matrix.model }}" --arm "${{ matrix.arm }}" \
+            --series "${{ needs.plan.outputs.series }}" --index "${{ matrix.index }}" \
+            --out "out/pilot_${{ matrix.model }}_${{ matrix.arm }}_${{ matrix.index }}.json"
+      - name: Keep outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-${{ matrix.model }}-${{ matrix.arm }}-${{ matrix.index }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: [plan, cell]
+    if: always() && needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch cell outputs
+        id: fetch
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: pilot-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp bench/pilot/collect.py "$RUNNER_TEMP/collect.py"
+          cp config/pilot.json "$RUNNER_TEMP/pilot.json"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="pilot/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+          cp "$RUNNER_TEMP/pilot.json" "$dest/pilot_request.json"
+          python3 "$RUNNER_TEMP/collect.py" "$RUNNER_TEMP/pilot.json" "$dest" || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} cells ${{ needs.cell.result }} fetch-outcome ${{ steps.fetch.outcome }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add pilot
+          git commit --quiet -m "Pilot results, run ${GITHUB_RUN_ID}, ${verdict}"
+          git push origin results
+          [ "$verdict" = COMPLETE ]
