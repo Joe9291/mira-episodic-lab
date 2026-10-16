@@ -1,10 +1,11 @@
 # Mira Episodic Lab - Research Protocol
 
-Version 0.2 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+Version 0.3 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
 confirmatory preregistration: thresholds, sample size and the final arm list are fixed
 in version 1.0, which needs a three-way review and the experiment lead's signature
-(section 10). Changes from 0.1 follow the reviews by Gemini and Astra of 2026-10-16
-(`reviews/`).
+(section 10). Version 0.2 integrated the reviews of 0.1; version 0.3 integrates Astra's
+review of milestones 0/1 (answer grammar, E5 categories, E7 semantics, identical early
+blocks, frozen memory during tests, world-level statistics). Reviews: `reviews/`.
 
 ## 1. Question and scope
 
@@ -37,9 +38,9 @@ presented to the system".
 | E3a | Temporal order | Which of two events happened first. Event time and presentation order partly differ (some episodes are told out of order), so presentation order alone does not answer it. |
 | E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. |
 | E4 | Source memory | On which day an event happened. The same content (same person, action, object) occurs in several episodes; episode identifiers are random tokens and reveal no order. |
-| E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2). Measured as false-recall rate. |
+| E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2); every pair of their details co-occurs in the early block. Reported per answer category: correct rejection, in-world false recall, uncertainty, other (format errors and out-of-world claims). Success needs a high correct-rejection rate AND a bounded in-world false-recall rate; false recall alone is never read as the full confabulation rate. |
 | E6 | Retention under interference | Recall of early episodes after K further episodes, in two conditions with equal length: high-overlap (competing) and low-overlap follow-up episodes. Reported: immediate accuracy, delayed accuracy (absolute) and their ratio. |
-| E7 | Use of memory for action | A small text environment asks the system to choose an action (for example, where to go to find an object); the choice is executed and scored. Each item needs two specific episodes, and the generator verifies that changing either episode changes the correct action. |
+| E7 | Use of memory for a decision | Decision items: "where do you go to meet the last person who handled object X" and "where do you go to meet the person who did Y" - each needs the episode that identifies the person AND that person's latest episode at another place. Executing the choice in a small environment is a later extension. |
 
 ## 3. Benchmark: synthetic episodic worlds
 
@@ -50,17 +51,26 @@ presented to the system".
 - Ground truth is computed from the world state, never by a model. Every question has a
   structured answer type (person, place, object, day, choice label, or `none`), and the
   generator checks that each question has exactly one correct answer.
-- Answer handling, fixed before use: normalisation (case, punctuation, articles,
-  surrounding words such as "day"), a fixed list of accepted "none" forms, invalid or
-  partial output counts as wrong, questions weigh equally within a world and worlds
-  weigh equally.
-- Starting size (from the reviews; revised only after milestone 0): about 20 episodes
-  and 100 questions per world; larger worlds form a separate stress level.
+- Answer grammar, fixed before use (parser version recorded with every answer): only the
+  first line; after normalisation and removal of fixed leading filler phrases the rest
+  must be exactly one allowed form (full name or its unique short form, "day n", "a"/"b",
+  a rejection form, or an uncertainty form). Negations, several names, extra or
+  contradicting attributes and unknown names are "other" and count as wrong. Raw answers
+  are kept. Questions weigh equally within a world and worlds weigh equally.
+- Default world: an early block of 20 episodes and 10 follow-up episodes; per world 4
+  people, 3 places, 4 objects and 4 actions, so that pairs of details recur and recall
+  items need the full combination of their cues (verified per item). The early block
+  depends on the seed only; the high- and low-overlap versions of a world share it, and
+  their early test items are identical. Larger worlds form a separate stress level.
+- Minimum items per world (E2 8, E3a 4, E3b 4, E4 4, E5 6, E7 3). World k of a series
+  uses the first seed attempt `<series>-<k>-<attempt>` that meets them in both
+  conditions; the rule depends only on the generator, never on any system's answers.
 - Separation: the system receives episodes (encoding) and questions (testing) only. A
   separate evaluator step holds the ground truth. No language model judges answers.
 - Clean state: every world starts with fresh model, adapter, optimizer and store state.
-  Test questions leave no trace usable later; weight-based arms answer without chat
-  history, key-value cache or any other auxiliary store.
+  Every answer is given from a fresh context (no chat history, key-value cache or other
+  auxiliary store), and the runner rejects a system whose memory state digest changes
+  while it answers, so test questions can never become memory input.
 - Training targets of weight-based arms are derived only from the presented episode
   texts, never from the evaluator's ground truth.
 
@@ -106,15 +116,18 @@ Controls:
 
 - Unit of replication: the world. All arms run on the same worlds; arm differences are
   analysed as paired per-world differences.
-- Primary estimates: the mean over worlds of per-world accuracy (or false-recall rate),
-  with a 95% interval that respects the world structure (t-interval over worlds;
-  bootstrap over worlds only as a check, because it is unreliable with few worlds).
-- E5 false recall: a conservative upper bound that does not collapse to zero when no
-  error occurs (exact binomial bound on the pooled count, using an effective sample
-  size reduced by the design effect estimated in the pilot).
-- E6: immediate and delayed accuracy each with intervals; success needs a minimum
-  absolute delayed accuracy in addition to the ratio; a ratio is not reported when
-  immediate accuracy is below the minimum.
+- Target parameters for confirmatory decisions are defined on independent worlds: the
+  probability that a new world meets a criterion's threshold, and for E5 the probability
+  that a new world contains at least one in-world false recall. They are decided with
+  exact one-sided Clopper-Pearson bounds over the world indicators.
+- Descriptive estimates: the mean over worlds of per-world accuracy with a t-interval
+  (approximate; zero width when all worlds score alike, which is no certainty) and a
+  pooled E5 bound with a design-effect-reduced sample size (approximate). Paired arm
+  differences are computed by world id.
+- E6: accuracy on the same early items (E2, E4) at phase 1 and at the final test, in
+  the high- and the low-overlap condition; success needs a minimum absolute delayed
+  accuracy in addition to the ratio; a ratio is not reported when immediate accuracy is
+  below the minimum.
 - Thresholds are justified per question type from its chance level and a stated
   minimum practically relevant margin. Superiority claims (for example A3 over A2, P1
   over sham) are tested on paired differences with Holm correction across the
@@ -149,9 +162,11 @@ Controls:
 
 ## 9. Compute plan
 
-- Milestone 0 measures on the real runner: model loading, inference speed, one LoRA
-  step per episode for the pilot models, and the cost of P2's statistics. World size,
-  question count and the arm list for weight-based memory are set from these numbers.
+- Milestone 0 (done, run 38915077515): on the standard runner a LoRA step on one
+  100-token episode takes 0.35 s (SmolLM2-135M) to 1.95 s (Qwen3-0.6B); prompt
+  processing runs at 120-790 tokens/s; peak memory 1.2-4.7 GB. Per-episode encoding (P1)
+  is therefore minutes per world. Long all-episode prompts, chat templates and P2's full
+  cost (activation statistics, covariance, solve, edit) are measured in the pilot.
 - Each run is one workflow job with a declared budget below 5.5 hours; worlds and arms
   run as parallel jobs (at most 20). Parallel jobs shorten a series, not a single run.
 - Model files are downloaded by pinned revision, checked against pinned SHA-256 values

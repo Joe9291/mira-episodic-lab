@@ -4,8 +4,11 @@ Invented people, places, objects and actions with deliberate feature overlap: th
 people, places and objects recur, so only a combination identifies an episode (binding).
 One event per day. An early block is followed by K follow-up episodes that either
 overlap strongly with it (competing) or use disjoint names (low overlap), for E6.
-Some early episodes are told out of chronological order (E3a). Episode identifiers are
-random tokens and reveal no order (E4).
+
+The early block depends on the seed only (its own random stream), so the "high" and
+"low" conditions of one seed share exactly the same early episodes; only the follow-ups
+differ. At least one early episode is narrated out of chronological order (E3a).
+Episode identifiers are random tokens and reveal no order (E4).
 
 Every fact a question can ask about is generated here, never by a model.
 """
@@ -15,7 +18,7 @@ from dataclasses import asdict, dataclass
 
 from .rng import HashRng
 
-WORLD_SCHEMA = "episodic_lab.world.v2"
+WORLD_SCHEMA = "episodic_lab.world.v3"
 
 FIRST = ("Varo", "Ilsen", "Tamric", "Odile", "Brenna", "Casimo", "Yelda", "Fenwick",
          "Marit", "Quillon", "Sabeth", "Dorran", "Elvie", "Gorvin", "Halsey", "Juno")
@@ -61,86 +64,91 @@ class Episode:
         return (self.actor,) if self.partner is None else (self.actor, self.partner)
 
 
-def _pools(rng: HashRng, people: int, places: int, objects: int, used: dict) -> dict:
-    """Draw name pools that do not reuse any first name, place or object noun in `used`."""
+def _pool(rng: HashRng, people: int, places: int, objects: int, actions: int,
+          used: dict) -> dict:
+    """Draw pools that reuse no first name, place stem, object noun or action in `used`."""
     firsts = rng.sample([f for f in FIRST if f not in used["first"]], people)
-    person_names = [f"{first} {rng.choice(LAST)}" for first in firsts]
     stems = rng.sample([s for s in PLACE_STEM if s not in used["stem"]], places)
-    place_names = [f"{stem} {rng.choice(PLACE_KIND)}" for stem in stems]
     nouns = rng.sample([n for n in OBJ_NOUN if n not in used["noun"]], objects)
-    object_names = [f"{rng.choice(OBJ_ADJ)} {noun}" for noun in nouns]
+    verbs = rng.sample([a for a in ACTIONS if a not in used["action"]], actions)
     used["first"].update(firsts)
     used["stem"].update(stems)
     used["noun"].update(nouns)
-    return {"people": person_names, "places": place_names, "objects": object_names}
+    used["action"].update(verbs)
+    return {"people": [f"{first} {rng.choice(LAST)}" for first in firsts],
+            "places": [f"{stem} {rng.choice(PLACE_KIND)}" for stem in stems],
+            "objects": [f"{rng.choice(OBJ_ADJ)} {noun}" for noun in nouns],
+            "actions": verbs}
 
 
-def _event(rng: HashRng, pool: dict, day: int) -> dict:
+def _event(rng: HashRng, pool: dict, day: int, block: str) -> dict:
     actor = rng.choice(pool["people"])
     partner = rng.choice([p for p in pool["people"] if p != actor]) if rng.below(3) == 0 else None
     return {"day": day, "actor": actor, "partner": partner, "place": rng.choice(pool["places"]),
-            "action": rng.choice(ACTIONS), "object": rng.choice(pool["objects"])}
+            "action": rng.choice(pool["actions"]), "object": rng.choice(pool["objects"]),
+            "block": block}
 
 
-def _token(rng: HashRng) -> str:
-    return "ep-" + "".join(rng.choice("abcdefghjkmnpqrstuvwxyz23456789") for _ in range(6))
+def _render(rng: HashRng, event: dict, late: bool) -> str:
+    partner = f" together with {event['partner']}" if event["partner"] else ""
+    return rng.choice(OUT_OF_ORDER if late else IN_ORDER).format(
+        day=event["day"], actor=event["actor"], action=event["action"],
+        participle=PARTICIPLE.get(event["action"], event["action"]), object=event["object"],
+        place=event["place"], partner=partner)
 
 
-def generate_world(seed: str, early: int = 12, followup: int = 8, overlap: str = "high",
-                   people: int = 5, places: int = 4, objects: int = 5) -> dict:
+def _token(rng: HashRng, taken: set) -> str:
+    while True:
+        token = "ep-" + "".join(rng.choice("abcdefghjkmnpqrstuvwxyz23456789") for _ in range(6))
+        if token not in taken:
+            taken.add(token)
+            return token
+
+
+def generate_world(seed: str, early: int = 20, followup: int = 10, overlap: str = "high",
+                   people: int = 4, places: int = 3, objects: int = 4, actions: int = 4) -> dict:
     """Return a world; `overlap` is "high" (follow-ups reuse the early pools) or "low"."""
     if overlap not in ("high", "low"):
         raise ValueError("overlap must be 'high' or 'low'")
     if not (4 <= early <= 200 and 0 <= followup <= 200 and 3 <= people <= 8
-            and 2 <= places <= 6 and 2 <= objects <= 6):
+            and 2 <= places <= 6 and 2 <= objects <= 6 and 2 <= actions <= 4):
         raise ValueError("world size out of range")
-    rng = HashRng(f"world:{seed}:{overlap}")
-    used = {"first": set(), "stem": set(), "noun": set()}
-    early_pool = _pools(rng, people, places, objects, used)
-    follow_pool = early_pool if overlap == "high" else _pools(rng, people, places, objects, used)
+    params = {"early": early, "followup": followup, "people": people, "places": places,
+              "objects": objects, "actions": actions}
 
-    events = [dict(_event(rng, early_pool, day), block="early") for day in range(1, early + 1)]
-    events += [dict(_event(rng, follow_pool, day), block="followup")
-               for day in range(early + 1, early + followup + 1)]
-
-    # Presentation order: chronological, except that about a quarter of the early
-    # episodes are moved to a later position inside the early block.
+    # Early block: seed-only stream, identical for both overlap conditions.
+    rng_e = HashRng(f"world:{seed}:early")
+    used = {"first": set(), "stem": set(), "noun": set(), "action": set()}
+    early_pool = _pool(rng_e, people, places, objects, actions, used)
+    early_events = [_event(rng_e, early_pool, day, "early") for day in range(1, early + 1)]
     order = list(range(early))
     for _ in range(max(1, early // 4)):
-        index = rng.below(early - 1)
+        index = rng_e.below(early - 1)
         item = order.pop(index)
-        new_pos = index + 1 + rng.below(early - index - 1) if early - index - 1 > 0 else index
-        order.insert(new_pos, item)
-    order += list(range(early, early + followup))
-
-    tokens: set[str] = set()
-    episodes: list[Episode] = []
+        order.insert(index + 1 + rng_e.below(early - index - 1), item)
+    if order == sorted(order):  # guarantee at least one out-of-order narration
+        order[0], order[1] = order[1], order[0]
+    taken: set[str] = set()
+    rendered = []
     for position, index in enumerate(order):
-        event = events[index]
-        late = any(events[j]["day"] > event["day"] for j in order[:position])
-        templates = OUT_OF_ORDER if late else IN_ORDER
-        partner_text = f" together with {event['partner']}" if event["partner"] else ""
-        text = rng.choice(templates).format(day=event["day"], actor=event["actor"],
-                                            action=event["action"],
-                                            participle=PARTICIPLE.get(event["action"], event["action"]),
-                                            object=event["object"],
-                                            place=event["place"], partner=partner_text)
-        token = _token(rng)
-        while token in tokens:
-            token = _token(rng)
-        tokens.add(token)
-        episodes.append(Episode(token, event["day"], event["actor"], event["partner"],
-                                event["place"], event["action"], event["object"],
-                                event["block"], position, late, text))
-    return {
-        "schema": WORLD_SCHEMA,
-        "seed": seed,
-        "overlap": overlap,
-        "early_pool": early_pool,
-        "followup_pool": follow_pool,
-        "actions": list(ACTIONS),
-        "episodes": [asdict(e) for e in episodes],
-    }
+        event = early_events[index]
+        late = any(early_events[j]["day"] > event["day"] for j in order[:position])
+        rendered.append((event, position, late, _render(rng_e, event, late), _token(rng_e, taken)))
+
+    # Follow-up block: its own stream per condition.
+    rng_f = HashRng(f"world:{seed}:followup:{overlap}")
+    follow_pool = (early_pool if overlap == "high"
+                   else _pool(rng_f, people, places, objects, actions, used))
+    for k in range(followup):
+        event = _event(rng_f, follow_pool, early + 1 + k, "followup")
+        rendered.append((event, early + k, False, _render(rng_f, event, False), _token(rng_f, taken)))
+
+    episodes = [Episode(token, ev["day"], ev["actor"], ev["partner"], ev["place"], ev["action"],
+                        ev["object"], ev["block"], pos, late, text)
+                for ev, pos, late, text, token in rendered]
+    return {"schema": WORLD_SCHEMA, "seed": seed, "overlap": overlap, "params": params,
+            "early_pool": early_pool, "followup_pool": follow_pool,
+            "episodes": [asdict(e) for e in episodes]}
 
 
 def episodes_of(world: dict) -> list[Episode]:
@@ -149,9 +157,8 @@ def episodes_of(world: dict) -> list[Episode]:
 
 def vocabulary(world: dict) -> dict:
     """All people, places and objects that occur anywhere in the world."""
-    result = {"people": set(), "places": set(), "objects": set()}
+    result = {"people": set(), "places": set(), "objects": set(), "actions": set()}
     for pool in (world["early_pool"], world["followup_pool"]):
-        result["people"].update(pool["people"])
-        result["places"].update(pool["places"])
-        result["objects"].update(pool["objects"])
+        for key in result:
+            result[key].update(pool[key])
     return {k: sorted(v) for k, v in result.items()}

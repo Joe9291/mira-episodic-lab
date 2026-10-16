@@ -1,4 +1,4 @@
-"""Milestone 1 tests: generator, questions, evaluator, statistics and the symbolic arm."""
+"""Tests: generator, questions, evaluator, statistics, runner and the symbolic arm."""
 from __future__ import annotations
 
 import json
@@ -9,147 +9,171 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from episodic_lab import score  # noqa: E402
-from episodic_lab.questions import build_questions  # noqa: E402
-from episodic_lab.runner import run_world  # noqa: E402
+from episodic_lab.questions import (MINIMUM, answer_for, make_world,  # noqa: E402
+                                    matching)
+from episodic_lab.runner import StateChangedWhileAnswering, retention, run_world  # noqa: E402
 from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
-from episodic_lab.world import episodes_of, generate_world, vocabulary  # noqa: E402
+from episodic_lab.world import Episode, episodes_of, vocabulary  # noqa: E402
 
-SEEDS = [f"test-{i}" for i in range(12)]
+PAIRS = [make_world("test", i)[1] for i in range(10)]
 
 
-def matches(eps, person=None, action=None, place=None, obj=None):
-    return [e for e in eps if (person is None or person in e.participants)
-            and (action is None or e.action == action) and (place is None or e.place == place)
-            and (obj is None or e.object == obj)]
+def ep(day, actor, place, action, obj, partner=None):
+    return Episode(f"id{day}", day, actor, partner, place, action, obj, "early", day - 1,
+                   False, "")
+
+
+# A hand-made world; the expected answers below were written by hand, not computed.
+HAND = [ep(1, "Ann Lee", "Mill", "sold", "map"),
+        ep(2, "Bob Ray", "Mill", "hid", "map", partner="Ann Lee"),
+        ep(3, "Ann Lee", "Forge", "sold", "clock"),
+        ep(4, "Bob Ray", "Forge", "cleaned", "clock"),
+        ep(5, "Ann Lee", "Garden", "cleaned", "lamp")]
+
+
+class HandWorldTests(unittest.TestCase):
+    def test_answers_written_by_hand(self):
+        cases = [("object", dict(person="Ann Lee", action="sold", place="Forge"), ["clock"]),
+                 ("place", dict(person="Bob Ray", action="hid", obj="map"), ["Mill"]),
+                 ("person", dict(action="hid", place="Mill", obj="map"), ["Bob Ray", "Ann Lee"]),
+                 ("object", dict(person="Bob Ray", action="sold", place="Mill"), ["none"]),
+                 ("day", dict(person="Ann Lee", action="cleaned", obj="lamp"), ["5"]),
+                 ("order", {"a": dict(person="Bob Ray", action="cleaned", obj="clock"),
+                            "b": dict(person="Ann Lee", action="sold", obj="map")}, ["B"]),
+                 ("latest", dict(person="Bob Ray"), ["Forge"]),
+                 ("latest", dict(person="Ann Lee"), ["Garden"]),
+                 ("at_day", dict(person="Ann Lee", day=2), ["Mill"]),
+                 ("at_day", dict(person="Bob Ray", day=1), ["none"]),
+                 ("act", dict(obj="clock"), ["Forge"]),
+                 ("find", dict(action="sold", place="Forge", obj="clock"), ["Garden"])]
+        for qtype, cue, expected in cases:
+            self.assertEqual(answer_for(HAND, qtype, cue), expected, (qtype, cue))
+
+    def test_ill_defined_items_are_refused(self):
+        with self.assertRaises(ValueError):
+            answer_for(HAND, "object", dict(person="Ann Lee", action="sold"))  # two events
+        with self.assertRaises(ValueError):
+            answer_for(HAND, "act", dict(obj="map"))  # last handling had two people
 
 
 class WorldTests(unittest.TestCase):
-    def test_deterministic_and_seed_dependent(self):
-        a = json.dumps(generate_world("x"), sort_keys=True)
-        self.assertEqual(a, json.dumps(generate_world("x"), sort_keys=True))
-        self.assertNotEqual(a, json.dumps(generate_world("y"), sort_keys=True))
-        qa = json.dumps(build_questions(generate_world("x")), sort_keys=True)
-        self.assertEqual(qa, json.dumps(build_questions(generate_world("x")), sort_keys=True))
+    def test_deterministic(self):
+        a = json.dumps(make_world("x", 0)[1]["high"], sort_keys=True)
+        self.assertEqual(a, json.dumps(make_world("x", 0)[1]["high"], sort_keys=True))
+        self.assertNotEqual(a, json.dumps(make_world("x", 1)[1]["high"], sort_keys=True))
 
-    def test_structure(self):
-        for seed in SEEDS:
-            for overlap in ("high", "low"):
-                w = generate_world(seed, overlap=overlap)
-                eps = episodes_of(w)
+    def test_structure_and_conditions(self):
+        for pair in PAIRS:
+            high, low = (episodes_of(pair[c][0]) for c in ("high", "low"))
+            self.assertEqual([e for e in high if e.block == "early"],
+                             [e for e in low if e.block == "early"])
+            for eps in (high, low):
                 self.assertEqual(sorted(e.day for e in eps), list(range(1, len(eps) + 1)))
                 self.assertEqual(len({e.episode_id for e in eps}), len(eps))
-                self.assertEqual([e.position for e in eps], list(range(len(eps))))
+                self.assertTrue(any(e.out_of_order for e in eps))
                 for e in eps:
                     self.assertIn(f"day {e.day}", e.text.lower())
                     self.assertNotIn(e.episode_id, e.text)
                     self.assertTrue(all(p in e.text for p in e.participants))
-                self.assertTrue(any(e.out_of_order for e in eps), seed)
-                if overlap == "low":
-                    early = {p for e in eps if e.block == "early" for p in e.participants}
-                    late = {p for e in eps if e.block == "followup" for p in e.participants}
-                    self.assertFalse(early & late)
-                    self.assertFalse({e.object for e in eps if e.block == "early"}
-                                     & {e.object for e in eps if e.block == "followup"})
+                    self.assertNotEqual(e.actor, e.partner)
+            early = [e for e in low if e.block == "early"]
+            late = [e for e in low if e.block == "followup"]
+            self.assertFalse({p for e in early for p in e.participants}
+                             & {p for e in late for p in e.participants})
+            for field in ("place", "action", "object"):
+                self.assertFalse({getattr(e, field) for e in early}
+                                 & {getattr(e, field) for e in late}, field)
 
-    def test_feature_overlap_makes_binding_necessary(self):
-        w = generate_world("overlap")
-        eps = episodes_of(w)
-        for person in w["early_pool"]["people"]:
-            self.assertGreaterEqual(len({e.place for e in matches(eps, person=person)}), 1)
-        # every person, place and object of the early pool recurs or co-occurs widely
-        places_per_person = [len({e.place for e in matches(eps, person=p)})
-                             for p in w["early_pool"]["people"]]
-        self.assertGreater(max(places_per_person), 1)
+    def test_every_world_has_out_of_order_narration(self):
+        from episodic_lab.world import generate_world
+        for i in range(600):
+            eps = episodes_of(generate_world(f"order-{i}", early=8, followup=0))
+            self.assertTrue(any(e.out_of_order for e in eps), i)
 
-
-class PartnerTests(unittest.TestCase):
-    def test_partner_differs_from_actor(self):
-        for seed in SEEDS:
-            for e in episodes_of(generate_world(seed)):
-                self.assertNotEqual(e.actor, e.partner)
+    def test_vocabulary_lists_every_detail(self):
+        world = PAIRS[0]["low"][0]
+        vocab = vocabulary(world)
+        for e in episodes_of(world):
+            self.assertIn(e.place, vocab["places"])
+            self.assertIn(e.action, vocab["actions"])
 
 
 class QuestionTests(unittest.TestCase):
-    def test_gold_is_unique_and_recomputed(self):
-        for seed in SEEDS:
-            for overlap in ("high", "low"):
-                w = generate_world(seed, overlap=overlap)
-                q = build_questions(w)
-                eps = {e.episode_id: e for e in episodes_of(w)}
-                for qid, g in q["gold"].items():
-                    if g["criterion"] == "E5":
-                        self.assertEqual(g["gold"], ["none"])
-                        self.assertEqual(g["targets"], [])
-                    else:
-                        self.assertTrue(g["targets"], qid)
-                        self.assertTrue(all(t in eps for t in g["targets"]))
-                    if g["phase1"]:
-                        self.assertTrue(all(eps[t].block == "early" for t in g["targets"]))
+    def test_gold_matches_the_rule_and_minimums(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                eps = episodes_of(world)
+                for g in q["gold"].values():
+                    self.assertEqual(answer_for(eps, g["qtype"], g["cue"]), g["gold"])
+                for criterion, minimum in MINIMUM.items():
+                    self.assertGreaterEqual(q["counts"][criterion], minimum)
 
-    def test_lures_use_known_details_only(self):
-        for seed in SEEDS:
-            w = generate_world(seed)
-            q = build_questions(w)
-            vocab = vocabulary(w)
-            texts = {r["qid"]: r["text"] for r in q["public"]["final"]}
-            for qid, g in q["gold"].items():
+    def test_phase1_items_identical_in_both_conditions(self):
+        for pair in PAIRS:
+            (wh, qh), (wl, ql) = pair["high"], pair["low"]
+            ph = {k: v for k, v in qh["gold"].items() if v["phase1"]}
+            pl = {k: v for k, v in ql["gold"].items() if v["phase1"]}
+            self.assertEqual(ph, pl)
+            early = [e for e in episodes_of(wh) if e.block == "early"]
+            for g in ph.values():
+                self.assertEqual(answer_for(early, g["qtype"], g["cue"]), g["gold"])
+
+    def test_binding_is_needed_for_recall_items(self):
+        for pair in PAIRS:
+            world, q = pair["high"]
+            early = [e for e in episodes_of(world) if e.block == "early"]
+            for g in q["gold"].values():
+                if g["criterion"] == "E2":
+                    for drop in g["cue"]:
+                        rest = {k: v for k, v in g["cue"].items() if k != drop}
+                        self.assertGreater(len(matching(early, **rest)), 1, (g["cue"], drop))
+
+    def test_lures_are_binding_lures_already_at_phase1(self):
+        for pair in PAIRS:
+            world, q = pair["low"]
+            early = [e for e in episodes_of(world) if e.block == "early"]
+            for g in q["gold"].values():
                 if g["criterion"] != "E5":
                     continue
-                names = [n for kind in vocab.values() for n in kind if n in texts[qid]]
-                self.assertGreaterEqual(len(names), 2, texts[qid])
+                self.assertTrue(g["phase1"])
+                cue = g["cue"]
+                for w, _ in pair.values():
+                    self.assertEqual(matching(episodes_of(w), **cue), [])
+                keys = list(cue)
+                for i, x in enumerate(keys):
+                    for y in keys[i + 1:]:
+                        self.assertTrue(matching(early, **{x: cue[x], y: cue[y]}), (cue, x, y))
 
-    def test_lures_are_binding_lures(self):
-        for seed in SEEDS:
-            for overlap in ("high", "low"):
-                w = generate_world(seed, overlap=overlap)
-                eps = episodes_of(w)
-                for g in build_questions(w)["gold"].values():
-                    if g["criterion"] != "E5":
-                        continue
-                    cue = g["cue"]
-                    self.assertEqual(matches(eps, **cue), [])
-                    keys = list(cue)
-                    for i, x in enumerate(keys):
-                        for y in keys[i + 1:]:
-                            self.assertTrue(matches(eps, **{x: cue[x], y: cue[y]}), (cue, x, y))
-
-    def test_action_items_need_two_episodes(self):
-        found = 0
-        for seed in SEEDS:
-            w = generate_world(seed)
-            eps = {e.episode_id: e for e in episodes_of(w)}
-            for g in build_questions(w)["gold"].values():
+    def test_decision_items_need_two_episodes(self):
+        for pair in PAIRS:
+            world, q = pair["high"]
+            eps = {e.episode_id: e for e in episodes_of(world)}
+            for g in q["gold"].values():
                 if g["criterion"] == "E7":
                     first, second = (eps[t] for t in g["targets"])
-                    self.assertNotEqual(first.episode_id, second.episode_id)
+                    self.assertIsNone(first.partner)
                     self.assertNotEqual(first.place, g["gold"][0])
                     self.assertEqual(second.place, g["gold"][0])
-                    self.assertIsNone(first.partner)
-                    found += 1
-        self.assertGreater(found, 0)
+                    self.assertGreater(second.day, first.day)
 
     def test_public_files_hold_no_answers(self):
-        w = generate_world("public")
-        q = build_questions(w)
+        world, q = PAIRS[0]["high"]
         for phase in ("phase1", "final"):
             for record in q["public"][phase]:
                 self.assertEqual(set(record), {"qid", "text", "answer_type"})
         dump = json.dumps(q["public"])
-        for e in episodes_of(w):
+        for e in episodes_of(world):
             self.assertNotIn(e.episode_id, dump)
 
-    def test_all_criteria_present_and_order_items_mixed(self):
-        crits, mixed = set(), 0
-        for seed in SEEDS:
-            w = generate_world(seed)
-            q = build_questions(w)
-            crits |= {g["criterion"] for g in q["gold"].values()}
-            eps = {e.episode_id: e for e in episodes_of(w)}
+    def test_order_items_include_out_of_order_pairs(self):
+        mixed = 0
+        for pair in PAIRS:
+            world, q = pair["high"]
+            eps = {e.episode_id: e for e in episodes_of(world)}
             for g in q["gold"].values():
                 if g["criterion"] == "E3a":
                     a, b = (eps[t] for t in g["targets"])
                     mixed += (a.position < b.position) != (a.day < b.day)
-        self.assertEqual(crits, {"E2", "E3a", "E3b", "E4", "E5", "E7"})
         self.assertGreater(mixed, 0)
 
 
@@ -157,74 +181,110 @@ class ScorerTests(unittest.TestCase):
     cands = {"person": ["Varo Tellin", "Odile Quist"], "place": ["Mossgate Mill", "Carrow Forge"],
              "object": ["copper lantern", "blue map"]}
 
-    def test_extraction(self):
-        ex = score.extract
-        self.assertEqual(ex("Varo Tellin.", "person", self.cands), "Varo Tellin")
-        self.assertEqual(ex("It was Varo", "person", self.cands), "Varo Tellin")
-        self.assertIsNone(ex("Varo or Odile", "person", self.cands))
-        self.assertIsNone(ex("Tellin", "person", self.cands))
-        self.assertEqual(ex("Nobody did that.", "person", self.cands), "none")
-        self.assertEqual(ex("the lantern", "object", self.cands), "copper lantern")
-        self.assertEqual(ex("At Mossgate.", "place", self.cands), "Mossgate Mill")
-        self.assertEqual(ex("Day 7", "day", self.cands), "7")
-        self.assertIsNone(ex("day 7 or 8", "day", self.cands))
-        self.assertEqual(ex("B", "choice", self.cands), "B")
-        self.assertIsNone(ex("A and B", "choice", self.cands))
-        self.assertIsNone(ex("", "place", self.cands))
-        self.assertEqual(ex("Mossgate Mill\nbecause...Carrow Forge", "place", self.cands),
-                         "Mossgate Mill")
+    def test_grammar(self):
+        p = score.parse
+        accepted = [("Varo Tellin.", "person", "Varo Tellin"), ("It was Varo", "person", "Varo Tellin"),
+                    ("the lantern", "object", "copper lantern"), ("At Mossgate.", "place", "Mossgate Mill"),
+                    ("The answer is Carrow Forge", "place", "Carrow Forge"), ("Day 7", "day", "7"),
+                    ("7", "day", "7"), ("B", "choice", "B"), ("Option A", "choice", "A"),
+                    ("Mossgate Mill\nbecause Carrow Forge", "place", "Mossgate Mill")]
+        for answer, kind, value in accepted:
+            self.assertEqual(p(answer, kind, self.cands), ("value", value), answer)
+        refused = [("Not Mossgate Mill.", "place"), ("Mossgate Mill or Paris.", "place"),
+                   ("red lantern", "object"), ("Paris", "place"), ("Varo or Odile", "person"),
+                   ("Tellin", "person"), ("day 7 or 8", "day"), ("A and B", "choice"),
+                   ("", "place"), ("Mossgate Mill and Carrow Forge", "place")]
+        for answer, kind in refused:
+            self.assertEqual(p(answer, kind, self.cands), ("other", None), answer)
+        self.assertEqual(p("Nobody.", "person", self.cands), ("none", "none"))
+        self.assertEqual(p("I don't know", "place", self.cands), ("uncertain", None))
 
-    def test_invalid_answer_is_wrong_but_not_false_recall(self):
-        gold = {"q1": {"criterion": "E5", "qtype": "place", "answer_type": "place",
-                       "gold": ["none"], "targets": [], "phase1": True, "cue": {}},
-                "q2": {"criterion": "E5", "qtype": "place", "answer_type": "place",
-                       "gold": ["none"], "targets": [], "phase1": True, "cue": {}}}
-        rows = score.score_world(gold, self.cands, {"q1": "Mossgate or Carrow", "q2": "Carrow"},
-                                 "final")
-        self.assertEqual([(r["correct"], r["false_recall"]) for r in rows],
-                         [(False, False), (False, True)])
+    def test_categories_and_false_recall(self):
+        g = {"criterion": "E5", "qtype": "place", "answer_type": "place", "gold": ["none"],
+             "targets": [], "phase1": True, "cue": {}}
+        gold = {f"q{i}": dict(g) for i in range(5)}
+        answers = {"q0": "none", "q1": "Carrow", "q2": "Paris", "q3": "I don't know",
+                   "q4": "Mossgate or Carrow"}
+        rows = {r["qid"]: r for r in score.score_world(gold, self.cands, answers, "final")}
+        self.assertEqual([rows[f"q{i}"]["category"] for i in range(5)],
+                         ["correct", "wrong_value", "other", "uncertain", "other"])
+        self.assertEqual([rows[f"q{i}"]["false_recall"] for i in range(5)],
+                         [False, True, False, False, False])
+        self.assertEqual(rows["q2"]["raw"], "Paris")
+        summary = score.summarise(list(rows.values()))["E5"]
+        self.assertAlmostEqual(summary["accuracy"], 0.2)
+        self.assertAlmostEqual(summary["false_recall"], 0.2)
+        self.assertAlmostEqual(summary["categories"]["other"], 0.4)
 
     def test_statistics(self):
         self.assertAlmostEqual(score.upper_bound(0, 100), 1 - 0.05 ** (1 / 100), places=6)
         self.assertAlmostEqual(score.upper_bound(1, 100), 0.0466, places=3)
-        self.assertGreater(score.false_recall_bound([0, 0, 0], [10, 10, 10], 2.0),
-                           score.false_recall_bound([0, 0, 0], [10, 10, 10], 1.0))
+        self.assertAlmostEqual(score.lower_bound(18, 20), 0.7174, places=3)
+        lo, hi = score.world_rate_bounds({i: False for i in range(20)})
+        self.assertEqual(lo, 0.0)
+        self.assertAlmostEqual(hi, 1 - 0.05 ** (1 / 20), places=6)
         mean, lo, hi = score.mean_interval([0.5, 0.6, 0.7, 0.8])
-        self.assertAlmostEqual(mean, 0.65)
         self.assertAlmostEqual(hi - mean, 3.182 * 0.12909944 / 2, places=4)
         self.assertEqual(score.t975(22), 2.086)
-        d = score.paired_difference([0.9, 0.8, 0.85], [0.5, 0.45, 0.6])
-        self.assertGreater(d[1], 0)
+        d = score.paired_difference({"w1": 0.9, "w2": 0.8, "w3": 0.85},
+                                    {"w3": 0.6, "w1": 0.5, "w2": 0.45})
+        self.assertAlmostEqual(d[0], (0.4 + 0.35 + 0.25) / 3)
+        with self.assertRaises(ValueError):
+            score.paired_difference({"w1": 1.0}, {"w2": 1.0})
 
 
 class _Constant:
     def __init__(self, reply):
-        self.reply, self.encoded = reply, 0
+        self.reply = reply
 
     def encode(self, text):
-        self.encoded += 1
+        pass
 
     def answer(self, text):
         return self.reply
 
+    def state_digest(self):
+        return "constant"
 
-class ArmTests(unittest.TestCase):
-    def test_symbolic_arm_solves_every_criterion(self):
-        for seed in SEEDS:
-            for overlap in ("high", "low"):
-                result = run_world(SymbolicMemory(), seed, overlap)
+
+class _Cheat(SymbolicMemory):
+    """Stores every question it sees: must be rejected by the runner."""
+
+    def answer(self, text):
+        self.events.append({"question": text})
+        return "none"
+
+
+class RunnerTests(unittest.TestCase):
+    def test_symbolic_arm_solves_every_item(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                result = run_world(SymbolicMemory(), world, q)
                 self.assertEqual(result["episodes_presented"], result["episodes_in_world"])
-                wrong = [r for r in result["rows"] if not r["correct"]]
-                self.assertEqual(wrong, [], (seed, overlap))
+                self.assertEqual([r for r in result["rows"] if not r["correct"]], [])
+                self.assertEqual(retention(result), {"phase1": 1.0, "final": 1.0})
+
+    def test_retention_uses_only_recall_and_source_items(self):
+        rows = [{"criterion": "E2", "phase": "phase1", "correct": False},
+                {"criterion": "E4", "phase": "phase1", "correct": True},
+                {"criterion": "E3b", "phase": "phase1", "correct": True},
+                {"criterion": "E5", "phase": "phase1", "correct": True},
+                {"criterion": "E2", "phase": "final", "correct": False},
+                {"criterion": "E3b", "phase": "final", "correct": True}]
+        self.assertEqual(retention({"rows": rows}), {"phase1": 0.5, "final": 0.0})
+
+    def test_questions_cannot_become_memory(self):
+        world, q = PAIRS[0]["high"]
+        with self.assertRaises(StateChangedWhileAnswering):
+            run_world(_Cheat(), world, q)
 
     def test_trivial_baselines(self):
-        none = run_world(_Constant("none"), "base")
+        world, q = PAIRS[0]["high"]
+        none = run_world(_Constant("none"), world, q)
         self.assertEqual(none["final"]["E5"]["accuracy"], 1.0)
         self.assertEqual(none["final"]["E2"]["accuracy"], 0.0)
-        self.assertEqual(none["final"]["E5"]["false_recall"], 0.0)
-        w = generate_world("base")
-        person = w["early_pool"]["people"][0]
-        guess = run_world(_Constant(person), "base")
+        person = world["early_pool"]["people"][0]
+        guess = run_world(_Constant(person), world, q)
         self.assertEqual(guess["final"]["E5"]["accuracy"], 0.0)
         self.assertLess(guess["final"]["E2"]["accuracy"], 0.5)
 

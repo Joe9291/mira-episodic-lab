@@ -24,7 +24,8 @@ def peak_rss_mb() -> float:
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
 
 
-def measure(model_id: str, threads: int, lora_steps: int) -> dict:
+def measure(model_id: str, threads: int, lora_steps: int, out: dict) -> dict:
+    """Fill `out` step by step, so a failure keeps everything measured before it."""
     import torch
     from huggingface_hub import model_info, snapshot_download
     from peft import LoraConfig, get_peft_model
@@ -32,7 +33,7 @@ def measure(model_id: str, threads: int, lora_steps: int) -> dict:
 
     torch.set_num_threads(threads)
     torch.manual_seed(0)
-    out: dict = {"model_id": model_id, "torch_threads": threads}
+    out.update({"model_id": model_id, "torch_threads": threads})
 
     t0 = time.perf_counter()
     info = model_info(model_id)
@@ -63,13 +64,15 @@ def measure(model_id: str, threads: int, lora_steps: int) -> dict:
     out["prefill_tokens_per_s"] = round(out["prompt_tokens"] / prefill, 1)
 
     new_tokens = 32
+    # "generate" includes the prefill of the prompt; see prefill_tokens_per_s for that part.
     with torch.no_grad():
         t0 = time.perf_counter()
         gen = model.generate(**ids, max_new_tokens=new_tokens, min_new_tokens=new_tokens,
                              do_sample=False, pad_token_id=tok.eos_token_id)
         gen_s = time.perf_counter() - t0
     produced = int(gen.shape[1] - ids["input_ids"].shape[1])
-    out["generate_tokens_per_s"] = round(produced / gen_s, 2)
+    out["generate_tokens_per_s_incl_prefill"] = round(produced / gen_s, 2)
+    out["decode_tokens_per_s_estimate"] = round(produced / max(gen_s - prefill, 1e-9), 2)
     out["generate_sample"] = tok.decode(gen[0, ids["input_ids"].shape[1]:],
                                         skip_special_tokens=True)[:200]
 
@@ -110,12 +113,12 @@ def main() -> int:
     result = {"schema": "episodic_lab.m0.v1", "python": platform.python_version(),
               "cpu_count": os.cpu_count(), "machine": platform.machine()}
     t0 = time.perf_counter()
+    result["model_id"] = args.model
     try:
-        result.update(measure(args.model, args.threads, args.lora_steps))
+        measure(args.model, args.threads, args.lora_steps, result)
         result["status"] = "OK"
     except Exception:
         result["status"] = "ERROR"
-        result["model_id"] = args.model
         result["traceback"] = traceback.format_exc()[-4000:]
     result["total_s"] = round(time.perf_counter() - t0, 2)
     try:
@@ -129,7 +132,7 @@ def main() -> int:
         json.dump(result, stream, indent=2, sort_keys=True)
         stream.write("\n")
     print(json.dumps(result, indent=2, sort_keys=True))
-    return 0
+    return 0 if result["status"] == "OK" else 1
 
 
 if __name__ == "__main__":

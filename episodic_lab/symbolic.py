@@ -6,6 +6,8 @@ far the benchmark is solved by plain data handling, without any language model.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 
 from .questions import BASE, PARA
@@ -40,6 +42,9 @@ class SymbolicMemory:
                 self.events.append(event)
                 return
         raise ValueError(f"unparsed episode: {text}")
+
+    def state_digest(self) -> str:
+        return hashlib.sha256(json.dumps(self.events, sort_keys=True).encode()).hexdigest()
 
     def _match(self, person=None, action=None, place=None, obj=None):
         return [e for e in self.events
@@ -88,6 +93,11 @@ class SymbolicMemory:
                 return "none"
             holder = max(with_obj, key=lambda e: e["day"])["actor"]
             return max(self._match(person=holder), key=lambda e: e["day"])["place"]
+        if qtype == "find":
+            hits = self._match(action=g["past"], place=g["place"], obj=g["object"])
+            if len(hits) != 1:
+                return "none"
+            return max(self._match(person=hits[0]["actor"]), key=lambda e: e["day"])["place"]
         return "unparsed"
 
 

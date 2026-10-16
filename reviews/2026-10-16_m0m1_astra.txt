@@ -1,0 +1,141 @@
+6m 27s nachgedacht
+
+Teil 1:
+
+"final": summarise([r for r in rows if r["phase"] == "final"])}
+---END FILE episodic_lab/runner.py---
+
+Teil 2:
+
+- run: python -m unittest -v tests/test_lab.py
+---END FILE .github/workflows/tests.yml---
+
+REQUEST CHANGES. Es gibt mehrere Fehler, die Gedächtnisleistung, Konfabulation und Interferenzeffekte verzerrt darstellen könnten.
+
+Das ist eine statische Prüfung der beiden Anhänge. Protokoll v0.2 und die ursprünglichen Messprotokolle sind nicht enthalten; deren vollständige Übereinstimmung beziehungsweise die berichteten erfolgreichen Läufe kann ich deshalb nicht unabhängig bestätigen.
+
+Die Machbarkeitszahlen von M0 sind grundsätzlich plausibel und verbessern die Planungsgrundlage deutlich. Aus den angegebenen Schrittzeiten ergeben sich für 20 Episoden mit jeweils fünf Optimierungsschritten ungefähr 35 bis 195 Sekunden reine Trainingszeit. Ein kleiner P1-Pilot scheitert damit voraussichtlich nicht am Sechs-Stunden-Limit. Die Inferenzschätzungen erscheinen bei kurzen Antworten ebenfalls plausibel.
+
+Drei Einschränkungen bleiben:
+
+- Die Messung verwendet einen kurzen Prompt; längere All-Episodes-Prompts benötigen eine eigene Kalibrierung.
+- Für P2 erfasst die Hochrechnung nur den Forward-Aufwand. Aktivierungserfassung, Kovarianzberechnung, Matrixlösung und eigentliche Editierung sind zusätzliche Kosten.
+- Fallender Trainingsverlust belegt Anpassung an den Trainingsstring. Erfolgreicher Abruf über anders formulierte Fragen muss gesondert gemessen werden. Der M0-Trainingsstring enthält zudem vier identische Wiederholungen desselben Ereignisses.
+
+Die folgenden Änderungen sind für mich erforderlich:
+
+1. E5 blendet einen wesentlichen Teil erfundener Antworten aus.
+
+In score.py gilt nur eine gültig extrahierte, bekannte Weltantwort als false_recall. Antwortet ein System auf eine Ortsfrage beispielsweise „Paris“, obwohl dieser Ort nicht im Kandidatenverzeichnis steht, ergibt sich:
+
+valid = False
+correct = False
+false_recall = False
+
+Auch leere oder völlig unbrauchbare Antworten erzeugen keine falsche Erinnerung. Ein System kann daher eine niedrige False-Recall-Rate erreichen, obwohl es unbekannte Orte erfindet oder regelmäßig keine auswertbare Antwort liefert.
+
+Dass ungültige Antworten bei der Genauigkeit falsch zählen, ist gut. Für eine E5-Erfolgsentscheidung anhand der False-Recall-Rate allein reicht das nicht.
+
+Änderung: Korrekte Zurückweisung, falsche Tatsachenbehauptung, Unsicherheitsantwort und Formatfehler getrennt ausweisen. Die E5-Entscheidung muss auch eine hinreichende Rate korrekter Zurückweisungen beziehungsweise eine Begrenzung der sonstigen Fehler verlangen. Die vorhandene Regel kann als eng definierte Teilmetrik bestehen bleiben, darf aber nicht umfassend als Konfabulationsrate interpretiert werden.
+
+2. Die Antwortextraktion akzeptiert widersprüchliche und mehrdeutige Antworten.
+
+extract() sucht bekannte Namen, interpretiert aber weder Negation noch zusätzliche unbekannte Antwortalternativen. Bei den Testkandidaten entstehen beispielsweise folgende Fehlbewertungen:
+
+Antwort	Extraktion
+
+Not Mossgate Mill.	Mossgate Mill
+Mossgate Mill or Paris.	Mossgate Mill
+red lantern, bei Kandidat copper lantern	copper lantern
+
+
+Die zweite Antwort nennt zwei Orte; der unbekannte Ort wird einfach übergangen. Die dritte enthält ein falsches Attribut, wird aber über das eindeutige Substantiv akzeptiert.
+
+Änderung: Eine begrenzte Antwortgrammatik festlegen: vollständiger Name, exakt erlaubte Kurzform, Tageszahl, A/B oder definierter Zurückweisungsausdruck. Zusätzliche Behauptungen und widersprechende Attribute dürfen nicht durch bloße Kandidatensuche verschwinden. Gegenbeispiele dieser Art gehören in die Tests.
+
+3. E7 hat keine hinreichend eindeutige Besitzsemantik.
+
+Die richtige Person wird als Akteur der letzten Episode mit dem Gegenstand bestimmt:
+
+holder = max(with_obj, key=lambda e: e["day"])["actor"]
+
+Die Episoden sagen aber beispielsweise, jemand habe einen Gegenstand verkauft, gemessen oder repariert. Daraus folgt nicht eindeutig, dass diese Person die letzte Besitzerin beziehungsweise die letzte Person war, die ihn „hatte“. Bei einem Verkauf fehlt beispielsweise die empfangende Person.
+
+Generator und symbolischer Arm verwenden dieselbe Annahme. Ihre Übereinstimmung bestätigt diese Bedeutung deshalb nicht unabhängig.
+
+Änderung: Entweder Besitz und Übergaben ausdrücklich modellieren oder die Frage an die tatsächlich vorhandene Information anpassen: etwa nach dem letzten Akteur einer Gegenstandshandlung und dessen zuletzt beobachtetem Ort fragen. Die ausgewertete Schlussfolgerung muss eindeutig aus dem Erzähltext folgen.
+
+4. High und Low isolieren den Interferenzeffekt nicht sauber.
+
+In generate_world() hängt bereits der Zufallsstrom für die Anfangswelt von overlap ab:
+
+rng = HashRng(f"world:{seed}:{overlap}")
+
+Derselbe Seed erzeugt dadurch unterschiedliche frühe Episoden in High und Low. Zusätzlich zieht Low seinen zweiten Namenspool vor der Erzeugung der frühen Ereignisse. Nur overlap aus dem Seed zu entfernen würde das Problem deshalb noch nicht lösen.
+
+Auch die Auswahl früher Testfragen hängt über Eindeutigkeitsprüfungen von der vollständigen späteren Welt ab. Damit können sich zwischen High und Low sowohl das ursprünglich Gelernte als auch die ausgewählten Aufgaben unterscheiden.
+
+Änderung: Identischer früher Episodenblock und identische frühe Zielaufgaben für beide Bedingungen; getrennte Zufallsströme für Anfangswelt und Folgeereignisse. Danach gezielt unterschiedliche Überlappung erzeugen und die Stabilität derselben Zielantworten sicherstellen.
+
+5. Phase-1-Fragen können zukünftige Inhalte vorwegnehmen und selbst zum Gedächtnisinput werden.
+
+Zwei Probleme sind zu trennen:
+
+- Zukunftsabhängige Lures: E5 verwendet Personen, Orte, Gegenstände und Paarprüfungen aus der gesamten Welt und setzt anschließend immer phase1=True. Eine Phase-1-Lure kann deshalb Details enthalten, die erst in den Follow-ups erscheinen. Ihre behauptete Eigenschaft „jedes Paar ist bereits bekannt“ gilt dann beim ersten Test nicht. In Low können unbekannte Namen die Zurückweisung zusätzlich erleichtern.
+- Information zwischen Fragen: Eine E4-Frage nennt einen Gegenstand, den eine E2-Frage möglicherweise abfragt. E3-Fragen nennen vollständige Ereignisbeschreibungen. runner.py verwendet für alle Fragen und beide Testzeitpunkte dasselbe veränderbare Systemobjekt. Das Interface verhindert weder das Speichern von Testfragen noch ihre spätere Verwendung.
+
+Im gezeigten Interface wird Gold nicht direkt an das System übergeben. Die indirekte Informationszufuhr über Testfragen bleibt jedoch unkontrolliert.
+
+Änderung: Lures für jeden Testzeitpunkt gegen den bis dahin präsentierten Episodenbestand prüfen. Während der Auswertung einen unveränderlichen Gedächtniszustand und einen frischen Antwortkontext je Frage verwenden. Der Phase-1-Test darf den später getesteten Speicher nicht verändern.
+
+6. Die statistischen Garantien sind zu stark formuliert.
+
+Die Auswertung über Welten und gepaarte Unterschiede ist die richtige Richtung. Zwei Aussagen halten so aber nicht:
+
+- Clopper–Pearson mit effektiver Fallzahl ist nicht allgemein „exact“. Das Skalieren von Fehlerzahl und Stichprobengröße mit einem Design-Effekt stellt keine Binomialverteilung her. Mit dem Standardwert design_effect=1.0 werden die Fragen wieder als unabhängig behandelt. Als Gegenbeispiel: Drei Welten mit jeweils zehn vollständig korrelierten Lures ergeben bei null Fehlern rechnerisch eine obere Grenze von ungefähr 9,5 %, obwohl nur drei unabhängige Einheiten vorliegen.
+- Das t-Intervall ist nicht generell konservativ. Die vorsichtige Auswahl eines Tabellenquantils behebt die Verteilungsfrage nicht. Bei zehn identischen Weltscores liefert mean_interval() eine Intervallbreite von null; daraus folgt keine vollständige Sicherheit über neue Welten.
+
+Änderung: Zielparameter und Abhängigkeitsannahmen ausdrücklich festlegen. Für die Bestätigung eine auf unabhängigen Welten beruhende Methode mit begründeter Abdeckung vorsehen. Eine mögliche konservative E5-Alternative wäre ein Indikator pro Welt für „mindestens ein relevanter Fehler“ und eine Binomialschranke über diese unabhängigen Weltindikatoren; dieser strengere Zielparameter muss dann entsprechend benannt werden.
+
+Zusätzlich müssen Paarungen anhand von Weltkennungen geprüft werden. Gleiche Listenlänge in paired_difference() beweist nicht, dass dieselben Welten in derselben Reihenfolge vorliegen.
+
+7. Die Tests bestätigen einige zentrale Behauptungen noch nicht.
+
+test_gold_is_unique_and_recomputed() berechnet die Goldantworten nicht unabhängig neu. Der Test prüft überwiegend, ob Ziel-IDs vorhanden sind und zum frühen Block gehören. Die Kombination aus Generator und symbolischem Arm kann außerdem dieselbe falsche Annahme teilen, wie bei E7.
+
+Weitere Lücken:
+
+- E7 kann in einzelnen Welten vollständig fehlen; eine Mindestzahl pro Welt wird nicht verlangt.
+- Auch die Lure-Erzeugung garantiert nach 400 Versuchen keine Mindestzahl.
+- Nicht jede positive E2-Frage benötigt nachweislich die vollständige Merkmalsbindung. Wiederkehrende Merkmale irgendwo in der Welt reichen dafür nicht.
+- Die zufälligen Verschiebungen garantieren nicht für sämtliche Seeds eine tatsächlich nichtchronologische Endreihenfolge.
+
+Änderung: Kleine, manuell nachvollziehbare Referenzwelten mit unabhängig festgelegten Antworten ergänzen. Mindestzahlen und die behaupteten Schwierigkeitseigenschaften pro Welt beziehungsweise Frage prüfen. Fehlende Kriterien dürfen nicht stillschweigend aus einer Auswertung verschwinden.
+
+Die berichteten 13 erkannten Mutanten sind nützliche Evidenz für diese ausgewählten Fehlerklassen. Sie ersetzen diese inhaltlichen Prüfungen nicht.
+
+8. Messfehler können als erfolgreiche Workflow-Schritte erscheinen.
+
+measure.py fängt Ausnahmen ab, schreibt status="ERROR" und beendet sich anschließend trotzdem mit Rückgabecode 0. Ein grüner Messschritt beweist damit keinen erfolgreichen Benchmark. Auch der aggregierte Workflow-Status kann dadurch Erfolg anzeigen.
+
+Außerdem:
+
+- Bei einer Ausnahme gehen die bis dahin in measure() gesammelten Teilinformationen verloren, weil dessen Ergebnis erst nach vollständigem Erfolg übernommen wird.
+- Der Collector unterdrückt Kopierfehler mit || true.
+- Eine vollständige Ergebnismenge für alle erwarteten Modelle wird nicht ausdrücklich validiert.
+
+Änderung: Nach Sicherung eines Fehlerberichts einen Fehlerstatus zurückgeben, Teilinformationen erhalten und erwartete Ergebnisse im Collector vollständig prüfen. Fehlende Messungen müssen ausdrücklich als fehlgeschlagen oder unvollständig registriert werden.
+
+Die angekündigten späteren A3-Kontrollen und die noch ausstehende E6-Zusammenfassung sind als offene Arbeitsschritte transparent benannt. Sie sind für sich genommen kein Grund, M1 abzulehnen. Die oben beschriebenen Bewertungs- und Konstruktionsprobleme betreffen dagegen bereits den vorhandenen Unterbau.
+
+
+---
+
+Zusätzliche Verbesserungsideen:
+
+- Gegenbeispiele gezielt konstruieren: Für positive Bindungsfragen kontrolliert ähnliche Episoden erzeugen, sodass das Weglassen jedes einzelnen benötigten Hinweises die Antwort mehrdeutig macht.
+- Rohe Antworten aufbewahren: Neben extrahierten Werten auch Originalantwort, Parser-Version und Fehlerkategorie speichern. So bleibt die Auswertung später überprüfbar.
+- M0 repräsentativer messen: Tatsächliche Generator-Episoden, Chat-Templates und mehrere Kontextlängen verwenden; wiederholte Zeitmessungen statt eines einzelnen Generationslaufs berichten.
+- Messbezeichnungen präzisieren: Die aktuelle Generationsrate enthält auch Prefill-Zeit. Reine Decodiergeschwindigkeit und gesamte Antwortlatenz getrennt ausweisen. P1 als „einmalige externe Präsentation mit fünf Optimierungsschritten“ bezeichnen.
+- Reproduzierbarkeit vervollständigen: Für Folgeläufe erwartete Modellrevisionen, Dateihashes und vollständige Abhängigkeiten festhalten; Generator und Scorer nach den Korrekturen versionieren.
+- E7 zunächst als Entscheidungsaufgabe benennen: Eine spätere kleine Umgebung kann zusätzlich prüfen, ob aus der gewählten Handlung tatsächlich das erwartete Ergebnis entsteht.

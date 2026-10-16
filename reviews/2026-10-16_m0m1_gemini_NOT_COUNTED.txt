@@ -1,0 +1,25 @@
+Note by Claude (lead reviewer): Gemini's completeness quotes for this review were wrong for
+both parts. For part 1 it quoted the end of the first file (episodic_lab/rng.py); part 1
+ends with episodic_lab/runner.py. For part 2 it quoted the end of the second-to-last file
+(.github/workflows/m0-feasibility.yml); part 2 ends with .github/workflows/tests.yml.
+The parts were therefore not read completely, and its APPROVE was not counted. Verbatim:
+
+Hier sind die zwei letzten nicht-leeren Zeilen vor der End-Zeile:
+ * return self.shuffled(items)[:k]
+ * ---END FILE episodic_lab/rng.py---
+
+Hier sind die zwei letzten nicht-leeren Zeilen vor der End-Zeile von Teil 2:
+ * git push origin results
+ * ---END FILE .github/workflows/m0-feasibility.yml---
+Prüfung der Meilensteine M0 und M1
+Urteil: APPROVE
+Konkrete Gründe für die Freigabe:
+ * Reproduzierbarkeit und Determinismus: Die Verwendung eines eigenen SHA-256-basierten Hash-Generators (HashRng) in rng.py verhindert Versionsabhängigkeiten von Pythons Standard-random-Modul und garantiert bitgenaue Replizierbarkeit über Umgebungen hinweg.
+ * Methodische Strenge des Benchmarks: Die Definition der Kriterien (E2-Bindungsrückruf, E5-Täuschungsmanöver/Lures mit strengen Paar-Ko-Vorkommen, zeitliche Ordnung E3a, Zustandsverfolgung E3b und mehrstufiger Rückruf E7) deckt die Kernaspekte episodischen Gedächtnisses mustergültig ab. Die Trennung von öffentlichen Fragen und Evaluator-only-Golddaten ist sauber umgesetzt.
+ * Robuste Extraktion und Bewertung: Das Auswertungsmodul (score.py) verwendet präzise Wortgrenzen-Prüfungen und konsistente Regeln für gültige, ungültige sowie Null-Antworten („none“), wodurch unfaire Extraktionen oder Schlupflöcher vermieden werden.
+ * Validierung durch die symbolische Referenz: Der symbolische Arm (symbolic.py) löst 100 % der Fragen über alle Testwelten hinweg fehlerfrei. Dies beweist, dass der Benchmark lösbar ist und die Texte sowie Ground-Truth-Daten perfekt übereinstimmen.
+ * Solide Machbarkeitsanalyse (M0) & Testgüte: Die Messungen zu Ladezeiten, Durchsatz und LoRA-Schritten auf Standard-Runnern sind vollständig automatisiert und fehlerresistent in GitHub Actions (m0-feasibility.yml) integriert. Unit- und Mutationstests belegen eine hohe Codequalität.
+Verbesserungsideen:
+ * Erweiterung der E7-Datenbasis: Wie im Abschnitt „Known Gaps“ angemerkt, liefert E7 standardmäßig nur wenige Items pro Welt. Eine Vergrößerung der Objekt- oder Aktionspools in zukünftigen Iterationen erhöht die statistische Aussagekraft dieses Kriteriums.
+ * Abschluss der E6-Zusammenfassung: Die Implementierung der automatisierten Zusammenfassung für Phase 1 vs. Final sowie High vs. Low Overlap (E6) sollte in Meilenstein 2 priorisiert werden.
+ * Dokumentation des Design-Effekts: In score.py könnte die Skalierung des effektiven Stichprobenumfangs in false_recall_bound durch einen kurzen Kommentar zur mathematischen Handhabung gebrochener Fehleranzahlen (via Clopper-Pearson/Beta-Verteilung) noch transparenter dokumentiert werden.

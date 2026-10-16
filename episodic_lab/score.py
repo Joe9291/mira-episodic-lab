@@ -1,63 +1,80 @@
-"""Evaluator: answer extraction, scoring and world-level statistics (protocol section 6).
+"""Evaluator: answer parsing, scoring and world-level statistics (protocol section 6).
 
-Answer rule (fixed before use): the answer counts only if it names exactly one candidate
-of the asked type (or is a "none" form); several or no candidates make it invalid, and
-invalid answers are wrong. People may be named by full name or first name, places by
-full name or stem, objects by full name or noun; each short form is unique in a world.
+Answer grammar (PARSER_VERSION, fixed before use). Only the first line counts. After
+normalisation (case, punctuation) and removal of a fixed list of leading filler phrases,
+the rest must be EXACTLY one allowed form:
+- person: full name or first name; place: full name or name stem; object: full name or
+  noun (an optional leading "the" is allowed); each short form is unique in a world;
+- day: "<n>" or "day <n>"; choice: "a" or "b" (also "option a");
+- rejection: one of NONE_FORMS; uncertainty: one of UNCERTAIN_FORMS.
+Anything else (several names, negations, extra or contradicting words, unknown names)
+is category "other" and counts as wrong. Categories per answer:
+correct, wrong_value (an allowed in-world value, but wrong), none_answer (rejection
+although an event exists), uncertain, other.
 """
 from __future__ import annotations
 
 import math
 import re
 
-NONE_FORMS = ("none", "nobody", "no one", "noone", "nothing", "nowhere", "never",
-              "unknown", "not mentioned", "no such event", "did not happen")
+PARSER_VERSION = "episodic_lab.parser.v2"
+NONE_FORMS = ("none", "nobody", "no one", "nothing", "nowhere", "never",
+              "no such event", "it did not happen", "that did not happen")
+UNCERTAIN_FORMS = ("unknown", "i don't know", "i do not know", "not sure", "i am not sure",
+                   "i'm not sure", "cannot tell", "can't tell")
+FILLERS = ("the answer is", "answer is", "answer", "it was", "it is", "they were", "at", "in",
+           "on")
 
 
 def normalise(text: str) -> str:
-    text = text.lower().replace("’", "'")
+    text = text.lower().replace("\u2019", "'")
     text = re.sub(r"[^a-z0-9' ]+", " ", text)
     return " ".join(text.split())
 
 
-def _mentions(norm: str, phrase: str) -> bool:
-    return re.search(rf"(?<![a-z0-9]){re.escape(phrase)}(?![a-z0-9])", norm) is not None
+def _strip_fillers(norm: str) -> str:
+    changed = True
+    while changed:
+        changed = False
+        for filler in FILLERS:
+            if norm.startswith(filler + " "):
+                norm = norm[len(filler) + 1:]
+                changed = True
+    return norm
+
+
+def _forms(name: str, answer_type: str) -> set[str]:
+    full = normalise(name)
+    short = {"person": full.split()[0], "place": full.split()[0], "object": full.split()[-1]}
+    forms = {full, short[answer_type]}
+    if answer_type in ("place", "object"):
+        forms |= {"the " + f for f in forms}
+    return forms
+
+
+def parse(answer: str, answer_type: str, candidates: dict) -> tuple[str, str | None]:
+    """Return (kind, value): kind is "value", "none", "uncertain" or "other"."""
+    if not isinstance(answer, str) or not answer.strip():
+        return "other", None
+    norm = _strip_fillers(normalise(answer.strip().split("\n", 1)[0]))
+    if norm in NONE_FORMS:
+        return "none", "none"
+    if norm in UNCERTAIN_FORMS:
+        return "uncertain", None
+    if answer_type == "choice":
+        m = re.fullmatch(r"(?:option )?([ab])", norm)
+        return ("value", m.group(1).upper()) if m else ("other", None)
+    if answer_type == "day":
+        m = re.fullmatch(r"(?:day )?(\d+)", norm)
+        return ("value", str(int(m.group(1)))) if m else ("other", None)
+    hits = [name for name in candidates[answer_type] if norm in _forms(name, answer_type)]
+    return ("value", hits[0]) if len(hits) == 1 else ("other", None)
 
 
 def extract(answer: str, answer_type: str, candidates: dict) -> str | None:
-    """Return the canonical answer, "none", or None for an invalid answer."""
-    if not isinstance(answer, str):
-        return None
-    first_line = answer.strip().split("\n", 1)[0]
-    norm = normalise(first_line)
-    if not norm:
-        return None
-    is_none = any(_mentions(norm, form) for form in NONE_FORMS)
-    if answer_type == "choice":
-        found = set(re.findall(r"(?<![A-Za-z])([AB])(?![A-Za-z])", first_line))
-        return found.pop() if len(found) == 1 else None
-    if answer_type == "day":
-        days = set(re.findall(r"\d+", norm))
-        if len(days) == 1 and not is_none:
-            return str(int(days.pop()))
-        return "none" if is_none and not days else None
-    names = candidates[answer_type]
-    hits = set()
-    for name in names:
-        forms = [normalise(name)]
-        if answer_type == "person":
-            forms.append(normalise(name.split()[0]))
-        elif answer_type == "place":
-            forms.append(normalise(name.split()[0]))
-        elif answer_type == "object":
-            forms.append(normalise(name.split()[-1]))
-        if any(_mentions(norm, f) for f in forms):
-            hits.add(name)
-    if len(hits) == 1 and not is_none:
-        return hits.pop()
-    if not hits and is_none:
-        return "none"
-    return None
+    """Canonical value, "none", or None (uncertain or other)."""
+    kind, value = parse(answer, answer_type, candidates)
+    return value if kind in ("value", "none") else None
 
 
 def score_world(gold: dict, candidates: dict, answers: dict, phase: str) -> list[dict]:
@@ -67,24 +84,38 @@ def score_world(gold: dict, candidates: dict, answers: dict, phase: str) -> list
         if phase == "phase1" and not g["phase1"]:
             continue
         raw = answers.get(qid)
-        got = extract(raw, g["answer_type"], candidates) if raw is not None else None
+        kind, value = parse(raw, g["answer_type"], candidates)
+        correct = kind in ("value", "none") and value in g["gold"]
+        if correct:
+            category = "correct"
+        elif kind == "value":
+            category = "wrong_value"
+        elif kind == "none":
+            category = "none_answer"
+        else:
+            category = kind
         rows.append({"qid": qid, "criterion": g["criterion"], "qtype": g["qtype"],
-                     "phase": phase, "extracted": got, "valid": got is not None,
-                     "correct": got is not None and got in g["gold"],
-                     "false_recall": g["gold"] == ["none"] and got not in (None, "none"),
+                     "phase": phase, "raw": raw, "parser": PARSER_VERSION,
+                     "extracted": value, "category": category, "correct": correct,
+                     "false_recall": g["gold"] == ["none"] and kind == "value",
                      "targets": g["targets"]})
     return rows
 
 
 def summarise(rows: list[dict]) -> dict:
-    """Per-criterion accuracy for one world and phase; E5 also as false-recall rate."""
+    """Per criterion: accuracy and the share of every answer category. For E5,
+    accuracy is the correct-rejection rate and false_recall the share of in-world claims;
+    uncertain and other answers are reported separately and are not rejections."""
     out = {}
     for criterion in sorted({r["criterion"] for r in rows}):
         sub = [r for r in rows if r["criterion"] == criterion]
-        out[criterion] = {"n": len(sub), "accuracy": sum(r["correct"] for r in sub) / len(sub),
-                          "invalid": sum(not r["valid"] for r in sub)}
+        n = len(sub)
+        out[criterion] = {"n": n, "accuracy": sum(r["correct"] for r in sub) / n,
+                          "categories": {c: sum(r["category"] == c for r in sub) / n
+                                         for c in ("correct", "wrong_value", "none_answer",
+                                                   "uncertain", "other")}}
         if criterion == "E5":
-            out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / len(sub)
+            out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / n
     return out
 
 
@@ -105,7 +136,11 @@ def t975(df: int) -> float:
 
 
 def mean_interval(values: list[float]) -> tuple[float, float, float]:
-    """Mean over worlds with a two-sided 95% t-interval (worlds are the units)."""
+    """Mean over worlds with a two-sided 95% t-interval (worlds are the units).
+
+    Descriptive: it assumes approximately normal world means and has zero width when all
+    worlds score the same, which is no certainty about new worlds. Confirmatory decisions
+    use `world_rate_bounds` on independent world-level indicators instead."""
     n = len(values)
     mean = sum(values) / n
     if n < 2:
@@ -115,11 +150,11 @@ def mean_interval(values: list[float]) -> tuple[float, float, float]:
     return mean, mean - half, mean + half
 
 
-def paired_difference(a: list[float], b: list[float]) -> tuple[float, float, float]:
-    """Paired per-world difference a - b with its 95% t-interval."""
-    if len(a) != len(b):
-        raise ValueError("paired comparison needs the same worlds")
-    return mean_interval([x - y for x, y in zip(a, b)])
+def paired_difference(a: dict, b: dict) -> tuple[float, float, float]:
+    """Paired per-world difference a - b; a and b map world id -> score."""
+    if set(a) != set(b):
+        raise ValueError("paired comparison needs exactly the same worlds")
+    return mean_interval([a[w] - b[w] for w in sorted(a)])
 
 
 def _betacf(a: float, b: float, x: float) -> float:
@@ -159,7 +194,8 @@ def betainc(a: float, b: float, x: float) -> float:
 
 
 def upper_bound(errors: float, n: float, confidence: float = 0.95) -> float:
-    """One-sided exact (Clopper-Pearson) upper bound; n may be an effective sample size."""
+    """One-sided Clopper-Pearson upper bound. Exact only for integer counts of
+    independent trials; with fractional (effective) counts it is an approximation."""
     if n <= 0:
         return 1.0
     errors = min(errors, n)
@@ -176,9 +212,26 @@ def upper_bound(errors: float, n: float, confidence: float = 0.95) -> float:
     return hi
 
 
+def lower_bound(successes: float, n: float, confidence: float = 0.95) -> float:
+    """One-sided Clopper-Pearson lower bound (mirror of `upper_bound`)."""
+    return 1.0 - upper_bound(n - successes, n, confidence)
+
+
+def world_rate_bounds(indicators: dict, confidence: float = 0.95) -> tuple[float, float]:
+    """Exact one-sided bounds for the probability that a new world has the property,
+    from one independent 0/1 indicator per world (world id -> bool). Used for
+    confirmatory decisions, e.g. "the world meets the E2 threshold" (lower bound) or
+    "the world has at least one in-world false recall" (upper bound)."""
+    n = len(indicators)
+    k = sum(bool(v) for v in indicators.values())
+    return lower_bound(k, n, confidence), upper_bound(k, n, confidence)
+
+
 def false_recall_bound(errors_per_world: list[int], questions_per_world: list[int],
                        design_effect: float = 1.0) -> float:
-    """E5 upper bound on the pooled count with an effective sample size n / design effect."""
+    """Descriptive E5 bound on the pooled count with an effective sample size
+    n / design effect; it treats questions as independent when design_effect is 1 and
+    is no confirmatory guarantee (see `world_rate_bounds`)."""
     errors = sum(errors_per_world)
     n = sum(questions_per_world)
     deff = max(1.0, design_effect)
