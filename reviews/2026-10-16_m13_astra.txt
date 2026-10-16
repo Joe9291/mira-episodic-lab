@@ -1,0 +1,31 @@
+Astra, review of milestone 1.3 (lab commit f7d4402), relayed by the experiment lead. Verbatim:
+
+2m nachgedacht
+
+self.reply = reply
+---END DIFF---
+
+APPROVE — für Meilenstein M1.3 als Grundlage des explorativen Piloten.
+
+Die beiden Pflichtbefunde aus M1.2 sind im vorgelegten Diff behoben. Ich erkenne keinen neuen ergebnisrelevanten Blocker.
+
+Prüfpunkt	Begründung
+
+E3a-Auswahlfehler	Vier übereinstimmende und vier invertierte Paare werden pro akzeptierter Welt erzwungen. Beide einfachen Präsentationsstrategien erreichen damit genau 50 %.
+Wiederverwendete Ankerepisoden	Die gemeinsame used-Menge verhindert, dass eine Episode in mehreren Reihenfolgefragen vorkommt.
+Ungültige Ergebnisdateien	JSON-Nichtobjekte werden ausdrücklich zurückgewiesen. Fehlende Dateien, ungültige Inhalte und Ausnahmen bei der Modellprüfung führen zu INCOMPLETE.
+Numerische Validierung	Boolesche Werte, nichtendliche Zahlen und nichtpositive Messwerte werden ausgeschlossen.
+Workflow-Integration	Der Checker bleibt beim Branchwechsel verfügbar; ein Scheitern des Checker-Prozesses erzeugt einen zusätzlichen INCOMPLETE-Fallback.
+Regressionstests	Die neuen Tests adressieren die konkreten früheren Fehlerfälle einschließlich der beiden Präsentationsstrategien und unerwarteter Prüfausnahmen.
+
+Die ergänzten Signaturdetails, die aktualisierte Rezensentenregel und die vorgesehenen Kontrollen für Häufigkeitsheuristiken sind nachvollziehbar. Modell-Pinning, Kontextisolation der tatsächlichen Modelladapter und die bestätigende Versuchsplanung bleiben wie dokumentiert Gegenstand späterer Meilensteine.
+
+Dieses Urteil beruht auf statischer Prüfung. Die berichteten 26 erfolgreichen Tests, acht erkannten Mutanten und der erfolgreiche M0-Lauf wurden nicht unabhängig ausgeführt oder abgerufen.
+
+---
+
+Verbesserungsideen:
+
+- Akzeptanzrate aktualisieren: Nach dem vorliegenden Diff bleibt im Protokoll die frühere Angabe von etwa 98 % bestehen. Sie sollte an die jetzt berichteten 82 % angepasst und mit Stichprobengröße und Generatorstand versehen werden.
+- „Never raises“ präzisieren: Die Zusicherung gilt für Fehler bei der Ergebnisprüfung unter der Voraussetzung eines beschreibbaren Zielverzeichnisses. Die abschließenden Schreiboperationen können weiterhin Dateisystemfehler auslösen; der Workflow enthält dafür bereits einen Fallback.
+- Paarwahl bei späteren Stressstufen prüfen: Die greedy Auswahl kann Welten ausschließen, für die eine andere Paarzusammenstellung die Quote erfüllen würde. Eine Suche nach einer passenden Paarzusammenstellung könnte unnötiges Resampling reduzieren. Die derzeitige, ausschließlich generatorabhängige Auswahl ist für die ausdrücklich benannte Population akzeptierter Welten vertretbar.

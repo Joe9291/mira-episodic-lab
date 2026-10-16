@@ -3,8 +3,9 @@
 Every expected model must have a result file whose top level is a JSON object with the
 right model id, status OK, a 40-hex revision and finite, positive numeric measurements
 (booleans are not numbers here). Anything else - missing file, unreadable or non-object
-JSON (null, a list), wrong or missing fields - makes the run INCOMPLETE. The check never
-raises: it always writes CHECK.txt and VERDICT, so the run is registered either way.
+JSON (null, a list), wrong or missing fields - makes the run INCOMPLETE. Errors while
+checking a result never propagate; if the destination directory cannot be written, the
+workflow's own fallback writes INCOMPLETE, so the run is registered either way.
 """
 from __future__ import annotations
 

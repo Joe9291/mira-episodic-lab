@@ -72,7 +72,8 @@ presented to the system".
   E7 3). World k of a series uses the first seed attempt `<series>-<k>-<attempt>` that
   meets them in both conditions; the rule depends only on the generator, never on any
   system's answers. Attempts and skipped seeds are reported; statements refer to the
-  worlds this rule accepts (about 98% at the first attempt with the defaults).
+  worlds this rule accepts (82 of 100 series worlds valid at the first attempt, none needing
+  more than two further attempts; generator at lab commit f7d4402).
 - Separation: the system receives episodes (encoding) and questions (testing) only. A
   separate evaluator step holds the ground truth. No language model judges answers.
 - Clean state: every world starts with fresh model, adapter, optimizer and store state.
