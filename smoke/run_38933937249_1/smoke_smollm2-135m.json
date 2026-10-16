@@ -1,0 +1,52 @@
+{
+ "model": "smollm2-135m",
+ "status": "OK",
+ "answers": [
+  {
+   "notes": 0,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "The story notes do not mention who repaired the blue map at Stone Mill.",
+   "seconds": 1.0
+  },
+  {
+   "notes": 0,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "The question asks about the day the clock was sold at Reed Harbour. The story",
+   "seconds": 1.0
+  },
+  {
+   "notes": 0,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "Ann Lee sold a variety of items at Reed Harbour, including a small boat,",
+   "seconds": 1.06
+  },
+  {
+   "notes": 2,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "Bob Ray repaired the blue map at Stone Mill.",
+   "seconds": 0.76
+  },
+  {
+   "notes": 2,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "The correct answer is: Day 2.\n\nThe correct story note is",
+   "seconds": 1.05
+  },
+  {
+   "notes": 2,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "Answer: the old clock.",
+   "seconds": 0.55
+  }
+ ],
+ "load_s": 5.6,
+ "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "weights_hash_s": 0.4,
+ "weights_digest_stable": true,
+ "stats": {
+  "calls": 6,
+  "prompt_tokens": 607,
+  "new_tokens": 82
+ },
+ "total_s": 11.4
+}

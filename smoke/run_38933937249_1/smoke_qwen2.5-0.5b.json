@@ -1,0 +1,52 @@
+{
+ "model": "qwen2.5-0.5b",
+ "status": "OK",
+ "answers": [
+  {
+   "notes": 0,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "none",
+   "seconds": 1.09
+  },
+  {
+   "notes": 0,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "A",
+   "seconds": 0.65
+  },
+  {
+   "notes": 0,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "Reed Harbour",
+   "seconds": 0.83
+  },
+  {
+   "notes": 2,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "Ann Lee",
+   "seconds": 0.87
+  },
+  {
+   "notes": 2,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "Day 2",
+   "seconds": 1.0
+  },
+  {
+   "notes": 2,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "Bob Ray sold the old clock.",
+   "seconds": 1.38
+  }
+ ],
+ "load_s": 10.3,
+ "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+ "weights_hash_s": 1.76,
+ "weights_digest_stable": true,
+ "stats": {
+  "calls": 6,
+  "prompt_tokens": 577,
+  "new_tokens": 23
+ },
+ "total_s": 17.8
+}
