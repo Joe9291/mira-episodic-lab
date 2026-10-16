@@ -560,6 +560,29 @@ class VariantTests(unittest.TestCase):
             allowed = {instruction(t, variant) for t in FORMAT}
             self.assertTrue(model.seen and all(m[0]["content"] in allowed for m in model.seen))
 
+    def test_selection_weights_each_pair_orientation_half(self):
+        rows = ([{"criterion": "E2", "correct": True}] * 32
+                + [{"criterion": "E3a", "pair": f"p{i}", "correct": j == 0}
+                   for i in range(8) for j in range(2)])
+        self.assertEqual(collect.selection_value(rows), (32 + 0.5 * 8) / 40)
+        plain = [{k: v for k, v in r.items() if k != "pair"} for r in rows]
+        self.assertEqual(collect.selection_value(plain), 40 / 48)  # v0: every row weighs 1
+
+    def test_v1_world_and_public_texts_unchanged_apart_from_new_items(self):
+        for i in range(3):
+            _, base = make_world("variant-test", i)
+            _, both = make_world("variant-test", i, order_both=True)
+            for overlap in ("high", "low"):
+                self.assertEqual(base[overlap][0], both[overlap][0])  # same world
+                for phase in ("phase1", "final"):
+                    old = base[overlap][1]["public"][phase]
+                    new = both[overlap][1]["public"][phase]
+                    self.assertEqual(new[:len(old)], old)  # same texts, same order
+                    self.assertEqual(len(new) - len(old),
+                                     both[overlap][1]["counts"]["order_swapped"])
+                c = both[overlap][1]["counts"]
+                self.assertEqual(c["E3a_asked"], 2 * c["E3a"])
+
     def test_v1_cells_are_complete_and_checked(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -593,6 +616,19 @@ class VariantTests(unittest.TestCase):
             self.assertEqual(verdict, "COMPLETE", check)
             self.assertIn("Variant: v1", summary)
             self.assertIn("| m | A1 | 1 | 1.00 | 1.00 | 1.00 |", summary)  # E2, E3a, E3a pairs
+            o1 = json.loads(json.dumps(good["O1"]))  # one orientation of every pair wrong
+            seen = set()
+            for cond in o1["conditions"].values():
+                for r in cond["rows"]:
+                    if "pair" in r and (r["phase"], r["pair"]) in seen:
+                        r.update(correct=False, category="wrong_value")
+                    seen.add((r["phase"], r.get("pair")))
+            rows = [r for o in ("high", "low") for r in o1["conditions"][o]["rows"]
+                    if r["phase"] == "final" and r["criterion"] in collect.POSITIVE]
+            weighted = collect.selection_value(rows)
+            self.assertLess(sum(r["correct"] for r in rows) / len(rows), weighted)
+            self.assertIn(f"| m | 1 | {weighted:.3f} | {weighted:.3f} |",
+                          "\n".join(collect.selection({("m", "O1", 0): o1})))
             verdict, check, _ = run(dict(good, A1=make("A1", "v0")))
             self.assertIn("identity:variant", check)
             bad = json.loads(json.dumps(good["A1"]))

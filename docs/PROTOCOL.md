@@ -180,7 +180,9 @@ Controls:
 - **Variant log.** v0 = base (pilot run 38956502610). v1: instruction without example
   values and E3a asked in both A/B orders with a pair score; reason and base results in
   `docs/PILOT_M2.md`, definition in `episodic_lab/variants.py`. Counts as variant 1 of 3
-  for A0, A1 and O1.
+  for A0, A1 and O1. The model-selection rule of section 5 is applied anew to every
+  variant over all candidates; the two A/B orientations of an E3a pair count 1/2 each
+  in it, so E3a keeps its v0 weight.
 - **Scope of a negative result.** Three failed variants are a negative result for those
   configurations and this compute budget, not a refutation of the mechanism.
 

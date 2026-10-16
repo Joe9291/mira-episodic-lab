@@ -1,0 +1,45 @@
+5m 16s nachgedacht
+
+Teil 1:
+
+q: {"n": len(s), "accuracy": sum(r["correct"] for r in s) / len(s)}
+---END DIFF---
+
+Teil 2:
+
+unittest.main()
+---END DIFF---
+
+REQUEST CHANGES. Die Grundidee von v1 ist sinnvoll und im Diff nachvollziehbar umgesetzt. Vor dem Lauf sollten die Gewichtung der Modellauswahl und einige Schlussfolgerungen im Bericht präzisiert werden.
+
+1. Die zusätzlichen E3a-Fragen verändern die Modellauswahl.
+
+   Die unveränderte Funktion selection() gewichtet jede Antwortzeile gleich. Dadurch zählt E3a in v1 mit 16 statt acht Fragen je Bedingung. Seine Bedeutung für die 0,8-Schwelle steigt gegenüber allen anderen Kriterien.
+
+   Das kann allein durch die Gewichtung einen Modellwechsel auslösen. Beispiel: 34 richtige Antworten aus 40 positiven Items ergeben 0,85. Acht zusätzliche E3a-Antworten mit vier richtigen ergeben anschließend 38/48 ≈ 0,792 – trotz unveränderter Leistung auf den bisherigen Fragen.
+
+   Erforderlich: Vorab festlegen, ob diese Umgewichtung beabsichtigt ist. Meine Empfehlung: Beide Orientierungen eines E3a-Paars für die Modellauswahl jeweils mit Gewicht ½ zählen; andere Items behalten Gewicht 1. Der zusätzliche Paarscore bleibt separat. Alternativ muss die stärkere E3a-Gewichtung ausdrücklich als Änderung der Auswahlregel begründet werden.
+
+   Ja, die Modellwahl für v1 sollte anhand von v1 neu erfolgen, über alle vier Kandidaten nach derselben festgelegten Regel. Die berichteten 0,844 rechtfertigen Qwen2.5 für v0; sie sind kein Eignungsnachweis für die geänderte Konfiguration.
+
+2. Die beobachteten Fehler tragen die mechanistische Erklärung noch nicht.
+
+   Die angegebenen E5-Werte bedeuten massive Probleme mit der Zurückweisung von Lures: im Mittel über Welten und Bedingungen 0,99 inweltliche Falschantworten bei A1 und 0,97 bei O1. Diese deskriptive Lesart ist mit der Bewertungsdefinition vereinbar.
+
+   Die Erklärung „does not keep their bindings apart“ ist dagegen nicht isoliert nachgewiesen. Möglich sind auch Probleme beim Befolgen der Negativfall-Instruktion, beim Vergleich mehrerer Bedingungen oder bei der Antwortentscheidung. O1 bleibt wegen des Notizanzahl-Signals zudem keine saubere Bindungsdiagnose. Die Ergebnisse motivieren A3; dessen Wirksamkeit muss der spätere Vergleich zeigen.
+
+   Ebenso ist Qwen3s gemessener v0-Score nicht nachweislich „underestimated“. Belegt ist die häufige Ausgabe von Beispielwerten. Ob deren Entfernung die Leistung verbessert, untersucht erst v1.
+
+   Erforderlich: Diese Aussagen als Hypothesen formulieren. „Passes the E2 margin“ sollte ausdrücklich „überschreitet im explorativen Mittel die Marge“ heißen; daraus folgt bei fünf Welten keine konfirmatorische Freigabe.
+
+Die übrigen Änderungen sind plausibel: Beispielwerte werden entfernt, Gegenfragen entstehen ohne zusätzliche Zufallsziehungen, Varianten werden getrennt registriert, und konstante Buchstabenantworten erhalten korrekt null vollständig richtige Paare. Eine verbleibende A/B-Präferenz wird dadurch besser erkennbar; ihr Verschwinden ist nicht garantiert.
+
+Getrennte Verbesserungsideen, ohne zusätzliche Freigabebedingungen:
+
+- Paarscore mit mehreren Baselines erklären. Unabhängiges gleichverteiltes Raten erreicht erwartungsgemäß 0,25; konstantes A oder B erreicht null. Eine Strategie, die immer das zuerst präsentierte Ereignis wählt, kann bei den balancierten Zeit-/Präsentationspaaren dennoch 0,5 erreichen. Ein positiver Paarscore allein belegt deshalb kein Zeitverständnis.
+
+- Zählmetadaten und Vergleichstest erweitern. counts wird vor dem Anhängen der Gegenfragen berechnet. Basispaare und tatsächlich gestellte Fragen sollten getrennt ausgewiesen werden. Der gezeigte Unverändertheitstest vergleicht Goldfelder; zusätzlich sollten Welten und öffentliche Fragetexte verglichen werden.
+
+- v0–v1-Unterschiede pro Welt berichten. Die Paarung ist dafür wertvoll. Die beiden Orientierungen, wiederholten Testzeitpunkte und Überlappungsbedingungen erzeugen keine zusätzlichen unabhängigen Welten. Für entsprechende Unsicherheitsangaben bleiben es fünf Welten.
+
+Nur statische Prüfung der lokalen Anhänge: Die berichteten Ergebnisse, Tests und Dryruns wurden nicht unabhängig nachgerechnet oder extern verifiziert; nichts wurde ausgeführt oder verändert.

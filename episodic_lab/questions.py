@@ -307,6 +307,7 @@ def build_questions(world: dict, per_type: int = 8, order_both: bool = False) ->
             assert len(match) == 1 and match[0]["gold"] != items[-1]["gold"]
             match[0]["pair"] = pair
         counts["order_swapped"] = len(order_items)
+        counts["E3a_asked"] = sum(i["criterion"] == "E3a" for i in items)
     public = {"phase1": [], "final": []}
     gold = {}
     for item in items:

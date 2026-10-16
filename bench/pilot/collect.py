@@ -323,19 +323,29 @@ def _final_rows(d, overlap=None):
             for r in d["conditions"][o]["rows"] if r["phase"] == "final"]
 
 
+def selection_value(rows: list) -> float:
+    """Weighted share correct over positive items. Every item weighs 1, except the two
+    orientations of an E3a pair (variant v1), which weigh 1/2 each, so E3a keeps the
+    weight it has in v0 and the selection rule is not changed by the extra questions."""
+    weights = [0.5 if "pair" in r else 1.0 for r in rows]
+    return sum(w for w, r in zip(weights, rows) if r["correct"]) / sum(weights)
+
+
 def selection(cells: dict) -> list[str]:
     """Protocol section 5: per model, O1 accuracy over the positive final-test items of a
-    world (both conditions pooled), then the mean over worlds; lures are excluded."""
+    world (both conditions pooled, E3a pair orientations weighted 1/2), then the mean over
+    worlds; lures are excluded. Applied anew to every run (variant)."""
     lines = ["", "## Model selection (protocol section 5): O1 on positive items only", "",
              f"Per world: share correct over final-test items {', '.join(POSITIVE)} of both "
-             f"conditions (E5 lures excluded). Threshold {SELECTION_THRESHOLD}.", "",
+             f"conditions (E5 lures excluded; the two A/B orientations of an E3a pair count "
+             f"1/2 each). Threshold {SELECTION_THRESHOLD}.", "",
              "| model | worlds | mean | min world | meets threshold |", "|---|---|---|---|---|"]
     per_model = {}
     for (model, arm, _), d in sorted(cells.items()):
         if arm != "O1":
             continue
         rows = [r for r in _final_rows(d) if r["criterion"] in POSITIVE]
-        per_model.setdefault(model, []).append(mean(r["correct"] for r in rows))
+        per_model.setdefault(model, []).append(selection_value(rows))
     for model, values in sorted(per_model.items()):
         m = mean(values)
         lines.append(f"| {model} | {len(values)} | {m:.3f} | {min(values):.3f} | "
@@ -347,7 +357,8 @@ def summarise(cells: dict, variant: str = "v0") -> str:
     lines = ["# Pilot summary (exploratory)", "", f"Variant: {variant} (episodic_lab/variants.py).",
              "",
              "E3a pairs (variant v1 only) = share of order pairs answered correctly in BOTH "
-             "A/B orders; a constant letter scores 0.", "",
+             "A/B orders. Baselines: constant letter 0, uniform guessing 0.25, 'the earlier "
+             "(or later) told event happened first' 0.5.", "",
              "Means over worlds and both overlap conditions, final test. E5 = correct "
              "rejections; uncertain and other answers are not rejections. Trunc = share of "
              "answers cut off by the token limit. Format = share of all answers (both test "
