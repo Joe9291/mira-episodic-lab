@@ -1,0 +1,40 @@
+Requirement already satisfied: jinja2 in /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages (from torch>=1.13.0->peft==0.15.2->-r bench/m0/requirements.txt (line 2)) (3.1.6)
+Requirement already satisfied: setuptools in /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages (from torch>=1.13.0->peft==0.15.2->-r bench/m0/requirements.txt (line 2)) (78.1.0)
+Requirement already satisfied: sympy==1.13.1 in /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages (from torch>=1.13.0->peft==0.15.2->-r bench/m0/requirements.txt (line 2)) (1.13.1)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages (from sympy==1.13.1->torch>=1.13.0->peft==0.15.2->-r bench/m0/requirements.txt (line 2)) (1.3.0)
+Collecting charset_normalizer<4,>=2 (from requests->transformers==4.51.3->-r bench/m0/requirements.txt (line 1))
+  Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+Collecting idna<4,>=2.5 (from requests->transformers==4.51.3->-r bench/m0/requirements.txt (line 1))
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting urllib3<3,>=1.26 (from requests->transformers==4.51.3->-r bench/m0/requirements.txt (line 1))
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting certifi>=2023.5.7 (from requests->transformers==4.51.3->-r bench/m0/requirements.txt (line 1))
+  Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages (from jinja2->torch>=1.13.0->peft==0.15.2->-r bench/m0/requirements.txt (line 2)) (3.0.3)
+Downloading transformers-4.51.3-py3-none-any.whl (10.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.4/10.4 MB 65.2 MB/s eta 0:00:00
+Downloading peft-0.15.2-py3-none-any.whl (411 kB)
+Downloading huggingface_hub-0.30.2-py3-none-any.whl (481 kB)
+Downloading accelerate-1.15.0-py3-none-any.whl (394 kB)
+Downloading numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 142.8 MB/s eta 0:00:00
+Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 164.8 MB/s eta 0:00:00
+Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.8/807.8 kB 177.6 MB/s eta 0:00:00
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading tokenizers-0.21.4-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 168.2 MB/s eta 0:00:00
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Installing collected packages: urllib3, tqdm, safetensors, regex, pyyaml, psutil, packaging, numpy, idna, charset_normalizer, certifi, requests, huggingface_hub, tokenizers, accelerate, transformers, peft
+Successfully installed accelerate-1.15.0 certifi-2026.7.22 charset_normalizer-3.5.2 huggingface_hub-0.30.2 idna-3.20 numpy-2.5.4 packaging-26.3 peft-0.15.2 psutil-7.2.2 pyyaml-6.0.3 regex-2026.9.29 requests-2.34.2 safetensors-0.8.0 tokenizers-0.21.4 tqdm-4.70.1 transformers-4.51.3 urllib3-2.8.0
+
+[notice] A new release of pip is available: 24.3.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip

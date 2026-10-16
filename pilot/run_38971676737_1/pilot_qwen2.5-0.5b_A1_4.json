@@ -1,0 +1,5627 @@
+{
+ "arm": "A1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.3157894736842105,
+     "categories": {
+      "correct": 0.3157894736842105,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.6842105263157895
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.0,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.5,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.75,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.25,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.47368421052631576,
+     "categories": {
+      "correct": 0.47368421052631576,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5263157894736842
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.0,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.5,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.5,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-23a5qq": 1,
+     "ep-34bm4p": 1,
+     "ep-37cjw6": 1,
+     "ep-3cpx5d": 1,
+     "ep-3v7ykz": 1,
+     "ep-4ghp3z": 1,
+     "ep-5juu4b": 1,
+     "ep-76c9uh": 1,
+     "ep-7cfczr": 1,
+     "ep-7uutej": 1,
+     "ep-8uyv4c": 1,
+     "ep-azk8cg": 1,
+     "ep-bhuh3r": 1,
+     "ep-bmwguc": 1,
+     "ep-bx4xry": 1,
+     "ep-cc3h8g": 1,
+     "ep-g3bv9v": 1,
+     "ep-h2q6fs": 1,
+     "ep-h348px": 1,
+     "ep-h8y6kv": 1,
+     "ep-hkcq79": 1,
+     "ep-hrynrt": 1,
+     "ep-n5s4ka": 1,
+     "ep-nz8dr4": 1,
+     "ep-pafbwn": 1,
+     "ep-pdghgb": 1,
+     "ep-ry9bj8": 1,
+     "ep-sw8mnm": 1,
+     "ep-uacrdb": 1,
+     "ep-v6nbvv": 1,
+     "ep-v7s7ey": 1,
+     "ep-vay8cf": 1,
+     "ep-vq84bh": 1,
+     "ep-x2vep2": 1,
+     "ep-xctzy3": 1,
+     "ep-xd37kz": 1,
+     "ep-xm4j8e": 1,
+     "ep-y4s4tf": 1,
+     "ep-y7qxeb": 1,
+     "ep-ymkv4p": 1
+    },
+    "episode_tokens": {
+     "ep-23a5qq": 27,
+     "ep-34bm4p": 20,
+     "ep-37cjw6": 20,
+     "ep-3cpx5d": 24,
+     "ep-3v7ykz": 23,
+     "ep-4ghp3z": 27,
+     "ep-5juu4b": 24,
+     "ep-76c9uh": 25,
+     "ep-7cfczr": 20,
+     "ep-7uutej": 28,
+     "ep-8uyv4c": 19,
+     "ep-azk8cg": 26,
+     "ep-bhuh3r": 21,
+     "ep-bmwguc": 28,
+     "ep-bx4xry": 29,
+     "ep-cc3h8g": 24,
+     "ep-g3bv9v": 19,
+     "ep-h2q6fs": 19,
+     "ep-h348px": 20,
+     "ep-h8y6kv": 20,
+     "ep-hkcq79": 29,
+     "ep-hrynrt": 25,
+     "ep-n5s4ka": 22,
+     "ep-nz8dr4": 21,
+     "ep-pafbwn": 24,
+     "ep-pdghgb": 26,
+     "ep-ry9bj8": 25,
+     "ep-sw8mnm": 21,
+     "ep-uacrdb": 20,
+     "ep-v6nbvv": 19,
+     "ep-v7s7ey": 20,
+     "ep-vay8cf": 19,
+     "ep-vq84bh": 21,
+     "ep-x2vep2": 28,
+     "ep-xctzy3": 21,
+     "ep-xd37kz": 19,
+     "ep-xm4j8e": 26,
+     "ep-y4s4tf": 27,
+     "ep-y7qxeb": 26,
+     "ep-ymkv4p": 19
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 135,
+     "mean": 119.25,
+     "min": 72,
+     "total": 4770
+    },
+    "prompt_inclusions": {
+     "ep-23a5qq": 135,
+     "ep-34bm4p": 72,
+     "ep-37cjw6": 135,
+     "ep-3cpx5d": 135,
+     "ep-3v7ykz": 135,
+     "ep-4ghp3z": 135,
+     "ep-5juu4b": 135,
+     "ep-76c9uh": 135,
+     "ep-7cfczr": 135,
+     "ep-7uutej": 135,
+     "ep-8uyv4c": 135,
+     "ep-azk8cg": 135,
+     "ep-bhuh3r": 135,
+     "ep-bmwguc": 135,
+     "ep-bx4xry": 135,
+     "ep-cc3h8g": 135,
+     "ep-g3bv9v": 135,
+     "ep-h2q6fs": 135,
+     "ep-h348px": 72,
+     "ep-h8y6kv": 135,
+     "ep-hkcq79": 135,
+     "ep-hrynrt": 135,
+     "ep-n5s4ka": 72,
+     "ep-nz8dr4": 72,
+     "ep-pafbwn": 135,
+     "ep-pdghgb": 72,
+     "ep-ry9bj8": 72,
+     "ep-sw8mnm": 135,
+     "ep-uacrdb": 135,
+     "ep-v6nbvv": 135,
+     "ep-v7s7ey": 72,
+     "ep-vay8cf": 135,
+     "ep-vq84bh": 135,
+     "ep-x2vep2": 72,
+     "ep-xctzy3": 72,
+     "ep-xd37kz": 135,
+     "ep-xm4j8e": 72,
+     "ep-y4s4tf": 135,
+     "ep-y7qxeb": 135,
+     "ep-ymkv4p": 135
+    },
+    "prompt_token_equivalents": {
+     "ep-23a5qq": 3645,
+     "ep-34bm4p": 1440,
+     "ep-37cjw6": 2700,
+     "ep-3cpx5d": 3240,
+     "ep-3v7ykz": 3105,
+     "ep-4ghp3z": 3645,
+     "ep-5juu4b": 3240,
+     "ep-76c9uh": 3375,
+     "ep-7cfczr": 2700,
+     "ep-7uutej": 3780,
+     "ep-8uyv4c": 2565,
+     "ep-azk8cg": 3510,
+     "ep-bhuh3r": 2835,
+     "ep-bmwguc": 3780,
+     "ep-bx4xry": 3915,
+     "ep-cc3h8g": 3240,
+     "ep-g3bv9v": 2565,
+     "ep-h2q6fs": 2565,
+     "ep-h348px": 1440,
+     "ep-h8y6kv": 2700,
+     "ep-hkcq79": 3915,
+     "ep-hrynrt": 3375,
+     "ep-n5s4ka": 1584,
+     "ep-nz8dr4": 1512,
+     "ep-pafbwn": 3240,
+     "ep-pdghgb": 1872,
+     "ep-ry9bj8": 1800,
+     "ep-sw8mnm": 2835,
+     "ep-uacrdb": 2700,
+     "ep-v6nbvv": 2565,
+     "ep-v7s7ey": 1440,
+     "ep-vay8cf": 2565,
+     "ep-vq84bh": 2835,
+     "ep-x2vep2": 2016,
+     "ep-xctzy3": 1512,
+     "ep-xd37kz": 2565,
+     "ep-xm4j8e": 1872,
+     "ep-y4s4tf": 3645,
+     "ep-y7qxeb": 3510,
+     "ep-ymkv4p": 2565
+    }
+   },
+   "questions_sha256": "ff366accc3f9ef10d3d6e4ef775cfa09661a677e2992c4c979b5b5f7f106fda4",
+   "resources": {
+    "max_prompt_tokens": 1015,
+    "peak_rss_mb": 3206.0
+   },
+   "retention": {
+    "final": 0.2222222222222222,
+    "phase1": 0.37037037037037035
+   },
+   "rows": [
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q29f8ecc39c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-pafbwn",
+      "ep-ymkv4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q344f2f9379",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-vay8cf",
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "q37d6c90e78",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-23a5qq",
+      "ep-g3bv9v"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q3d7b98ce29",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-7uutej",
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "14",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "14",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver kettle",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 772,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "silver kettle",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q6e8d1b8843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-76c9uh",
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "2",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Thornby Library",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Thornby Library",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q99a30a1ab8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-5juu4b",
+      "ep-bhuh3r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "qa82aac25b2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-4ghp3z",
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Thornby Library",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Thornby Library",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qb6700365d1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hkcq79",
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Thornby Library",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "Thornby Library",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ilsen Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "2",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 995,
+     "qid": "q15ad00dd14",
+     "qtype": "latest",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-xm4j8e"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1012,
+     "qid": "q1fa5a6445c",
+     "qtype": "find",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-vq84bh",
+      "ep-34bm4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q29f8ecc39c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-pafbwn",
+      "ep-ymkv4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q344f2f9379",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-vay8cf",
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "q37d6c90e78",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-23a5qq",
+      "ep-g3bv9v"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "2",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1009,
+     "qid": "q3d7b98ce29",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-7uutej",
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1015,
+     "qid": "q3e84001cb1",
+     "qtype": "act",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-nz8dr4",
+      "ep-ry9bj8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver kettle",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "silver kettle",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1012,
+     "qid": "q49bdd19c3f",
+     "qtype": "find",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-sw8mnm",
+      "ep-xm4j8e"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q5a2f8b6a4f",
+     "qtype": "latest",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-34bm4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q6e8d1b8843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-76c9uh",
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "2",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1009,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1009,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "q8d293cef9b",
+     "qtype": "find",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-vay8cf",
+      "ep-34bm4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "4",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "4",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1009,
+     "qid": "q99a30a1ab8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-5juu4b",
+      "ep-bhuh3r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "qa82aac25b2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-4ghp3z",
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "qae5372e515",
+     "qtype": "latest",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-ry9bj8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1009,
+     "qid": "qb6700365d1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hkcq79",
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1009,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 996,
+     "qid": "qd8c1b89051",
+     "qtype": "latest",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-xm4j8e"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Ellsmere Garden",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "qdc080e019c",
+     "qtype": "find",
+     "raw": "Ellsmere Garden",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-ry9bj8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ilsen Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "3",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "3",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 750.3,
+   "seed": "pilot-m2-4-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 135,
+    "new_tokens": 466,
+    "prompt_tokens": 120829,
+    "truncated": 0
+   },
+   "world_sha256": "ad0a4c98181cac4127f073ebf38bdf4cd858f60c5ec693ecbec1eee540a17253"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.3157894736842105,
+     "categories": {
+      "correct": 0.3157894736842105,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.6842105263157895
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.0,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.375,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.75,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "n": 6
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.47368421052631576,
+     "categories": {
+      "correct": 0.47368421052631576,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5263157894736842
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.0,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.5,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.5,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-23a5qq": 1,
+     "ep-2n4wee": 1,
+     "ep-37cjw6": 1,
+     "ep-3cpx5d": 1,
+     "ep-3v7ykz": 1,
+     "ep-4ghp3z": 1,
+     "ep-4h3gr3": 1,
+     "ep-5juu4b": 1,
+     "ep-76c9uh": 1,
+     "ep-7cfczr": 1,
+     "ep-7uutej": 1,
+     "ep-8uyv4c": 1,
+     "ep-azk8cg": 1,
+     "ep-bhuh3r": 1,
+     "ep-bmwguc": 1,
+     "ep-bx4xry": 1,
+     "ep-cc3h8g": 1,
+     "ep-ck6bey": 1,
+     "ep-e34395": 1,
+     "ep-fdcvpa": 1,
+     "ep-g3bv9v": 1,
+     "ep-h2q6fs": 1,
+     "ep-h8y6kv": 1,
+     "ep-hkcq79": 1,
+     "ep-hrynrt": 1,
+     "ep-kcvfsx": 1,
+     "ep-kuwnp8": 1,
+     "ep-mpgrvv": 1,
+     "ep-mwuep3": 1,
+     "ep-pafbwn": 1,
+     "ep-sw8mnm": 1,
+     "ep-u8mk8f": 1,
+     "ep-uacrdb": 1,
+     "ep-v6nbvv": 1,
+     "ep-vay8cf": 1,
+     "ep-vq84bh": 1,
+     "ep-xd37kz": 1,
+     "ep-y4s4tf": 1,
+     "ep-y7qxeb": 1,
+     "ep-ymkv4p": 1
+    },
+    "episode_tokens": {
+     "ep-23a5qq": 27,
+     "ep-2n4wee": 20,
+     "ep-37cjw6": 20,
+     "ep-3cpx5d": 24,
+     "ep-3v7ykz": 23,
+     "ep-4ghp3z": 27,
+     "ep-4h3gr3": 28,
+     "ep-5juu4b": 24,
+     "ep-76c9uh": 25,
+     "ep-7cfczr": 20,
+     "ep-7uutej": 28,
+     "ep-8uyv4c": 19,
+     "ep-azk8cg": 26,
+     "ep-bhuh3r": 21,
+     "ep-bmwguc": 28,
+     "ep-bx4xry": 29,
+     "ep-cc3h8g": 24,
+     "ep-ck6bey": 29,
+     "ep-e34395": 27,
+     "ep-fdcvpa": 21,
+     "ep-g3bv9v": 19,
+     "ep-h2q6fs": 19,
+     "ep-h8y6kv": 20,
+     "ep-hkcq79": 29,
+     "ep-hrynrt": 25,
+     "ep-kcvfsx": 21,
+     "ep-kuwnp8": 28,
+     "ep-mpgrvv": 29,
+     "ep-mwuep3": 28,
+     "ep-pafbwn": 24,
+     "ep-sw8mnm": 21,
+     "ep-u8mk8f": 21,
+     "ep-uacrdb": 20,
+     "ep-v6nbvv": 19,
+     "ep-vay8cf": 19,
+     "ep-vq84bh": 21,
+     "ep-xd37kz": 19,
+     "ep-y4s4tf": 27,
+     "ep-y7qxeb": 26,
+     "ep-ymkv4p": 19
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 136,
+     "mean": 120.25,
+     "min": 73,
+     "total": 4810
+    },
+    "prompt_inclusions": {
+     "ep-23a5qq": 136,
+     "ep-2n4wee": 73,
+     "ep-37cjw6": 136,
+     "ep-3cpx5d": 136,
+     "ep-3v7ykz": 136,
+     "ep-4ghp3z": 136,
+     "ep-4h3gr3": 73,
+     "ep-5juu4b": 136,
+     "ep-76c9uh": 136,
+     "ep-7cfczr": 136,
+     "ep-7uutej": 136,
+     "ep-8uyv4c": 136,
+     "ep-azk8cg": 136,
+     "ep-bhuh3r": 136,
+     "ep-bmwguc": 136,
+     "ep-bx4xry": 136,
+     "ep-cc3h8g": 136,
+     "ep-ck6bey": 73,
+     "ep-e34395": 73,
+     "ep-fdcvpa": 73,
+     "ep-g3bv9v": 136,
+     "ep-h2q6fs": 136,
+     "ep-h8y6kv": 136,
+     "ep-hkcq79": 136,
+     "ep-hrynrt": 136,
+     "ep-kcvfsx": 73,
+     "ep-kuwnp8": 73,
+     "ep-mpgrvv": 73,
+     "ep-mwuep3": 73,
+     "ep-pafbwn": 136,
+     "ep-sw8mnm": 136,
+     "ep-u8mk8f": 73,
+     "ep-uacrdb": 136,
+     "ep-v6nbvv": 136,
+     "ep-vay8cf": 136,
+     "ep-vq84bh": 136,
+     "ep-xd37kz": 136,
+     "ep-y4s4tf": 136,
+     "ep-y7qxeb": 136,
+     "ep-ymkv4p": 136
+    },
+    "prompt_token_equivalents": {
+     "ep-23a5qq": 3672,
+     "ep-2n4wee": 1460,
+     "ep-37cjw6": 2720,
+     "ep-3cpx5d": 3264,
+     "ep-3v7ykz": 3128,
+     "ep-4ghp3z": 3672,
+     "ep-4h3gr3": 2044,
+     "ep-5juu4b": 3264,
+     "ep-76c9uh": 3400,
+     "ep-7cfczr": 2720,
+     "ep-7uutej": 3808,
+     "ep-8uyv4c": 2584,
+     "ep-azk8cg": 3536,
+     "ep-bhuh3r": 2856,
+     "ep-bmwguc": 3808,
+     "ep-bx4xry": 3944,
+     "ep-cc3h8g": 3264,
+     "ep-ck6bey": 2117,
+     "ep-e34395": 1971,
+     "ep-fdcvpa": 1533,
+     "ep-g3bv9v": 2584,
+     "ep-h2q6fs": 2584,
+     "ep-h8y6kv": 2720,
+     "ep-hkcq79": 3944,
+     "ep-hrynrt": 3400,
+     "ep-kcvfsx": 1533,
+     "ep-kuwnp8": 2044,
+     "ep-mpgrvv": 2117,
+     "ep-mwuep3": 2044,
+     "ep-pafbwn": 3264,
+     "ep-sw8mnm": 2856,
+     "ep-u8mk8f": 1533,
+     "ep-uacrdb": 2720,
+     "ep-v6nbvv": 2584,
+     "ep-vay8cf": 2584,
+     "ep-vq84bh": 2856,
+     "ep-xd37kz": 2584,
+     "ep-y4s4tf": 3672,
+     "ep-y7qxeb": 3536,
+     "ep-ymkv4p": 2584
+    }
+   },
+   "questions_sha256": "89f90bb0730b0c84880b8e8e0b956dc135d4612dd81e113fba5f1dc941a7640d",
+   "resources": {
+    "max_prompt_tokens": 1038,
+    "peak_rss_mb": 3206.0
+   },
+   "retention": {
+    "final": 0.2222222222222222,
+    "phase1": 0.37037037037037035
+   },
+   "rows": [
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q29f8ecc39c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-pafbwn",
+      "ep-ymkv4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q344f2f9379",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-vay8cf",
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "q37d6c90e78",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-23a5qq",
+      "ep-g3bv9v"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q3d7b98ce29",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-7uutej",
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "14",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "14",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver kettle",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 772,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "silver kettle",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q6e8d1b8843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-76c9uh",
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "2",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Thornby Library",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Thornby Library",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q99a30a1ab8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-5juu4b",
+      "ep-bhuh3r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "qa82aac25b2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-4ghp3z",
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Thornby Library",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Thornby Library",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qb6700365d1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hkcq79",
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Thornby Library",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "Thornby Library",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 771,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 784,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ilsen Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 768,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "29",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 770,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "29",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 769,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "3",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "3",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1018,
+     "qid": "q15ad00dd14",
+     "qtype": "latest",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Yelda Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Yelda Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Sorrow Station",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "Sorrow Station",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q29f8ecc39c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-pafbwn",
+      "ep-ymkv4p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q344f2f9379",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-vay8cf",
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1020,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "q37d6c90e78",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-23a5qq",
+      "ep-g3bv9v"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "9",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "Day 9",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q3d7b98ce29",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-7uutej",
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "q3dc7413201",
+     "qtype": "find",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-h8y6kv",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "13",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1020,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1024,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p191930c263",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p8200c07208",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1019,
+     "qid": "q5e54a18417",
+     "qtype": "latest",
+     "raw": "Mossgate Harbour",
+     "targets": [
+      "ep-kuwnp8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q6e8d1b8843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-76c9uh",
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "q6ea9bb326c",
+     "qtype": "find",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Sorrow Station",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Sorrow Station",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "2",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p178f9f240e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "q7e5e920a00",
+     "qtype": "find",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-uacrdb",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1038,
+     "qid": "q831f13b687",
+     "qtype": "act",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-sw8mnm",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "q8339668054",
+     "qtype": "find",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pbb50500cf4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "12",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "12",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "4",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "4",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p5766cbe34b",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q99a30a1ab8",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-5juu4b",
+      "ep-bhuh3r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped umbrella",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "qa82aac25b2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-4ghp3z",
+      "ep-bx4xry"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Mossgate Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1038,
+     "qid": "qa90adf1a34",
+     "qtype": "act",
+     "raw": "Mossgate Harbour",
+     "targets": [
+      "ep-kcvfsx",
+      "ep-2n4wee"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped telescope",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Thornby Library",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Thornby Library",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qb6700365d1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hkcq79",
+      "ep-y7qxeb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p10bace0d04",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p59f700db38",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped telescope",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1023,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "striped telescope",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1018,
+     "qid": "qdd15c15645",
+     "qtype": "latest",
+     "raw": "Mossgate Harbour",
+     "targets": [
+      "ep-2n4wee"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p708f19c2f4",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1036,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1020,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "Day 13",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Chapel",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ilsen Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Ilsen Tellin",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Chapel",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1020,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Pellan Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "3",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1022,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "3",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Wyndle Library",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1019,
+     "qid": "qf8a36526b4",
+     "qtype": "latest",
+     "raw": "Wyndle Library",
+     "targets": [
+      "ep-ck6bey"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1021,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 764.1,
+   "seed": "pilot-m2-4-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 136,
+    "new_tokens": 479,
+    "prompt_tokens": 123522,
+    "truncated": 0
+   },
+   "world_sha256": "79d9950dda59cd2054e204a0dd707f3923d85775a55c8c1d7a9e0932eed7f728"
+  }
+ },
+ "index": 4,
+ "max_new_tokens": 16,
+ "model": "qwen2.5-0.5b",
+ "provenance": {
+  "code_commit": "9ed41e16ec4d58800e0b0bd5408527438edefb93",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "d5256c8071990e14cf1a70a892e014dbeab1fc93ee5138e101c6bb4991ecb988"
+ },
+ "repo": "Qwen/Qwen2.5-0.5B-Instruct",
+ "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+ "schema": "episodic_lab.pilot_cell.v3",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 1524.4,
+ "variant": "v1",
+ "weights_digest": "8f67cfdd66abbd1338639c042c2d9c645fa717f20899e89c59abc487707b6aed"
+}

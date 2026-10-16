@@ -1,0 +1,5214 @@
+{
+ "arm": "A1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.375,
+      "uncertain": 0.0,
+      "wrong_value": 0.25
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.125,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.875,
+      "uncertain": 0.0,
+      "wrong_value": 0.125
+     },
+     "false_recall": 0.125,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.1875,
+      "uncertain": 0.0,
+      "wrong_value": 0.4375
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.125,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.875,
+      "uncertain": 0.0,
+      "wrong_value": 0.125
+     },
+     "false_recall": 0.125,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-2rwk53": 1,
+     "ep-3fa5zc": 1,
+     "ep-4hbfbb": 1,
+     "ep-5u7zaq": 1,
+     "ep-6ac3b3": 1,
+     "ep-6pxqu2": 1,
+     "ep-79jwq6": 1,
+     "ep-7e7kgv": 1,
+     "ep-bar4wt": 1,
+     "ep-bfc6j6": 1,
+     "ep-c9b477": 1,
+     "ep-f9u5jh": 1,
+     "ep-g83cca": 1,
+     "ep-gcducf": 1,
+     "ep-gsy4gt": 1,
+     "ep-hgt3yx": 1,
+     "ep-hqempw": 1,
+     "ep-hvjzws": 1,
+     "ep-k6k87w": 1,
+     "ep-mnw7k9": 1,
+     "ep-n66j7z": 1,
+     "ep-pgqqp9": 1,
+     "ep-pnww8c": 1,
+     "ep-ppaw92": 1,
+     "ep-qc9gwt": 1,
+     "ep-qdas7p": 1,
+     "ep-qgnj5s": 1,
+     "ep-remfdg": 1,
+     "ep-rxm3up": 1,
+     "ep-sudzz5": 1,
+     "ep-t8y9ah": 1,
+     "ep-tmveub": 1,
+     "ep-vgqy68": 1,
+     "ep-vksyfu": 1,
+     "ep-w6gbrn": 1,
+     "ep-wgdu6y": 1,
+     "ep-xktwfv": 1,
+     "ep-ybxnt5": 1,
+     "ep-zaxrnb": 1,
+     "ep-zvr7s6": 1
+    },
+    "episode_tokens": {
+     "ep-2rwk53": 21,
+     "ep-3fa5zc": 21,
+     "ep-4hbfbb": 20,
+     "ep-5u7zaq": 22,
+     "ep-6ac3b3": 21,
+     "ep-6pxqu2": 20,
+     "ep-79jwq6": 20,
+     "ep-7e7kgv": 23,
+     "ep-bar4wt": 27,
+     "ep-bfc6j6": 25,
+     "ep-c9b477": 24,
+     "ep-f9u5jh": 26,
+     "ep-g83cca": 23,
+     "ep-gcducf": 27,
+     "ep-gsy4gt": 28,
+     "ep-hgt3yx": 28,
+     "ep-hqempw": 29,
+     "ep-hvjzws": 22,
+     "ep-k6k87w": 21,
+     "ep-mnw7k9": 23,
+     "ep-n66j7z": 19,
+     "ep-pgqqp9": 22,
+     "ep-pnww8c": 26,
+     "ep-ppaw92": 21,
+     "ep-qc9gwt": 23,
+     "ep-qdas7p": 26,
+     "ep-qgnj5s": 22,
+     "ep-remfdg": 28,
+     "ep-rxm3up": 23,
+     "ep-sudzz5": 22,
+     "ep-t8y9ah": 21,
+     "ep-tmveub": 20,
+     "ep-vgqy68": 28,
+     "ep-vksyfu": 20,
+     "ep-w6gbrn": 22,
+     "ep-wgdu6y": 27,
+     "ep-xktwfv": 21,
+     "ep-ybxnt5": 20,
+     "ep-zaxrnb": 21,
+     "ep-zvr7s6": 21
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 123,
+     "mean": 108.75,
+     "min": 66,
+     "total": 4350
+    },
+    "prompt_inclusions": {
+     "ep-2rwk53": 123,
+     "ep-3fa5zc": 123,
+     "ep-4hbfbb": 123,
+     "ep-5u7zaq": 123,
+     "ep-6ac3b3": 123,
+     "ep-6pxqu2": 66,
+     "ep-79jwq6": 123,
+     "ep-7e7kgv": 66,
+     "ep-bar4wt": 123,
+     "ep-bfc6j6": 123,
+     "ep-c9b477": 123,
+     "ep-f9u5jh": 66,
+     "ep-g83cca": 123,
+     "ep-gcducf": 123,
+     "ep-gsy4gt": 66,
+     "ep-hgt3yx": 66,
+     "ep-hqempw": 123,
+     "ep-hvjzws": 66,
+     "ep-k6k87w": 123,
+     "ep-mnw7k9": 123,
+     "ep-n66j7z": 123,
+     "ep-pgqqp9": 123,
+     "ep-pnww8c": 123,
+     "ep-ppaw92": 123,
+     "ep-qc9gwt": 66,
+     "ep-qdas7p": 123,
+     "ep-qgnj5s": 123,
+     "ep-remfdg": 123,
+     "ep-rxm3up": 123,
+     "ep-sudzz5": 66,
+     "ep-t8y9ah": 123,
+     "ep-tmveub": 123,
+     "ep-vgqy68": 123,
+     "ep-vksyfu": 123,
+     "ep-w6gbrn": 123,
+     "ep-wgdu6y": 123,
+     "ep-xktwfv": 66,
+     "ep-ybxnt5": 66,
+     "ep-zaxrnb": 123,
+     "ep-zvr7s6": 123
+    },
+    "prompt_token_equivalents": {
+     "ep-2rwk53": 2583,
+     "ep-3fa5zc": 2583,
+     "ep-4hbfbb": 2460,
+     "ep-5u7zaq": 2706,
+     "ep-6ac3b3": 2583,
+     "ep-6pxqu2": 1320,
+     "ep-79jwq6": 2460,
+     "ep-7e7kgv": 1518,
+     "ep-bar4wt": 3321,
+     "ep-bfc6j6": 3075,
+     "ep-c9b477": 2952,
+     "ep-f9u5jh": 1716,
+     "ep-g83cca": 2829,
+     "ep-gcducf": 3321,
+     "ep-gsy4gt": 1848,
+     "ep-hgt3yx": 1848,
+     "ep-hqempw": 3567,
+     "ep-hvjzws": 1452,
+     "ep-k6k87w": 2583,
+     "ep-mnw7k9": 2829,
+     "ep-n66j7z": 2337,
+     "ep-pgqqp9": 2706,
+     "ep-pnww8c": 3198,
+     "ep-ppaw92": 2583,
+     "ep-qc9gwt": 1518,
+     "ep-qdas7p": 3198,
+     "ep-qgnj5s": 2706,
+     "ep-remfdg": 3444,
+     "ep-rxm3up": 2829,
+     "ep-sudzz5": 1452,
+     "ep-t8y9ah": 2583,
+     "ep-tmveub": 2460,
+     "ep-vgqy68": 3444,
+     "ep-vksyfu": 2460,
+     "ep-w6gbrn": 2706,
+     "ep-wgdu6y": 3321,
+     "ep-xktwfv": 1386,
+     "ep-ybxnt5": 1320,
+     "ep-zaxrnb": 2583,
+     "ep-zvr7s6": 2583
+    }
+   },
+   "questions_sha256": "c5607c701c0ed009932c44fe6d04f7426c7c1da1317ccc3b5e2d2b514b57ff64",
+   "resources": {
+    "max_prompt_tokens": 1061,
+    "peak_rss_mb": 1104.6
+   },
+   "retention": {
+    "final": 0.0,
+    "phase1": 0.0
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 805,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "Fenwick Tellin hid the wooden basket at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 816,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A. Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 816,
+     "qid": "q11b149c907",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bar4wt",
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 800,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Dorran Corland cleaned the heavy violin at Carrow Orchard on day",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q1914e3848e",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-k6k87w",
+      "ep-6ac3b3"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "Fenwick Tellin measured the wooden basket at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 25.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q2b7ca6ee65",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bfc6j6",
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow hid the heavy violin at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 813,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 812,
+     "qid": "q38f16df1a0",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-tmveub",
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow was at Mossgate Mill on day 16.",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "At Fenhollow Forge, Dorran Corland cleaned the wooden basket at",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "Quillon Marrow hid the wooden basket at Mossgate Mill.",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 800,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "The question asks about where Fenwick Tellin hid the heavy compass. The answer",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow hid the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "The place where Dorran Corland cleaned the heavy ladder is at Ashgrove",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "The place where Sabeth Lunsey cleaned the heavy ladder is at Ashg",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 813,
+     "qid": "q677ee26402",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow cleaned the heavy violin is at Ashgrove",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q7c035cc452",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-zvr7s6",
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Quillon Marrow measured the heavy violin at Carrow Orchard.",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland repaired the wooden basket at",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland cleaned the heavy compass at",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Carrow Orchard on day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "On day 15, Dorran Corland cleaned the wooden basket at Moss",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Mossgate Mill on day 17.",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 805,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "The question asks about the day when Sabeth Lunsey cleaned the wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy ladder at Carrow Orchard.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 15.",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "The question asks about the day Dorran Corland cleaned the wooden basket at F",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 22 and",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "qbda0e9fd9d",
+     "qtype": "order",
+     "raw": "A. Fenwick Tellin cleaned the heavy ladder at Carrow Orchard.",
+     "targets": [
+      "ep-zaxrnb",
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the wooden basket at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 15.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "Fenwick Tellin was at Mossgate Mill on day 15 and",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "qca3bc6c86a",
+     "qtype": "order",
+     "raw": "A. Sabeth Lunsey cleaned the heavy compass at Ashgrove Harbour",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey cleaned the wooden basket at Mossgate Mill.",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "On day 14, Sabeth Lunsey cleaned the wooden basket at",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Based on the story notes, which thing did Sabeth Lunsey hide?",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "The place where Fenwick Tellin repaired the heavy ladder is Ashgrove Harbour",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "On day 13, Dorran Corland repaired the heavy ladder at Ash",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the wooden",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 805,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland cleaned at Fenhollow Forge is the",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 812,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow measured the heavy ladder is the Ashgrove",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Fenwick Tellin cleaned is the",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "On day 1: Day 1: Day 1: Day 1",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "Quillon Marrow was at Fenhollow Forge on day 37",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1059,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A. Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1059,
+     "qid": "q11b149c907",
+     "qtype": "order",
+     "raw": "A. Fenwick Tellin repaired the heavy compass at Ashgrove Harbour.",
+     "targets": [
+      "ep-bar4wt",
+      "ep-2rwk53"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1043,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Dorran Corland cleaned the heavy violin at Fenhollow Forge.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1057,
+     "qid": "q1914e3848e",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-k6k87w",
+      "ep-6ac3b3"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1047,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "Quillon Marrow measured the wooden basket at Fenhollow Forge.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, on day 3, Fenwick Tellin",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1057,
+     "qid": "q2b7ca6ee65",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bfc6j6",
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1043,
+     "qid": "q2d581d7e90",
+     "qtype": "latest",
+     "raw": "Quillon Marrow was seen last at Fenhollow Forge, where he",
+     "targets": [
+      "ep-sudzz5"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow hid the heavy violin at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1056,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1055,
+     "qid": "q38f16df1a0",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-tmveub",
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1059,
+     "qid": "q390e543094",
+     "qtype": "find",
+     "raw": "The person who hid the heavy violin at Carrow Orchard is at Fenh",
+     "targets": [
+      "ep-5u7zaq",
+      "ep-hgt3yx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow was at Fenhollow Forge on day 40",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "At Fenhollow Forge, Fenhollow Forge on day 4",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q475459a7a9",
+     "qtype": "latest",
+     "raw": "At the end of day 3, Sabeth Lunsey was seen last",
+     "targets": [
+      "ep-hgt3yx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1058,
+     "qid": "q4cb9b66114",
+     "qtype": "find",
+     "raw": "The person who hid the wooden basket at Mossgate Mill is at Fenhollow",
+     "targets": [
+      "ep-n66j7z",
+      "ep-hgt3yx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "Quillon Marrow hid the wooden ladder at Mossgate Mill.",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1043,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "The question asks where Fenwick Tellin hid the heavy compass. The answer is",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1041,
+     "qid": "q5b0a6bbe00",
+     "qtype": "latest",
+     "raw": "Dorran Corland was at Fenhollow Forge on day 3",
+     "targets": [
+      "ep-xktwfv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow hid the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "The place where Dorran Corland cleaned the heavy ladder is Fenhollow For",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "The place where Sabeth Lunsey cleaned the heavy ladder is Fenhollow",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1056,
+     "qid": "q677ee26402",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "Quillon Marrow cleaned the wooden basket at Fenhollow Forge.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1057,
+     "qid": "q7c035cc452",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-zvr7s6",
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Quillon Marrow measured the heavy violin at Carrow Orchard.",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland repaired the wooden basket at",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1061,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A. Dorran Corland hid the heavy compass at Ashgrove Harbour.",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland cleaned the heavy compass at",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1041,
+     "qid": "q8f39f01962",
+     "qtype": "latest",
+     "raw": "Dorran Corland was at Fenhollow Forge on day 3",
+     "targets": [
+      "ep-hgt3yx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1057,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Fenhollow Forge on day 4",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "On day 1, Dorran Corland cleaned the wooden basket at Mossgate",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Fenhollow Forge on day 4",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "The question asks about the day when Sabeth Lunsey cleaned the wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Quillon Marrow cleaned the wooden ladder at Carrow Orchard.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Fenhollow Forge on day 3",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "On day 37, Dorran Corland cleaned the wooden basket at F",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Fenhollow Forge on day 3",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1060,
+     "qid": "qb756d456c0",
+     "qtype": "find",
+     "raw": "Based on the story notes, the person who cleaned the heavy ladder at Ashg",
+     "targets": [
+      "ep-g83cca",
+      "ep-hgt3yx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1061,
+     "qid": "qbda0e9fd9d",
+     "qtype": "order",
+     "raw": "A. Fenwick Tellin cleaned the heavy ladder at Fenhollow Forge",
+     "targets": [
+      "ep-zaxrnb",
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the wooden basket at Fenhollow Forge.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Fenhollow Forge on day 3",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1059,
+     "qid": "qc5763b5a27",
+     "qtype": "find",
+     "raw": "The person who cleaned the heavy compass at Ashgrove Harbour is at Fenh",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-hgt3yx"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "The place where Fenwick Tellin hid the heavy violin is the Fenhollow",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1058,
+     "qid": "qca14159bea",
+     "qtype": "act",
+     "raw": "The person who last handled the wooden basket is at Fenhollow Forge.",
+     "targets": [
+      "ep-ybxnt5",
+      "ep-xktwfv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1061,
+     "qid": "qca3bc6c86a",
+     "qtype": "order",
+     "raw": "A. Sabeth Lunsey cleaned the heavy compass at Ashgrove Harbour",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1057,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1057,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1047,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey cleaned the wooden basket at Mossgate Mill.",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "On day 1, Sabeth Lunsey cleaned the wooden basket at Moss",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1047,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Based on the story notes, Sabeth Lunsey hid the wooden ladder at",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "The place where Fenwick Tellin repaired the heavy ladder is Fenhollow For",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "On day 3, Dorran Corland repaired the heavy ladder at Ashg",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1061,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A. Dorran Corland repaired the heavy ladder at Ashgrove Harbour.",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1047,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the wooden",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "Dorran Corland cleaned the wooden basket at Fenhollow Forge.",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1055,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow measured the heavy ladder is Fenhollow For",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Based on the story notes, Dorran Corland hid the wooden ladder at Moss",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Fenwick Tellin cleaned at Moss",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "On day 1, Dorran Corland cleaned the heavy compass at Mossgate",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": true
+    }
+   ],
+   "seconds": 352.5,
+   "seed": "pilot-m2-3-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 123,
+    "new_tokens": 1583,
+    "prompt_tokens": 115190,
+    "truncated": 75
+   },
+   "world_sha256": "f911747f55972672d713a19f72819f60ddf046df793bd818257284445604fade"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.3125,
+     "categories": {
+      "correct": 0.3125,
+      "none_answer": 0.0,
+      "other": 0.375,
+      "uncertain": 0.0,
+      "wrong_value": 0.3125
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.0,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 7
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.1875,
+      "uncertain": 0.0,
+      "wrong_value": 0.4375
+     },
+     "n": 16,
+     "pairs": {
+      "both_correct": 0.125,
+      "n": 8
+     }
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.875,
+      "uncertain": 0.0,
+      "wrong_value": 0.125
+     },
+     "false_recall": 0.125,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-2rwk53": 1,
+     "ep-3fa5zc": 1,
+     "ep-4hbfbb": 1,
+     "ep-5bznpn": 1,
+     "ep-5u7zaq": 1,
+     "ep-665hwq": 1,
+     "ep-6ac3b3": 1,
+     "ep-79jwq6": 1,
+     "ep-ausfnz": 1,
+     "ep-bar4wt": 1,
+     "ep-bfc6j6": 1,
+     "ep-c9b477": 1,
+     "ep-cgzuqs": 1,
+     "ep-csmgd3": 1,
+     "ep-g83cca": 1,
+     "ep-gcducf": 1,
+     "ep-hqempw": 1,
+     "ep-k6k87w": 1,
+     "ep-kn9ujc": 1,
+     "ep-mnw7k9": 1,
+     "ep-n66j7z": 1,
+     "ep-ndq95f": 1,
+     "ep-pgqqp9": 1,
+     "ep-pnww8c": 1,
+     "ep-ppaw92": 1,
+     "ep-qdas7p": 1,
+     "ep-qgnj5s": 1,
+     "ep-r3djxb": 1,
+     "ep-remfdg": 1,
+     "ep-rwscg9": 1,
+     "ep-rxm3up": 1,
+     "ep-t8y9ah": 1,
+     "ep-tmveub": 1,
+     "ep-vgqy68": 1,
+     "ep-vksyfu": 1,
+     "ep-w6gbrn": 1,
+     "ep-wgdu6y": 1,
+     "ep-wn5p5m": 1,
+     "ep-zaxrnb": 1,
+     "ep-zvr7s6": 1
+    },
+    "episode_tokens": {
+     "ep-2rwk53": 21,
+     "ep-3fa5zc": 21,
+     "ep-4hbfbb": 20,
+     "ep-5bznpn": 22,
+     "ep-5u7zaq": 22,
+     "ep-665hwq": 20,
+     "ep-6ac3b3": 21,
+     "ep-79jwq6": 20,
+     "ep-ausfnz": 20,
+     "ep-bar4wt": 27,
+     "ep-bfc6j6": 25,
+     "ep-c9b477": 24,
+     "ep-cgzuqs": 21,
+     "ep-csmgd3": 20,
+     "ep-g83cca": 23,
+     "ep-gcducf": 27,
+     "ep-hqempw": 29,
+     "ep-k6k87w": 21,
+     "ep-kn9ujc": 19,
+     "ep-mnw7k9": 23,
+     "ep-n66j7z": 19,
+     "ep-ndq95f": 25,
+     "ep-pgqqp9": 22,
+     "ep-pnww8c": 26,
+     "ep-ppaw92": 21,
+     "ep-qdas7p": 26,
+     "ep-qgnj5s": 22,
+     "ep-r3djxb": 20,
+     "ep-remfdg": 28,
+     "ep-rwscg9": 26,
+     "ep-rxm3up": 23,
+     "ep-t8y9ah": 21,
+     "ep-tmveub": 20,
+     "ep-vgqy68": 28,
+     "ep-vksyfu": 20,
+     "ep-w6gbrn": 22,
+     "ep-wgdu6y": 27,
+     "ep-wn5p5m": 27,
+     "ep-zaxrnb": 21,
+     "ep-zvr7s6": 21
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 125,
+     "mean": 110.75,
+     "min": 68,
+     "total": 4430
+    },
+    "prompt_inclusions": {
+     "ep-2rwk53": 125,
+     "ep-3fa5zc": 125,
+     "ep-4hbfbb": 125,
+     "ep-5bznpn": 68,
+     "ep-5u7zaq": 125,
+     "ep-665hwq": 68,
+     "ep-6ac3b3": 125,
+     "ep-79jwq6": 125,
+     "ep-ausfnz": 68,
+     "ep-bar4wt": 125,
+     "ep-bfc6j6": 125,
+     "ep-c9b477": 125,
+     "ep-cgzuqs": 68,
+     "ep-csmgd3": 68,
+     "ep-g83cca": 125,
+     "ep-gcducf": 125,
+     "ep-hqempw": 125,
+     "ep-k6k87w": 125,
+     "ep-kn9ujc": 68,
+     "ep-mnw7k9": 125,
+     "ep-n66j7z": 125,
+     "ep-ndq95f": 68,
+     "ep-pgqqp9": 125,
+     "ep-pnww8c": 125,
+     "ep-ppaw92": 125,
+     "ep-qdas7p": 125,
+     "ep-qgnj5s": 125,
+     "ep-r3djxb": 68,
+     "ep-remfdg": 125,
+     "ep-rwscg9": 68,
+     "ep-rxm3up": 125,
+     "ep-t8y9ah": 125,
+     "ep-tmveub": 125,
+     "ep-vgqy68": 125,
+     "ep-vksyfu": 125,
+     "ep-w6gbrn": 125,
+     "ep-wgdu6y": 125,
+     "ep-wn5p5m": 68,
+     "ep-zaxrnb": 125,
+     "ep-zvr7s6": 125
+    },
+    "prompt_token_equivalents": {
+     "ep-2rwk53": 2625,
+     "ep-3fa5zc": 2625,
+     "ep-4hbfbb": 2500,
+     "ep-5bznpn": 1496,
+     "ep-5u7zaq": 2750,
+     "ep-665hwq": 1360,
+     "ep-6ac3b3": 2625,
+     "ep-79jwq6": 2500,
+     "ep-ausfnz": 1360,
+     "ep-bar4wt": 3375,
+     "ep-bfc6j6": 3125,
+     "ep-c9b477": 3000,
+     "ep-cgzuqs": 1428,
+     "ep-csmgd3": 1360,
+     "ep-g83cca": 2875,
+     "ep-gcducf": 3375,
+     "ep-hqempw": 3625,
+     "ep-k6k87w": 2625,
+     "ep-kn9ujc": 1292,
+     "ep-mnw7k9": 2875,
+     "ep-n66j7z": 2375,
+     "ep-ndq95f": 1700,
+     "ep-pgqqp9": 2750,
+     "ep-pnww8c": 3250,
+     "ep-ppaw92": 2625,
+     "ep-qdas7p": 3250,
+     "ep-qgnj5s": 2750,
+     "ep-r3djxb": 1360,
+     "ep-remfdg": 3500,
+     "ep-rwscg9": 1768,
+     "ep-rxm3up": 2875,
+     "ep-t8y9ah": 2625,
+     "ep-tmveub": 2500,
+     "ep-vgqy68": 3500,
+     "ep-vksyfu": 2500,
+     "ep-w6gbrn": 2750,
+     "ep-wgdu6y": 3375,
+     "ep-wn5p5m": 1836,
+     "ep-zaxrnb": 2625,
+     "ep-zvr7s6": 2625
+    }
+   },
+   "questions_sha256": "fd515d730b2be77fae55990230b66b610ccfc8a376869379757549720d49304d",
+   "resources": {
+    "max_prompt_tokens": 1048,
+    "peak_rss_mb": 1104.6
+   },
+   "retention": {
+    "final": 0.0,
+    "phase1": 0.0
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 805,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "Fenwick Tellin hid the wooden basket at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 816,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A. Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 816,
+     "qid": "q11b149c907",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bar4wt",
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 800,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Dorran Corland cleaned the heavy violin at Carrow Orchard on day",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q1914e3848e",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-k6k87w",
+      "ep-6ac3b3"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "Fenwick Tellin measured the wooden basket at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 25.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q2b7ca6ee65",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bfc6j6",
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow hid the heavy violin at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 813,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 812,
+     "qid": "q38f16df1a0",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-tmveub",
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow was at Mossgate Mill on day 16.",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "At Fenhollow Forge, Dorran Corland cleaned the wooden basket at",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "Quillon Marrow hid the wooden basket at Mossgate Mill.",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 800,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "The question asks about where Fenwick Tellin hid the heavy compass. The answer",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow hid the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "The place where Dorran Corland cleaned the heavy ladder is at Ashgrove",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "The place where Sabeth Lunsey cleaned the heavy ladder is at Ashg",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 813,
+     "qid": "q677ee26402",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow cleaned the heavy violin is at Ashgrove",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q7c035cc452",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-zvr7s6",
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Quillon Marrow measured the heavy violin at Carrow Orchard.",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland repaired the wooden basket at",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland cleaned the heavy compass at",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Carrow Orchard on day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "On day 15, Dorran Corland cleaned the wooden basket at Moss",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Mossgate Mill on day 17.",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 805,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "The question asks about the day when Sabeth Lunsey cleaned the wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy ladder at Carrow Orchard.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 15.",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "The question asks about the day Dorran Corland cleaned the wooden basket at F",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 22 and",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "qbda0e9fd9d",
+     "qtype": "order",
+     "raw": "A. Fenwick Tellin cleaned the heavy ladder at Carrow Orchard.",
+     "targets": [
+      "ep-zaxrnb",
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the wooden basket at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill on day 15.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "Fenwick Tellin was at Mossgate Mill on day 15 and",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "qca3bc6c86a",
+     "qtype": "order",
+     "raw": "A. Sabeth Lunsey cleaned the heavy compass at Ashgrove Harbour",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 814,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey cleaned the wooden basket at Mossgate Mill.",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "On day 14, Sabeth Lunsey cleaned the wooden basket at",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Based on the story notes, which thing did Sabeth Lunsey hide?",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "The place where Fenwick Tellin repaired the heavy ladder is Ashgrove Harbour",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "On day 13, Dorran Corland repaired the heavy ladder at Ash",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 818,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 804,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the wooden",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 805,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland cleaned at Fenhollow Forge is the",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 812,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 802,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow measured the heavy ladder is the Ashgrove",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 803,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Fenwick Tellin cleaned is the",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 801,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "On day 1: Day 1: Day 1: Day 1",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1030,
+     "qid": "q0404474a5c",
+     "qtype": "latest",
+     "raw": "At the end of day 3, Gorvin Tellin was seen last at",
+     "targets": [
+      "ep-5bznpn"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1035,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "The object that Fen Quinl Stell hid at Fenhollow Forge is",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "q0b9f9333b6",
+     "qtype": "find",
+     "raw": "The person who measured the heavy ladder at Fenhollow Forge is at Moss",
+     "targets": [
+      "ep-3fa5zc",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "Answer: A. Dorran Corland cleaned the heavy compass at Mossgate Mill",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p537ec7ae77",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q11b149c907",
+     "qtype": "order",
+     "raw": "Answer: A. Fenwick Tellin repaired the heavy compass at Ashgrove",
+     "targets": [
+      "ep-bar4wt",
+      "ep-2rwk53"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1030,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Dorran Corland cleaned the heavy violin at Carrow Orchard on day",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q1914e3848e",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-k6k87w",
+      "ep-6ac3b3"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1034,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "The object that Fen Quinl Storland measured at Ashgrove Harbour is",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "The question asks about the place where Fenwick Tellin measured the heavy violin.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q2b7ca6ee65",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bfc6j6",
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1028,
+     "qid": "q2d581d7e90",
+     "qtype": "latest",
+     "raw": "The question asks about the event that Quillon Marrow most recently did. Since",
+     "targets": [
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Dorran Corland hid the heavy violin at Carrow Orchard on day",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1043,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1042,
+     "qid": "q38f16df1a0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-tmveub",
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q390e543094",
+     "qtype": "find",
+     "raw": "To find the person who hid the heavy violin at Carrow Orchard, I",
+     "targets": [
+      "ep-5u7zaq",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "On day 16, Dorran Corland cleaned the heavy compass at Car",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "At night, Sabeth Lunsey was at Mossgate Mill on day",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1029,
+     "qid": "q475459a7a9",
+     "qtype": "latest",
+     "raw": "The question asks where Sabeth Lunsey most recently was. The story notes",
+     "targets": [
+      "ep-remfdg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1046,
+     "qid": "q4cb9b66114",
+     "qtype": "find",
+     "raw": "The person who hid the wooden basket at Mossgate Mill was at Fenhollow",
+     "targets": [
+      "ep-n66j7z",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "Based on the story notes, Quillon Marrow hid the wooden basket at Moss",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1030,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "The question asks about where Fenwick Tellin hid the heavy compass. The story",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1030,
+     "qid": "q5b0a6bbe00",
+     "qtype": "latest",
+     "raw": "The story notes do not mention where Dorran Corland was last seen.",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "The place where Dorran Corland cleaned the heavy ladder is at Carrow Orch",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "The place where Sabeth Lunsey cleaned the heavy ladder is at Brann",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p6fe0b93725",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1043,
+     "qid": "q677ee26402",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "q6f7fe9a64f",
+     "qtype": "find",
+     "raw": "To find the person who hid the heavy compass at Mossgate Mill, you should",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow cleaned the heavy violin is the Fenhollow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q7c035cc452",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-zvr7s6",
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland measured the heavy violin at Carrow Orchard.",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland repaired the wooden basket at",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A. Dorran Corland hid the heavy compass at Ashgrove Harbour.",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Dorran Corland cleaned the heavy compass at",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p22277cd756",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Carrow Orchard on day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "On day 1, Dorran Corland cleaned the wooden basket at Mossgate",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Dorran Corland repaired the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Dorran Corland was at Mossgate Mill on day 17.",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1035,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "The question asks about the day when Sabeth Lunsey cleaned the wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Dorran Corland cleaned the heavy ladder at Carrow Orchard.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "At Carrow Orchard on day 1, Sabeth Lunsey hid",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "On day 1, Dorran Corland cleaned the wooden basket at Fenh",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "At Fenhollow Forge, Mossgate Mill, on day 15",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qb83a0bba9a",
+     "qtype": "act",
+     "raw": "The person who last handled the copper kettle is at the place where Varo Qu",
+     "targets": [
+      "ep-r3djxb",
+      "ep-665hwq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "qbda0e9fd9d",
+     "qtype": "order",
+     "raw": "Answer: A. Fenwick Tellin cleaned the heavy ladder at Fenhollow",
+     "targets": [
+      "ep-zaxrnb",
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "qbe53b0da23",
+     "qtype": "act",
+     "raw": "I went to Brannick Mill on day 40, where Gorvin",
+     "targets": [
+      "ep-csmgd3",
+      "ep-665hwq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the wooden basket at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "At the Fenhollow Forge, Mossgate Mill, on day 1",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Dorran Corland repaired the heavy ladder at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "The place where Fenwick Tellin hid the heavy violin is the Ashgrove",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "pdc5049e38e",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "qca3bc6c86a",
+     "qtype": "order",
+     "raw": "A. Sabeth Lunsey cleaned the heavy compass at Ashgrove Harbour",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-79jwq6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p39bdfba697",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "pd04d1a54c0",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1044,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1034,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey cleaned the wooden basket at Mossgate Mill.",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "On day 1, Sabeth Lunsey cleaned the wooden basket at Moss",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1034,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Based on the story notes, Sabeth Lunsey hid the wooden basket at",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "The place where Fenwick Tellin repaired the heavy ladder is at Brannick",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "On day 1, Dorran Corland repaired the heavy ladder at Ashg",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "pair": "p478ac51be3",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1048,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "Answer: A. Dorran Corland repaired the heavy ladder at Ashgrove",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1034,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the wooden",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1035,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland cleaned at Fenhollow Forge is the",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "pair": "p292b93bab8",
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1042,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1032,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "The place where Quillon Marrow measured the heavy ladder is the Fenhollow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Based on the story notes, Dorran Corland hid the heavy compass at Moss",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1033,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Fen Quinlil cleaned at Moss",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1031,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "On day 1, Dorran Corland cleaned the heavy compass at Mossgate",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1045,
+     "qid": "qfed091b5db",
+     "qtype": "act",
+     "raw": "The person who last handled the heavy ladder is at the place where Dorran Cor",
+     "targets": [
+      "ep-3fa5zc",
+      "ep-bar4wt"
+     ],
+     "truncated": true
+    }
+   ],
+   "seconds": 356.7,
+   "seed": "pilot-m2-3-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 125,
+    "new_tokens": 1641,
+    "prompt_tokens": 116426,
+    "truncated": 79
+   },
+   "world_sha256": "86092df9e48ace3d248b0739eb1343dbc6f56190b4b19d2559f5e46afbfcb6eb"
+  }
+ },
+ "index": 3,
+ "max_new_tokens": 16,
+ "model": "smollm2-135m",
+ "provenance": {
+  "code_commit": "9ed41e16ec4d58800e0b0bd5408527438edefb93",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "d5256c8071990e14cf1a70a892e014dbeab1fc93ee5138e101c6bb4991ecb988"
+ },
+ "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+ "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "schema": "episodic_lab.pilot_cell.v3",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 715.7,
+ "variant": "v1",
+ "weights_digest": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594"
+}
