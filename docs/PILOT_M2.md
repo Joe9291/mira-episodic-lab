@@ -70,3 +70,37 @@ means over the five worlds and both conditions, final test, unless stated otherw
   and overlap conditions are no independent worlds, uncertainty stays over five worlds.
 - Everything else unchanged: same series and worlds (paired with v0), models, arms,
   scoring grammar, collector checks. This is variant 1 of 3 for A0, A1 and O1.
+
+## Variant v1 results (run 38971676737, commit 9ed41e1)
+
+VERDICT COMPLETE, 60/60 cells. Same worlds as v0; the comparison below uses only the
+items common to v0 and v1 (final test, mean over the five worlds), so it isolates the
+instruction change from the added E3a orientations.
+
+- **Copied examples: gone.** Example echo fell to 0.00 in every model and arm (v0: up to
+  0.44).
+- **Qwen3 hypothesis supported (exploratory).** Qwen3 O1 E2 0.54 -> 0.91, higher in every
+  world (0.75->0.88, 0.50->0.90, 0.53->1.00, 0.38->0.85, 0.53->0.95); E3b 0.46 -> 0.75.
+  SmolLM2-360M O1 E2 0.03 -> 0.49. Qwen2.5 was hardly affected (O1 E2 0.99 -> 1.00, A1
+  0.28 -> 0.29).
+- **E3a A/B preference: NOT an instruction artefact.** Qwen2.5 and Qwen3 still answer
+  "A" to 99-100% of the A/B questions in all arms, also with both dated episodes in the
+  prompt (O1). Pair score 0.00 for every Qwen arm, at most 0.05 elsewhere (baselines:
+  constant 0, guessing 0.25, told-order 0.5). The A/B letter format does not measure
+  temporal order for these models at all.
+- **Binding lures: unchanged.** Qwen2.5 in-world false recall A1 0.99, O1 0.99; Qwen3 A1
+  0.35, O1 0.85 (v0 0.68: fewer "other" answers, more named values). A0 abstains more
+  (Qwen2.5 A0 E5 0.46 -> 0.81, Qwen3 0.89 -> 1.00).
+- **E7 for Qwen2.5 O1 0.56 -> 0.43** (find items mostly wrong: 15 of 38 correct). Noted,
+  not explained.
+
+Model selection v1 (rule applied anew; E3a orientations 1/2): qwen2.5-0.5b 0.825 (worlds
+0.813, 0.795, 0.880, 0.814, 0.825), qwen3-0.6b 0.713, smollm2-360m 0.547, smollm2-135m
+0.131. qwen2.5-0.5b stays the smallest model above 0.8, in both v0 and v1, with a thin
+margin (one world below 0.8); E3a, constant at 0.5 for it, pulls the value down.
+
+Reading (exploratory): the instruction artefact is fixed; the position preference on A/B
+questions and the confabulation on binding lures are properties of these models under
+this task, not of the example values. A different E3a answer format (naming a content
+detail of the earlier event instead of a letter, still asked in both orders) is the
+candidate for variant v2, to be decided with milestone 3.
