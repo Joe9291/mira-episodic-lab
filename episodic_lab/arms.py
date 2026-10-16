@@ -31,21 +31,37 @@ FORMAT = {
     "choice": ("the letter A or the letter B", "A"),
 }
 NO_NOTES = "(no notes)"
+# Variant v1: no example values at all (the base examples were copied by the models).
+FORMAT_V1 = {
+    "person": "the person's full name as written in the notes",
+    "place": "the place name as written in the notes",
+    "object": "the object name as written in the notes",
+    "day": "the day number",
+    "choice": "the letter of the correct option, A or B",
+}
+STYLES = ("v0", "v1")
 
 
-def instruction(answer_type: str) -> str:
-    form, example = FORMAT[answer_type]
-    text = (f"You read story notes and answer one question about them. Answer with only "
-            f"{form} (for example: {example}), nothing else.")
+def instruction(answer_type: str, style: str = "v0") -> str:
+    if style == "v1":
+        text = ("You read story notes and answer one question about them. Answer with only "
+                f"{FORMAT_V1[answer_type]}, nothing else.")
+    elif style == "v0":
+        form, example = FORMAT[answer_type]
+        text = (f"You read story notes and answer one question about them. Answer with only "
+                f"{form} (for example: {example}), nothing else.")
+    else:
+        raise ValueError(f"unknown instruction style {style!r}")
     if answer_type != "choice":
         text += (" If the notes do not contain the event the question asks about, answer "
                  "with the single word: none.")
     return text
 
 
-def build_messages(question: str, notes: list[str], answer_type: str) -> list[dict]:
+def build_messages(question: str, notes: list[str], answer_type: str,
+                   style: str = "v0") -> list[dict]:
     body = "\n".join(notes) if notes else NO_NOTES
-    return [{"role": "system", "content": instruction(answer_type)},
+    return [{"role": "system", "content": instruction(answer_type, style)},
             {"role": "user", "content": f"Story notes:\n{body}\n\nQuestion: {question}"}]
 
 
@@ -54,8 +70,11 @@ class _ModelArm:
     # E1b declaration per encoded episode (class attributes, not memory state)
     E1B = {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0}
 
-    def __init__(self, model):
+    def __init__(self, model, style: str = "v0"):
+        if style not in STYLES:
+            raise ValueError(f"unknown instruction style {style!r}")
         self.model = model
+        self.style = style
         self.notes: list[str] = []
 
     def state_digest(self) -> str:
@@ -74,7 +93,7 @@ class NoMemory(_ModelArm):
         pass
 
     def answer(self, text: str, answer_type: str) -> str:
-        return self.model.generate(build_messages(text, [], answer_type))
+        return self.model.generate(build_messages(text, [], answer_type, self.style))
 
 
 class AllInPrompt(_ModelArm):
@@ -86,7 +105,7 @@ class AllInPrompt(_ModelArm):
         self.notes.append(text)
 
     def answer(self, text: str, answer_type: str) -> str:
-        return self.model.generate(build_messages(text, list(self.notes), answer_type))
+        return self.model.generate(build_messages(text, list(self.notes), answer_type, self.style))
 
 
 class OracleEvidence(_ModelArm):
@@ -100,7 +119,7 @@ class OracleEvidence(_ModelArm):
         raise RuntimeError("O1 answers only with evidence")
 
     def answer_with(self, text: str, evidence: list[str], answer_type: str) -> str:
-        return self.model.generate(build_messages(text, list(evidence), answer_type))
+        return self.model.generate(build_messages(text, list(evidence), answer_type, self.style))
 
 
 ARMS = {"A0": NoMemory, "A1": AllInPrompt, "O1": OracleEvidence}

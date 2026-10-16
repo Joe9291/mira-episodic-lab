@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.pilot_request.v1",
- "enabled": true,
- "note": "Milestone 2 pilot (exploratory): arms A0, A1, O1 on the four pinned models and five worlds of the series 'pilot-m2'. Results are exploratory and never count as confirmation.",
+ "enabled": false,
+ "note": "Milestone 2 pilot, variant v1 (reason: docs/PILOT_M2.md; definition: episodic_lab/variants.py): instruction without example values, E3a in both A/B orders. Same series, worlds, models and arms as the base run 38956502610. Exploratory; never counts as confirmation.",
  "series": "pilot-m2",
  "models": [
   "smollm2-135m",
@@ -20,5 +20,6 @@
   2,
   3,
   4
- ]
+ ],
+ "variant": "v1"
 }

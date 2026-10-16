@@ -30,7 +30,9 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "episodic_lab.pilot_cell.v2"
+SCHEMA = "episodic_lab.pilot_cell.v3"
+# Variants (episodic_lab/variants.py): whether every E3a pair is asked in both A/B orders.
+ORDER_BOTH = {"v0": False, "v1": True}
 CRITERIA = {"phase1": ("E2", "E3a", "E3b", "E4", "E5"),
             "final": ("E2", "E3a", "E3b", "E4", "E5", "E7")}
 E3B_SUBTYPES = {"phase1": ("at_day",), "final": ("at_day", "latest")}
@@ -80,6 +82,12 @@ def recompute_summary(rows: list, phase: str) -> dict:
              "categories": {k: sum(r["category"] == k for r in sub) / n for k in CATEGORIES}}
         if c == "E5":
             s["false_recall"] = sum(r["false_recall"] for r in sub) / n
+        if any("pair" in r for r in sub):
+            pairs = {}
+            for r in sub:
+                pairs.setdefault(r["pair"], []).append(r["correct"])
+            s["pairs"] = {"n": len(pairs), "both_correct": sum(
+                len(v) == 2 and all(v) for v in pairs.values()) / len(pairs)}
         if c == "E3b":
             s["by_qtype"] = {}
             for q in sorted({r["qtype"] for r in sub}):
@@ -116,6 +124,31 @@ def same(a, b) -> bool:
     if _num(a) and _num(b):
         return abs(a - b) <= 1e-9
     return a == b
+
+
+def _check_pairs(rows, variant, problems: list, where: str) -> bool:
+    """v0: no pair ids. v1: every E3a row, and only E3a rows, has one; every pair has
+    exactly two rows per phase that ask about the same two episodes in opposite order
+    (targets reversed)."""
+    order_both = ORDER_BOTH.get(variant)
+    e3a = [r for r in rows if r["criterion"] == "E3a"]
+    if order_both is None or any(("pair" in r) != (r["criterion"] == "E3a" and order_both)
+                                 for r in rows):
+        problems.append(f"pairs:{where}")
+        return False
+    if order_both:
+        groups = {}
+        for r in e3a:
+            if not isinstance(r["pair"], str):
+                problems.append(f"pairs:{where}")
+                return False
+            groups.setdefault((r["phase"], r["pair"]), []).append(r)
+        for group in groups.values():
+            if (len(group) != 2 or not all(isinstance(r.get("targets"), list) for r in group)
+                    or group[0]["targets"] != group[1]["targets"][::-1]):
+                problems.append(f"pairs:{where}")
+                return False
+    return True
 
 
 def _check_rows(rows, max_new: int | None, problems: list, where: str) -> bool:
@@ -197,7 +230,7 @@ def validate(data, expected: dict, request_sha: str, pins: dict | None, pins_sha
     problems = []
     if data.get("schema") != SCHEMA:
         problems.append("schema")
-    for key in ("model", "arm", "series", "index"):
+    for key in ("model", "arm", "series", "index", "variant"):
         if data.get(key) != expected[key] or (key == "index" and isinstance(data.get(key), bool)):
             problems.append(f"identity:{key}")
     if data.get("status") != "OK":
@@ -245,6 +278,8 @@ def validate(data, expected: dict, request_sha: str, pins: dict | None, pins_sha
             max_new = None
         rows = c.get("rows")
         if not _check_rows(rows, max_new, problems, name):
+            continue
+        if not _check_pairs(rows, expected["variant"], problems, name):
             continue
         if tel is not None and (tel["calls"] != len(rows)
                                 or tel["truncated"] != sum(r["truncated"] for r in rows)
@@ -308,8 +343,11 @@ def selection(cells: dict) -> list[str]:
     return lines
 
 
-def summarise(cells: dict) -> str:
-    lines = ["# Pilot summary (exploratory)", "",
+def summarise(cells: dict, variant: str = "v0") -> str:
+    lines = ["# Pilot summary (exploratory)", "", f"Variant: {variant} (episodic_lab/variants.py).",
+             "",
+             "E3a pairs (variant v1 only) = share of order pairs answered correctly in BOTH "
+             "A/B orders; a constant letter scores 0.", "",
              "Means over worlds and both overlap conditions, final test. E5 = correct "
              "rejections; uncertain and other answers are not rejections. Trunc = share of "
              "answers cut off by the token limit. Format = share of all answers (both test "
@@ -321,7 +359,7 @@ def summarise(cells: dict) -> str:
     groups = {}
     for (model, arm, index), data in cells.items():
         groups.setdefault((model, arm), []).append(data)
-    head = ["E2", "E3a", "E3b at_day", "E3b latest", "E4", "E5", "E7", "E5 false recall",
+    head = ["E2", "E3a", "E3a pairs", "E3b at_day", "E3b latest", "E4", "E5", "E7", "E5 false recall",
             "E5 uncertain", "E5 other", "format", "trunc", "E6 phase1", "E6 final high", "E6 final low"]
     lines.append("| model | arm | worlds | " + " | ".join(head) + " |")
     lines.append("|" + "---|" * (len(head) + 3))
@@ -330,6 +368,8 @@ def summarise(cells: dict) -> str:
         row = [model, arm + (" (diagnostic)" if arm == "O1" else ""), str(len(datas))]
         for c in ("E2", "E3a"):
             row.append(f"{mean(x['final'][c]['accuracy'] for x in both):.2f}")
+        pairs = [x["final"]["E3a"].get("pairs") for x in both]
+        row.append(f"{mean(p['both_correct'] for p in pairs):.2f}" if all(pairs) else "-")
         for q in ("at_day", "latest"):
             row.append(f"{mean(x['final']['E3b']['by_qtype'][q]['accuracy'] for x in both):.2f}")
         for c in ("E4", "E5", "E7"):
@@ -358,7 +398,8 @@ def main(request_path: str, dest: str, pins_path: str | None = None) -> int:
         for a in request["arms"]:
             for i in request["indices"]:
                 name = f"pilot_{m}_{a}_{i}.json"
-                expected = {"model": m, "arm": a, "series": request["series"], "index": i}
+                expected = {"model": m, "arm": a, "series": request["series"], "index": i,
+                            "variant": request.get("variant", "v0")}
                 try:
                     data = json.loads((dest_path / name).read_text(encoding="utf-8"))
                     problems = validate(data, expected, request_sha, pins, pins_sha)
@@ -387,7 +428,7 @@ def main(request_path: str, dest: str, pins_path: str | None = None) -> int:
     ok = all(not p for p in results.values())
     usable = {k: v for k, v in cells.items() if not results[f"pilot_{k[0]}_{k[1]}_{k[2]}.json"]}
     try:
-        (dest_path / "SUMMARY.md").write_text(summarise(usable))
+        (dest_path / "SUMMARY.md").write_text(summarise(usable, request.get("variant", "v0")))
     except Exception as exc:
         ok = False
         lines.append(f"FAILED SUMMARY.md {type(exc).__name__}: {exc}")

@@ -412,7 +412,7 @@ class CollectorTests(unittest.TestCase):
 
     def test_failed_summary_makes_the_run_incomplete(self):
         original = collect.summarise
-        collect.summarise = lambda cells: 1 / 0
+        collect.summarise = lambda cells, variant="v0": 1 / 0
         try:
             verdict, check, summary = self.run_collect(self.cells)
         finally:
@@ -488,6 +488,131 @@ class CollectorTests(unittest.TestCase):
                     rows = [r for r in cond["rows"] if r["phase"] == phase]
                     self.assertTrue(collect.same(collect.recompute_summary(cond["rows"], phase),
                                                  json.loads(json.dumps(summarise(rows)))))
+
+
+class VariantTests(unittest.TestCase):
+    """Variant v1 (episodic_lab/variants.py): no example values, E3a in both A/B orders."""
+
+    def test_v1_instruction_has_no_example_values(self):
+        from episodic_lab.arms import FORMAT_V1
+        for answer_type, (form, example) in FORMAT.items():
+            text = instruction(answer_type, "v1")
+            if answer_type != "choice":  # the letters themselves must be named
+                self.assertNotIn(example, text)
+            self.assertNotIn("for example", text)
+            self.assertIn(FORMAT_V1[answer_type], text)
+            self.assertEqual("none" in text, answer_type != "choice")
+        self.assertEqual(instruction("person"), instruction("person", "v0"))
+        with self.assertRaises(ValueError):
+            instruction("person", "v9")
+        with self.assertRaises(ValueError):
+            ARMS["A1"](FakeModel(), "v9")
+
+    def test_arms_pass_the_style_to_every_prompt(self):
+        world, q = PAIRS[0]["high"]
+        for arm in ARMS:
+            model = FakeModel()
+            run_world(ARMS[arm](model, "v1"), world, q)
+            allowed = {instruction(t, "v1") for t in FORMAT}
+            self.assertTrue(all(m[0]["content"] in allowed for m in model.seen))
+
+    def test_both_orders_leave_all_other_items_unchanged(self):
+        for i in range(3):
+            a0, base = make_world("variant-test", i)
+            a1, both = make_world("variant-test", i, order_both=True)
+            self.assertEqual(a0, a1)
+            for overlap in ("high", "low"):
+                g0, g1 = base[overlap][1]["gold"], both[overlap][1]["gold"]
+                self.assertEqual(set(g0), set(g1) & set(g0))
+                for qid, g in g0.items():
+                    if g["criterion"] != "E3a":
+                        self.assertEqual(g1[qid], g)
+                    else:
+                        self.assertEqual({k: v for k, v in g1[qid].items() if k != "pair"}, g)
+                new = [g1[k] for k in set(g1) - set(g0)]
+                self.assertEqual(len(new), sum(g["criterion"] == "E3a" for g in g0.values()))
+                pairs = {}
+                for g in g1.values():
+                    if g["criterion"] == "E3a":
+                        pairs.setdefault(g["pair"], []).append(g)
+                for two in pairs.values():
+                    self.assertEqual(len(two), 2)
+                    self.assertEqual(two[0]["targets"], two[1]["targets"][::-1])
+                    self.assertEqual({two[0]["gold"][0], two[1]["gold"][0]}, {"A", "B"})
+
+    def test_constant_letter_scores_no_pair(self):
+        class AlwaysA(FakeModel):
+            def generate(self, messages):
+                reply = super().generate(messages)
+                return "A" if reply in ("A", "B") else reply
+        _, both = make_world("variant-test", 0, order_both=True)
+        world, q = both["high"]
+        honest = run_world(ARMS["A1"](FakeModel(), "v1"), world, q)["final"]["E3a"]
+        biased = run_world(ARMS["A1"](AlwaysA(), "v1"), world, q)["final"]["E3a"]
+        self.assertEqual(honest["pairs"]["both_correct"], 1.0)
+        self.assertEqual(biased["accuracy"], 0.5)
+        self.assertEqual(biased["pairs"]["both_correct"], 0.0)
+
+    def test_run_cell_uses_the_variant_instruction(self):
+        for variant in ("v0", "v1"):
+            model = FakeModel()
+            run_pilot.run_cell(model, "A1", REQUEST["series"], 0, {}, variant)
+            allowed = {instruction(t, variant) for t in FORMAT}
+            self.assertTrue(model.seen and all(m[0]["content"] in allowed for m in model.seen))
+
+    def test_v1_cells_are_complete_and_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            req, pins = root / "pilot.json", root / "pins.json"
+            req.write_text(json.dumps(dict(REQUEST, variant="v1")))
+            pins.write_text(json.dumps(PINS))
+            shas = dict(request_sha=collect.sha256_file(req), pins_sha=collect.sha256_file(pins))
+
+            def make(arm, variant):
+                out = {"schema": run_pilot.SCHEMA, "model": "m", "arm": arm,
+                       "series": REQUEST["series"], "index": 0, "status": "ERROR",
+                       "provenance": {"code_commit": "c" * 40,
+                                      "request_sha256": shas["request_sha"],
+                                      "pins_sha256": shas["pins_sha"]},
+                       "repo": "org/m", "revision": "a" * 40, "max_new_tokens": 16,
+                       "weights_digest": "b" * 64}
+                run_pilot.run_cell(FakeModel(), arm, REQUEST["series"], 0, out, variant)
+                out["status"] = "OK"
+                return json.loads(json.dumps(out))
+            good = {arm: make(arm, "v1") for arm in REQUEST["arms"]}
+
+            def run(cells):
+                dest = root / "out"
+                dest.mkdir(exist_ok=True)
+                for arm, data in cells.items():
+                    (dest / f"pilot_m_{arm}_0.json").write_text(json.dumps(data))
+                collect.main(str(req), str(dest), str(pins))
+                return ((dest / "VERDICT").read_text().strip(), (dest / "CHECK.txt").read_text(),
+                        (dest / "SUMMARY.md").read_text())
+            verdict, check, summary = run(good)
+            self.assertEqual(verdict, "COMPLETE", check)
+            self.assertIn("Variant: v1", summary)
+            self.assertIn("| m | A1 | 1 | 1.00 | 1.00 | 1.00 |", summary)  # E2, E3a, E3a pairs
+            verdict, check, _ = run(dict(good, A1=make("A1", "v0")))
+            self.assertIn("identity:variant", check)
+            bad = json.loads(json.dumps(good["A1"]))
+            row = next(r for r in bad["conditions"]["high"]["rows"] if r["criterion"] == "E3a")
+            del row["pair"]
+            verdict, check, _ = run(dict(good, A1=bad))
+            self.assertEqual(verdict, "INCOMPLETE")
+            self.assertIn("pairs:high", check)
+            bad = json.loads(json.dumps(good["A1"]))
+            row = next(r for r in bad["conditions"]["high"]["rows"] if r["criterion"] == "E2")
+            row["pair"] = "px"
+            verdict, check, _ = run(dict(good, A1=bad))
+            self.assertIn("pairs:high", check)
+            bad = json.loads(json.dumps(good["A1"]))
+            rows = [r for r in bad["conditions"]["low"]["rows"] if r["criterion"] == "E3a"]
+            rows[0]["pair"], rows[1]["pair"] = rows[1]["pair"], rows[0]["pair"]
+            if rows[0]["pair"] == rows[1]["pair"]:
+                rows[0]["pair"] = "px"
+            verdict, check, _ = run(dict(good, A1=bad))
+            self.assertIn("pairs:low", check)
 
 
 if __name__ == "__main__":

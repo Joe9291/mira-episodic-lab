@@ -27,8 +27,9 @@ from episodic_lab.arms import ARMS  # noqa: E402
 from episodic_lab.questions import make_world  # noqa: E402
 from episodic_lab.runner import retention, run_world  # noqa: E402
 from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
+from episodic_lab.variants import VARIANTS  # noqa: E402
 
-SCHEMA = "episodic_lab.pilot_cell.v2"
+SCHEMA = "episodic_lab.pilot_cell.v3"
 
 
 def canonical_sha256(obj) -> str:
@@ -50,16 +51,17 @@ def inclusion_summary(counts: dict) -> dict:
             "max": max(values), "mean": sum(values) / len(values)}
 
 
-def run_cell(model, arm: str, series: str, index: int, out: dict) -> None:
-    attempt, pair = make_world(series, index)
-    out.update({"series": series, "index": index, "attempt": attempt, "conditions": {},
-                "partial": {}})
+def run_cell(model, arm: str, series: str, index: int, out: dict, variant: str = "v0") -> None:
+    spec = VARIANTS[variant]
+    attempt, pair = make_world(series, index, order_both=spec["order_both"])
+    out.update({"series": series, "index": index, "variant": variant, "attempt": attempt,
+                "conditions": {}, "partial": {}})
     for overlap, (world, questions) in pair.items():
         t0 = time.perf_counter()
         before = dict(model.stats)
         first_call = len(model.call_log)
         out["partial"][overlap] = {}
-        result = run_world(ARMS[arm](model), world, questions,
+        result = run_world(ARMS[arm](model, spec["instruction"]), world, questions,
                            on_phase=lambda phase, answers: out["partial"][overlap].update({phase: answers}))
         calls = model.call_log[first_call:]
         if len(calls) != len(result["asked"]):
@@ -102,8 +104,9 @@ def main() -> int:
     parser.add_argument("--request", default="config/pilot.json")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
+    variant = json.loads(Path(args.request).read_text()).get("variant", "v0")
     out = {"schema": SCHEMA, "model": args.model, "arm": args.arm, "series": args.series,
-           "index": args.index, "status": "ERROR",
+           "index": args.index, "variant": variant, "status": "ERROR",
            "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
                           "request_sha256": file_sha256(args.request),
                           "pins_sha256": file_sha256(args.pins)}}
@@ -114,7 +117,7 @@ def main() -> int:
         out.update({"repo": model.repo, "revision": model.revision,
                     "max_new_tokens": model.max_new_tokens,
                     "weights_digest": model.weights_digest()})
-        run_cell(model, args.arm, args.series, args.index, out)
+        run_cell(model, args.arm, args.series, args.index, out, variant)
         out["status"] = "OK"
     except Exception:
         out["traceback"] = traceback.format_exc()[-4000:]

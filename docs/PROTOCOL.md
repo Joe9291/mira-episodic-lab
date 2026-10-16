@@ -177,6 +177,10 @@ Controls:
   Model, answer format and hyperparameter changes share this one budget. A variant is
   chosen after analysing why the previous one failed; it is committed as a configuration
   file with its reason *before* it runs, and every variant is reported.
+- **Variant log.** v0 = base (pilot run 38956502610). v1: instruction without example
+  values and E3a asked in both A/B orders with a pair score; reason and base results in
+  `docs/PILOT_M2.md`, definition in `episodic_lab/variants.py`. Counts as variant 1 of 3
+  for A0, A1 and O1.
 - **Scope of a negative result.** Three failed variants are a negative result for those
   configurations and this compute budget, not a refutation of the mechanism.
 

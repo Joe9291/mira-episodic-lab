@@ -99,6 +99,8 @@ def score_world(gold: dict, candidates: dict, answers: dict, phase: str) -> list
                      "extracted": value, "category": category, "correct": correct,
                      "false_recall": g["gold"] == ["none"] and kind == "value",
                      "targets": g["targets"]})
+        if "pair" in g:
+            rows[-1]["pair"] = g["pair"]
     return rows
 
 
@@ -116,6 +118,12 @@ def summarise(rows: list[dict]) -> dict:
                                                    "uncertain", "other")}}
         if criterion == "E5":
             out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / n
+        if any("pair" in r for r in sub):  # variant v1: E3a asked in both A/B orders
+            pairs = {}
+            for r in sub:
+                pairs.setdefault(r["pair"], []).append(r["correct"])
+            out[criterion]["pairs"] = {"n": len(pairs), "both_correct": sum(
+                len(v) == 2 and all(v) for v in pairs.values()) / len(pairs)}
         if criterion == "E3b":  # the two subtypes are reported separately (protocol E3b)
             out[criterion]["by_qtype"] = {
                 q: {"n": len(s), "accuracy": sum(r["correct"] for r in s) / len(s)}

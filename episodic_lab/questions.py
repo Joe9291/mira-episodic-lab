@@ -131,7 +131,7 @@ def _binding_needed(early, cue, qtype) -> bool:
     return True
 
 
-def build_questions(world: dict, per_type: int = 8) -> dict:
+def build_questions(world: dict, per_type: int = 8, order_both: bool = False) -> dict:
     """Return {"public": {"phase1": [...], "final": [...]}, "gold": {...}, ...}."""
     seed, params = world["seed"], world["params"]
     eps = episodes_of(world)
@@ -221,6 +221,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
                                                       place=e.place))
         add("E4", "day", text, "day", cue, [e.episode_id], True)
 
+    order_items = []
     # E3a order: a fixed quota of aligned and inverted pairs (presentation order equal
     # to / opposite of day order); every episode is used in at most one pair.
     pairs = rng.shuffled([((pa, a), (pb, b)) for i, (pa, a) in enumerate(described)
@@ -242,10 +243,11 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
             (pa, a), (pb, b) = (pb, b), (pa, a)
         cue = {"a": dict(person=pa, action=a.action, obj=a.object, place=a.place),
                "b": dict(person=pb, action=b.action, obj=b.object, place=b.place)}
-        text = rng.choice(PARA["order"]).format(
-            a=f"{pa} {a.action} the {a.object} at {a.place}.",
-            b=f"{pb} {b.action} the {b.object} at {b.place}.")
+        template = rng.choice(PARA["order"])
+        text = template.format(a=f"{pa} {a.action} the {a.object} at {a.place}.",
+                               b=f"{pb} {b.action} the {b.object} at {b.place}.")
         add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True, kind)
+        order_items.append((kind, template, (pa, a), (pb, b)))
 
     # E3b place on a given early day.
     for person, e in pick([(p, e) for e in early for p in e.participants], per_type // 2):
@@ -288,6 +290,23 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
         raise ValueError(f"WORLD_TOO_SMALL:{short}")
 
     items = rng.shuffled(items)
+    if order_both:
+        # Variant v1: every order pair is also asked with (A) and (B) swapped (same
+        # template, no further random draws, so all other items stay identical to the
+        # base set). Both items carry the pair id; a constant letter scores 0 pairs.
+        originals = [i for i in items if i["criterion"] == "E3a"]
+        for kind, template, (pa, a), (pb, b) in order_items:
+            cue = {"a": dict(person=pb, action=b.action, obj=b.object, place=b.place),
+                   "b": dict(person=pa, action=a.action, obj=a.object, place=a.place)}
+            text = template.format(a=f"{pb} {b.action} the {b.object} at {b.place}.",
+                                   b=f"{pa} {a.action} the {a.object} at {a.place}.")
+            add("E3a", "order", text, "choice", cue, [b.episode_id, a.episode_id], True, kind)
+            pair = "p" + hashlib.sha256(json.dumps(sorted([a.episode_id, b.episode_id])).encode()).hexdigest()[:10]
+            items[-1]["pair"] = pair
+            match = [i for i in originals if set(i["targets"]) == {a.episode_id, b.episode_id}]
+            assert len(match) == 1 and match[0]["gold"] != items[-1]["gold"]
+            match[0]["pair"] = pair
+        counts["order_swapped"] = len(order_items)
     public = {"phase1": [], "final": []}
     gold = {}
     for item in items:
@@ -302,13 +321,16 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
             public["phase1"].append(record)
         gold[qid] = {k: item[k] for k in ("criterion", "qtype", "answer_type", "gold",
                                           "targets", "phase1", "cue", "variant")}
+        if "pair" in item:
+            gold[qid]["pair"] = item["pair"]
     return {"schema": QUESTION_SCHEMA, "public": public, "gold": gold, "counts": counts,
             "candidates": {"person": sorted({p for e in eps for p in e.participants}),
                            "place": sorted({e.place for e in eps}),
                            "object": sorted({e.object for e in eps})}}
 
 
-def make_world(base_seed: str, index: int, max_attempts: int = 50) -> tuple[int, dict]:
+def make_world(base_seed: str, index: int, max_attempts: int = 50,
+               order_both: bool = False) -> tuple[int, dict]:
     """World `index` of a series: the first attempt whose seed yields valid question sets
     in BOTH overlap conditions (protocol section 3). The rule depends only on the
     generator, never on any system's answers. Returns (attempt, {overlap: (world, qs)})."""
@@ -318,7 +340,7 @@ def make_world(base_seed: str, index: int, max_attempts: int = 50) -> tuple[int,
             pair = {}
             for overlap in ("high", "low"):
                 world = generate_world(seed, overlap=overlap)
-                pair[overlap] = (world, build_questions(world))
+                pair[overlap] = (world, build_questions(world, order_both=order_both))
             return attempt, pair
         except ValueError as exc:
             if not str(exc).startswith("WORLD_TOO_SMALL"):
