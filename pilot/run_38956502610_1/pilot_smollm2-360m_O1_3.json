@@ -1,0 +1,4525 @@
+{
+ "arm": "O1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.15384615384615385,
+     "categories": {
+      "correct": 0.15384615384615385,
+      "none_answer": 0.6153846153846154,
+      "other": 0.23076923076923078,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.75,
+      "other": 0.25,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 1.0,
+     "categories": {
+      "correct": 1.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.75,
+     "categories": {
+      "correct": 0.75,
+      "none_answer": 0.0,
+      "other": 0.1875,
+      "uncertain": 0.0,
+      "wrong_value": 0.0625
+     },
+     "false_recall": 0.0625,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.6,
+      "other": 0.4,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.15384615384615385,
+     "categories": {
+      "correct": 0.15384615384615385,
+      "none_answer": 0.6153846153846154,
+      "other": 0.23076923076923078,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.5,
+      "other": 0.5,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 1.0,
+     "categories": {
+      "correct": 1.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.75,
+     "categories": {
+      "correct": 0.75,
+      "none_answer": 0.0,
+      "other": 0.1875,
+      "uncertain": 0.0,
+      "wrong_value": 0.0625
+     },
+     "false_recall": 0.0625,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 0
+    },
+    "encode_reads": {
+     "ep-2rwk53": 1,
+     "ep-3fa5zc": 1,
+     "ep-4hbfbb": 1,
+     "ep-5u7zaq": 1,
+     "ep-6ac3b3": 1,
+     "ep-6pxqu2": 1,
+     "ep-79jwq6": 1,
+     "ep-7e7kgv": 1,
+     "ep-bar4wt": 1,
+     "ep-bfc6j6": 1,
+     "ep-c9b477": 1,
+     "ep-f9u5jh": 1,
+     "ep-g83cca": 1,
+     "ep-gcducf": 1,
+     "ep-gsy4gt": 1,
+     "ep-hgt3yx": 1,
+     "ep-hqempw": 1,
+     "ep-hvjzws": 1,
+     "ep-k6k87w": 1,
+     "ep-mnw7k9": 1,
+     "ep-n66j7z": 1,
+     "ep-pgqqp9": 1,
+     "ep-pnww8c": 1,
+     "ep-ppaw92": 1,
+     "ep-qc9gwt": 1,
+     "ep-qdas7p": 1,
+     "ep-qgnj5s": 1,
+     "ep-remfdg": 1,
+     "ep-rxm3up": 1,
+     "ep-sudzz5": 1,
+     "ep-t8y9ah": 1,
+     "ep-tmveub": 1,
+     "ep-vgqy68": 1,
+     "ep-vksyfu": 1,
+     "ep-w6gbrn": 1,
+     "ep-wgdu6y": 1,
+     "ep-xktwfv": 1,
+     "ep-ybxnt5": 1,
+     "ep-zaxrnb": 1,
+     "ep-zvr7s6": 1
+    },
+    "episode_tokens": {
+     "ep-2rwk53": 21,
+     "ep-3fa5zc": 21,
+     "ep-4hbfbb": 20,
+     "ep-5u7zaq": 22,
+     "ep-6ac3b3": 21,
+     "ep-6pxqu2": 20,
+     "ep-79jwq6": 20,
+     "ep-7e7kgv": 23,
+     "ep-bar4wt": 27,
+     "ep-bfc6j6": 25,
+     "ep-c9b477": 24,
+     "ep-f9u5jh": 26,
+     "ep-g83cca": 23,
+     "ep-gcducf": 27,
+     "ep-gsy4gt": 28,
+     "ep-hgt3yx": 28,
+     "ep-hqempw": 29,
+     "ep-hvjzws": 22,
+     "ep-k6k87w": 21,
+     "ep-mnw7k9": 23,
+     "ep-n66j7z": 19,
+     "ep-pgqqp9": 22,
+     "ep-pnww8c": 26,
+     "ep-ppaw92": 21,
+     "ep-qc9gwt": 23,
+     "ep-qdas7p": 26,
+     "ep-qgnj5s": 22,
+     "ep-remfdg": 28,
+     "ep-rxm3up": 23,
+     "ep-sudzz5": 22,
+     "ep-t8y9ah": 21,
+     "ep-tmveub": 20,
+     "ep-vgqy68": 28,
+     "ep-vksyfu": 20,
+     "ep-w6gbrn": 22,
+     "ep-wgdu6y": 27,
+     "ep-xktwfv": 21,
+     "ep-ybxnt5": 20,
+     "ep-zaxrnb": 21,
+     "ep-zvr7s6": 21
+    },
+    "exposure": "evidence",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 14,
+     "mean": 4.8,
+     "min": 0,
+     "total": 192
+    },
+    "prompt_inclusions": {
+     "ep-2rwk53": 6,
+     "ep-3fa5zc": 8,
+     "ep-4hbfbb": 2,
+     "ep-5u7zaq": 5,
+     "ep-6ac3b3": 8,
+     "ep-6pxqu2": 0,
+     "ep-79jwq6": 8,
+     "ep-7e7kgv": 0,
+     "ep-bar4wt": 8,
+     "ep-bfc6j6": 8,
+     "ep-c9b477": 0,
+     "ep-f9u5jh": 0,
+     "ep-g83cca": 7,
+     "ep-gcducf": 2,
+     "ep-gsy4gt": 0,
+     "ep-hgt3yx": 6,
+     "ep-hqempw": 10,
+     "ep-hvjzws": 0,
+     "ep-k6k87w": 2,
+     "ep-mnw7k9": 3,
+     "ep-n66j7z": 5,
+     "ep-pgqqp9": 2,
+     "ep-pnww8c": 10,
+     "ep-ppaw92": 0,
+     "ep-qc9gwt": 0,
+     "ep-qdas7p": 14,
+     "ep-qgnj5s": 14,
+     "ep-remfdg": 4,
+     "ep-rxm3up": 6,
+     "ep-sudzz5": 1,
+     "ep-t8y9ah": 8,
+     "ep-tmveub": 8,
+     "ep-vgqy68": 8,
+     "ep-vksyfu": 6,
+     "ep-w6gbrn": 2,
+     "ep-wgdu6y": 4,
+     "ep-xktwfv": 2,
+     "ep-ybxnt5": 1,
+     "ep-zaxrnb": 10,
+     "ep-zvr7s6": 4
+    },
+    "prompt_token_equivalents": {
+     "ep-2rwk53": 126,
+     "ep-3fa5zc": 168,
+     "ep-4hbfbb": 40,
+     "ep-5u7zaq": 110,
+     "ep-6ac3b3": 168,
+     "ep-6pxqu2": 0,
+     "ep-79jwq6": 160,
+     "ep-7e7kgv": 0,
+     "ep-bar4wt": 216,
+     "ep-bfc6j6": 200,
+     "ep-c9b477": 0,
+     "ep-f9u5jh": 0,
+     "ep-g83cca": 161,
+     "ep-gcducf": 54,
+     "ep-gsy4gt": 0,
+     "ep-hgt3yx": 168,
+     "ep-hqempw": 290,
+     "ep-hvjzws": 0,
+     "ep-k6k87w": 42,
+     "ep-mnw7k9": 69,
+     "ep-n66j7z": 95,
+     "ep-pgqqp9": 44,
+     "ep-pnww8c": 260,
+     "ep-ppaw92": 0,
+     "ep-qc9gwt": 0,
+     "ep-qdas7p": 364,
+     "ep-qgnj5s": 308,
+     "ep-remfdg": 112,
+     "ep-rxm3up": 138,
+     "ep-sudzz5": 22,
+     "ep-t8y9ah": 168,
+     "ep-tmveub": 160,
+     "ep-vgqy68": 224,
+     "ep-vksyfu": 120,
+     "ep-w6gbrn": 44,
+     "ep-wgdu6y": 108,
+     "ep-xktwfv": 42,
+     "ep-ybxnt5": 20,
+     "ep-zaxrnb": 210,
+     "ep-zvr7s6": 84
+    }
+   },
+   "questions_sha256": "71a1b4ac5bbfc43769420b6f0f917680d1d4c24a91e9a93d81e8c6b42f9144b1",
+   "resources": {
+    "max_prompt_tokens": 161,
+    "peak_rss_mb": 2425.2
+   },
+   "retention": {
+    "final": 0.47619047619047616,
+    "phase1": 0.47619047619047616
+   },
+   "rows": [
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 147,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 160,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 155,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 146,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 146,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 157,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 161,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 105,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "Day 27",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 144,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 118,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 145,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 159,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 121,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 157,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 119,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 152,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the heavy ladder at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 158,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 159,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 106,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 141,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 139,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "16",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 16",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 156,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "9",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 9",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 144,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 107,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the heavy",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 141,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 155,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 2",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 147,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 160,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 155,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q2d581d7e90",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-sudzz5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q390e543094",
+     "qtype": "find",
+     "raw": "none",
+     "targets": [
+      "ep-5u7zaq",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q475459a7a9",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q4cb9b66114",
+     "qtype": "find",
+     "raw": "none",
+     "targets": [
+      "ep-n66j7z",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 101,
+     "qid": "q5b0a6bbe00",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-xktwfv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 157,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 161,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 105,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "Day 27",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 144,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 118,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q8f39f01962",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 159,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 121,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 157,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 119,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 7,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 151,
+     "qid": "qb756d456c0",
+     "qtype": "find",
+     "raw": "Fenwick Tellin.",
+     "targets": [
+      "ep-g83cca",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 152,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the heavy ladder at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 158,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 150,
+     "qid": "qc5763b5a27",
+     "qtype": "find",
+     "raw": "none",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 159,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 106,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 139,
+     "qid": "qca14159bea",
+     "qtype": "act",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ybxnt5",
+      "ep-xktwfv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 139,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "16",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 16",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 156,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "9",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 9",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 144,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 107,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the heavy",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 155,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 2",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 61.0,
+   "seed": "pilot-m2-3-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 107,
+    "new_tokens": 395,
+    "prompt_tokens": 13914,
+    "truncated": 2
+   },
+   "world_sha256": "f911747f55972672d713a19f72819f60ddf046df793bd818257284445604fade"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.15384615384615385,
+     "categories": {
+      "correct": 0.15384615384615385,
+      "none_answer": 0.6153846153846154,
+      "other": 0.23076923076923078,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.625,
+      "other": 0.375,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 1.0,
+     "categories": {
+      "correct": 1.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.75,
+     "categories": {
+      "correct": 0.75,
+      "none_answer": 0.0,
+      "other": 0.1875,
+      "uncertain": 0.0,
+      "wrong_value": 0.0625
+     },
+     "false_recall": 0.0625,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.5714285714285714,
+      "other": 0.42857142857142855,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 7
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.15384615384615385,
+     "categories": {
+      "correct": 0.15384615384615385,
+      "none_answer": 0.6153846153846154,
+      "other": 0.23076923076923078,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.5,
+      "other": 0.5,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 1.0,
+     "categories": {
+      "correct": 1.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.75,
+     "categories": {
+      "correct": 0.75,
+      "none_answer": 0.0,
+      "other": 0.1875,
+      "uncertain": 0.0,
+      "wrong_value": 0.0625
+     },
+     "false_recall": 0.0625,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 0
+    },
+    "encode_reads": {
+     "ep-2rwk53": 1,
+     "ep-3fa5zc": 1,
+     "ep-4hbfbb": 1,
+     "ep-5bznpn": 1,
+     "ep-5u7zaq": 1,
+     "ep-665hwq": 1,
+     "ep-6ac3b3": 1,
+     "ep-79jwq6": 1,
+     "ep-ausfnz": 1,
+     "ep-bar4wt": 1,
+     "ep-bfc6j6": 1,
+     "ep-c9b477": 1,
+     "ep-cgzuqs": 1,
+     "ep-csmgd3": 1,
+     "ep-g83cca": 1,
+     "ep-gcducf": 1,
+     "ep-hqempw": 1,
+     "ep-k6k87w": 1,
+     "ep-kn9ujc": 1,
+     "ep-mnw7k9": 1,
+     "ep-n66j7z": 1,
+     "ep-ndq95f": 1,
+     "ep-pgqqp9": 1,
+     "ep-pnww8c": 1,
+     "ep-ppaw92": 1,
+     "ep-qdas7p": 1,
+     "ep-qgnj5s": 1,
+     "ep-r3djxb": 1,
+     "ep-remfdg": 1,
+     "ep-rwscg9": 1,
+     "ep-rxm3up": 1,
+     "ep-t8y9ah": 1,
+     "ep-tmveub": 1,
+     "ep-vgqy68": 1,
+     "ep-vksyfu": 1,
+     "ep-w6gbrn": 1,
+     "ep-wgdu6y": 1,
+     "ep-wn5p5m": 1,
+     "ep-zaxrnb": 1,
+     "ep-zvr7s6": 1
+    },
+    "episode_tokens": {
+     "ep-2rwk53": 21,
+     "ep-3fa5zc": 21,
+     "ep-4hbfbb": 20,
+     "ep-5bznpn": 22,
+     "ep-5u7zaq": 22,
+     "ep-665hwq": 20,
+     "ep-6ac3b3": 21,
+     "ep-79jwq6": 20,
+     "ep-ausfnz": 20,
+     "ep-bar4wt": 27,
+     "ep-bfc6j6": 25,
+     "ep-c9b477": 24,
+     "ep-cgzuqs": 21,
+     "ep-csmgd3": 20,
+     "ep-g83cca": 23,
+     "ep-gcducf": 27,
+     "ep-hqempw": 29,
+     "ep-k6k87w": 21,
+     "ep-kn9ujc": 19,
+     "ep-mnw7k9": 23,
+     "ep-n66j7z": 19,
+     "ep-ndq95f": 25,
+     "ep-pgqqp9": 22,
+     "ep-pnww8c": 26,
+     "ep-ppaw92": 21,
+     "ep-qdas7p": 26,
+     "ep-qgnj5s": 22,
+     "ep-r3djxb": 20,
+     "ep-remfdg": 28,
+     "ep-rwscg9": 26,
+     "ep-rxm3up": 23,
+     "ep-t8y9ah": 21,
+     "ep-tmveub": 20,
+     "ep-vgqy68": 28,
+     "ep-vksyfu": 20,
+     "ep-w6gbrn": 22,
+     "ep-wgdu6y": 27,
+     "ep-wn5p5m": 27,
+     "ep-zaxrnb": 21,
+     "ep-zvr7s6": 21
+    },
+    "exposure": "evidence",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 14,
+     "mean": 4.9,
+     "min": 0,
+     "total": 196
+    },
+    "prompt_inclusions": {
+     "ep-2rwk53": 6,
+     "ep-3fa5zc": 10,
+     "ep-4hbfbb": 2,
+     "ep-5bznpn": 1,
+     "ep-5u7zaq": 5,
+     "ep-665hwq": 2,
+     "ep-6ac3b3": 8,
+     "ep-79jwq6": 8,
+     "ep-ausfnz": 0,
+     "ep-bar4wt": 14,
+     "ep-bfc6j6": 8,
+     "ep-c9b477": 0,
+     "ep-cgzuqs": 0,
+     "ep-csmgd3": 1,
+     "ep-g83cca": 6,
+     "ep-gcducf": 2,
+     "ep-hqempw": 10,
+     "ep-k6k87w": 2,
+     "ep-kn9ujc": 0,
+     "ep-mnw7k9": 2,
+     "ep-n66j7z": 5,
+     "ep-ndq95f": 0,
+     "ep-pgqqp9": 3,
+     "ep-pnww8c": 10,
+     "ep-ppaw92": 0,
+     "ep-qdas7p": 14,
+     "ep-qgnj5s": 14,
+     "ep-r3djxb": 1,
+     "ep-remfdg": 5,
+     "ep-rwscg9": 0,
+     "ep-rxm3up": 6,
+     "ep-t8y9ah": 9,
+     "ep-tmveub": 8,
+     "ep-vgqy68": 8,
+     "ep-vksyfu": 6,
+     "ep-w6gbrn": 2,
+     "ep-wgdu6y": 4,
+     "ep-wn5p5m": 0,
+     "ep-zaxrnb": 10,
+     "ep-zvr7s6": 4
+    },
+    "prompt_token_equivalents": {
+     "ep-2rwk53": 126,
+     "ep-3fa5zc": 210,
+     "ep-4hbfbb": 40,
+     "ep-5bznpn": 22,
+     "ep-5u7zaq": 110,
+     "ep-665hwq": 40,
+     "ep-6ac3b3": 168,
+     "ep-79jwq6": 160,
+     "ep-ausfnz": 0,
+     "ep-bar4wt": 378,
+     "ep-bfc6j6": 200,
+     "ep-c9b477": 0,
+     "ep-cgzuqs": 0,
+     "ep-csmgd3": 20,
+     "ep-g83cca": 138,
+     "ep-gcducf": 54,
+     "ep-hqempw": 290,
+     "ep-k6k87w": 42,
+     "ep-kn9ujc": 0,
+     "ep-mnw7k9": 46,
+     "ep-n66j7z": 95,
+     "ep-ndq95f": 0,
+     "ep-pgqqp9": 66,
+     "ep-pnww8c": 260,
+     "ep-ppaw92": 0,
+     "ep-qdas7p": 364,
+     "ep-qgnj5s": 308,
+     "ep-r3djxb": 20,
+     "ep-remfdg": 140,
+     "ep-rwscg9": 0,
+     "ep-rxm3up": 138,
+     "ep-t8y9ah": 189,
+     "ep-tmveub": 160,
+     "ep-vgqy68": 224,
+     "ep-vksyfu": 120,
+     "ep-w6gbrn": 44,
+     "ep-wgdu6y": 108,
+     "ep-wn5p5m": 0,
+     "ep-zaxrnb": 210,
+     "ep-zvr7s6": 84
+    }
+   },
+   "questions_sha256": "b7e733105c067e43c29ed17c50261cb102ebdd579c7c7bb1524abb32b5b52318",
+   "resources": {
+    "max_prompt_tokens": 161,
+    "peak_rss_mb": 2425.2
+   },
+   "retention": {
+    "final": 0.47619047619047616,
+    "phase1": 0.47619047619047616
+   },
+   "rows": [
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 147,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 160,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 155,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 146,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 146,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 157,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 161,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 105,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "Day 27",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 144,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 118,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 145,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 159,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 121,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 157,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 119,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 152,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the heavy ladder at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 158,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 159,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 106,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 141,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 139,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "16",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 16",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 156,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "9",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 9",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 144,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 107,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the heavy",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 141,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 155,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 2",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q0404474a5c",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-5bznpn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q0b9f9333b6",
+     "qtype": "find",
+     "raw": "none",
+     "targets": [
+      "ep-3fa5zc",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 147,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 160,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 155,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 107,
+     "qid": "q2d581d7e90",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 148,
+     "qid": "q390e543094",
+     "qtype": "find",
+     "raw": "none",
+     "targets": [
+      "ep-5u7zaq",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q475459a7a9",
+     "qtype": "latest",
+     "raw": "none",
+     "targets": [
+      "ep-remfdg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q4cb9b66114",
+     "qtype": "find",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-n66j7z",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q5b0a6bbe00",
+     "qtype": "latest",
+     "raw": "Dorran Corland was seen last at Carrow Orchard on day",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 157,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q6f7fe9a64f",
+     "qtype": "find",
+     "raw": "none",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 161,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 105,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "Day 27",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 144,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 118,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 159,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "none",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 121,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 157,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 119,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 138,
+     "qid": "qb83a0bba9a",
+     "qtype": "act",
+     "raw": "none",
+     "targets": [
+      "ep-r3djxb",
+      "ep-665hwq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "qbe53b0da23",
+     "qtype": "act",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-csmgd3",
+      "ep-665hwq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 152,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey measured the heavy ladder at Ashgrove Harbour.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 158,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 159,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 106,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 139,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "16",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 16",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "Sabeth Lunsey",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 156,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "9",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 9",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 144,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 107,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "The object that Dorran Corland repaired at Ashgrove Harbour is the heavy",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E5",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "none",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 155,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "Dorran Corland hid the heavy compass at Mossgate Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "none_answer",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "none",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "none",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 2",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "qfed091b5db",
+     "qtype": "act",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-3fa5zc",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 62.7,
+   "seed": "pilot-m2-3-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 109,
+    "new_tokens": 412,
+    "prompt_tokens": 14193,
+    "truncated": 3
+   },
+   "world_sha256": "86092df9e48ace3d248b0739eb1343dbc6f56190b4b19d2559f5e46afbfcb6eb"
+  }
+ },
+ "index": 3,
+ "max_new_tokens": 16,
+ "model": "smollm2-360m",
+ "provenance": {
+  "code_commit": "8e841085118e987bfd1806ff15040affe3944d8c",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "5eb887cef87ae5cdd640672946d2c4f4c14f9d18270711725a38983a55abbe4f"
+ },
+ "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+ "revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+ "schema": "episodic_lab.pilot_cell.v2",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 131.9,
+ "weights_digest": "fe5f214635a19e4d8052924e712fb52e517279e8161d212e8d1e60d0ee9628f4"
+}

@@ -1,0 +1,4525 @@
+{
+ "arm": "A1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.38461538461538464,
+     "categories": {
+      "correct": 0.38461538461538464,
+      "none_answer": 0.0,
+      "other": 0.07692307692307693,
+      "uncertain": 0.0,
+      "wrong_value": 0.5384615384615384
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.375,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.75,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.125,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.46153846153846156,
+     "categories": {
+      "correct": 0.46153846153846156,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5384615384615384
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 1.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 1.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 1.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-2rwk53": 1,
+     "ep-3fa5zc": 1,
+     "ep-4hbfbb": 1,
+     "ep-5u7zaq": 1,
+     "ep-6ac3b3": 1,
+     "ep-6pxqu2": 1,
+     "ep-79jwq6": 1,
+     "ep-7e7kgv": 1,
+     "ep-bar4wt": 1,
+     "ep-bfc6j6": 1,
+     "ep-c9b477": 1,
+     "ep-f9u5jh": 1,
+     "ep-g83cca": 1,
+     "ep-gcducf": 1,
+     "ep-gsy4gt": 1,
+     "ep-hgt3yx": 1,
+     "ep-hqempw": 1,
+     "ep-hvjzws": 1,
+     "ep-k6k87w": 1,
+     "ep-mnw7k9": 1,
+     "ep-n66j7z": 1,
+     "ep-pgqqp9": 1,
+     "ep-pnww8c": 1,
+     "ep-ppaw92": 1,
+     "ep-qc9gwt": 1,
+     "ep-qdas7p": 1,
+     "ep-qgnj5s": 1,
+     "ep-remfdg": 1,
+     "ep-rxm3up": 1,
+     "ep-sudzz5": 1,
+     "ep-t8y9ah": 1,
+     "ep-tmveub": 1,
+     "ep-vgqy68": 1,
+     "ep-vksyfu": 1,
+     "ep-w6gbrn": 1,
+     "ep-wgdu6y": 1,
+     "ep-xktwfv": 1,
+     "ep-ybxnt5": 1,
+     "ep-zaxrnb": 1,
+     "ep-zvr7s6": 1
+    },
+    "episode_tokens": {
+     "ep-2rwk53": 22,
+     "ep-3fa5zc": 20,
+     "ep-4hbfbb": 20,
+     "ep-5u7zaq": 21,
+     "ep-6ac3b3": 20,
+     "ep-6pxqu2": 20,
+     "ep-79jwq6": 20,
+     "ep-7e7kgv": 22,
+     "ep-bar4wt": 27,
+     "ep-bfc6j6": 26,
+     "ep-c9b477": 22,
+     "ep-f9u5jh": 26,
+     "ep-g83cca": 22,
+     "ep-gcducf": 26,
+     "ep-gsy4gt": 26,
+     "ep-hgt3yx": 26,
+     "ep-hqempw": 27,
+     "ep-hvjzws": 21,
+     "ep-k6k87w": 20,
+     "ep-mnw7k9": 22,
+     "ep-n66j7z": 20,
+     "ep-pgqqp9": 21,
+     "ep-pnww8c": 26,
+     "ep-ppaw92": 19,
+     "ep-qc9gwt": 22,
+     "ep-qdas7p": 26,
+     "ep-qgnj5s": 22,
+     "ep-remfdg": 26,
+     "ep-rxm3up": 21,
+     "ep-sudzz5": 21,
+     "ep-t8y9ah": 22,
+     "ep-tmveub": 20,
+     "ep-vgqy68": 26,
+     "ep-vksyfu": 19,
+     "ep-w6gbrn": 21,
+     "ep-wgdu6y": 28,
+     "ep-xktwfv": 20,
+     "ep-ybxnt5": 19,
+     "ep-zaxrnb": 20,
+     "ep-zvr7s6": 20
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 107,
+     "mean": 94.75,
+     "min": 58,
+     "total": 3790
+    },
+    "prompt_inclusions": {
+     "ep-2rwk53": 107,
+     "ep-3fa5zc": 107,
+     "ep-4hbfbb": 107,
+     "ep-5u7zaq": 107,
+     "ep-6ac3b3": 107,
+     "ep-6pxqu2": 58,
+     "ep-79jwq6": 107,
+     "ep-7e7kgv": 58,
+     "ep-bar4wt": 107,
+     "ep-bfc6j6": 107,
+     "ep-c9b477": 107,
+     "ep-f9u5jh": 58,
+     "ep-g83cca": 107,
+     "ep-gcducf": 107,
+     "ep-gsy4gt": 58,
+     "ep-hgt3yx": 58,
+     "ep-hqempw": 107,
+     "ep-hvjzws": 58,
+     "ep-k6k87w": 107,
+     "ep-mnw7k9": 107,
+     "ep-n66j7z": 107,
+     "ep-pgqqp9": 107,
+     "ep-pnww8c": 107,
+     "ep-ppaw92": 107,
+     "ep-qc9gwt": 58,
+     "ep-qdas7p": 107,
+     "ep-qgnj5s": 107,
+     "ep-remfdg": 107,
+     "ep-rxm3up": 107,
+     "ep-sudzz5": 58,
+     "ep-t8y9ah": 107,
+     "ep-tmveub": 107,
+     "ep-vgqy68": 107,
+     "ep-vksyfu": 107,
+     "ep-w6gbrn": 107,
+     "ep-wgdu6y": 107,
+     "ep-xktwfv": 58,
+     "ep-ybxnt5": 58,
+     "ep-zaxrnb": 107,
+     "ep-zvr7s6": 107
+    },
+    "prompt_token_equivalents": {
+     "ep-2rwk53": 2354,
+     "ep-3fa5zc": 2140,
+     "ep-4hbfbb": 2140,
+     "ep-5u7zaq": 2247,
+     "ep-6ac3b3": 2140,
+     "ep-6pxqu2": 1160,
+     "ep-79jwq6": 2140,
+     "ep-7e7kgv": 1276,
+     "ep-bar4wt": 2889,
+     "ep-bfc6j6": 2782,
+     "ep-c9b477": 2354,
+     "ep-f9u5jh": 1508,
+     "ep-g83cca": 2354,
+     "ep-gcducf": 2782,
+     "ep-gsy4gt": 1508,
+     "ep-hgt3yx": 1508,
+     "ep-hqempw": 2889,
+     "ep-hvjzws": 1218,
+     "ep-k6k87w": 2140,
+     "ep-mnw7k9": 2354,
+     "ep-n66j7z": 2140,
+     "ep-pgqqp9": 2247,
+     "ep-pnww8c": 2782,
+     "ep-ppaw92": 2033,
+     "ep-qc9gwt": 1276,
+     "ep-qdas7p": 2782,
+     "ep-qgnj5s": 2354,
+     "ep-remfdg": 2782,
+     "ep-rxm3up": 2247,
+     "ep-sudzz5": 1218,
+     "ep-t8y9ah": 2354,
+     "ep-tmveub": 2140,
+     "ep-vgqy68": 2782,
+     "ep-vksyfu": 2033,
+     "ep-w6gbrn": 2247,
+     "ep-wgdu6y": 2996,
+     "ep-xktwfv": 1160,
+     "ep-ybxnt5": 1102,
+     "ep-zaxrnb": 2140,
+     "ep-zvr7s6": 2140
+    }
+   },
+   "questions_sha256": "71a1b4ac5bbfc43769420b6f0f917680d1d4c24a91e9a93d81e8c6b42f9144b1",
+   "resources": {
+    "max_prompt_tokens": 990,
+    "peak_rss_mb": 3211.9
+   },
+   "retention": {
+    "final": 0.23809523809523808,
+    "phase1": 0.3333333333333333
+   },
+   "rows": [
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 767,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Carrow Orchard",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 749,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Carrow Orchard",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy compass",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "heavy compass",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 763,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 750,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 749,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 752,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "27",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 767,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 27",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 763,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 750,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "20",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 20",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 750,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "14",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 758,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 14",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 2",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy violin",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "heavy violin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 762,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 762,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "19",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 19",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 767,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "heavy compass",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "heavy compass",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 763,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 990,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Carrow Orchard",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 972,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Carrow Orchard",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 972,
+     "qid": "q2d581d7e90",
+     "qtype": "latest",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-sudzz5"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 986,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Carrow Orchard",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 987,
+     "qid": "q390e543094",
+     "qtype": "find",
+     "raw": "Carrow Orchard",
+     "targets": [
+      "ep-5u7zaq",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 973,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 972,
+     "qid": "q475459a7a9",
+     "qtype": "latest",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 988,
+     "qid": "q4cb9b66114",
+     "qtype": "find",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-n66j7z",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 972,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "q5b0a6bbe00",
+     "qtype": "latest",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-xktwfv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 975,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "3",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "Day 3",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 990,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "3",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 3",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "q8f39f01962",
+     "qtype": "latest",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 986,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 973,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 973,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 981,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Friday",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "3",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 3",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 989,
+     "qid": "qb756d456c0",
+     "qtype": "find",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-g83cca",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy violin",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "heavy violin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 988,
+     "qid": "qc5763b5a27",
+     "qtype": "find",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-mnw7k9",
+      "ep-hgt3yx"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 987,
+     "qid": "qca14159bea",
+     "qtype": "act",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-ybxnt5",
+      "ep-xktwfv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 985,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 985,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "woodbasket",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Forge",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Fenhollow Forge",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "19",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 19",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 990,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "heavy ladder",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "heavy ladder",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 986,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 976,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 520.0,
+   "seed": "pilot-m2-3-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 107,
+    "new_tokens": 449,
+    "prompt_tokens": 93682,
+    "truncated": 0
+   },
+   "world_sha256": "f911747f55972672d713a19f72819f60ddf046df793bd818257284445604fade"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.3076923076923077,
+     "categories": {
+      "correct": 0.3076923076923077,
+      "none_answer": 0.0,
+      "other": 0.07692307692307693,
+      "uncertain": 0.0,
+      "wrong_value": 0.6153846153846154
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.5,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.5,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.5,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "n": 7
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.46153846153846156,
+     "categories": {
+      "correct": 0.46153846153846156,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5384615384615384
+     },
+     "n": 13
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 1.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 1.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 1.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-2rwk53": 1,
+     "ep-3fa5zc": 1,
+     "ep-4hbfbb": 1,
+     "ep-5bznpn": 1,
+     "ep-5u7zaq": 1,
+     "ep-665hwq": 1,
+     "ep-6ac3b3": 1,
+     "ep-79jwq6": 1,
+     "ep-ausfnz": 1,
+     "ep-bar4wt": 1,
+     "ep-bfc6j6": 1,
+     "ep-c9b477": 1,
+     "ep-cgzuqs": 1,
+     "ep-csmgd3": 1,
+     "ep-g83cca": 1,
+     "ep-gcducf": 1,
+     "ep-hqempw": 1,
+     "ep-k6k87w": 1,
+     "ep-kn9ujc": 1,
+     "ep-mnw7k9": 1,
+     "ep-n66j7z": 1,
+     "ep-ndq95f": 1,
+     "ep-pgqqp9": 1,
+     "ep-pnww8c": 1,
+     "ep-ppaw92": 1,
+     "ep-qdas7p": 1,
+     "ep-qgnj5s": 1,
+     "ep-r3djxb": 1,
+     "ep-remfdg": 1,
+     "ep-rwscg9": 1,
+     "ep-rxm3up": 1,
+     "ep-t8y9ah": 1,
+     "ep-tmveub": 1,
+     "ep-vgqy68": 1,
+     "ep-vksyfu": 1,
+     "ep-w6gbrn": 1,
+     "ep-wgdu6y": 1,
+     "ep-wn5p5m": 1,
+     "ep-zaxrnb": 1,
+     "ep-zvr7s6": 1
+    },
+    "episode_tokens": {
+     "ep-2rwk53": 22,
+     "ep-3fa5zc": 20,
+     "ep-4hbfbb": 20,
+     "ep-5bznpn": 22,
+     "ep-5u7zaq": 21,
+     "ep-665hwq": 20,
+     "ep-6ac3b3": 20,
+     "ep-79jwq6": 20,
+     "ep-ausfnz": 20,
+     "ep-bar4wt": 27,
+     "ep-bfc6j6": 26,
+     "ep-c9b477": 22,
+     "ep-cgzuqs": 20,
+     "ep-csmgd3": 20,
+     "ep-g83cca": 22,
+     "ep-gcducf": 26,
+     "ep-hqempw": 27,
+     "ep-k6k87w": 20,
+     "ep-kn9ujc": 19,
+     "ep-mnw7k9": 22,
+     "ep-n66j7z": 20,
+     "ep-ndq95f": 25,
+     "ep-pgqqp9": 21,
+     "ep-pnww8c": 26,
+     "ep-ppaw92": 19,
+     "ep-qdas7p": 26,
+     "ep-qgnj5s": 22,
+     "ep-r3djxb": 19,
+     "ep-remfdg": 26,
+     "ep-rwscg9": 25,
+     "ep-rxm3up": 21,
+     "ep-t8y9ah": 22,
+     "ep-tmveub": 20,
+     "ep-vgqy68": 26,
+     "ep-vksyfu": 19,
+     "ep-w6gbrn": 21,
+     "ep-wgdu6y": 28,
+     "ep-wn5p5m": 27,
+     "ep-zaxrnb": 20,
+     "ep-zvr7s6": 20
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 109,
+     "mean": 96.75,
+     "min": 60,
+     "total": 3870
+    },
+    "prompt_inclusions": {
+     "ep-2rwk53": 109,
+     "ep-3fa5zc": 109,
+     "ep-4hbfbb": 109,
+     "ep-5bznpn": 60,
+     "ep-5u7zaq": 109,
+     "ep-665hwq": 60,
+     "ep-6ac3b3": 109,
+     "ep-79jwq6": 109,
+     "ep-ausfnz": 60,
+     "ep-bar4wt": 109,
+     "ep-bfc6j6": 109,
+     "ep-c9b477": 109,
+     "ep-cgzuqs": 60,
+     "ep-csmgd3": 60,
+     "ep-g83cca": 109,
+     "ep-gcducf": 109,
+     "ep-hqempw": 109,
+     "ep-k6k87w": 109,
+     "ep-kn9ujc": 60,
+     "ep-mnw7k9": 109,
+     "ep-n66j7z": 109,
+     "ep-ndq95f": 60,
+     "ep-pgqqp9": 109,
+     "ep-pnww8c": 109,
+     "ep-ppaw92": 109,
+     "ep-qdas7p": 109,
+     "ep-qgnj5s": 109,
+     "ep-r3djxb": 60,
+     "ep-remfdg": 109,
+     "ep-rwscg9": 60,
+     "ep-rxm3up": 109,
+     "ep-t8y9ah": 109,
+     "ep-tmveub": 109,
+     "ep-vgqy68": 109,
+     "ep-vksyfu": 109,
+     "ep-w6gbrn": 109,
+     "ep-wgdu6y": 109,
+     "ep-wn5p5m": 60,
+     "ep-zaxrnb": 109,
+     "ep-zvr7s6": 109
+    },
+    "prompt_token_equivalents": {
+     "ep-2rwk53": 2398,
+     "ep-3fa5zc": 2180,
+     "ep-4hbfbb": 2180,
+     "ep-5bznpn": 1320,
+     "ep-5u7zaq": 2289,
+     "ep-665hwq": 1200,
+     "ep-6ac3b3": 2180,
+     "ep-79jwq6": 2180,
+     "ep-ausfnz": 1200,
+     "ep-bar4wt": 2943,
+     "ep-bfc6j6": 2834,
+     "ep-c9b477": 2398,
+     "ep-cgzuqs": 1200,
+     "ep-csmgd3": 1200,
+     "ep-g83cca": 2398,
+     "ep-gcducf": 2834,
+     "ep-hqempw": 2943,
+     "ep-k6k87w": 2180,
+     "ep-kn9ujc": 1140,
+     "ep-mnw7k9": 2398,
+     "ep-n66j7z": 2180,
+     "ep-ndq95f": 1500,
+     "ep-pgqqp9": 2289,
+     "ep-pnww8c": 2834,
+     "ep-ppaw92": 2071,
+     "ep-qdas7p": 2834,
+     "ep-qgnj5s": 2398,
+     "ep-r3djxb": 1140,
+     "ep-remfdg": 2834,
+     "ep-rwscg9": 1500,
+     "ep-rxm3up": 2289,
+     "ep-t8y9ah": 2398,
+     "ep-tmveub": 2180,
+     "ep-vgqy68": 2834,
+     "ep-vksyfu": 2071,
+     "ep-w6gbrn": 2289,
+     "ep-wgdu6y": 3052,
+     "ep-wn5p5m": 1620,
+     "ep-zaxrnb": 2180,
+     "ep-zvr7s6": 2180
+    }
+   },
+   "questions_sha256": "b7e733105c067e43c29ed17c50261cb102ebdd579c7c7bb1524abb32b5b52318",
+   "resources": {
+    "max_prompt_tokens": 984,
+    "peak_rss_mb": 3211.9
+   },
+   "retention": {
+    "final": 0.23809523809523808,
+    "phase1": 0.3333333333333333
+   },
+   "rows": [
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 767,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Carrow Orchard",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 749,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Carrow Orchard",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy compass",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "heavy compass",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 763,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 750,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 749,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 752,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "27",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 767,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "27",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 27",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 763,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 750,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "20",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 20",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 750,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "14",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 758,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 14",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "2",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 2",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy violin",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "heavy violin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 762,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 762,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ashgrove Harbour",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Ashgrove Harbour",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "19",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 19",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 767,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "heavy compass",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "heavy compass",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 763,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 751,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 753,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 757,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Brannick Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 966,
+     "qid": "q0404474a5c",
+     "qtype": "latest",
+     "raw": "Brannick Mill",
+     "targets": [
+      "ep-5bznpn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "q0a04cbf6a6",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 983,
+     "qid": "q0b9f9333b6",
+     "qtype": "find",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-3fa5zc",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 984,
+     "qid": "q1084af850c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-2rwk53",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Carrow Orchard",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 966,
+     "qid": "q126a4c861b",
+     "qtype": "place",
+     "raw": "Carrow Orchard",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy ladder",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "q1cce5a389c",
+     "qtype": "object",
+     "raw": "heavy ladder",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q29786fb653",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 964,
+     "qid": "q2d581d7e90",
+     "qtype": "latest",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q3166c5a992",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "q33bc9ce909",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-hqempw",
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Carrow Orchard",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 981,
+     "qid": "q390e543094",
+     "qtype": "find",
+     "raw": "Carrow Orchard",
+     "targets": [
+      "ep-5u7zaq",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 967,
+     "qid": "q3a1097e119",
+     "qtype": "at_day",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q422067d8ca",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-rxm3up"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 964,
+     "qid": "q475459a7a9",
+     "qtype": "latest",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-remfdg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q4b25686435",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 983,
+     "qid": "q4cb9b66114",
+     "qtype": "find",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-n66j7z",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q5228977dbd",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 966,
+     "qid": "q56fa43bfaa",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Carrow Orchard",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 966,
+     "qid": "q5b0a6bbe00",
+     "qtype": "latest",
+     "raw": "Carrow Orchard",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Quillon Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 969,
+     "qid": "q5b9af2cea6",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [
+      "ep-t8y9ah"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q5d0bcf3dcb",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q60b3e70c00",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-g83cca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 982,
+     "qid": "q6f7fe9a64f",
+     "qtype": "find",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-t8y9ah",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q76bfa5e302",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Dorran Corland",
+     "false_recall": false,
+     "new_tokens": 6,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "q7f459916dd",
+     "qtype": "person",
+     "raw": "Dorran Corland",
+     "targets": [
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "20",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q81f86a151f",
+     "qtype": "day",
+     "raw": "Day 20",
+     "targets": [
+      "ep-pgqqp9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 984,
+     "qid": "q89043872a9",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-79jwq6",
+      "ep-mnw7k9"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q8bc03f509e",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-vgqy68"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "q92b36325c2",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-rxm3up",
+      "ep-bfc6j6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 967,
+     "qid": "q9689f8629f",
+     "qtype": "at_day",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "q992572926b",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "q9ac6b1776a",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Forge",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 967,
+     "qid": "q9c49734ed1",
+     "qtype": "at_day",
+     "raw": "Fenhollow Forge",
+     "targets": [
+      "ep-79jwq6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "8",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 975,
+     "qid": "q9eb05e18e4",
+     "qtype": "day",
+     "raw": "Day 8",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qa8a6fd94a7",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qaa2b277350",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-gcducf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qaaa59a74f3",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qafd6e8c921",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Lindmere Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 981,
+     "qid": "qb83a0bba9a",
+     "qtype": "act",
+     "raw": "Lindmere Harbour",
+     "targets": [
+      "ep-r3djxb",
+      "ep-665hwq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Lindmere Harbour",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 984,
+     "qid": "qbe53b0da23",
+     "qtype": "act",
+     "raw": "Lindmere Harbour",
+     "targets": [
+      "ep-csmgd3",
+      "ep-665hwq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "heavy violin",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qc03c9d99b8",
+     "qtype": "object",
+     "raw": "heavy violin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qc0f43808b2",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Quillon Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "qc831eb11c5",
+     "qtype": "person",
+     "raw": "Quillon Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qc9691e726e",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-5u7zaq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 979,
+     "qid": "qd16b29bace",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g83cca",
+      "ep-zvr7s6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 979,
+     "qid": "qd378fa8f63",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-6ac3b3",
+      "ep-k6k87w"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "qd9d374c185",
+     "qtype": "object",
+     "raw": "woodbasket",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qda1a344d75",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-pnww8c"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "qdc05e5c5b0",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-qdas7p"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qdee1e403ae",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "18",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qdf95b1c845",
+     "qtype": "day",
+     "raw": "Day 18",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 984,
+     "qid": "qe777bd4fca",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qgnj5s",
+      "ep-zaxrnb"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "heavy violin",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "qe9818ea8ce",
+     "qtype": "object",
+     "raw": "heavy violin",
+     "targets": [
+      "ep-qgnj5s"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "qea1a4c5932",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-hqempw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 980,
+     "qid": "qed0964683b",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-qdas7p",
+      "ep-tmveub"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Mossgate Mill",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qf36a701d9f",
+     "qtype": "place",
+     "raw": "Mossgate Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden basket",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 968,
+     "qid": "qf47dbeb220",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden basket",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 970,
+     "qid": "qf53886f75c",
+     "qtype": "object",
+     "raw": "wooden basket",
+     "targets": [
+      "ep-wgdu6y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "1",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 974,
+     "qid": "qfd25e31d3c",
+     "qtype": "day",
+     "raw": "Day 1",
+     "targets": [
+      "ep-2rwk53"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Mossgate Mill",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 981,
+     "qid": "qfed091b5db",
+     "qtype": "act",
+     "raw": "Mossgate Mill",
+     "targets": [
+      "ep-3fa5zc",
+      "ep-bar4wt"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 530.9,
+   "seed": "pilot-m2-3-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 109,
+    "new_tokens": 461,
+    "prompt_tokens": 95300,
+    "truncated": 0
+   },
+   "world_sha256": "86092df9e48ace3d248b0739eb1343dbc6f56190b4b19d2559f5e46afbfcb6eb"
+  }
+ },
+ "index": 3,
+ "max_new_tokens": 16,
+ "model": "qwen2.5-0.5b",
+ "provenance": {
+  "code_commit": "8e841085118e987bfd1806ff15040affe3944d8c",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "5eb887cef87ae5cdd640672946d2c4f4c14f9d18270711725a38983a55abbe4f"
+ },
+ "repo": "Qwen/Qwen2.5-0.5B-Instruct",
+ "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+ "schema": "episodic_lab.pilot_cell.v2",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 1059.8,
+ "weights_digest": "8f67cfdd66abbd1338639c042c2d9c645fa717f20899e89c59abc487707b6aed"
+}

@@ -1,0 +1,4775 @@
+{
+ "arm": "O1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.058823529411764705,
+     "categories": {
+      "correct": 0.058823529411764705,
+      "none_answer": 0.0,
+      "other": 0.9411764705882353,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.058823529411764705,
+     "categories": {
+      "correct": 0.058823529411764705,
+      "none_answer": 0.0,
+      "other": 0.9411764705882353,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 0
+    },
+    "encode_reads": {
+     "ep-25xw8y": 1,
+     "ep-3pmffr": 1,
+     "ep-4cbvt6": 1,
+     "ep-5puba8": 1,
+     "ep-6n23an": 1,
+     "ep-6sayy7": 1,
+     "ep-86v2s2": 1,
+     "ep-8bycsd": 1,
+     "ep-8q7q6g": 1,
+     "ep-8t996u": 1,
+     "ep-95m2db": 1,
+     "ep-ajxa3a": 1,
+     "ep-b9c7f8": 1,
+     "ep-ct9d3h": 1,
+     "ep-cxwdhh": 1,
+     "ep-ddk576": 1,
+     "ep-du79ts": 1,
+     "ep-eadqng": 1,
+     "ep-ec9xu7": 1,
+     "ep-f8q7eg": 1,
+     "ep-ghy5tk": 1,
+     "ep-h8za2d": 1,
+     "ep-hmtbdg": 1,
+     "ep-jm6k9m": 1,
+     "ep-mrmp3b": 1,
+     "ep-n6kdbz": 1,
+     "ep-pv9aca": 1,
+     "ep-r2vqzm": 1,
+     "ep-rtwb9r": 1,
+     "ep-the6xe": 1,
+     "ep-uh4qbw": 1,
+     "ep-utp2st": 1,
+     "ep-v9mzky": 1,
+     "ep-w7x2f2": 1,
+     "ep-wuc333": 1,
+     "ep-wy798e": 1,
+     "ep-xuw8m4": 1,
+     "ep-ym92cv": 1,
+     "ep-yv5w5x": 1,
+     "ep-zg6v2y": 1
+    },
+    "episode_tokens": {
+     "ep-25xw8y": 28,
+     "ep-3pmffr": 20,
+     "ep-4cbvt6": 20,
+     "ep-5puba8": 21,
+     "ep-6n23an": 22,
+     "ep-6sayy7": 26,
+     "ep-86v2s2": 22,
+     "ep-8bycsd": 22,
+     "ep-8q7q6g": 22,
+     "ep-8t996u": 19,
+     "ep-95m2db": 19,
+     "ep-ajxa3a": 18,
+     "ep-b9c7f8": 28,
+     "ep-ct9d3h": 20,
+     "ep-cxwdhh": 19,
+     "ep-ddk576": 21,
+     "ep-du79ts": 27,
+     "ep-eadqng": 19,
+     "ep-ec9xu7": 26,
+     "ep-f8q7eg": 28,
+     "ep-ghy5tk": 27,
+     "ep-h8za2d": 20,
+     "ep-hmtbdg": 19,
+     "ep-jm6k9m": 20,
+     "ep-mrmp3b": 20,
+     "ep-n6kdbz": 26,
+     "ep-pv9aca": 27,
+     "ep-r2vqzm": 27,
+     "ep-rtwb9r": 27,
+     "ep-the6xe": 28,
+     "ep-uh4qbw": 23,
+     "ep-utp2st": 26,
+     "ep-v9mzky": 20,
+     "ep-w7x2f2": 20,
+     "ep-wuc333": 29,
+     "ep-wy798e": 26,
+     "ep-xuw8m4": 21,
+     "ep-ym92cv": 19,
+     "ep-yv5w5x": 24,
+     "ep-zg6v2y": 29
+    },
+    "exposure": "evidence",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 13,
+     "mean": 5.0,
+     "min": 0,
+     "total": 200
+    },
+    "prompt_inclusions": {
+     "ep-25xw8y": 4,
+     "ep-3pmffr": 13,
+     "ep-4cbvt6": 0,
+     "ep-5puba8": 3,
+     "ep-6n23an": 1,
+     "ep-6sayy7": 2,
+     "ep-86v2s2": 10,
+     "ep-8bycsd": 2,
+     "ep-8q7q6g": 2,
+     "ep-8t996u": 0,
+     "ep-95m2db": 10,
+     "ep-ajxa3a": 8,
+     "ep-b9c7f8": 2,
+     "ep-ct9d3h": 6,
+     "ep-cxwdhh": 8,
+     "ep-ddk576": 10,
+     "ep-du79ts": 10,
+     "ep-eadqng": 0,
+     "ep-ec9xu7": 6,
+     "ep-f8q7eg": 10,
+     "ep-ghy5tk": 12,
+     "ep-h8za2d": 8,
+     "ep-hmtbdg": 0,
+     "ep-jm6k9m": 2,
+     "ep-mrmp3b": 0,
+     "ep-n6kdbz": 6,
+     "ep-pv9aca": 2,
+     "ep-r2vqzm": 10,
+     "ep-rtwb9r": 2,
+     "ep-the6xe": 4,
+     "ep-uh4qbw": 5,
+     "ep-utp2st": 4,
+     "ep-v9mzky": 1,
+     "ep-w7x2f2": 5,
+     "ep-wuc333": 6,
+     "ep-wy798e": 0,
+     "ep-xuw8m4": 2,
+     "ep-ym92cv": 4,
+     "ep-yv5w5x": 8,
+     "ep-zg6v2y": 12
+    },
+    "prompt_token_equivalents": {
+     "ep-25xw8y": 112,
+     "ep-3pmffr": 260,
+     "ep-4cbvt6": 0,
+     "ep-5puba8": 63,
+     "ep-6n23an": 22,
+     "ep-6sayy7": 52,
+     "ep-86v2s2": 220,
+     "ep-8bycsd": 44,
+     "ep-8q7q6g": 44,
+     "ep-8t996u": 0,
+     "ep-95m2db": 190,
+     "ep-ajxa3a": 144,
+     "ep-b9c7f8": 56,
+     "ep-ct9d3h": 120,
+     "ep-cxwdhh": 152,
+     "ep-ddk576": 210,
+     "ep-du79ts": 270,
+     "ep-eadqng": 0,
+     "ep-ec9xu7": 156,
+     "ep-f8q7eg": 280,
+     "ep-ghy5tk": 324,
+     "ep-h8za2d": 160,
+     "ep-hmtbdg": 0,
+     "ep-jm6k9m": 40,
+     "ep-mrmp3b": 0,
+     "ep-n6kdbz": 156,
+     "ep-pv9aca": 54,
+     "ep-r2vqzm": 270,
+     "ep-rtwb9r": 54,
+     "ep-the6xe": 112,
+     "ep-uh4qbw": 115,
+     "ep-utp2st": 104,
+     "ep-v9mzky": 20,
+     "ep-w7x2f2": 100,
+     "ep-wuc333": 174,
+     "ep-wy798e": 0,
+     "ep-xuw8m4": 42,
+     "ep-ym92cv": 76,
+     "ep-yv5w5x": 192,
+     "ep-zg6v2y": 348
+    }
+   },
+   "questions_sha256": "ee9ab9c1d7215962f01fe94de83f42eb6c95c28c3a09ba9124faa04d5fa1dcef",
+   "resources": {
+    "max_prompt_tokens": 166,
+    "peak_rss_mb": 1105.2
+   },
+   "retention": {
+    "final": 0.04,
+    "phase1": 0.04
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 143,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The answer is",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow found the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about. They simply state",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 139,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the tiny lantern at Ashgrove Garden.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Answer: Varo Vesk repaired the wooden ledger at Mossgate Market.",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 152,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 120,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Marrow repaired the silver clock",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 110,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 162,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "On the day Ilsen Marrow carried the wooden ledger at Pellan Mill",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 113,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the silver clock at Pellan Mill.",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 110,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "The day when Odile Tellin cleaned the tiny lantern at Mossgate Market is",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "At Ashgrove Garden, Varo Vesk was on day 27",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 145,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Odile Tellin repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 141,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 148,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 101,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 150,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Pellan Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 150,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 156,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden, Varo Vesk cleaned the tiny lantern.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 118,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Ilsen Marrow repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 12,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "Answer: Varo Vesk carried the wooden ledger.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 148,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. They only mention",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 151,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 159,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "On the day Varo Vesk carried the tiny lantern at Mossgate Market,",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 113,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Ilsen Marrow was at Pellan Mill on day 22.",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 113,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 105,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "The object that Marit Corland cleaned at Ashgrove Garden is a striped",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Odie Tellin cleaned the silver clock at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Odie Tellin\n\nQuestion: Who cleaned the silver clock at Ashg",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 166,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 146,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "Odile Tellin cleaned the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 119,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "The question asks about the day on which Ilsen Marrow carried the wooden",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 110,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 162,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 154,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 155,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "Odile Tellin found the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Garden",
+     "false_recall": false,
+     "new_tokens": 7,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden.",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 119,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Odile Tellin repaired the silver clock at",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "The place where Marit Corland cleaned the wooden ledger is the old wooden ledger",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 143,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The answer is",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow found the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about. They simply state",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 139,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the tiny lantern at Ashgrove Garden.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Answer: Varo Vesk repaired the wooden ledger at Mossgate Market.",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 152,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 120,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Marrow repaired the silver clock",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "q31cf7db768",
+     "qtype": "find",
+     "raw": "The place where that person was seen most recently is Ashgrove Garden.",
+     "targets": [
+      "ep-w7x2f2",
+      "ep-5puba8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 162,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "On the day Ilsen Marrow carried the wooden ledger at Pellan Mill",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 101,
+     "qid": "q3d5e345c7a",
+     "qtype": "latest",
+     "raw": "Varo Vesk was at Fenhollow Chapel on day 39,",
+     "targets": [
+      "ep-5puba8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q3e84001cb1",
+     "qtype": "act",
+     "raw": "To which place do you go, where that person was seen most recently?",
+     "targets": [
+      "ep-6n23an",
+      "ep-8bycsd"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 113,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the silver clock at Pellan Mill.",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "The day when Odile Tellin cleaned the tiny lantern at Mossgate Market is",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "At Ashgrove Garden, Varo Vesk was on day 27",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Odile Tellin repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "q4a51293419",
+     "qtype": "find",
+     "raw": "The place where that person was seen most recently is the place where Varo Ves",
+     "targets": [
+      "ep-v9mzky",
+      "ep-5puba8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 148,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 101,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 150,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Pellan Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 150,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 156,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q5e13738ffe",
+     "qtype": "latest",
+     "raw": "Ilsen Marrow was at Fenhollow Chapel on day 40",
+     "targets": [
+      "ep-8bycsd"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 107,
+     "qid": "q6316c4c1b2",
+     "qtype": "latest",
+     "raw": "Odile Tellin was at Mossgate Market on day 34 and",
+     "targets": [
+      "ep-pv9aca"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden, Varo Vesk cleaned the tiny lantern.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q6dd6ef3751",
+     "qtype": "latest",
+     "raw": "Marit Corland was at Pellan Mill on day 38.",
+     "targets": [
+      "ep-6sayy7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 118,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Ilsen Marrow repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 12,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "Answer: Varo Vesk carried the wooden ledger.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 148,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. They only mention",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 151,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 159,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "On the day Varo Vesk carried the tiny lantern at Mossgate Market,",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 113,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Ilsen Marrow was at Pellan Mill on day 22.",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 113,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 105,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "The object that Marit Corland cleaned at Ashgrove Garden is a striped",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Odie Tellin cleaned the silver clock at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Odie Tellin\n\nQuestion: Who cleaned the silver clock at Ashg",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 166,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "qb73e646250",
+     "qtype": "find",
+     "raw": "The person who cleaned the striped umbrella at Ashgrove Garden was seen most recently",
+     "targets": [
+      "ep-3pmffr",
+      "ep-6sayy7"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "Odile Tellin cleaned the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 119,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "The question asks about the day on which Ilsen Marrow carried the wooden",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 162,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 154,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 155,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "Odile Tellin found the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qd626f0bbd8",
+     "qtype": "find",
+     "raw": "You want to meet the person who repaired the wooden ledger at Fenhollow Chapel",
+     "targets": [
+      "ep-uh4qbw",
+      "ep-pv9aca"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Garden",
+     "false_recall": false,
+     "new_tokens": 7,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden.",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 119,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Odile Tellin repaired the silver clock at",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "The place where Marit Corland cleaned the wooden ledger is the old wooden ledger",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": true
+    }
+   ],
+   "seconds": 105.4,
+   "seed": "pilot-m2-2-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 115,
+    "new_tokens": 1490,
+    "prompt_tokens": 14807,
+    "truncated": 54
+   },
+   "world_sha256": "5f9d3278e17136e4615cf98bf483c9baad8187a140462e8ea32135c1ca7c565e"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.058823529411764705,
+     "categories": {
+      "correct": 0.058823529411764705,
+      "none_answer": 0.0,
+      "other": 0.9411764705882353,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.125,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.25,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.875,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.058823529411764705,
+     "categories": {
+      "correct": 0.058823529411764705,
+      "none_answer": 0.0,
+      "other": 0.9411764705882353,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 0
+    },
+    "encode_reads": {
+     "ep-25xw8y": 1,
+     "ep-3pmffr": 1,
+     "ep-4pezfr": 1,
+     "ep-5xbf9q": 1,
+     "ep-6veamk": 1,
+     "ep-86v2s2": 1,
+     "ep-8q7q6g": 1,
+     "ep-95m2db": 1,
+     "ep-ajxa3a": 1,
+     "ep-b9c7f8": 1,
+     "ep-ct9d3h": 1,
+     "ep-cxwdhh": 1,
+     "ep-ddk576": 1,
+     "ep-du79ts": 1,
+     "ep-dyksac": 1,
+     "ep-eadqng": 1,
+     "ep-ec9xu7": 1,
+     "ep-f8q7eg": 1,
+     "ep-ghy5tk": 1,
+     "ep-h8za2d": 1,
+     "ep-h9htum": 1,
+     "ep-jm6k9m": 1,
+     "ep-n6kdbz": 1,
+     "ep-pm9ge2": 1,
+     "ep-qdyjag": 1,
+     "ep-qm62q3": 1,
+     "ep-r2vqzm": 1,
+     "ep-rtwb9r": 1,
+     "ep-the6xe": 1,
+     "ep-uh4qbw": 1,
+     "ep-utp2st": 1,
+     "ep-v9mzky": 1,
+     "ep-vdxy7g": 1,
+     "ep-w7x2f2": 1,
+     "ep-wuc333": 1,
+     "ep-xuw8m4": 1,
+     "ep-ym92cv": 1,
+     "ep-yv5w5x": 1,
+     "ep-z7nwrv": 1,
+     "ep-zg6v2y": 1
+    },
+    "episode_tokens": {
+     "ep-25xw8y": 28,
+     "ep-3pmffr": 20,
+     "ep-4pezfr": 20,
+     "ep-5xbf9q": 27,
+     "ep-6veamk": 21,
+     "ep-86v2s2": 22,
+     "ep-8q7q6g": 22,
+     "ep-95m2db": 19,
+     "ep-ajxa3a": 18,
+     "ep-b9c7f8": 28,
+     "ep-ct9d3h": 20,
+     "ep-cxwdhh": 19,
+     "ep-ddk576": 21,
+     "ep-du79ts": 27,
+     "ep-dyksac": 20,
+     "ep-eadqng": 19,
+     "ep-ec9xu7": 26,
+     "ep-f8q7eg": 28,
+     "ep-ghy5tk": 27,
+     "ep-h8za2d": 20,
+     "ep-h9htum": 21,
+     "ep-jm6k9m": 20,
+     "ep-n6kdbz": 26,
+     "ep-pm9ge2": 21,
+     "ep-qdyjag": 22,
+     "ep-qm62q3": 27,
+     "ep-r2vqzm": 27,
+     "ep-rtwb9r": 27,
+     "ep-the6xe": 28,
+     "ep-uh4qbw": 23,
+     "ep-utp2st": 26,
+     "ep-v9mzky": 20,
+     "ep-vdxy7g": 20,
+     "ep-w7x2f2": 20,
+     "ep-wuc333": 29,
+     "ep-xuw8m4": 21,
+     "ep-ym92cv": 19,
+     "ep-yv5w5x": 24,
+     "ep-z7nwrv": 28,
+     "ep-zg6v2y": 29
+    },
+    "exposure": "evidence",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 12,
+     "mean": 5.0,
+     "min": 0,
+     "total": 200
+    },
+    "prompt_inclusions": {
+     "ep-25xw8y": 6,
+     "ep-3pmffr": 12,
+     "ep-4pezfr": 0,
+     "ep-5xbf9q": 0,
+     "ep-6veamk": 0,
+     "ep-86v2s2": 10,
+     "ep-8q7q6g": 2,
+     "ep-95m2db": 11,
+     "ep-ajxa3a": 8,
+     "ep-b9c7f8": 2,
+     "ep-ct9d3h": 7,
+     "ep-cxwdhh": 8,
+     "ep-ddk576": 11,
+     "ep-du79ts": 10,
+     "ep-dyksac": 1,
+     "ep-eadqng": 0,
+     "ep-ec9xu7": 11,
+     "ep-f8q7eg": 10,
+     "ep-ghy5tk": 12,
+     "ep-h8za2d": 8,
+     "ep-h9htum": 2,
+     "ep-jm6k9m": 2,
+     "ep-n6kdbz": 6,
+     "ep-pm9ge2": 0,
+     "ep-qdyjag": 0,
+     "ep-qm62q3": 0,
+     "ep-r2vqzm": 10,
+     "ep-rtwb9r": 2,
+     "ep-the6xe": 4,
+     "ep-uh4qbw": 4,
+     "ep-utp2st": 4,
+     "ep-v9mzky": 1,
+     "ep-vdxy7g": 0,
+     "ep-w7x2f2": 4,
+     "ep-wuc333": 6,
+     "ep-xuw8m4": 2,
+     "ep-ym92cv": 4,
+     "ep-yv5w5x": 8,
+     "ep-z7nwrv": 0,
+     "ep-zg6v2y": 12
+    },
+    "prompt_token_equivalents": {
+     "ep-25xw8y": 168,
+     "ep-3pmffr": 240,
+     "ep-4pezfr": 0,
+     "ep-5xbf9q": 0,
+     "ep-6veamk": 0,
+     "ep-86v2s2": 220,
+     "ep-8q7q6g": 44,
+     "ep-95m2db": 209,
+     "ep-ajxa3a": 144,
+     "ep-b9c7f8": 56,
+     "ep-ct9d3h": 140,
+     "ep-cxwdhh": 152,
+     "ep-ddk576": 231,
+     "ep-du79ts": 270,
+     "ep-dyksac": 20,
+     "ep-eadqng": 0,
+     "ep-ec9xu7": 286,
+     "ep-f8q7eg": 280,
+     "ep-ghy5tk": 324,
+     "ep-h8za2d": 160,
+     "ep-h9htum": 42,
+     "ep-jm6k9m": 40,
+     "ep-n6kdbz": 156,
+     "ep-pm9ge2": 0,
+     "ep-qdyjag": 0,
+     "ep-qm62q3": 0,
+     "ep-r2vqzm": 270,
+     "ep-rtwb9r": 54,
+     "ep-the6xe": 112,
+     "ep-uh4qbw": 92,
+     "ep-utp2st": 104,
+     "ep-v9mzky": 20,
+     "ep-vdxy7g": 0,
+     "ep-w7x2f2": 80,
+     "ep-wuc333": 174,
+     "ep-xuw8m4": 42,
+     "ep-ym92cv": 76,
+     "ep-yv5w5x": 192,
+     "ep-z7nwrv": 0,
+     "ep-zg6v2y": 348
+    }
+   },
+   "questions_sha256": "8b364ce836454a3f9bd77b36a47697b104d73070aa556ee9d08d65cadf9c071c",
+   "resources": {
+    "max_prompt_tokens": 166,
+    "peak_rss_mb": 1105.2
+   },
+   "retention": {
+    "final": 0.04,
+    "phase1": 0.04
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 143,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The answer is",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow found the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about. They simply state",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 139,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the tiny lantern at Ashgrove Garden.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Answer: Varo Vesk repaired the wooden ledger at Mossgate Market.",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 152,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 120,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Marrow repaired the silver clock",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 110,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 162,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 115,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "On the day Ilsen Marrow carried the wooden ledger at Pellan Mill",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 113,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the silver clock at Pellan Mill.",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 110,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "The day when Odile Tellin cleaned the tiny lantern at Mossgate Market is",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "At Ashgrove Garden, Varo Vesk was on day 27",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 145,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Odile Tellin repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 141,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 148,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 101,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 150,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Pellan Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 150,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 156,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 108,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 111,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden, Varo Vesk cleaned the tiny lantern.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 118,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Ilsen Marrow repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 12,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "Answer: Varo Vesk carried the wooden ledger.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 148,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. They only mention",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 151,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 159,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 109,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "On the day Varo Vesk carried the tiny lantern at Mossgate Market,",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 113,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Ilsen Marrow was at Pellan Mill on day 22.",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 113,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 105,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "The object that Marit Corland cleaned at Ashgrove Garden is a striped",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 104,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 149,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Odie Tellin cleaned the silver clock at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 153,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Odie Tellin\n\nQuestion: Who cleaned the silver clock at Ashg",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 166,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 146,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "Odile Tellin cleaned the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 119,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "The question asks about the day on which Ilsen Marrow carried the wooden",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 110,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 162,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 154,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 155,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "Odile Tellin found the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Garden",
+     "false_recall": false,
+     "new_tokens": 7,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 103,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden.",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 119,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Odile Tellin repaired the silver clock at",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 112,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "The place where Marit Corland cleaned the wooden ledger is the old wooden ledger",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 143,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The answer is",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow found the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about. They simply state",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 139,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the tiny lantern at Ashgrove Garden.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Answer: Varo Vesk repaired the wooden ledger at Mossgate Market.",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 152,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q238325964e",
+     "qtype": "find",
+     "raw": "The place where Varo Vesk cleaned the wooden ledger at Ashgrove Garden",
+     "targets": [
+      "ep-95m2db",
+      "ep-ec9xu7"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 120,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Marrow repaired the silver clock",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Ellsmere Forge",
+     "false_recall": false,
+     "new_tokens": 8,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "q36785cdcc5",
+     "qtype": "latest",
+     "raw": "Answer: Ellsmere Forge",
+     "targets": [
+      "ep-h9htum"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Elm Court",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 162,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 115,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "On the day Ilsen Marrow carried the wooden ledger at Pellan Mill",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q3d5e345c7a",
+     "qtype": "latest",
+     "raw": "Answer: Varo Vesk was seen last at the \"Mossgate Market",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q3f417962c7",
+     "qtype": "find",
+     "raw": "The person who carried the striped umbrella at Fenhollow Chapel was seen most recently",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-ec9xu7"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 113,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "Ilsen Marrow cleaned the silver clock at Pellan Mill.",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "The day when Odile Tellin cleaned the tiny lantern at Mossgate Market is",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "At Ashgrove Garden, Varo Vesk was on day 27",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 145,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Odile Tellin repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "q4a51293419",
+     "qtype": "find",
+     "raw": "The place where Varo Vesk repaired the tiny lantern at Ashgrove Garden",
+     "targets": [
+      "ep-v9mzky",
+      "ep-ec9xu7"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 141,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 148,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 101,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 150,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Pellan Mill.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 150,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 156,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 108,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about.",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "q6316c4c1b2",
+     "qtype": "latest",
+     "raw": "Odie Tellin was seen last at the Fenhollow Chapel at the end",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 111,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden, Varo Vesk cleaned the tiny lantern.",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 106,
+     "qid": "q6dd6ef3751",
+     "qtype": "latest",
+     "raw": "Marit Corland was at Mossgate Market on day 30 and repaired",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 118,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Ilsen Marrow repaired the silver clock at Ashgrove Garden on day",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 12,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "Answer: Varo Vesk carried the wooden ledger.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 142,
+     "qid": "q79bfb4e1bc",
+     "qtype": "act",
+     "raw": "To the last person who handled the silver compass, I would go to Quar",
+     "targets": [
+      "ep-dyksac",
+      "ep-h9htum"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 148,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. They only mention",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 151,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 159,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 148,
+     "qid": "q95f7007c5a",
+     "qtype": "find",
+     "raw": "The person who cleaned the tiny lantern at Mossgate Market was seen most recently at",
+     "targets": [
+      "ep-ddk576",
+      "ep-25xw8y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 109,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "On the day Varo Vesk carried the tiny lantern at Mossgate Market,",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 113,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Ilsen Marrow was at Pellan Mill on day 22.",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 113,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "Odile Tellin carried the wooden ledger together with Ilsen Marrow",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 105,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "The object that Marit Corland cleaned at Ashgrove Garden is a striped",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 104,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Odie Tellin cleaned the tiny lantern at Mossgate Market.",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 149,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Odie Tellin cleaned the silver clock at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 153,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Odie Tellin\n\nQuestion: Who cleaned the silver clock at Ashg",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 166,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "Odile Tellin repaired the striped umbrella at Mossgate Market.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 146,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "Odile Tellin cleaned the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 119,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "The question asks about the day on which Ilsen Marrow carried the wooden",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 110,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin carried the striped umbrella at Mossgate Market together with I",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 162,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Ilsen Marrow cleaned the striped umbrella at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 154,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 155,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "Odile Tellin found the silver clock at Ashgrove Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ashgrove Garden",
+     "false_recall": false,
+     "new_tokens": 7,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 103,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "At Ashgrove Garden.",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 119,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "The question asks about the day when Odile Tellin repaired the silver clock at",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 112,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "The place where Marit Corland cleaned the wooden ledger is the old wooden ledger",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": true
+    }
+   ],
+   "seconds": 105.4,
+   "seed": "pilot-m2-2-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 115,
+    "new_tokens": 1482,
+    "prompt_tokens": 14820,
+    "truncated": 56
+   },
+   "world_sha256": "8a903571d5c0ad11cef1ad8dad637ed324ab3c7e00b71b6e09d82690347cd529"
+  }
+ },
+ "index": 2,
+ "max_new_tokens": 16,
+ "model": "smollm2-135m",
+ "provenance": {
+  "code_commit": "8e841085118e987bfd1806ff15040affe3944d8c",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "5eb887cef87ae5cdd640672946d2c4f4c14f9d18270711725a38983a55abbe4f"
+ },
+ "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+ "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "schema": "episodic_lab.pilot_cell.v2",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 216.3,
+ "weights_digest": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594"
+}

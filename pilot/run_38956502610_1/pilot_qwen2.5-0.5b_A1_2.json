@@ -1,0 +1,4775 @@
+{
+ "arm": "A1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.29411764705882354,
+     "categories": {
+      "correct": 0.29411764705882354,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.7058823529411765
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.25,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.25,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.25,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.25,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.75
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 1.0
+     },
+     "false_recall": 1.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.6,
+     "categories": {
+      "correct": 0.6,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.4
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.35294117647058826,
+     "categories": {
+      "correct": 0.35294117647058826,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.6470588235294118
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.25,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.25,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.25,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.75
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.25,
+     "categories": {
+      "correct": 0.25,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.75
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0625,
+      "uncertain": 0.0,
+      "wrong_value": 0.9375
+     },
+     "false_recall": 0.9375,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-25xw8y": 1,
+     "ep-3pmffr": 1,
+     "ep-4cbvt6": 1,
+     "ep-5puba8": 1,
+     "ep-6n23an": 1,
+     "ep-6sayy7": 1,
+     "ep-86v2s2": 1,
+     "ep-8bycsd": 1,
+     "ep-8q7q6g": 1,
+     "ep-8t996u": 1,
+     "ep-95m2db": 1,
+     "ep-ajxa3a": 1,
+     "ep-b9c7f8": 1,
+     "ep-ct9d3h": 1,
+     "ep-cxwdhh": 1,
+     "ep-ddk576": 1,
+     "ep-du79ts": 1,
+     "ep-eadqng": 1,
+     "ep-ec9xu7": 1,
+     "ep-f8q7eg": 1,
+     "ep-ghy5tk": 1,
+     "ep-h8za2d": 1,
+     "ep-hmtbdg": 1,
+     "ep-jm6k9m": 1,
+     "ep-mrmp3b": 1,
+     "ep-n6kdbz": 1,
+     "ep-pv9aca": 1,
+     "ep-r2vqzm": 1,
+     "ep-rtwb9r": 1,
+     "ep-the6xe": 1,
+     "ep-uh4qbw": 1,
+     "ep-utp2st": 1,
+     "ep-v9mzky": 1,
+     "ep-w7x2f2": 1,
+     "ep-wuc333": 1,
+     "ep-wy798e": 1,
+     "ep-xuw8m4": 1,
+     "ep-ym92cv": 1,
+     "ep-yv5w5x": 1,
+     "ep-zg6v2y": 1
+    },
+    "episode_tokens": {
+     "ep-25xw8y": 28,
+     "ep-3pmffr": 20,
+     "ep-4cbvt6": 19,
+     "ep-5puba8": 21,
+     "ep-6n23an": 21,
+     "ep-6sayy7": 26,
+     "ep-86v2s2": 21,
+     "ep-8bycsd": 21,
+     "ep-8q7q6g": 23,
+     "ep-8t996u": 20,
+     "ep-95m2db": 19,
+     "ep-ajxa3a": 18,
+     "ep-b9c7f8": 28,
+     "ep-ct9d3h": 20,
+     "ep-cxwdhh": 20,
+     "ep-ddk576": 22,
+     "ep-du79ts": 27,
+     "ep-eadqng": 19,
+     "ep-ec9xu7": 27,
+     "ep-f8q7eg": 27,
+     "ep-ghy5tk": 26,
+     "ep-h8za2d": 21,
+     "ep-hmtbdg": 19,
+     "ep-jm6k9m": 20,
+     "ep-mrmp3b": 20,
+     "ep-n6kdbz": 25,
+     "ep-pv9aca": 27,
+     "ep-r2vqzm": 26,
+     "ep-rtwb9r": 27,
+     "ep-the6xe": 27,
+     "ep-uh4qbw": 23,
+     "ep-utp2st": 26,
+     "ep-v9mzky": 20,
+     "ep-w7x2f2": 20,
+     "ep-wuc333": 28,
+     "ep-wy798e": 25,
+     "ep-xuw8m4": 22,
+     "ep-ym92cv": 19,
+     "ep-yv5w5x": 25,
+     "ep-zg6v2y": 27
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 115,
+     "mean": 101.75,
+     "min": 62,
+     "total": 4070
+    },
+    "prompt_inclusions": {
+     "ep-25xw8y": 115,
+     "ep-3pmffr": 115,
+     "ep-4cbvt6": 62,
+     "ep-5puba8": 62,
+     "ep-6n23an": 62,
+     "ep-6sayy7": 62,
+     "ep-86v2s2": 115,
+     "ep-8bycsd": 62,
+     "ep-8q7q6g": 115,
+     "ep-8t996u": 62,
+     "ep-95m2db": 115,
+     "ep-ajxa3a": 115,
+     "ep-b9c7f8": 115,
+     "ep-ct9d3h": 115,
+     "ep-cxwdhh": 115,
+     "ep-ddk576": 115,
+     "ep-du79ts": 115,
+     "ep-eadqng": 115,
+     "ep-ec9xu7": 115,
+     "ep-f8q7eg": 115,
+     "ep-ghy5tk": 115,
+     "ep-h8za2d": 115,
+     "ep-hmtbdg": 62,
+     "ep-jm6k9m": 115,
+     "ep-mrmp3b": 62,
+     "ep-n6kdbz": 115,
+     "ep-pv9aca": 62,
+     "ep-r2vqzm": 115,
+     "ep-rtwb9r": 115,
+     "ep-the6xe": 115,
+     "ep-uh4qbw": 115,
+     "ep-utp2st": 115,
+     "ep-v9mzky": 115,
+     "ep-w7x2f2": 115,
+     "ep-wuc333": 115,
+     "ep-wy798e": 62,
+     "ep-xuw8m4": 115,
+     "ep-ym92cv": 115,
+     "ep-yv5w5x": 115,
+     "ep-zg6v2y": 115
+    },
+    "prompt_token_equivalents": {
+     "ep-25xw8y": 3220,
+     "ep-3pmffr": 2300,
+     "ep-4cbvt6": 1178,
+     "ep-5puba8": 1302,
+     "ep-6n23an": 1302,
+     "ep-6sayy7": 1612,
+     "ep-86v2s2": 2415,
+     "ep-8bycsd": 1302,
+     "ep-8q7q6g": 2645,
+     "ep-8t996u": 1240,
+     "ep-95m2db": 2185,
+     "ep-ajxa3a": 2070,
+     "ep-b9c7f8": 3220,
+     "ep-ct9d3h": 2300,
+     "ep-cxwdhh": 2300,
+     "ep-ddk576": 2530,
+     "ep-du79ts": 3105,
+     "ep-eadqng": 2185,
+     "ep-ec9xu7": 3105,
+     "ep-f8q7eg": 3105,
+     "ep-ghy5tk": 2990,
+     "ep-h8za2d": 2415,
+     "ep-hmtbdg": 1178,
+     "ep-jm6k9m": 2300,
+     "ep-mrmp3b": 1240,
+     "ep-n6kdbz": 2875,
+     "ep-pv9aca": 1674,
+     "ep-r2vqzm": 2990,
+     "ep-rtwb9r": 3105,
+     "ep-the6xe": 3105,
+     "ep-uh4qbw": 2645,
+     "ep-utp2st": 2990,
+     "ep-v9mzky": 2300,
+     "ep-w7x2f2": 2300,
+     "ep-wuc333": 3220,
+     "ep-wy798e": 1550,
+     "ep-xuw8m4": 2530,
+     "ep-ym92cv": 2185,
+     "ep-yv5w5x": 2875,
+     "ep-zg6v2y": 3105
+    }
+   },
+   "questions_sha256": "ee9ab9c1d7215962f01fe94de83f42eb6c95c28c3a09ba9124faa04d5fa1dcef",
+   "resources": {
+    "max_prompt_tokens": 1015,
+    "peak_rss_mb": 3205.7
+   },
+   "retention": {
+    "final": 0.24,
+    "phase1": 0.32
+   },
+   "rows": [
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 792,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 787,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 785,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 787,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 796,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 791,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Voro Vesk",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 796,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 792,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "19",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Day 19",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "silver clock",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Mill",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 796,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 791,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Odile Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 795,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 787,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1011,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Mill",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "28",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1006,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "Day 28",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1014,
+     "qid": "q31cf7db768",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-w7x2f2",
+      "ep-5puba8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1004,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 995,
+     "qid": "q3d5e345c7a",
+     "qtype": "latest",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-5puba8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1015,
+     "qid": "q3e84001cb1",
+     "qtype": "act",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-6n23an",
+      "ep-8bycsd"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1006,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1015,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "28",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1005,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Day 28",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1014,
+     "qid": "q4a51293419",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-v9mzky",
+      "ep-5puba8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1010,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "striped umbrella",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "silver clock",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Ilsen Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1015,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1011,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 995,
+     "qid": "q5e13738ffe",
+     "qtype": "latest",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-8bycsd"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 995,
+     "qid": "q6316c4c1b2",
+     "qtype": "latest",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-pv9aca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q6dd6ef3751",
+     "qtype": "latest",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-6sayy7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "28",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1005,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Day 28",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "silver clock",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1005,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "Day 13",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1015,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 998,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1010,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1014,
+     "qid": "qb73e646250",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-3pmffr",
+      "ep-6sayy7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped umbrella",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1005,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Ilsen Marrow",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Ilsen Marrow",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1014,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "striped umbrella",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "striped umbrella",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "qd626f0bbd8",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-uh4qbw",
+      "ep-pv9aca"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "26",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1006,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "Day 26",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 573.9,
+   "seed": "pilot-m2-2-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 115,
+    "new_tokens": 484,
+    "prompt_tokens": 103665,
+    "truncated": 0
+   },
+   "world_sha256": "5f9d3278e17136e4615cf98bf483c9baad8187a140462e8ea32135c1ca7c565e"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.35294117647058826,
+     "categories": {
+      "correct": 0.35294117647058826,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.6470588235294118
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.375,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.25,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.5,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.125,
+     "categories": {
+      "correct": 0.125,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.875
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0625,
+      "uncertain": 0.0,
+      "wrong_value": 0.9375
+     },
+     "false_recall": 0.9375,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.2,
+     "categories": {
+      "correct": 0.2,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.8
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.35294117647058826,
+     "categories": {
+      "correct": 0.35294117647058826,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.6470588235294118
+     },
+     "n": 17
+    },
+    "E3a": {
+     "accuracy": 0.375,
+     "categories": {
+      "correct": 0.375,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.625
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.25,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.25,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.25,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.75
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.25,
+     "categories": {
+      "correct": 0.25,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.75
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 0.0625,
+      "uncertain": 0.0,
+      "wrong_value": 0.9375
+     },
+     "false_recall": 0.9375,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-25xw8y": 1,
+     "ep-3pmffr": 1,
+     "ep-4pezfr": 1,
+     "ep-5xbf9q": 1,
+     "ep-6veamk": 1,
+     "ep-86v2s2": 1,
+     "ep-8q7q6g": 1,
+     "ep-95m2db": 1,
+     "ep-ajxa3a": 1,
+     "ep-b9c7f8": 1,
+     "ep-ct9d3h": 1,
+     "ep-cxwdhh": 1,
+     "ep-ddk576": 1,
+     "ep-du79ts": 1,
+     "ep-dyksac": 1,
+     "ep-eadqng": 1,
+     "ep-ec9xu7": 1,
+     "ep-f8q7eg": 1,
+     "ep-ghy5tk": 1,
+     "ep-h8za2d": 1,
+     "ep-h9htum": 1,
+     "ep-jm6k9m": 1,
+     "ep-n6kdbz": 1,
+     "ep-pm9ge2": 1,
+     "ep-qdyjag": 1,
+     "ep-qm62q3": 1,
+     "ep-r2vqzm": 1,
+     "ep-rtwb9r": 1,
+     "ep-the6xe": 1,
+     "ep-uh4qbw": 1,
+     "ep-utp2st": 1,
+     "ep-v9mzky": 1,
+     "ep-vdxy7g": 1,
+     "ep-w7x2f2": 1,
+     "ep-wuc333": 1,
+     "ep-xuw8m4": 1,
+     "ep-ym92cv": 1,
+     "ep-yv5w5x": 1,
+     "ep-z7nwrv": 1,
+     "ep-zg6v2y": 1
+    },
+    "episode_tokens": {
+     "ep-25xw8y": 28,
+     "ep-3pmffr": 20,
+     "ep-4pezfr": 19,
+     "ep-5xbf9q": 26,
+     "ep-6veamk": 20,
+     "ep-86v2s2": 21,
+     "ep-8q7q6g": 23,
+     "ep-95m2db": 19,
+     "ep-ajxa3a": 18,
+     "ep-b9c7f8": 28,
+     "ep-ct9d3h": 20,
+     "ep-cxwdhh": 20,
+     "ep-ddk576": 22,
+     "ep-du79ts": 27,
+     "ep-dyksac": 20,
+     "ep-eadqng": 19,
+     "ep-ec9xu7": 27,
+     "ep-f8q7eg": 27,
+     "ep-ghy5tk": 26,
+     "ep-h8za2d": 21,
+     "ep-h9htum": 21,
+     "ep-jm6k9m": 20,
+     "ep-n6kdbz": 25,
+     "ep-pm9ge2": 21,
+     "ep-qdyjag": 21,
+     "ep-qm62q3": 26,
+     "ep-r2vqzm": 26,
+     "ep-rtwb9r": 27,
+     "ep-the6xe": 27,
+     "ep-uh4qbw": 23,
+     "ep-utp2st": 26,
+     "ep-v9mzky": 20,
+     "ep-vdxy7g": 19,
+     "ep-w7x2f2": 20,
+     "ep-wuc333": 28,
+     "ep-xuw8m4": 22,
+     "ep-ym92cv": 19,
+     "ep-yv5w5x": 25,
+     "ep-z7nwrv": 28,
+     "ep-zg6v2y": 27
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 115,
+     "mean": 101.75,
+     "min": 62,
+     "total": 4070
+    },
+    "prompt_inclusions": {
+     "ep-25xw8y": 115,
+     "ep-3pmffr": 115,
+     "ep-4pezfr": 62,
+     "ep-5xbf9q": 62,
+     "ep-6veamk": 62,
+     "ep-86v2s2": 115,
+     "ep-8q7q6g": 115,
+     "ep-95m2db": 115,
+     "ep-ajxa3a": 115,
+     "ep-b9c7f8": 115,
+     "ep-ct9d3h": 115,
+     "ep-cxwdhh": 115,
+     "ep-ddk576": 115,
+     "ep-du79ts": 115,
+     "ep-dyksac": 62,
+     "ep-eadqng": 115,
+     "ep-ec9xu7": 115,
+     "ep-f8q7eg": 115,
+     "ep-ghy5tk": 115,
+     "ep-h8za2d": 115,
+     "ep-h9htum": 62,
+     "ep-jm6k9m": 115,
+     "ep-n6kdbz": 115,
+     "ep-pm9ge2": 62,
+     "ep-qdyjag": 62,
+     "ep-qm62q3": 62,
+     "ep-r2vqzm": 115,
+     "ep-rtwb9r": 115,
+     "ep-the6xe": 115,
+     "ep-uh4qbw": 115,
+     "ep-utp2st": 115,
+     "ep-v9mzky": 115,
+     "ep-vdxy7g": 62,
+     "ep-w7x2f2": 115,
+     "ep-wuc333": 115,
+     "ep-xuw8m4": 115,
+     "ep-ym92cv": 115,
+     "ep-yv5w5x": 115,
+     "ep-z7nwrv": 62,
+     "ep-zg6v2y": 115
+    },
+    "prompt_token_equivalents": {
+     "ep-25xw8y": 3220,
+     "ep-3pmffr": 2300,
+     "ep-4pezfr": 1178,
+     "ep-5xbf9q": 1612,
+     "ep-6veamk": 1240,
+     "ep-86v2s2": 2415,
+     "ep-8q7q6g": 2645,
+     "ep-95m2db": 2185,
+     "ep-ajxa3a": 2070,
+     "ep-b9c7f8": 3220,
+     "ep-ct9d3h": 2300,
+     "ep-cxwdhh": 2300,
+     "ep-ddk576": 2530,
+     "ep-du79ts": 3105,
+     "ep-dyksac": 1240,
+     "ep-eadqng": 2185,
+     "ep-ec9xu7": 3105,
+     "ep-f8q7eg": 3105,
+     "ep-ghy5tk": 2990,
+     "ep-h8za2d": 2415,
+     "ep-h9htum": 1302,
+     "ep-jm6k9m": 2300,
+     "ep-n6kdbz": 2875,
+     "ep-pm9ge2": 1302,
+     "ep-qdyjag": 1302,
+     "ep-qm62q3": 1612,
+     "ep-r2vqzm": 2990,
+     "ep-rtwb9r": 3105,
+     "ep-the6xe": 3105,
+     "ep-uh4qbw": 2645,
+     "ep-utp2st": 2990,
+     "ep-v9mzky": 2300,
+     "ep-vdxy7g": 1178,
+     "ep-w7x2f2": 2300,
+     "ep-wuc333": 3220,
+     "ep-xuw8m4": 2530,
+     "ep-ym92cv": 2185,
+     "ep-yv5w5x": 2875,
+     "ep-z7nwrv": 1736,
+     "ep-zg6v2y": 3105
+    }
+   },
+   "questions_sha256": "8b364ce836454a3f9bd77b36a47697b104d73070aa556ee9d08d65cadf9c071c",
+   "resources": {
+    "max_prompt_tokens": 1017,
+    "peak_rss_mb": 3205.7
+   },
+   "retention": {
+    "final": 0.28,
+    "phase1": 0.32
+   },
+   "rows": [
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Ilsen Marrow",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Ilsen Marrow",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 792,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 787,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "22",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 785,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "Day 22",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 787,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 796,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 791,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Voro Vesk",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 796,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 792,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "19",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Day 19",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "silver clock",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Mill",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 778,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 796,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 779,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 791,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 786,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Odile Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 781,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 795,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 782,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "10",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 787,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "Day 10",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 780,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q0060fd3bb7",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Odile Tellin",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "q0755a9a29a",
+     "qtype": "person",
+     "raw": "Odile Tellin",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "q07a120526c",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "q080f9949b6",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-ym92cv"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q12cea3fa8f",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-rtwb9r"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "q1439f1f6ec",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-uh4qbw"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q18aa7e4587",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q1c54763fec",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Mill",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q205c8e616c",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q2255a08731",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ct9d3h"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1016,
+     "qid": "q238325964e",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-95m2db",
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q29dfc18388",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "11",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q2f712b1859",
+     "qtype": "day",
+     "raw": "Day 11",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Quarrel Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q36785cdcc5",
+     "qtype": "latest",
+     "raw": "Quarrel Chapel",
+     "targets": [
+      "ep-h9htum"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q369dbb16d5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q3b72dacce2",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "11",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1006,
+     "qid": "q3c882d0808",
+     "qtype": "day",
+     "raw": "Day 11",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q3d5e345c7a",
+     "qtype": "latest",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1016,
+     "qid": "q3f417962c7",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ct9d3h",
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "q407765e6f8",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "11",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "q41fda678a1",
+     "qtype": "day",
+     "raw": "Day 11",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "q4308d9d281",
+     "qtype": "at_day",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1017,
+     "qid": "q4353d54ea0",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-ec9xu7",
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "11",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1007,
+     "qid": "q491f963576",
+     "qtype": "day",
+     "raw": "Day 11",
+     "targets": [
+      "ep-86v2s2"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1016,
+     "qid": "q4a51293419",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-v9mzky",
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1012,
+     "qid": "q4ae3289c5a",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-cxwdhh",
+      "ep-f8q7eg"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q4b53e6e95a",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q4d1496fda5",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q4d4f8033fe",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-cxwdhh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Varo Vesk",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q50964387a7",
+     "qtype": "person",
+     "raw": "Varo Vesk",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1017,
+     "qid": "q50ce582092",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-86v2s2",
+      "ep-b9c7f8"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1013,
+     "qid": "q5269628c31",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-wuc333",
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q55edef9b2d",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-n6kdbz"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q6316c4c1b2",
+     "qtype": "latest",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q6a10376d83",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3b",
+     "extracted": "Mossgate Market",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 997,
+     "qid": "q6dd6ef3751",
+     "qtype": "latest",
+     "raw": "Mossgate Market",
+     "targets": [
+      "ep-ec9xu7"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "11",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1007,
+     "qid": "q74fb427816",
+     "qtype": "day",
+     "raw": "Day 11",
+     "targets": [
+      "ep-the6xe"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "silver clock",
+     "false_recall": true,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "q789a602995",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": "Quarrel Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1017,
+     "qid": "q79bfb4e1bc",
+     "qtype": "act",
+     "raw": "Quarrel Chapel",
+     "targets": [
+      "ep-dyksac",
+      "ep-h9htum"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Pellan Mill",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 999,
+     "qid": "q8279beadb6",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q8ccca54f82",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1003,
+     "qid": "q8d3ccc2fc7",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E7",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1016,
+     "qid": "q95f7007c5a",
+     "qtype": "find",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ddk576",
+      "ep-25xw8y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "13",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1007,
+     "qid": "q963835882c",
+     "qtype": "day",
+     "raw": "Day 13",
+     "targets": [
+      "ep-xuw8m4"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "q9a96f7d9ae",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "wooden ledger",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "q9db06c4381",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "silver clock",
+     "false_recall": false,
+     "new_tokens": 3,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1003,
+     "qid": "q9f74ca6ca0",
+     "qtype": "object",
+     "raw": "silver clock",
+     "targets": [
+      "ep-3pmffr"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1017,
+     "qid": "qa06620d8e1",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-25xw8y",
+      "ep-8q7q6g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1000,
+     "qid": "qa12b26741f",
+     "qtype": "at_day",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-ddk576"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1012,
+     "qid": "qa3fcffe24c",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-utp2st",
+      "ep-r2vqzm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Varo Vesk",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qade69b6762",
+     "qtype": "person",
+     "raw": "Varo Vesk",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Marit Corland",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "qaed086ddb0",
+     "qtype": "person",
+     "raw": "Marit Corland",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1003,
+     "qid": "qb3b2e899fb",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "wooden ledger",
+     "false_recall": true,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1003,
+     "qid": "qc1535cb361",
+     "qtype": "object",
+     "raw": "wooden ledger",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E4",
+     "extracted": "15",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1007,
+     "qid": "qc5750fa07f",
+     "qtype": "day",
+     "raw": "Day 15",
+     "targets": [
+      "ep-zg6v2y"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Odile Tellin",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1002,
+     "qid": "qc5a877c2eb",
+     "qtype": "person",
+     "raw": "Odile Tellin",
+     "targets": [
+      "ep-du79ts"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": true,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qc7a8b95c8a",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1016,
+     "qid": "qd0b337f843",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-du79ts",
+      "ep-ghy5tk"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1003,
+     "qid": "qd4b4dedd19",
+     "qtype": "object",
+     "raw": "striped lantern",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": "Pellan Mill",
+     "false_recall": false,
+     "new_tokens": 4,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qe4194e3061",
+     "qtype": "place",
+     "raw": "Pellan Mill",
+     "targets": [
+      "ep-95m2db"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": "11",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1008,
+     "qid": "qebcd9bf61e",
+     "qtype": "day",
+     "raw": "Day 11",
+     "targets": [
+      "ep-wuc333"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E2",
+     "extracted": "Fenhollow Chapel",
+     "false_recall": false,
+     "new_tokens": 5,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1001,
+     "qid": "qef6b7a48a5",
+     "qtype": "place",
+     "raw": "Fenhollow Chapel",
+     "targets": [
+      "ep-25xw8y"
+     ],
+     "truncated": false
+    }
+   ],
+   "seconds": 579.5,
+   "seed": "pilot-m2-2-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 115,
+    "new_tokens": 484,
+    "prompt_tokens": 103795,
+    "truncated": 0
+   },
+   "world_sha256": "8a903571d5c0ad11cef1ad8dad637ed324ab3c7e00b71b6e09d82690347cd529"
+  }
+ },
+ "index": 2,
+ "max_new_tokens": 16,
+ "model": "qwen2.5-0.5b",
+ "provenance": {
+  "code_commit": "8e841085118e987bfd1806ff15040affe3944d8c",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "5eb887cef87ae5cdd640672946d2c4f4c14f9d18270711725a38983a55abbe4f"
+ },
+ "repo": "Qwen/Qwen2.5-0.5B-Instruct",
+ "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+ "schema": "episodic_lab.pilot_cell.v2",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 1163.6,
+ "weights_digest": "8f67cfdd66abbd1338639c042c2d9c645fa717f20899e89c59abc487707b6aed"
+}

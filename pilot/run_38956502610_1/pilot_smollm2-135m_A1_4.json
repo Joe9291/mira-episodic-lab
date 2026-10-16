@@ -1,0 +1,4938 @@
+{
+ "arm": "A1",
+ "attempt": 0,
+ "conditions": {
+  "high": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.25,
+     "categories": {
+      "correct": 0.25,
+      "none_answer": 0.0,
+      "other": 0.25,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 5
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-23a5qq": 1,
+     "ep-34bm4p": 1,
+     "ep-37cjw6": 1,
+     "ep-3cpx5d": 1,
+     "ep-3v7ykz": 1,
+     "ep-4ghp3z": 1,
+     "ep-5juu4b": 1,
+     "ep-76c9uh": 1,
+     "ep-7cfczr": 1,
+     "ep-7uutej": 1,
+     "ep-8uyv4c": 1,
+     "ep-azk8cg": 1,
+     "ep-bhuh3r": 1,
+     "ep-bmwguc": 1,
+     "ep-bx4xry": 1,
+     "ep-cc3h8g": 1,
+     "ep-g3bv9v": 1,
+     "ep-h2q6fs": 1,
+     "ep-h348px": 1,
+     "ep-h8y6kv": 1,
+     "ep-hkcq79": 1,
+     "ep-hrynrt": 1,
+     "ep-n5s4ka": 1,
+     "ep-nz8dr4": 1,
+     "ep-pafbwn": 1,
+     "ep-pdghgb": 1,
+     "ep-ry9bj8": 1,
+     "ep-sw8mnm": 1,
+     "ep-uacrdb": 1,
+     "ep-v6nbvv": 1,
+     "ep-v7s7ey": 1,
+     "ep-vay8cf": 1,
+     "ep-vq84bh": 1,
+     "ep-x2vep2": 1,
+     "ep-xctzy3": 1,
+     "ep-xd37kz": 1,
+     "ep-xm4j8e": 1,
+     "ep-y4s4tf": 1,
+     "ep-y7qxeb": 1,
+     "ep-ymkv4p": 1
+    },
+    "episode_tokens": {
+     "ep-23a5qq": 28,
+     "ep-34bm4p": 21,
+     "ep-37cjw6": 20,
+     "ep-3cpx5d": 26,
+     "ep-3v7ykz": 24,
+     "ep-4ghp3z": 28,
+     "ep-5juu4b": 26,
+     "ep-76c9uh": 28,
+     "ep-7cfczr": 21,
+     "ep-7uutej": 30,
+     "ep-8uyv4c": 20,
+     "ep-azk8cg": 27,
+     "ep-bhuh3r": 22,
+     "ep-bmwguc": 31,
+     "ep-bx4xry": 30,
+     "ep-cc3h8g": 26,
+     "ep-g3bv9v": 19,
+     "ep-h2q6fs": 19,
+     "ep-h348px": 20,
+     "ep-h8y6kv": 21,
+     "ep-hkcq79": 30,
+     "ep-hrynrt": 27,
+     "ep-n5s4ka": 22,
+     "ep-nz8dr4": 21,
+     "ep-pafbwn": 26,
+     "ep-pdghgb": 27,
+     "ep-ry9bj8": 26,
+     "ep-sw8mnm": 22,
+     "ep-uacrdb": 21,
+     "ep-v6nbvv": 20,
+     "ep-v7s7ey": 20,
+     "ep-vay8cf": 20,
+     "ep-vq84bh": 22,
+     "ep-x2vep2": 29,
+     "ep-xctzy3": 22,
+     "ep-xd37kz": 20,
+     "ep-xm4j8e": 28,
+     "ep-y4s4tf": 28,
+     "ep-y7qxeb": 28,
+     "ep-ymkv4p": 20
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 119,
+     "mean": 105.25,
+     "min": 64,
+     "total": 4210
+    },
+    "prompt_inclusions": {
+     "ep-23a5qq": 119,
+     "ep-34bm4p": 64,
+     "ep-37cjw6": 119,
+     "ep-3cpx5d": 119,
+     "ep-3v7ykz": 119,
+     "ep-4ghp3z": 119,
+     "ep-5juu4b": 119,
+     "ep-76c9uh": 119,
+     "ep-7cfczr": 119,
+     "ep-7uutej": 119,
+     "ep-8uyv4c": 119,
+     "ep-azk8cg": 119,
+     "ep-bhuh3r": 119,
+     "ep-bmwguc": 119,
+     "ep-bx4xry": 119,
+     "ep-cc3h8g": 119,
+     "ep-g3bv9v": 119,
+     "ep-h2q6fs": 119,
+     "ep-h348px": 64,
+     "ep-h8y6kv": 119,
+     "ep-hkcq79": 119,
+     "ep-hrynrt": 119,
+     "ep-n5s4ka": 64,
+     "ep-nz8dr4": 64,
+     "ep-pafbwn": 119,
+     "ep-pdghgb": 64,
+     "ep-ry9bj8": 64,
+     "ep-sw8mnm": 119,
+     "ep-uacrdb": 119,
+     "ep-v6nbvv": 119,
+     "ep-v7s7ey": 64,
+     "ep-vay8cf": 119,
+     "ep-vq84bh": 119,
+     "ep-x2vep2": 64,
+     "ep-xctzy3": 64,
+     "ep-xd37kz": 119,
+     "ep-xm4j8e": 64,
+     "ep-y4s4tf": 119,
+     "ep-y7qxeb": 119,
+     "ep-ymkv4p": 119
+    },
+    "prompt_token_equivalents": {
+     "ep-23a5qq": 3332,
+     "ep-34bm4p": 1344,
+     "ep-37cjw6": 2380,
+     "ep-3cpx5d": 3094,
+     "ep-3v7ykz": 2856,
+     "ep-4ghp3z": 3332,
+     "ep-5juu4b": 3094,
+     "ep-76c9uh": 3332,
+     "ep-7cfczr": 2499,
+     "ep-7uutej": 3570,
+     "ep-8uyv4c": 2380,
+     "ep-azk8cg": 3213,
+     "ep-bhuh3r": 2618,
+     "ep-bmwguc": 3689,
+     "ep-bx4xry": 3570,
+     "ep-cc3h8g": 3094,
+     "ep-g3bv9v": 2261,
+     "ep-h2q6fs": 2261,
+     "ep-h348px": 1280,
+     "ep-h8y6kv": 2499,
+     "ep-hkcq79": 3570,
+     "ep-hrynrt": 3213,
+     "ep-n5s4ka": 1408,
+     "ep-nz8dr4": 1344,
+     "ep-pafbwn": 3094,
+     "ep-pdghgb": 1728,
+     "ep-ry9bj8": 1664,
+     "ep-sw8mnm": 2618,
+     "ep-uacrdb": 2499,
+     "ep-v6nbvv": 2380,
+     "ep-v7s7ey": 1280,
+     "ep-vay8cf": 2380,
+     "ep-vq84bh": 2618,
+     "ep-x2vep2": 1856,
+     "ep-xctzy3": 1408,
+     "ep-xd37kz": 2380,
+     "ep-xm4j8e": 1792,
+     "ep-y4s4tf": 3332,
+     "ep-y7qxeb": 3332,
+     "ep-ymkv4p": 2380
+    }
+   },
+   "questions_sha256": "80ff379062a95aae4666afa11b25349588096ffed75b244a9439974c553a15b9",
+   "resources": {
+    "max_prompt_tokens": 1105,
+    "peak_rss_mb": 1104.0
+   },
+   "retention": {
+    "final": 0.0,
+    "phase1": 0.0
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 848,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "On day 22, Ilsen Tellin hid the striped umbrella at",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped umbrella at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the silver kettle is Thornby",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Marit Marrow repaired the silver kettle at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Marit Marrow cleaned the silver kettle at Sorrow Station.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Marit Marrow repaired the striped telescope at Thornby Library.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "The question asks about the location where Ilsen Tellin cleaned the striped telescope",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow found the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "Marit Marrow found the striped umbrella at Thornby Library.",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Ilsen Tellin repaired at",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the striped umbrella is Thornby",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "Based on the story notes, Yelda Marrow hid the silver kettle at",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Thornby Library on day 22",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Thornby Library on day 26",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "On day 22, Yelda Marrow hid the silver kettle at",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped umbrella at Thornby Library.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Tellin hid the silver kettle",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Yelda Marrow found the striped umbrella at Thornby Library.",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Elvie Haverl found at",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 853,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "The silver kettle was found at Pellan Chapel, Thornby Library, and",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin hid the tiny ladder is Thornby",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the tiny ladder is Thornby",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 854,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "Yelda Marrow found the silver kettle at Thornby Library.",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Thornby Library on day 29",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the striped umbrella",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 855,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 856,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Marit Marrow was at Thornby Library on day 26.",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 855,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin found the silver kettle at",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "Based on the story notes, Marit Marrow found the silver kettle at Th",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "The question asks about the day when Marit Marrow found the tiny ladder at",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the tiny ladder",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin cleaned the silver kettle at",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped umbrella at Pellan Chapel.",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "Marit Marrow hid the tiny ladder at Pellan Chapel.",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Marit Marrow repaired the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 857,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "Marit Marrow cleaned the silver kettle at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "Elvie Haverl found the silver kettle at Thornby Library.",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 854,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Ilsen Tellin found at",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "Marit Marrow repaired the silver kettle at Thornby Library.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "The striped umbrella was repaired at Pellan Chapel, Thornby Library, and",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 858,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "Yelda Marrow cleaned the silver kettle at Pellan Chapel.",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 848,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "On day 22, Ilsen Tellin hid the silver kettle at",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the silver kettle is Thornby",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Marit Marrow found the silver kettle at Thornby Library.",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Marit Marrow repaired the silver kettle at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "On day 22, Ilsen Tellin found the striped umbrella at",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "Marit Marrow hid the silver kettle at Pellan Chapel.",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1094,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "On day 39, Ilsen Tellin hid the striped umbrella at",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped umbrella at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the silver kettle is Thornby",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1086,
+     "qid": "q15ad00dd14",
+     "qtype": "latest",
+     "raw": "Based on the story notes, Yelda Marrow was most recently at Ell",
+     "targets": [
+      "ep-xm4j8e"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1087,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Marit Marrow repaired the silver kettle at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1087,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Marit Marrow cleaned the silver kettle at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Marit Marrow repaired the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q1fa5a6445c",
+     "qtype": "find",
+     "raw": "Ilsen Tellin was at Ellsmere Garden on day 37",
+     "targets": [
+      "ep-vq84bh",
+      "ep-34bm4p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "The question asks about the location where Ilsen Tellin cleaned the striped telescope",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow found the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "The place where Marit Marrow found the striped umbrella is Ellsmere Garden",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin repaired the silver kettle at",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the striped telescope is Thornby",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "Based on the story notes, Yelda Marrow hid the silver kettle at",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "On day 3, Ilsen Tellin was at Ellsmere Garden",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1091,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Based on the story notes, Ilsen Tellin was at Pellan Chapel",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1095,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "On day 39, Yelda Marrow hid the striped umbrella at",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1105,
+     "qid": "q3e84001cb1",
+     "qtype": "act",
+     "raw": "Ilsen Tellin was at Ellsmere Garden on day 38",
+     "targets": [
+      "ep-nz8dr4",
+      "ep-ry9bj8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1095,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Tellin hid the silver kettle",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Based on the story notes, Yelda Marrow found the striped umbrella at",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1091,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Elvie Haverl found at",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1099,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q49bdd19c3f",
+     "qtype": "find",
+     "raw": "Ilsen Tellin was at Ellsmere Garden on day 37",
+     "targets": [
+      "ep-sw8mnm",
+      "ep-xm4j8e"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "The story notes do not contain the event the question asks about. The question asks",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin hid the tiny ladder is Ellsmere",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the tiny ladder is Ellsmere",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1100,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "q5a2f8b6a4f",
+     "qtype": "latest",
+     "raw": "Based on the story notes, Ilsen Tellin was seen last at Ell",
+     "targets": [
+      "ep-34bm4p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "Based on the story notes, Yelda Marrow found the striped telescope at",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1091,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Based on the story notes, Ilsen Tellin was at Ellsmere",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1095,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the striped umbrella",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1101,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "At Pellan Chapel, Marit Marrow hid the striped umbrella at Ellsm",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1101,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin found the striped telescope at",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q8d293cef9b",
+     "qtype": "find",
+     "raw": "Based on the story notes, I think it would be best to go to the",
+     "targets": [
+      "ep-vay8cf",
+      "ep-34bm4p"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "Based on the story notes, Marit Marrow found the striped umbrella at Ell",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1095,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "The question asks about the day when Marit Marrow found the tiny ladder at",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1095,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the tiny ladder",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin cleaned the striped umbrella at",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1087,
+     "qid": "qae5372e515",
+     "qtype": "latest",
+     "raw": "Based on the story notes, Marit Marrow was seen last at Ellsm",
+     "targets": [
+      "ep-ry9bj8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped umbrella at Ellsmere Garden.",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "The place where Marit Marrow hid the tiny ladder is Thornby Library",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 12,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "The striped telescope was repaired at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "Answer: A. Marit Marrow cleaned the striped telescope at Ellsmere",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "The story notes do not mention where Marit Marrow cleaned the silver kettle.",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "The place where Elvie Haverl found the silver kettle is Ellsmere",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1100,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1091,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin found the striped umbrella at",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1089,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "Marit Marrow repaired the silver kettle at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1086,
+     "qid": "qd8c1b89051",
+     "qtype": "latest",
+     "raw": "Elvie Haverl was at Ellsmere Garden on day 37",
+     "targets": [
+      "ep-xm4j8e"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qdc080e019c",
+     "qtype": "find",
+     "raw": "Ilsen Tellin is at Ellsmere Garden on day 40",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-ry9bj8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 12,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "The striped umbrella was repaired at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "Answer: A. Ilsen Tellin hid the silver kettle at Sorrow",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "The story notes mention that Yelda Marrow cleaned the silver kettle at Ell",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1094,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "On day 39, Ilsen Tellin hid the silver kettle at",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1090,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the silver kettle is Ellsmere",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1088,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Marit Marrow found the silver kettle at Ellsmere Garden.",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1087,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Marit Marrow repaired the silver kettle at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1095,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "On day 39, Ilsen Tellin found the striped umbrella at",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1087,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "Based on the story notes, Marit Marrow hid the silver kettle at Ell",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": true
+    }
+   ],
+   "seconds": 226.6,
+   "seed": "pilot-m2-4-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 119,
+    "new_tokens": 1664,
+    "prompt_tokens": 116420,
+    "truncated": 72
+   },
+   "world_sha256": "ad0a4c98181cac4127f073ebf38bdf4cd858f60c5ec693ecbec1eee540a17253"
+  },
+  "low": {
+   "episodes_presented": 40,
+   "final": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.625,
+     "categories": {
+      "correct": 0.625,
+      "none_answer": 0.0,
+      "other": 0.125,
+      "uncertain": 0.0,
+      "wrong_value": 0.25
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      },
+      "latest": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    },
+    "E7": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 6
+    }
+   },
+   "phase1": {
+    "E2": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 19
+    },
+    "E3a": {
+     "accuracy": 0.5,
+     "categories": {
+      "correct": 0.5,
+      "none_answer": 0.0,
+      "other": 0.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.5
+     },
+     "n": 8
+    },
+    "E3b": {
+     "accuracy": 0.0,
+     "by_qtype": {
+      "at_day": {
+       "accuracy": 0.0,
+       "n": 4
+      }
+     },
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 4
+    },
+    "E4": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "n": 8
+    },
+    "E5": {
+     "accuracy": 0.0,
+     "categories": {
+      "correct": 0.0,
+      "none_answer": 0.0,
+      "other": 1.0,
+      "uncertain": 0.0,
+      "wrong_value": 0.0
+     },
+     "false_recall": 0.0,
+     "n": 16
+    }
+   },
+   "processing": {
+    "declared_per_episode": {
+     "internal_replays": 0,
+     "optimizer_steps": 0,
+     "store_writes": 1
+    },
+    "encode_reads": {
+     "ep-23a5qq": 1,
+     "ep-2n4wee": 1,
+     "ep-37cjw6": 1,
+     "ep-3cpx5d": 1,
+     "ep-3v7ykz": 1,
+     "ep-4ghp3z": 1,
+     "ep-4h3gr3": 1,
+     "ep-5juu4b": 1,
+     "ep-76c9uh": 1,
+     "ep-7cfczr": 1,
+     "ep-7uutej": 1,
+     "ep-8uyv4c": 1,
+     "ep-azk8cg": 1,
+     "ep-bhuh3r": 1,
+     "ep-bmwguc": 1,
+     "ep-bx4xry": 1,
+     "ep-cc3h8g": 1,
+     "ep-ck6bey": 1,
+     "ep-e34395": 1,
+     "ep-fdcvpa": 1,
+     "ep-g3bv9v": 1,
+     "ep-h2q6fs": 1,
+     "ep-h8y6kv": 1,
+     "ep-hkcq79": 1,
+     "ep-hrynrt": 1,
+     "ep-kcvfsx": 1,
+     "ep-kuwnp8": 1,
+     "ep-mpgrvv": 1,
+     "ep-mwuep3": 1,
+     "ep-pafbwn": 1,
+     "ep-sw8mnm": 1,
+     "ep-u8mk8f": 1,
+     "ep-uacrdb": 1,
+     "ep-v6nbvv": 1,
+     "ep-vay8cf": 1,
+     "ep-vq84bh": 1,
+     "ep-xd37kz": 1,
+     "ep-y4s4tf": 1,
+     "ep-y7qxeb": 1,
+     "ep-ymkv4p": 1
+    },
+    "episode_tokens": {
+     "ep-23a5qq": 28,
+     "ep-2n4wee": 21,
+     "ep-37cjw6": 20,
+     "ep-3cpx5d": 26,
+     "ep-3v7ykz": 24,
+     "ep-4ghp3z": 28,
+     "ep-4h3gr3": 29,
+     "ep-5juu4b": 26,
+     "ep-76c9uh": 28,
+     "ep-7cfczr": 21,
+     "ep-7uutej": 30,
+     "ep-8uyv4c": 20,
+     "ep-azk8cg": 27,
+     "ep-bhuh3r": 22,
+     "ep-bmwguc": 31,
+     "ep-bx4xry": 30,
+     "ep-cc3h8g": 26,
+     "ep-ck6bey": 28,
+     "ep-e34395": 26,
+     "ep-fdcvpa": 21,
+     "ep-g3bv9v": 19,
+     "ep-h2q6fs": 19,
+     "ep-h8y6kv": 21,
+     "ep-hkcq79": 30,
+     "ep-hrynrt": 27,
+     "ep-kcvfsx": 20,
+     "ep-kuwnp8": 28,
+     "ep-mpgrvv": 29,
+     "ep-mwuep3": 28,
+     "ep-pafbwn": 26,
+     "ep-sw8mnm": 22,
+     "ep-u8mk8f": 20,
+     "ep-uacrdb": 21,
+     "ep-v6nbvv": 20,
+     "ep-vay8cf": 20,
+     "ep-vq84bh": 22,
+     "ep-xd37kz": 20,
+     "ep-y4s4tf": 28,
+     "ep-y7qxeb": 28,
+     "ep-ymkv4p": 20
+    },
+    "exposure": "all_presented",
+    "prompt_inclusion_summary": {
+     "episodes": 40,
+     "max": 120,
+     "mean": 106.25,
+     "min": 65,
+     "total": 4250
+    },
+    "prompt_inclusions": {
+     "ep-23a5qq": 120,
+     "ep-2n4wee": 65,
+     "ep-37cjw6": 120,
+     "ep-3cpx5d": 120,
+     "ep-3v7ykz": 120,
+     "ep-4ghp3z": 120,
+     "ep-4h3gr3": 65,
+     "ep-5juu4b": 120,
+     "ep-76c9uh": 120,
+     "ep-7cfczr": 120,
+     "ep-7uutej": 120,
+     "ep-8uyv4c": 120,
+     "ep-azk8cg": 120,
+     "ep-bhuh3r": 120,
+     "ep-bmwguc": 120,
+     "ep-bx4xry": 120,
+     "ep-cc3h8g": 120,
+     "ep-ck6bey": 65,
+     "ep-e34395": 65,
+     "ep-fdcvpa": 65,
+     "ep-g3bv9v": 120,
+     "ep-h2q6fs": 120,
+     "ep-h8y6kv": 120,
+     "ep-hkcq79": 120,
+     "ep-hrynrt": 120,
+     "ep-kcvfsx": 65,
+     "ep-kuwnp8": 65,
+     "ep-mpgrvv": 65,
+     "ep-mwuep3": 65,
+     "ep-pafbwn": 120,
+     "ep-sw8mnm": 120,
+     "ep-u8mk8f": 65,
+     "ep-uacrdb": 120,
+     "ep-v6nbvv": 120,
+     "ep-vay8cf": 120,
+     "ep-vq84bh": 120,
+     "ep-xd37kz": 120,
+     "ep-y4s4tf": 120,
+     "ep-y7qxeb": 120,
+     "ep-ymkv4p": 120
+    },
+    "prompt_token_equivalents": {
+     "ep-23a5qq": 3360,
+     "ep-2n4wee": 1365,
+     "ep-37cjw6": 2400,
+     "ep-3cpx5d": 3120,
+     "ep-3v7ykz": 2880,
+     "ep-4ghp3z": 3360,
+     "ep-4h3gr3": 1885,
+     "ep-5juu4b": 3120,
+     "ep-76c9uh": 3360,
+     "ep-7cfczr": 2520,
+     "ep-7uutej": 3600,
+     "ep-8uyv4c": 2400,
+     "ep-azk8cg": 3240,
+     "ep-bhuh3r": 2640,
+     "ep-bmwguc": 3720,
+     "ep-bx4xry": 3600,
+     "ep-cc3h8g": 3120,
+     "ep-ck6bey": 1820,
+     "ep-e34395": 1690,
+     "ep-fdcvpa": 1365,
+     "ep-g3bv9v": 2280,
+     "ep-h2q6fs": 2280,
+     "ep-h8y6kv": 2520,
+     "ep-hkcq79": 3600,
+     "ep-hrynrt": 3240,
+     "ep-kcvfsx": 1300,
+     "ep-kuwnp8": 1820,
+     "ep-mpgrvv": 1885,
+     "ep-mwuep3": 1820,
+     "ep-pafbwn": 3120,
+     "ep-sw8mnm": 2640,
+     "ep-u8mk8f": 1300,
+     "ep-uacrdb": 2520,
+     "ep-v6nbvv": 2400,
+     "ep-vay8cf": 2400,
+     "ep-vq84bh": 2640,
+     "ep-xd37kz": 2400,
+     "ep-y4s4tf": 3360,
+     "ep-y7qxeb": 3360,
+     "ep-ymkv4p": 2400
+    }
+   },
+   "questions_sha256": "9e7401d0d60d23f4c4e7072f7d5cf4f384960664c68e77be9b449259b8689259",
+   "resources": {
+    "max_prompt_tokens": 1119,
+    "peak_rss_mb": 1104.0
+   },
+   "retention": {
+    "final": 0.0,
+    "phase1": 0.0
+   },
+   "rows": [
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 848,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "On day 22, Ilsen Tellin hid the striped umbrella at",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped umbrella at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the silver kettle is Thornby",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Marit Marrow repaired the silver kettle at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Marit Marrow cleaned the silver kettle at Sorrow Station.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Marit Marrow repaired the striped telescope at Thornby Library.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "The question asks about the location where Ilsen Tellin cleaned the striped telescope",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Marit Marrow found the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "Marit Marrow found the striped umbrella at Thornby Library.",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Ilsen Tellin repaired at",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the striped umbrella is Thornby",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "Based on the story notes, Yelda Marrow hid the silver kettle at",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Thornby Library on day 22",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Thornby Library on day 26",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "On day 22, Yelda Marrow hid the silver kettle at",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped umbrella at Thornby Library.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Tellin hid the silver kettle",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Yelda Marrow found the striped umbrella at Thornby Library.",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Elvie Haverl found at",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 853,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "The silver kettle was found at Pellan Chapel, Thornby Library, and",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin hid the tiny ladder is Thornby",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the tiny ladder is Thornby",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 854,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "Yelda Marrow found the silver kettle at Thornby Library.",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Thornby Library on day 29",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the striped umbrella",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 855,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 856,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Marit Marrow was at Thornby Library on day 26.",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 855,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin found the silver kettle at",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "Based on the story notes, Marit Marrow found the silver kettle at Th",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "The question asks about the day when Marit Marrow found the tiny ladder at",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the tiny ladder",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin cleaned the silver kettle at",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped umbrella at Pellan Chapel.",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "Marit Marrow hid the tiny ladder at Pellan Chapel.",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Marit Marrow repaired the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 857,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "Marit Marrow cleaned the silver kettle at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "Elvie Haverl found the silver kettle at Thornby Library.",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 854,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 845,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Ilsen Tellin found at",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 843,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "Marit Marrow repaired the silver kettle at Thornby Library.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "The striped umbrella was repaired at Pellan Chapel, Thornby Library, and",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 858,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "Yelda Marrow cleaned the silver kettle at Pellan Chapel.",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 848,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "On day 22, Ilsen Tellin hid the silver kettle at",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 844,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the silver kettle is Thornby",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 842,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Marit Marrow found the silver kettle at Thornby Library.",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Marit Marrow repaired the silver kettle at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 849,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "On day 22, Ilsen Tellin found the striped umbrella at",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "phase1",
+     "prompt_tokens": 841,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "Marit Marrow hid the silver kettle at Pellan Chapel.",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1108,
+     "qid": "q06e7437f1b",
+     "qtype": "day",
+     "raw": "On day 29, Ilsen Tellin hid the striped umbrella at",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q128714c6bb",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped umbrella at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q12e4189880",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the silver kettle is Thornby",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1100,
+     "qid": "q15ad00dd14",
+     "qtype": "latest",
+     "raw": "Based on the story notes, Yelda Marrow most recently cleaned the striped",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1101,
+     "qid": "q19e8ada321",
+     "qtype": "person",
+     "raw": "Based on the story notes, Marit Marrow repaired the tiny ladder at P",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1101,
+     "qid": "q1db3e0edfa",
+     "qtype": "person",
+     "raw": "Based on the story notes, Marit Marrow cleaned the silver kettle at S",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q1e0c39e525",
+     "qtype": "person",
+     "raw": "Based on the story notes, the person who repaired the striped telescope at Thorn",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q213c8dcbbd",
+     "qtype": "place",
+     "raw": "Based on the story notes, Ilsen Tellin cleaned the striped telescope at",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q227e48c375",
+     "qtype": "person",
+     "raw": "Based on the story notes, the person who found the striped telescope at Ellsm",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q22a6438a6c",
+     "qtype": "place",
+     "raw": "The place where Marit Marrow found the striped umbrella is Thornby Library",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q2b64b9bbb8",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin repaired the silver kettle at",
+     "targets": [
+      "ep-vq84bh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q2d40c43871",
+     "qtype": "place",
+     "raw": "The place where Yelda Marrow hid the striped umbrella is the Pellan",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q32e8e2bb21",
+     "qtype": "object",
+     "raw": "Based on the story notes, Yelda Marrow hid the silver kettle at",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q35364f5a22",
+     "qtype": "at_day",
+     "raw": "Ilsen Tellin was at Mossgate Harbour on day 3.",
+     "targets": [
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1105,
+     "qid": "q36a027d87d",
+     "qtype": "at_day",
+     "raw": "Based on the story notes, Ilsen Tellin was at Pellan Chapel",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1109,
+     "qid": "q3ac16eae91",
+     "qtype": "day",
+     "raw": "On day 1, Yelda Marrow hid the striped umbrella at Th",
+     "targets": [
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1118,
+     "qid": "q3dc7413201",
+     "qtype": "find",
+     "raw": "Based on the story notes, I think it would be best to go to the",
+     "targets": [
+      "ep-h8y6kv",
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q3ec2483e96",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1109,
+     "qid": "q3f53f1c777",
+     "qtype": "day",
+     "raw": "The question asks about the day when Ilsen Tellin hid the silver kettle",
+     "targets": [
+      "ep-bx4xry"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q40dfc468d8",
+     "qtype": "place",
+     "raw": "Based on the story notes, Yelda Marrow found the striped umbrella at",
+     "targets": [
+      "ep-cc3h8g"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1105,
+     "qid": "q413d9cd83c",
+     "qtype": "object",
+     "raw": "Based on the story notes, the thing that Elvie Haverl found at",
+     "targets": [
+      "ep-3v7ykz"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1113,
+     "qid": "q41ab4e6f56",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-vay8cf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q4b9c73a1d0",
+     "qtype": "place",
+     "raw": "The story notes mention that Yelda Marrow found the silver kettle at P",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q53afa23935",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin hid the tiny ladder is at Mossgate",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q5620dea293",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the tiny ladder is at Mossgate",
+     "targets": [
+      "ep-y7qxeb"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1114,
+     "qid": "q5880f16228",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-pafbwn"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1100,
+     "qid": "q5e54a18417",
+     "qtype": "latest",
+     "raw": "Based on the story notes, Halsey Vesk was most recently at Moss",
+     "targets": [
+      "ep-kuwnp8"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q666799a6de",
+     "qtype": "object",
+     "raw": "Based on the story notes, Yelda Marrow found the striped umbrella at",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1117,
+     "qid": "q6ea9bb326c",
+     "qtype": "find",
+     "raw": "Based on the story notes, Ilsen Tellin and Marit Marrow",
+     "targets": [
+      "ep-h2q6fs",
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1105,
+     "qid": "q707c8ea512",
+     "qtype": "at_day",
+     "raw": "Based on the story notes, Ilsen Tellin was at Pellan Chapel",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 15,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "q725983b7bd",
+     "qtype": "object",
+     "raw": "Marit Marrow cleaned the striped telescope at Ellsmere Garden.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1109,
+     "qid": "q749abd83c5",
+     "qtype": "day",
+     "raw": "The striped umbrella was hidden at Pellan Chapel on day 40.",
+     "targets": [
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1115,
+     "qid": "q75aed96fc8",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bhuh3r",
+      "ep-5juu4b"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1116,
+     "qid": "q77fbde9e54",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-bmwguc",
+      "ep-76c9uh"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q7bc8ba6342",
+     "qtype": "at_day",
+     "raw": "Based on the story notes, Marit Marrow was at Pellan Chapel on",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1117,
+     "qid": "q7e5e920a00",
+     "qtype": "find",
+     "raw": "Based on the story notes, I think it would be best to go to P",
+     "targets": [
+      "ep-uacrdb",
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1119,
+     "qid": "q831f13b687",
+     "qtype": "act",
+     "raw": "Ilsen Tellin was at Pellan Chapel on day 29 and",
+     "targets": [
+      "ep-sw8mnm",
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1117,
+     "qid": "q8339668054",
+     "qtype": "find",
+     "raw": "Based on the story notes, I think it would be best to go to P",
+     "targets": [
+      "ep-ymkv4p",
+      "ep-76c9uh"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "wrong_value",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1115,
+     "qid": "q8385bd2112",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-3v7ykz",
+      "ep-7uutej"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "q85c82010c3",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin found the striped umbrella at",
+     "targets": [
+      "ep-azk8cg"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "q91c0ed654a",
+     "qtype": "object",
+     "raw": "Based on the story notes, Marit Marrow found the striped umbrella at P",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1109,
+     "qid": "q966aac5b42",
+     "qtype": "day",
+     "raw": "The question asks about the day when Marit Marrow found the tiny ladder at",
+     "targets": [
+      "ep-h8y6kv"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1109,
+     "qid": "q99711b1983",
+     "qtype": "day",
+     "raw": "The question asks about the day when Yelda Marrow hid the tiny ladder",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "qa2bcb8515f",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin cleaned the striped umbrella at",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E7",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1119,
+     "qid": "qa90adf1a34",
+     "qtype": "act",
+     "raw": "Ilsen Tellin was at Mossgate Harbour on day 31 and",
+     "targets": [
+      "ep-kcvfsx",
+      "ep-2n4wee"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qaeabc66547",
+     "qtype": "object",
+     "raw": "Marit Marrow found the striped umbrella at Pellan Chapel.",
+     "targets": [
+      "ep-y4s4tf"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qb3b532a87d",
+     "qtype": "place",
+     "raw": "The place where Marit Marrow hid the tiny ladder is the Pellan Chapel",
+     "targets": [
+      "ep-23a5qq"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qb3ed61172a",
+     "qtype": "place",
+     "raw": "Based on the story notes, Marit Marrow repaired the striped telescope at Ell",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "A",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1117,
+     "qid": "qb7c91001fd",
+     "qtype": "order",
+     "raw": "A",
+     "targets": [
+      "ep-g3bv9v",
+      "ep-23a5qq"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qc48a0bafd3",
+     "qtype": "place",
+     "raw": "The story notes mention that Marit Marrow cleaned the striped telescope at Ellsm",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "qc8ddb8cbab",
+     "qtype": "place",
+     "raw": "The place where Elvie Haverl found the silver kettle is the Pellan",
+     "targets": [
+      "ep-37cjw6"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "correct",
+     "correct": true,
+     "criterion": "E3a",
+     "extracted": "B",
+     "false_recall": false,
+     "new_tokens": 2,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1114,
+     "qid": "qd0ed707547",
+     "qtype": "order",
+     "raw": "B",
+     "targets": [
+      "ep-y7qxeb",
+      "ep-hkcq79"
+     ],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1105,
+     "qid": "qd5abba5bda",
+     "qtype": "object",
+     "raw": "Based on the story notes, Ilsen Tellin found the silver kettle at",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1103,
+     "qid": "qd65f60faa7",
+     "qtype": "object",
+     "raw": "Marit Marrow repaired the striped umbrella at Sorrow Station.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1099,
+     "qid": "qdd15c15645",
+     "qtype": "latest",
+     "raw": "The question asks where Halsey Vesk was most recently. The answer is",
+     "targets": [
+      "ep-2n4wee"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "qdd6d6c1996",
+     "qtype": "place",
+     "raw": "Based on the story notes, Yelda Marrow repaired the striped umbrella at",
+     "targets": [],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3a",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1118,
+     "qid": "qe34fa21989",
+     "qtype": "order",
+     "raw": "Answer: A. Ilsen Tellin hid the silver kettle at Sorrow",
+     "targets": [
+      "ep-bx4xry",
+      "ep-4ghp3z"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "qe8b94c6014",
+     "qtype": "place",
+     "raw": "The story notes mention that Yelda Marrow cleaned the silver kettle at P",
+     "targets": [
+      "ep-sw8mnm"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1108,
+     "qid": "qeca309ba4c",
+     "qtype": "day",
+     "raw": "On day 29, Ilsen Tellin hid the silver kettle at",
+     "targets": [
+      "ep-3cpx5d"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1104,
+     "qid": "qee2e291b10",
+     "qtype": "place",
+     "raw": "The place where Ilsen Tellin found the silver kettle is the Mossgate",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1102,
+     "qid": "qeefef03654",
+     "qtype": "person",
+     "raw": "Based on the story notes, Marit Marrow found the silver kettle at Th",
+     "targets": [
+      "ep-bmwguc"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E5",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 14,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1101,
+     "qid": "qf05170d579",
+     "qtype": "place",
+     "raw": "Marit Marrow repaired the tiny ladder at Pellan Chapel.",
+     "targets": [],
+     "truncated": false
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E4",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1109,
+     "qid": "qf7737a9450",
+     "qtype": "day",
+     "raw": "On day 1, Ilsen Tellin found the striped umbrella at Ell",
+     "targets": [
+      "ep-hkcq79"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E3b",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1100,
+     "qid": "qf8a36526b4",
+     "qtype": "latest",
+     "raw": "Based on the story notes, Sabeth Ostrin was most recently at Moss",
+     "targets": [
+      "ep-ck6bey"
+     ],
+     "truncated": true
+    },
+    {
+     "category": "other",
+     "correct": false,
+     "criterion": "E2",
+     "extracted": null,
+     "false_recall": false,
+     "new_tokens": 16,
+     "parser": "episodic_lab.parser.v2",
+     "phase": "final",
+     "prompt_tokens": 1101,
+     "qid": "qf966a0de7d",
+     "qtype": "object",
+     "raw": "Based on the story notes, Marit Marrow hid the silver kettle at P",
+     "targets": [
+      "ep-h2q6fs"
+     ],
+     "truncated": true
+    }
+   ],
+   "seconds": 228.9,
+   "seed": "pilot-m2-4-0",
+   "symbolic_all_correct": true,
+   "telemetry": {
+    "calls": 120,
+    "new_tokens": 1675,
+    "prompt_tokens": 118434,
+    "truncated": 77
+   },
+   "world_sha256": "79d9950dda59cd2054e204a0dd707f3923d85775a55c8c1d7a9e0932eed7f728"
+  }
+ },
+ "index": 4,
+ "max_new_tokens": 16,
+ "model": "smollm2-135m",
+ "provenance": {
+  "code_commit": "8e841085118e987bfd1806ff15040affe3944d8c",
+  "pins_sha256": "e6400f589f04bcba952357bc1e3322bdc11ed31c49d13a8a1cacf1198c9a98d5",
+  "request_sha256": "5eb887cef87ae5cdd640672946d2c4f4c14f9d18270711725a38983a55abbe4f"
+ },
+ "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
+ "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "schema": "episodic_lab.pilot_cell.v2",
+ "series": "pilot-m2",
+ "status": "OK",
+ "total_seconds": 462.3,
+ "weights_digest": "f628c8c925c895e0c3380249695793e6e6a7e2d1031afa4ae84e485664f69594"
+}
