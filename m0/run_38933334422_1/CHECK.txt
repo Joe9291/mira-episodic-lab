@@ -1,0 +1,4 @@
+OK smollm2-135m
+OK smollm2-360m
+OK qwen2.5-0.5b
+OK qwen3-0.6b
