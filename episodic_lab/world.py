@@ -7,7 +7,8 @@ overlap strongly with it (competing) or use disjoint names (low overlap), for E6
 
 The early block depends on the seed only (its own random stream), so the "high" and
 "low" conditions of one seed share exactly the same early episodes; only the follow-ups
-differ. At least one early episode is narrated out of chronological order (E3a).
+differ. About a third of the early episodes are moved later in the narration, and at
+least one is always told out of chronological order (E3a).
 Episode identifiers are random tokens and reveal no order (E4).
 
 Every fact a question can ask about is generated here, never by a model.
@@ -122,7 +123,7 @@ def generate_world(seed: str, early: int = 30, followup: int = 10, overlap: str 
     early_pool = _pool(rng_e, people, places, objects, actions, used)
     early_events = [_event(rng_e, early_pool, day, "early") for day in range(1, early + 1)]
     order = list(range(early))
-    for _ in range(max(1, early // 4)):
+    for _ in range(max(1, early // 3)):
         index = rng_e.below(early - 1)
         item = order.pop(index)
         order.insert(index + 1 + rng_e.below(early - index - 1), item)

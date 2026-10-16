@@ -215,6 +215,24 @@ class QuestionTests(unittest.TestCase):
         for e in episodes_of(world):
             self.assertNotIn(e.episode_id, dump)
 
+    def test_order_items_defeat_presentation_order_strategies(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                eps = {e.episode_id: e for e in episodes_of(world)}
+                kinds, used, earlier_told, later_told = [], [], 0, 0
+                for g in q["gold"].values():
+                    if g["criterion"] != "E3a":
+                        continue
+                    a, b = (eps[t] for t in g["targets"])
+                    kinds.append(g["variant"])
+                    used += [a.episode_id, b.episode_id]
+                    first_told = "A" if a.position < b.position else "B"
+                    earlier_told += first_told == g["gold"][0]
+                    later_told += first_told != g["gold"][0]
+                self.assertEqual(sorted(kinds), ["aligned"] * 4 + ["inverted"] * 4)
+                self.assertEqual(len(used), len(set(used)))  # every anchor episode once
+                self.assertEqual((earlier_told, later_told), (4, 4))  # both exactly at chance
+
     def test_order_items_include_out_of_order_pairs(self):
         mixed = 0
         for pair in PAIRS:
@@ -284,6 +302,50 @@ class ScorerTests(unittest.TestCase):
         for bad in ({"w1": "False"}, {"w1": 1}, {}):
             with self.assertRaises(ValueError):
                 score.world_rate_bounds(bad)
+
+
+class CheckResultsTests(unittest.TestCase):
+    def test_every_bad_result_is_registered_as_incomplete(self):
+        import tempfile
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench" / "m0"))
+        import check_results
+        good = {"status": "OK", "resolved_revision": "a" * 40, "lora_step_s_median": 0.3,
+                "peak_rss_mb": 1000.0, "load_s": 0.5, "prefill_tokens_per_s": 700.0}
+        cases = {"null": "null", "list": "[]", "garbage": "{", "bool": None, "nan": None,
+                 "missing": None, "ok": None}
+        for name in cases:
+            with tempfile.TemporaryDirectory() as tmp:
+                dest = Path(tmp)
+                for slug, model in check_results.EXPECTED.items():
+                    record = dict(good, model_id=model)
+                    text = json.dumps(record)
+                    if slug == "qwen3-0.6b":
+                        if name in ("null", "list", "garbage"):
+                            text = cases[name]
+                        elif name == "bool":
+                            text = json.dumps(dict(record, peak_rss_mb=True))
+                        elif name == "nan":
+                            text = json.dumps(dict(record, load_s=float("nan")))
+                        elif name == "missing":
+                            continue
+                    (dest / f"m0_{slug}.json").write_text(text)
+                complete = check_results.check(dest)
+                self.assertEqual(complete, name == "ok", name)
+                self.assertEqual((dest / "VERDICT").read_text().strip(),
+                                 "COMPLETE" if name == "ok" else "INCOMPLETE")
+                self.assertEqual(len((dest / "CHECK.txt").read_text().splitlines()), 4)
+                if name in ("null", "list"):
+                    self.assertIn("not_an_object", (dest / "CHECK.txt").read_text())
+
+    def test_check_never_raises(self):
+        import tempfile
+        from unittest.mock import patch
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench" / "m0"))
+        import check_results
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(check_results, "problems_of", side_effect=RuntimeError("boom")):
+            self.assertFalse(check_results.check(Path(tmp)))
+            self.assertEqual((Path(tmp) / "VERDICT").read_text().strip(), "INCOMPLETE")
 
 
 class _Constant:

@@ -24,6 +24,9 @@ from .world import Episode, episodes_of, generate_world
 QUESTION_SCHEMA = "episodic_lab.questions.v2"
 MINIMUM = {"E2": 8, "E3a": 4, "E3b": 6, "E4": 4, "E5": 6, "E7": 3}
 MINIMUM_QTYPE = {"at_day": 3, "latest": 3}
+# E3a: exactly this many pairs whose presentation order agrees with / is inverted to
+# their day order, so that "earlier told" and "later told" both score exactly at chance.
+ORDER_QUOTA = {"aligned": 4, "inverted": 4}
 
 PARA = {
     "object": ("What did {person} {action} at {place}?",
@@ -137,7 +140,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
     rng = HashRng(f"questions:{seed}:early")
     items: list[dict] = []
 
-    def add(criterion, qtype, text, answer_type, cue, targets, phase1):
+    def add(criterion, qtype, text, answer_type, cue, targets, phase1, variant=None):
         gold = answer_for(eps, qtype, cue)
         if phase1:  # identical answer in both conditions and at both test points
             if not (all(answer_for(w, qtype, cue) == gold for w in both)
@@ -145,7 +148,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
                 raise AssertionError(f"unstable early item {qtype} {cue}")
         items.append({"criterion": criterion, "qtype": qtype, "text": text,
                       "answer_type": answer_type, "gold": gold, "targets": targets,
-                      "phase1": phase1, "cue": cue})
+                      "phase1": phase1, "cue": cue, "variant": variant})
 
     def pick(candidates, n):
         return rng.sample(candidates, min(n, len(candidates)))
@@ -218,13 +221,23 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
                                                       place=e.place))
         add("E4", "day", text, "day", cue, [e.episode_id], True)
 
-    # E3a order: two described events; pairs whose presentation order differs from day
-    # order first.
-    pairs = [((pa, a), (pb, b)) for i, (pa, a) in enumerate(described)
-             for pb, b in described[i + 1:] if a.day != b.day]
-    mixed = [p for p in pairs if (p[0][1].position < p[1][1].position) != (p[0][1].day < p[1][1].day)]
-    pairs = mixed + [p for p in pairs if p not in mixed]
-    for (pa, a), (pb, b) in pairs[:per_type]:
+    # E3a order: a fixed quota of aligned and inverted pairs (presentation order equal
+    # to / opposite of day order); every episode is used in at most one pair.
+    pairs = rng.shuffled([((pa, a), (pb, b)) for i, (pa, a) in enumerate(described)
+                          for pb, b in described[i + 1:] if a.day != b.day])
+    chosen, used = [], set()
+    for kind, quota in ORDER_QUOTA.items():
+        taken = 0
+        for (pa, a), (pb, b) in pairs:
+            inverted = (a.position < b.position) != (a.day < b.day)
+            if taken == quota or inverted != (kind == "inverted"):
+                continue
+            if a.episode_id in used or b.episode_id in used:
+                continue
+            used |= {a.episode_id, b.episode_id}
+            chosen.append((kind, (pa, a), (pb, b)))
+            taken += 1
+    for kind, (pa, a), (pb, b) in chosen:
         if rng.below(2):
             (pa, a), (pb, b) = (pb, b), (pa, a)
         cue = {"a": dict(person=pa, action=a.action, obj=a.object, place=a.place),
@@ -232,7 +245,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
         text = rng.choice(PARA["order"]).format(
             a=f"{pa} {a.action} the {a.object} at {a.place}.",
             b=f"{pb} {b.action} the {b.object} at {b.place}.")
-        add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True)
+        add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True, kind)
 
     # E3b place on a given early day.
     for person, e in pick([(p, e) for e in early for p in e.participants], per_type // 2):
@@ -268,7 +281,9 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
 
     counts = {c: sum(i["criterion"] == c for i in items) for c in MINIMUM}
     counts.update({t: sum(i["qtype"] == t for i in items) for t in MINIMUM_QTYPE})
-    short = {c: n for c, n in counts.items() if n < {**MINIMUM, **MINIMUM_QTYPE}[c]}
+    counts.update({f"order_{k}": sum(i["variant"] == k for i in items) for k in ORDER_QUOTA})
+    need = {**MINIMUM, **MINIMUM_QTYPE, **{f"order_{k}": q for k, q in ORDER_QUOTA.items()}}
+    short = {c: n for c, n in counts.items() if n < need[c]}
     if short:
         raise ValueError(f"WORLD_TOO_SMALL:{short}")
 
@@ -286,7 +301,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
         if item["phase1"]:
             public["phase1"].append(record)
         gold[qid] = {k: item[k] for k in ("criterion", "qtype", "answer_type", "gold",
-                                          "targets", "phase1", "cue")}
+                                          "targets", "phase1", "cue", "variant")}
     return {"schema": QUESTION_SCHEMA, "public": public, "gold": gold, "counts": counts,
             "candidates": {"person": sorted({p for e in eps for p in e.participants}),
                            "place": sorted({e.place for e in eps}),

@@ -82,6 +82,8 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # keep the checker of this commit before switching to the results branch
+          cp bench/m0/check_results.py "$RUNNER_TEMP/check_results.py"
           if git fetch --depth 1 origin results 2>/dev/null; then
             git checkout -B results FETCH_HEAD
           else
@@ -91,33 +93,8 @@ jobs:
           dest="m0/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
           mkdir -p "$dest"
           if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
-          # Structured completeness check: one valid result per expected model.
-          python3 - "$dest" <<'PY'
-          import json, re, sys
-          from pathlib import Path
-          dest = Path(sys.argv[1])
-          expected = {"smollm2-135m": "HuggingFaceTB/SmolLM2-135M-Instruct",
-                      "smollm2-360m": "HuggingFaceTB/SmolLM2-360M-Instruct",
-                      "qwen2.5-0.5b": "Qwen/Qwen2.5-0.5B-Instruct",
-                      "qwen3-0.6b": "Qwen/Qwen3-0.6B"}
-          lines, ok = [], True
-          for slug, model in expected.items():
-              path = dest / f"m0_{slug}.json"
-              try:
-                  r = json.loads(path.read_text())
-                  problems = [k for k, good in (
-                      ("model_id", r.get("model_id") == model),
-                      ("status", r.get("status") == "OK"),
-                      ("resolved_revision", re.fullmatch(r"[0-9a-f]{40}", str(r.get("resolved_revision"))) is not None),
-                      ("lora_step_s_median", isinstance(r.get("lora_step_s_median"), (int, float))),
-                      ("peak_rss_mb", isinstance(r.get("peak_rss_mb"), (int, float)))) if not good]
-              except (OSError, ValueError) as exc:
-                  problems = [f"unreadable:{type(exc).__name__}"]
-              ok = ok and not problems
-              lines.append(f"{'OK' if not problems else 'FAILED'} {slug} {' '.join(problems)}".rstrip())
-          (dest / "CHECK.txt").write_text("\n".join(lines) + "\n")
-          (dest / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
-          PY
+          # Structured completeness check (bench/m0/check_results.py); never fails itself.
+          python3 "$RUNNER_TEMP/check_results.py" "$dest" || echo INCOMPLETE > "$dest/VERDICT"
           verdict=$(cat "$dest/VERDICT")
           echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} measure-result ${{ needs.measure.result }} fetch-outcome ${{ steps.fetch.outcome }} verdict ${verdict}" > "$dest/RUN.txt"
           git add m0

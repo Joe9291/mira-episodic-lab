@@ -1,0 +1,80 @@
+5m nachgedacht
+
+Teil 1:
+
+return out
+---END FILE episodic_lab/runner.py---
+
+Teil 2:
+
+world, q = PAIRS[0]["high"]
+---END DIFF---
+
+REQUEST CHANGES. Die bisherigen Hauptbefunde sind weitgehend behoben. Es bleiben ein bisher von mir übersehener Auswahlfehler bei E3a und ein konkreter Fehlerpfad im Ergebnisregister.
+
+Die Prüfung erfolgt statisch anhand der Anhänge. Die berichteten 23 erfolgreichen Tests und der M0-Status COMPLETE wurden nicht unabhängig ausgeführt oder abgerufen.
+
+Bisheriger Befund	Bewertung von M1.2
+
+E2: mehrere Episoden, aber gleiche Antwort	Behoben: unterschiedliche Antworten werden verlangt; bei Personen wird die gemeinsame, stets passende Person ausgeschlossen.
+E4: wiederholte Inhalte wurden ausgeschlossen	Behoben: wiederholtes Tripel, zusätzlicher Ortskontext und eindeutiger Tag passen jetzt zusammen.
+Modell-Pinning bei M0	Für diesen Meilenstein konsistent geregelt: enge M0-Ausnahme, verbindliche Prüfung ab M2.
+Registrierung bei Downloadfehlern	Der bisher beanstandete Ablauf ist korrigiert. Ein anderer Fehlerfall bleibt unten offen.
+Fragenpuffer außerhalb des eigenen Digests	Verbessert: zusätzliche Objektattribute werden erfasst; Grenzen und M2-Audit sind ausdrücklich dokumentiert.
+Statistik und Entscheidungsregeln	Die gezeigten Änderungen sind passend: echte Boolesche Indikatoren, getrennte Schwellenebenen und Berücksichtigung mehrerer Erfolgsarme.
+
+
+1. E3a kann durch umgekehrte Präsentationsreihenfolge gelöst werden.
+
+Die Auswahl lautet weiterhin sinngemäß:
+
+pairs = mixed + [p for p in pairs if p not in mixed]
+for ... in pairs[:per_type]:
+
+mixed enthält genau die Paare, bei denen Ereigniszeit und Präsentationsreihenfolge entgegengesetzt sind.
+
+Sobald mindestens acht solche Paare vorhanden sind, bestehen bei der Standardeinstellung sämtliche acht E3a-Fragen aus invertierten Paaren. Ein System, das Zeitangaben vollständig ignoriert und stets das später präsentierte Ereignis auswählt, beantwortet diese Fragen dann zu 100 % richtig.
+
+Das zufällige Vertauschen von A und B behebt diesen Effekt nicht: Die Strategie richtet sich nach den gespeicherten Präsentationspositionen.
+
+Damit belegt ein hoher E3a-Wert nicht zuverlässig die beanspruchte Unterscheidung zwischen Ereigniszeit und Präsentationszeit.
+
+Erforderliche Änderung:
+
+- Übereinstimmende und invertierte Paare nach einer vorab festgelegten Quote auswählen, beispielsweise vier plus vier.
+- Die Quote für jede akzeptierte Welt prüfen.
+- Zwei einfache Kontrollstrategien auswerten: „früher präsentiert“ und „später präsentiert“. Bei ausgeglichener Auswahl sollten beide genau auf Zufallsniveau liegen.
+
+Die vorhandene Prüfung, dass irgendwo invertierte Paare vorkommen, erkennt diesen Auswahlfehler nicht.
+
+2. Der Collector registriert bestimmte ungültige Ergebnisdateien weiterhin nicht.
+
+Der JSON-Check setzt voraus, dass json.loads() ein Dictionary zurückgibt:
+
+r = json.loads(path.read_text())
+r.get(...)
+
+Ein statisch ableitbares Gegenbeispiel ist eine Datei mit dem gültigen JSON-Inhalt null:
+
+- json.loads() liefert None.
+- Der Zugriff auf .get() löst AttributeError aus.
+- Gefangen werden nur OSError und ValueError.
+- Der Python-Schritt endet vor dem Schreiben von CHECK.txt und VERDICT.
+- Durch set -e entfallen anschließend auch Registereintrag und Push.
+
+Dasselbe Problem besteht beispielsweise bei einem JSON-Array. Damit ist die zugesagte Registrierung unvollständiger beziehungsweise fehlerhafter Ergebnisse noch nicht durchgehend umgesetzt.
+
+Erforderliche Änderung: Vor Feldzugriffen den obersten JSON-Typ prüfen. Nichtobjekte als Schemafehler behandeln und anschließend denselben INCOMPLETE-Registrierungspfad verwenden wie bei fehlenden Dateien. Einen Test mit null oder [] ergänzen.
+
+Die übrigen Korrekturen rechtfertigen keine erneute Wiederholung der früheren Anforderungen. Insbesondere ist die jetzt gewählte E4-Definition nachvollziehbar; eine zusätzliche vollständige Bindungsprüfung aller E4-Hinweise ist dafür nicht erforderlich. Modelladapter, tatsächliches Pinning und die bestätigende Fallzahlplanung gehören wie dokumentiert zu den folgenden Meilensteinen.
+
+
+---
+
+Verbesserungsideen zusätzlich zu den erforderlichen Änderungen:
+
+- Numerische Messfelder strenger validieren: endlich, positiv und keine Booleschen Werte. isinstance(True, (int, float)) akzeptiert derzeit auch True.
+- Protokoll redaktionell angleichen: Nach dem vorliegenden Diff bleibt im unveränderten Meilenstein 6 der Vorversion noch „three-way review“ stehen. Das sollte zur neuen Zweierregel passen.
+- E3a breiter abdecken: Die ausgewählten Paare über mehrere Ereignisse verteilen, damit acht Fragen nicht überwiegend dieselbe Ankerepisode prüfen.
+- E2-Abkürzungen quantifizieren: Zusätzlich einfache Strategien mit unvollständigen Hinweisen vergleichen. Logische Antwortmehrdeutigkeit verhindert noch keine starken Häufigkeitsheuristiken.
+- Signaturverfahren vervollständigen: Den öffentlichen Ed25519-Prüfschlüssel und die genaue Bytekodierung des Autorisierungstextes vorab festlegen.

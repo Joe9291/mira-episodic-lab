@@ -1,6 +1,6 @@
 # Mira Episodic Lab - Research Protocol
 
-Version 0.4 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+Version 0.5 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
 confirmatory preregistration: thresholds, sample size and the final arm list are fixed
 in version 1.0, which needs the reviews of section 10 and the experiment lead's
 signature. Version 0.2 integrated the reviews of 0.1; 0.3 integrated Astra's review of
@@ -8,7 +8,8 @@ milestones 0/1 (answer grammar, E5 categories, E7 semantics, identical early blo
 frozen memory during tests, world-level statistics); 0.4 integrates Astra's review of
 milestone 1.1 (binding by answer ambiguity, E4 on repeated content, model pinning,
 result registration, narrower claims about frozen memory, two-level thresholds, seed
-procedure). Reviews: `reviews/`.
+procedure); 0.5 integrates Astra's review of milestone 1.2 (balanced E3a quota, robust
+result check, signature details). Reviews: `reviews/`.
 
 ## 1. Question and scope
 
@@ -40,7 +41,7 @@ presented to the system".
 | E1a | Single external presentation | The environment presents each episode exactly once. Afterwards its raw text is available to the system only through the memory mechanism under test. Verified by code audit and run receipt. |
 | E1b | Declared internal processing | Every arm reports, per episode: internal replays, tokens processed, optimizer steps (weight-based arms), store writes (store-based arms). These are reported, not hidden; arm comparisons state them. |
 | E2 | Cue-based recall with binding | Questions cue an event by a combination of time, place, people, object or action and ask for a missing detail. People, places and objects recur across many episodes. Binding test per item: dropping any single cue detail leaves early episodes with *different* answers (for "who" questions: no person took part in all of them), so the full combination is needed for the answer. Question wording is drawn from paraphrase sets never used in encoding text. |
-| E3a | Temporal order | Which of two events happened first. Event time and presentation order partly differ (some episodes are told out of order), so presentation order alone does not answer it. |
+| E3a | Temporal order | Which of two events happened first. About a third of the early episodes are told later than their day. Every world has exactly 4 pairs whose presentation order agrees with their day order and 4 whose order is inverted, and every episode appears in at most one pair, so the strategies "the earlier told happened first" and "the later told happened first" both score exactly 50%. |
 | E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. Both subtypes have their own minimum count and are reported separately. |
 | E4 | Source memory | On which day an event happened, asked only for content (person, action, object) that occurs on at least two early days; the place tells the occurrences apart, so the content alone does not give the day. Episode identifiers are random tokens and reveal no order. |
 | E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2); every pair of their details co-occurs in the early block. Reported per answer category: correct rejection, in-world false recall, uncertainty, other (format errors and out-of-world claims). Success needs a high correct-rejection rate AND a bounded in-world false-recall rate; false recall alone is never read as the full confabulation rate. |
@@ -109,6 +110,10 @@ Controls:
   store, both; store corruption identical for A3 and C1; extra replay compute reported
   and matched where possible.
 - **Interference control** (E6): low-overlap follow-up episodes of equal length.
+- **Shortcut strategies** (pilot): simple rule-based answerers that use only part of the
+  cues (for example the most frequent object for a person and place, ignoring the
+  action) are scored on the same items, so that frequency shortcuts are quantified
+  rather than assumed absent.
 
 ## 5. Models
 
@@ -204,11 +209,17 @@ Controls:
   branch; every run, including failed ones, is listed.
 - Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
   signs one experiment-series authorization (protocol hash, model pins, maximum number
-  of runs). Before signing, the exact authorization text and its SHA-256 are committed
-  to this repository, so the signed message is fixed in advance. The confirmatory world
-  seed is the SHA-256 of the Ed25519 signature bytes (deterministic, RFC 8032): it is
-  unpredictable to anyone without the private key, cannot be chosen by the agents, and
-  is reproducible by anyone from the published signature.
+  of runs). Before signing, the exact authorization text (UTF-8, LF line ends, ending
+  with LF) and its SHA-256 are committed to this repository, so the signed message is
+  fixed in advance. Signing uses the experiment lead's existing Ed25519 key (key id
+  bf5a705a0a014522, public key f86e778e8dd13de10e26e22238cd567174d8b468d895b960657215e2b0ba8426)
+  over the bytes "MIRA-SIGNATURE-V1\ndomain: lab_experiment_series\nsha256: <hex>\n" (the
+  same signed-text format as the private repository's tools/mira_signing.py, whose fixed
+  domain list does not include this domain; the lab verifies it with its own code), where
+  <hex> is the SHA-256 of the authorization text. The confirmatory world seed is the lowercase hex
+  SHA-256 of the 64 signature bytes. Ed25519 signatures are deterministic (RFC 8032): the
+  seed is unpredictable without the private key, cannot be chosen by the agents, and is
+  reproducible by anyone from the published signature.
 - Results are taken over into the private repository by hash manifest and recorded in
   its run register.
 - Reviews are blind (no reviewer sees another's verdict first) and include a verbatim
@@ -235,6 +246,6 @@ Controls:
 5. C1 pilot.
 6. Version 1.0: confirmatory core (A0-A3 with controls, at most one preselected
    weight-based arm; P2 and C1 as separate later series), thresholds, sample size;
-   three-way review; signed experiment-series authorization.
+   review by Astra and Claude (section 10); signed experiment-series authorization.
 7. Confirmatory series.
 8. Report, import into the private repository, external review.
