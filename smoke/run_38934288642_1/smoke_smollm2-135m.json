@@ -1,0 +1,64 @@
+{
+ "model": "smollm2-135m",
+ "status": "OK",
+ "answers": [
+  {
+   "notes": 0,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "Tom Hill",
+   "seconds": 0.22
+  },
+  {
+   "notes": 0,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "On the 12th day, the story notes mention that Bob Ray sold",
+   "seconds": 0.64
+  },
+  {
+   "notes": 0,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "Ann Lee sold a variety of items at Reed Harbour, including a variety of clothing",
+   "seconds": 0.61
+  },
+  {
+   "notes": 0,
+   "question": "Which happened first? (A) Bob Ray sold the old clock at Reed Harbour. (B) Ann Lee repaired the blue map at Stone Mill. Answer A or B.",
+   "answer": "(A) Bob Ray sold the old clock at Reed Harbour.",
+   "seconds": 0.53
+  },
+  {
+   "notes": 2,
+   "question": "Who repaired the blue map at Stone Mill?",
+   "answer": "Bob Ray repaired the blue map at Stone Mill.",
+   "seconds": 0.45
+  },
+  {
+   "notes": 2,
+   "question": "On which day did Bob Ray sell the old clock at Reed Harbour?",
+   "answer": "On day 2, Bob Ray sold the old clock at Reed Harbour.",
+   "seconds": 0.64
+  },
+  {
+   "notes": 2,
+   "question": "What did Ann Lee sell at Reed Harbour?",
+   "answer": "Answer: Bob Ray sold the old clock.",
+   "seconds": 0.42
+  },
+  {
+   "notes": 2,
+   "question": "Which happened first? (A) Bob Ray sold the old clock at Reed Harbour. (B) Ann Lee repaired the blue map at Stone Mill. Answer A or B.",
+   "answer": "B",
+   "seconds": 0.17
+  }
+ ],
+ "load_s": 6.4,
+ "revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+ "weights_hash_s": 0.54,
+ "weights_digest_stable": true,
+ "stats": {
+  "calls": 8,
+  "prompt_tokens": 804,
+  "new_tokens": 88
+ },
+ "total_s": 10.6
+}
