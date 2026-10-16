@@ -13,9 +13,11 @@ blocks, frozen memory during tests, world-level statistics). Reviews: `reviews/`
 operate a system that gives a small open-weight language model *functional episodic
 memory*?
 
-- Builders and operators: language-model agents (Claude writes and controls, Astra
-  executes in the private repository, Gemini and Astra review). The experiment lead
-  decides and signs; he runs nothing on his own computer.
+- Builders and operators: language-model agents (Claude writes, controls and is lead
+  reviewer; Astra executes in the private repository and reviews independently in a
+  separate chat). The experiment lead decides and signs; he runs nothing on his own
+  computer. Gemini was removed as reviewer by the experiment lead on 2026-10-16 after
+  repeatedly failing the proof of complete reading (`reviews/`).
 - Compute: GitHub-hosted standard runners of this public repository only (4 vCPU,
   16 GB RAM, 14 GB SSD, at most 6 hours per job, at most 20 parallel jobs, no GPU).
   No paid service, no secret, no external API.
@@ -189,8 +191,10 @@ Controls:
 - Results are taken over into the private repository by hash manifest and recorded in
   its run register.
 - Reviews are blind (no reviewer sees another's verdict first) and include a verbatim
-  quote from the end of the document as proof of complete reading. Deterministic checks
-  take precedence over model judgements.
+  quote from the end of the document as proof of complete reading; a review without a
+  correct quote is not counted. With two model reviewers, one of them the author,
+  deterministic checks (tests, mutation tests, reference worlds) take precedence over
+  model judgements, and independent replication remains required (section 11).
 
 ## 11. Known limits
 
