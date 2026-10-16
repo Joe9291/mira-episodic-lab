@@ -1,0 +1,93 @@
+name: m0-feasibility
+# Milestone 0 (protocol section 9): measure model loading, inference speed and LoRA
+# step time on the standard runner. Runs only on pushes to main that touch the
+# benchmark, or when started manually. No secrets, no evaluation data.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "bench/m0/**"
+      - ".github/workflows/m0-feasibility.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m0-feasibility
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - model: HuggingFaceTB/SmolLM2-135M-Instruct
+            slug: smollm2-135m
+          - model: HuggingFaceTB/SmolLM2-360M-Instruct
+            slug: smollm2-360m
+          - model: Qwen/Qwen2.5-0.5B-Instruct
+            slug: qwen2.5-0.5b
+          - model: Qwen/Qwen3-0.6B
+            slug: qwen3-0.6b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Runner facts
+        run: |
+          mkdir -p out
+          { nproc; lscpu; free -m; df -h /; python --version; } > "out/m0_${{ matrix.slug }}_runner.log" 2>&1
+      - name: Install pinned packages
+        run: |
+          set -o pipefail
+          { python -m pip install --upgrade pip==24.3.1 &&
+            pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu &&
+            pip install -r bench/m0/requirements.txt; } 2>&1 | tail -n 40 > "out/m0_${{ matrix.slug }}_install.log"
+      - name: Measure
+        run: |
+          python bench/m0/measure.py --model "${{ matrix.model }}" --out "out/m0_${{ matrix.slug }}.json"
+      - name: Keep outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-${{ matrix.slug }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: measure
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: m0-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin results 2>/dev/null; then
+            git checkout -B results FETCH_HEAD
+          else
+            git checkout --orphan results
+            git rm -rf --quiet .
+          fi
+          dest="m0/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp -r incoming/. "$dest/" 2>/dev/null || true
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} measure-result ${{ needs.measure.result }}" > "$dest/RUN.txt"
+          git add m0
+          git commit --quiet -m "M0 feasibility results, run ${GITHUB_RUN_ID}"
+          git push origin results

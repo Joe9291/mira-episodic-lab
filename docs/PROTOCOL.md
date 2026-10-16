@@ -1,7 +1,10 @@
 # Mira Episodic Lab - Research Protocol
 
-Version 0.1 - DRAFT, not yet preregistered. It becomes binding only after review and a
-signed experiment-series authorization by the experiment lead (section 9).
+Version 0.2 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+confirmatory preregistration: thresholds, sample size and the final arm list are fixed
+in version 1.0, which needs a three-way review and the experiment lead's signature
+(section 10). Changes from 0.1 follow the reviews by Gemini and Astra of 2026-10-16
+(`reviews/`).
 
 ## 1. Question and scope
 
@@ -10,143 +13,188 @@ operate a system that gives a small open-weight language model *functional episo
 memory*?
 
 - Builders and operators: language-model agents (Claude writes and controls, Astra
-  executes in the private repository, Gemini reviews). The experiment lead decides and
-  signs; he does not run anything on his own computer.
+  executes in the private repository, Gemini and Astra review). The experiment lead
+  decides and signs; he runs nothing on his own computer.
 - Compute: GitHub-hosted standard runners of this public repository only (4 vCPU,
   16 GB RAM, 14 GB SSD, at most 6 hours per job, at most 20 parallel jobs, no GPU).
   No paid service, no secret, no external API.
-- Scope: behavioural, measurable memory functions (section 2). This protocol makes no
-  claim about subjective experience, consciousness or "singularity".
+- Scope: behavioural, measurable memory functions of the *whole system* (model plus
+  any memory mechanism). No claim about subjective experience, consciousness or
+  "singularity". A positive result for an external-store arm shows a memory function of
+  the system; a claim that Mira's architecture adds something needs the comparison with
+  the simple-retrieval arm and the ablations (section 4).
 
 ## 2. Operational definition: criteria E1-E7
 
-A system has functional episodic memory in this study if it meets all of:
+The closed-world assumption holds throughout: "none" means "not in the episodes
+presented to the system".
 
 | Id | Criterion | Test |
 |---|---|---|
-| E1 | Single-exposure encoding | Each episode is presented exactly once, during its encoding step, with a fixed and reported encoding budget (for weight updates: number of optimizer steps on that one presentation). After its encoding step the raw episode text is not available to the system except through the memory mechanism under test. Verified by code audit and by the run receipt. |
-| E2 | Cue-based recall | Questions cue an event by time, place, entity, content or a combination and ask for a specific detail. |
-| E3 | Temporal order and latest state | "Which happened first", "where is X now", "what did X last do". |
-| E4 | Source memory | "On which day / in which episode did X happen". |
-| E5 | No confabulation | Questions about events that never happened; the correct answer is "none". Measured as false-recall rate. |
-| E6 | Retention under interference | Recall of early episodes after K further episodes have been encoded (K preregistered), relative to immediate recall. |
-| E7 | Use of memory for action | Questions that require combining two remembered episodes to choose an option. |
+| E1a | Single external presentation | The environment presents each episode exactly once. Afterwards its raw text is available to the system only through the memory mechanism under test. Verified by code audit and run receipt. |
+| E1b | Declared internal processing | Every arm reports, per episode: internal replays, tokens processed, optimizer steps (weight-based arms), store writes (store-based arms). These are reported, not hidden; arm comparisons state them. |
+| E2 | Cue-based recall with binding | Questions cue an event by a combination of time, place, people, object or action and ask for a missing detail. People, places and objects recur across many episodes, so only the *combination* identifies an episode (binding test). Question wording is drawn from paraphrase sets never used in encoding text. |
+| E3a | Temporal order | Which of two events happened first. Event time and presentation order partly differ (some episodes are told out of order), so presentation order alone does not answer it. |
+| E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. |
+| E4 | Source memory | On which day an event happened. The same content (same person, action, object) occurs in several episodes; episode identifiers are random tokens and reveal no order. |
+| E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2). Measured as false-recall rate. |
+| E6 | Retention under interference | Recall of early episodes after K further episodes, in two conditions with equal length: high-overlap (competing) and low-overlap follow-up episodes. Reported: immediate accuracy, delayed accuracy (absolute) and their ratio. |
+| E7 | Use of memory for action | A small text environment asks the system to choose an action (for example, where to go to find an object); the choice is executed and scored. Each item needs two specific episodes, and the generator verifies that changing either episode changes the correct action. |
 
 ## 3. Benchmark: synthetic episodic worlds
 
-- A deterministic generator creates fictional worlds: invented people, places, objects,
-  dates and actions. Each episode is a short narrative (about 100-250 tokens) of one event
-  with time, place, participants and content.
+- A deterministic generator (own SHA-256 based generator, independent of Python
+  versions) creates fictional worlds: invented people, places, objects, days and
+  actions with deliberate feature overlap. Each episode is a short narrative of one
+  event; some are told out of chronological order.
 - Ground truth is computed from the world state, never by a model. Every question has a
-  structured answer (fields such as `who`, `where`, `when`, `episode_id`, or `none`).
-- Question templates exist for every criterion E2-E7, including zero-event questions
-  (E5) and multi-event cues.
-- Contamination: worlds are generated freshly per run from a seed fixed after the
-  protocol is signed (derived from the commit that starts the confirmatory series), so no
-  model can have seen them in pre-training and no prompt can be tuned to them.
-- Separation: the system under test receives only episodes (during encoding) and
-  questions (during testing). Answers are scored by a separate evaluator step that holds
-  the ground truth. No language model judges answers.
+  structured answer type (person, place, object, day, choice label, or `none`), and the
+  generator checks that each question has exactly one correct answer.
+- Answer handling, fixed before use: normalisation (case, punctuation, articles,
+  surrounding words such as "day"), a fixed list of accepted "none" forms, invalid or
+  partial output counts as wrong, questions weigh equally within a world and worlds
+  weigh equally.
+- Starting size (from the reviews; revised only after milestone 0): about 20 episodes
+  and 100 questions per world; larger worlds form a separate stress level.
+- Separation: the system receives episodes (encoding) and questions (testing) only. A
+  separate evaluator step holds the ground truth. No language model judges answers.
+- Clean state: every world starts with fresh model, adapter, optimizer and store state.
+  Test questions leave no trace usable later; weight-based arms answer without chat
+  history, key-value cache or any other auxiliary store.
+- Training targets of weight-based arms are derived only from the presented episode
+  texts, never from the evaluator's ground truth.
 
-## 4. Systems under test (arms)
+## 4. Systems under test (arms) and controls
 
 | Arm | Description | Role |
 |---|---|---|
-| A0 | Base model, no memory | Lower bound; guessing and confabulation rate |
+| S0 | Symbolic event manager: rule-based parser and database over the same texts | How far plain data handling solves the task |
+| O1 | Oracle evidence: the correct episode(s) placed in the prompt | Can the model use the evidence at all |
+| A0 | Model, no memory | Guessing and confabulation floor |
 | A1 | All episodes in the prompt (if they fit) | In-context reference, not episodic memory |
-| A2 | Simple retrieval: lexical search over stored episode texts, top-k into the prompt | Standard external memory baseline |
-| A3 | Mira memory: structured event store (time, place, entities, provenance), typed recency within claim families, retrieval into the prompt | Mira's architecture |
-| P1 | Fast weights: one small LoRA update per episode, applied once at encoding; tested without episodes in context | Parametric single-exposure memory |
-| P2 | Direct weight editing of facts (rank-one edits), if feasible on CPU | Alternative parametric memory |
-| C1 | Complementary system: A3 store plus periodic consolidation into LoRA weights by replay ("sleep"); tested also with the store degraded | Consolidation |
+| A2 | Simple retrieval: lexical search, top-k episodes into the prompt | Standard external memory |
+| A3 | Mira memory: structured event store (time, place, people, provenance), state tracking, retrieval | Mira's architecture |
+| P1 | Fast weights: one small LoRA update per episode at encoding, answers without episodes in context | Parametric single-presentation memory |
+| P2 | Rank-one weight edits | Conditional, only if milestone 0 shows it feasible |
+| C1 | A3 store plus periodic consolidation into LoRA weights by replay | Consolidation |
 
-Controls: **sham training** (same number of steps on unrelated text) for P1, P2 and C1;
-**shuffled memory** (store filled from a different world) for A2, A3 and C1, to separate
-memory use from guessing.
+Controls:
+- **Random retrieval** (A2/A3): the same number of random episodes from the same world.
+- **Misbound memory** (A2/A3/C1): a store with the same vocabulary and fact
+  distribution but swapped bindings (who/where/when exchanged across episodes).
+- **A3 ablations**: without time information, without provenance, without state-update
+  logic; context and retrieval budgets equal to A3.
+- **Sham training** (P1/P2/C1): the same number of steps and tokens on unrelated text.
+- **C1 decomposition**: store without consolidation, consolidated weights without
+  store, both; store corruption identical for A3 and C1; extra replay compute reported
+  and matched where possible.
+- **Interference control** (E6): low-overlap follow-up episodes of equal length.
 
 ## 5. Models
 
 - Small open-weight instruction models with permissive licences, CPU-feasible. Pilot
   candidates: SmolLM2-135M/360M-Instruct, Qwen2.5-0.5B-Instruct, Qwen3-0.6B. Licence,
   exact revision and SHA-256 of every model file are verified and pinned before first use.
-- Selection rule: the smallest candidate whose A1 recall in the pilot is at least 0.8
-  on short worlds. If none reaches it, the answer format is simplified first, then the
-  next larger candidate is tried.
-- Decoding is greedy; seeds and library versions are pinned; deterministic algorithms
-  are enabled where the library allows.
+- Greedy decoding. For Qwen3 the thinking mode is switched off (`enable_thinking=False`)
+  and the suitability of this setting is checked in the pilot; otherwise the model is
+  not used with greedy decoding.
+- Selection rule: the smallest candidate whose O1 accuracy in the pilot is at least
+  0.8. If none reaches it, the answer format is simplified first, then the next larger
+  candidate is tried (this counts against the variant budget of section 7).
 
 ## 6. Measurement and statistics
 
-- Scoring by exact match on normalised structured fields; per-criterion accuracy, E5
-  false-recall rate, E6 retention ratio.
-- Unit of replication: the world. Confirmatory runs use at least 10 independent worlds
-  per arm (more if the pilot variance requires it; the number is fixed before the
-  confirmatory series).
-- 95% confidence intervals: Wilson intervals for proportions, bootstrap over worlds for
-  differences between arms.
-- Pilot (exploratory) and confirmatory data are strictly separated; pilot results are
-  reported but never counted as confirmation.
+- Unit of replication: the world. All arms run on the same worlds; arm differences are
+  analysed as paired per-world differences.
+- Primary estimates: the mean over worlds of per-world accuracy (or false-recall rate),
+  with a 95% interval that respects the world structure (t-interval over worlds;
+  bootstrap over worlds only as a check, because it is unreliable with few worlds).
+- E5 false recall: a conservative upper bound that does not collapse to zero when no
+  error occurs (exact binomial bound on the pooled count, using an effective sample
+  size reduced by the design effect estimated in the pilot).
+- E6: immediate and delayed accuracy each with intervals; success needs a minimum
+  absolute delayed accuracy in addition to the ratio; a ratio is not reported when
+  immediate accuracy is below the minimum.
+- Thresholds are justified per question type from its chance level and a stated
+  minimum practically relevant margin. Superiority claims (for example A3 over A2, P1
+  over sham) are tested on paired differences with Holm correction across the
+  preregistered claims. Overall success (all criteria jointly) needs no extra
+  correction.
+- Sample size: fixed in version 1.0 from the pilot's per-world variance and the
+  preregistered minimum effects, with the probability of detecting them stated.
+- Pilot (exploratory) and confirmatory data are strictly separated.
 
-## 7. Decision and pivot rules
+## 7. Decision and pivot rules (pilot)
 
-- **Pilot gate.** An arm is carried into the confirmatory series only if its pilot E2
-  recall exceeds A0 by at least 20 percentage points and its E5 false-recall rate is not
-  higher than A0's.
-- **Pivot rule.** If an arm fails the pilot gate, up to three *meaningfully different*
-  variants are tried (for P1: target layers, rank, learning rate or encoding steps; for
-  A3: store schema or retrieval). Each variant is written down with its reason before it
-  runs; the same variant is never re-run with cosmetic changes. After three failed
-  variants the arm is recorded as a negative result and the next mechanism is taken up.
-- **Success (proposal; the numbers are fixed after the pilot and before the signed
-  confirmatory series).** A system meets E1-E7 if E1 holds by audit; E2 recall lower CI
-  bound >= 0.6 and above the A0 upper bound; E3 and E4 lower bounds >= 0.5; E5 false
-  recall upper bound <= 0.1; E6 retention ratio >= 0.8 after K interfering episodes;
-  E7 lower bound >= 0.5. The same thresholds apply to every arm.
+- **Pilot gate.** An arm advances if its paired gain over A0 on E2 is at least a margin
+  stated with its reason before the pilot (default 0.20 absolute; lowered only with
+  written justification if A0 is near ceiling), and its E5 false-recall rate stays
+  within an absolute tolerance (default 0.10).
+- **Variant budget.** Each arm has its base configuration plus at most three variants.
+  Model, answer format and hyperparameter changes share this one budget. A variant is
+  chosen after analysing why the previous one failed; it is committed as a configuration
+  file with its reason *before* it runs, and every variant is reported.
+- **Scope of a negative result.** Three failed variants are a negative result for those
+  configurations and this compute budget, not a refutation of the mechanism.
 
-## 8. Compute plan
+## 8. Reporting
 
-- Every run is one GitHub Actions workflow job with a declared time budget below 5.5 h;
-  independent worlds and arms run as parallel jobs (at most 20).
-- Model files are downloaded from Hugging Face by pinned revision, checked against the
-  pinned SHA-256 values and cached.
-- Order of work: CPU-cheap arms first (A0-A3), then P1, P2, C1. Larger models only for
-  mechanisms that passed the pilot.
+- Two axes for every arm: memory functions met (E1-E7) and cost (encoding, retrieval,
+  storage, training compute).
+- Error localisation along the chain: correctly extracted, stored, retrieved, answered.
+- Stress levels: more episodes, more feature overlap, longer delays, new question
+  wordings.
+- Weight-based arms also report general abilities (simple language and reasoning
+  checks) before and after encoding.
 
-## 9. Integrity and governance
+## 9. Compute plan
 
-- This repository is public. It holds only code, synthetic worlds and results. Nothing
-  from the private repository except reviewed code, no private or blind material, no
-  state documents, no secrets.
-- Workflows run only on pushes to `main` and on manual start; never on pull requests
-  from forks. They use no secrets.
+- Milestone 0 measures on the real runner: model loading, inference speed, one LoRA
+  step per episode for the pilot models, and the cost of P2's statistics. World size,
+  question count and the arm list for weight-based memory are set from these numbers.
+- Each run is one workflow job with a declared budget below 5.5 hours; worlds and arms
+  run as parallel jobs (at most 20). Parallel jobs shorten a series, not a single run.
+- Model files are downloaded by pinned revision, checked against pinned SHA-256 values
+  and cached.
+
+## 10. Integrity and governance
+
+- This repository is public. It holds only code, synthetic worlds, results and reviews.
+  Nothing from the private repository except reviewed code; no private or blind
+  material, no state documents, no secrets.
+- Workflows run only on pushes to `main` and on manual start, never on pull requests
+  from forks, and use no secrets.
 - Every run writes a receipt: commit, configuration hash, model pins, seeds, world
-  hashes, encoding budgets, metrics, runtime. Results are kept on a separate `results`
+  hashes, E1b processing counts, metrics, runtime. Results go to a separate `results`
   branch; every run, including failed ones, is listed.
+- Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
+  signs one experiment-series authorization (protocol hash, model pins, maximum number
+  of runs). The confirmatory world seed is the SHA-256 of that signature: fixed only
+  after everything else, unpredictable to the agents, reproducible by anyone.
 - Results are taken over into the private repository by hash manifest and recorded in
   its run register.
-- Before the confirmatory series the experiment lead signs one experiment-series
-  authorization: protocol hash, model pins, thresholds, maximum number of runs. Within
-  it the agents run without further signatures; any change of protocol, thresholds or
-  pinned code needs a new signature.
-- Reviews by Gemini are sent part by part with a verbatim quote from the end of each
-  part as proof of complete reading. Deterministic checks take precedence over model
-  judgements.
+- Reviews are blind (no reviewer sees another's verdict first) and include a verbatim
+  quote from the end of the document as proof of complete reading. Deterministic checks
+  take precedence over model judgements.
 
-## 10. Known limits
+## 11. Known limits
 
-- Small models and synthetic worlds: positive results show a mechanism, not human-level
-  memory; negative results at this scale do not rule out larger models.
+- Small models and synthetic worlds: positive results show a mechanism at this scale;
+  negative results do not rule out larger models.
 - Functional criteria only.
-- The agents build, run and evaluate; independent replication by a different pipeline
-  or a human is required before any strong claim.
+- The agents build, run and evaluate; independent replication is required before any
+  strong claim.
 
-## 11. Milestones
+## 12. Milestones
 
-1. Generator, question templates, scorer and their tests (no model).
-2. Workflow, model pinning, A0 and A1 pilot.
-3. A2 and A3 pilot.
-4. P1 pilot, then P2 if feasible.
+0. Feasibility measurement on the runner (section 9).
+1. Generator, question templates, scorer, symbolic arm S0 and their tests (no model).
+2. Workflow, model pinning, O1, A0 and A1 pilot.
+3. A2, A3, controls and ablations pilot.
+4. P1 pilot; P2 only if milestone 0 allows.
 5. C1 pilot.
-6. Thresholds and sample size fixed; signed experiment-series authorization.
+6. Version 1.0: confirmatory core (A0-A3 with controls, at most one preselected
+   weight-based arm; P2 and C1 as separate later series), thresholds, sample size;
+   three-way review; signed experiment-series authorization.
 7. Confirmatory series.
 8. Report, import into the private repository, external review.
