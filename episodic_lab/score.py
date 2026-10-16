@@ -222,8 +222,10 @@ def world_rate_bounds(indicators: dict, confidence: float = 0.95) -> tuple[float
     from one independent 0/1 indicator per world (world id -> bool). Used for
     confirmatory decisions, e.g. "the world meets the E2 threshold" (lower bound) or
     "the world has at least one in-world false recall" (upper bound)."""
+    if not indicators or any(type(v) is not bool for v in indicators.values()):
+        raise ValueError("world indicators must be a non-empty map of real booleans")
     n = len(indicators)
-    k = sum(bool(v) for v in indicators.values())
+    k = sum(indicators.values())
     return lower_bound(k, n, confidence), upper_bound(k, n, confidence)
 
 

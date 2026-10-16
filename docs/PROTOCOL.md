@@ -1,11 +1,14 @@
 # Mira Episodic Lab - Research Protocol
 
-Version 0.3 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+Version 0.4 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
 confirmatory preregistration: thresholds, sample size and the final arm list are fixed
-in version 1.0, which needs a three-way review and the experiment lead's signature
-(section 10). Version 0.2 integrated the reviews of 0.1; version 0.3 integrates Astra's
-review of milestones 0/1 (answer grammar, E5 categories, E7 semantics, identical early
-blocks, frozen memory during tests, world-level statistics). Reviews: `reviews/`.
+in version 1.0, which needs the reviews of section 10 and the experiment lead's
+signature. Version 0.2 integrated the reviews of 0.1; 0.3 integrated Astra's review of
+milestones 0/1 (answer grammar, E5 categories, E7 semantics, identical early blocks,
+frozen memory during tests, world-level statistics); 0.4 integrates Astra's review of
+milestone 1.1 (binding by answer ambiguity, E4 on repeated content, model pinning,
+result registration, narrower claims about frozen memory, two-level thresholds, seed
+procedure). Reviews: `reviews/`.
 
 ## 1. Question and scope
 
@@ -36,10 +39,10 @@ presented to the system".
 |---|---|---|
 | E1a | Single external presentation | The environment presents each episode exactly once. Afterwards its raw text is available to the system only through the memory mechanism under test. Verified by code audit and run receipt. |
 | E1b | Declared internal processing | Every arm reports, per episode: internal replays, tokens processed, optimizer steps (weight-based arms), store writes (store-based arms). These are reported, not hidden; arm comparisons state them. |
-| E2 | Cue-based recall with binding | Questions cue an event by a combination of time, place, people, object or action and ask for a missing detail. People, places and objects recur across many episodes, so only the *combination* identifies an episode (binding test). Question wording is drawn from paraphrase sets never used in encoding text. |
+| E2 | Cue-based recall with binding | Questions cue an event by a combination of time, place, people, object or action and ask for a missing detail. People, places and objects recur across many episodes. Binding test per item: dropping any single cue detail leaves early episodes with *different* answers (for "who" questions: no person took part in all of them), so the full combination is needed for the answer. Question wording is drawn from paraphrase sets never used in encoding text. |
 | E3a | Temporal order | Which of two events happened first. Event time and presentation order partly differ (some episodes are told out of order), so presentation order alone does not answer it. |
-| E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. |
-| E4 | Source memory | On which day an event happened. The same content (same person, action, object) occurs in several episodes; episode identifiers are random tokens and reveal no order. |
+| E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. Both subtypes have their own minimum count and are reported separately. |
+| E4 | Source memory | On which day an event happened, asked only for content (person, action, object) that occurs on at least two early days; the place tells the occurrences apart, so the content alone does not give the day. Episode identifiers are random tokens and reveal no order. |
 | E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2); every pair of their details co-occurs in the early block. Reported per answer category: correct rejection, in-world false recall, uncertainty, other (format errors and out-of-world claims). Success needs a high correct-rejection rate AND a bounded in-world false-recall rate; false recall alone is never read as the full confabulation rate. |
 | E6 | Retention under interference | Recall of early episodes after K further episodes, in two conditions with equal length: high-overlap (competing) and low-overlap follow-up episodes. Reported: immediate accuracy, delayed accuracy (absolute) and their ratio. |
 | E7 | Use of memory for a decision | Decision items: "where do you go to meet the last person who handled object X" and "where do you go to meet the person who did Y" - each needs the episode that identifies the person AND that person's latest episode at another place. Executing the choice in a small environment is a later extension. |
@@ -59,20 +62,25 @@ presented to the system".
   a rejection form, or an uncertainty form). Negations, several names, extra or
   contradicting attributes and unknown names are "other" and count as wrong. Raw answers
   are kept. Questions weigh equally within a world and worlds weigh equally.
-- Default world: an early block of 20 episodes and 10 follow-up episodes; per world 4
-  people, 3 places, 4 objects and 4 actions, so that pairs of details recur and recall
+- Default world: an early block of 30 episodes and 10 follow-up episodes (K = 10); per
+  world 4 people, 4 places, 4 objects and 4 actions, so that details recur and recall
   items need the full combination of their cues (verified per item). The early block
   depends on the seed only; the high- and low-overlap versions of a world share it, and
   their early test items are identical. Larger worlds form a separate stress level.
-- Minimum items per world (E2 8, E3a 4, E3b 4, E4 4, E5 6, E7 3). World k of a series
-  uses the first seed attempt `<series>-<k>-<attempt>` that meets them in both
-  conditions; the rule depends only on the generator, never on any system's answers.
+- Minimum items per world (E2 8, E3a 4, E3b 6 with at least 3 per subtype, E4 4, E5 6,
+  E7 3). World k of a series uses the first seed attempt `<series>-<k>-<attempt>` that
+  meets them in both conditions; the rule depends only on the generator, never on any
+  system's answers. Attempts and skipped seeds are reported; statements refer to the
+  worlds this rule accepts (about 98% at the first attempt with the defaults).
 - Separation: the system receives episodes (encoding) and questions (testing) only. A
   separate evaluator step holds the ground truth. No language model judges answers.
 - Clean state: every world starts with fresh model, adapter, optimizer and store state.
-  Every answer is given from a fresh context (no chat history, key-value cache or other
-  auxiliary store), and the runner rejects a system whose memory state digest changes
-  while it answers, so test questions can never become memory input.
+  Every answer must come from a fresh context: the adapter builds each prompt from
+  scratch, with no chat history, key-value cache or other auxiliary store. The runner
+  checks what it can see - the system's own digest of its memory plus a fingerprint of
+  every other attribute of the system object - before and after each answer, and
+  rejects any change. State outside the system object (globals, files) is excluded by
+  code audit; for the model arms this is an acceptance criterion of milestone 2.
 - Training targets of weight-based arms are derived only from the presented episode
   texts, never from the evaluator's ground truth.
 
@@ -106,7 +114,11 @@ Controls:
 
 - Small open-weight instruction models with permissive licences, CPU-feasible. Pilot
   candidates: SmolLM2-135M/360M-Instruct, Qwen2.5-0.5B-Instruct, Qwen3-0.6B. Licence,
-  exact revision and SHA-256 of every model file are verified and pinned before first use.
+  exact revision and SHA-256 of every model file are verified and pinned before first use
+  in the pilot. Exception: the exploratory feasibility measurement of milestone 0 resolved
+  the current revision at run time and recorded it (no answers of any model were
+  evaluated); those recorded revisions are the starting point of the pinning step of
+  milestone 2, which records every file's SHA-256, and the pilot refuses any other bytes.
 - Greedy decoding. For Qwen3 the thinking mode is switched off (`enable_thinking=False`)
   and the suitability of this setting is checked in the pilot; otherwise the model is
   not used with greedy decoding.
@@ -121,7 +133,9 @@ Controls:
 - Target parameters for confirmatory decisions are defined on independent worlds: the
   probability that a new world meets a criterion's threshold, and for E5 the probability
   that a new world contains at least one in-world false recall. They are decided with
-  exact one-sided Clopper-Pearson bounds over the world indicators.
+  exact one-sided Clopper-Pearson bounds over the world indicators. Version 1.0 fixes
+  two levels separately: the per-world threshold (when a world passes) and the required
+  probability that a new world passes.
 - Descriptive estimates: the mean over worlds of per-world accuracy with a t-interval
   (approximate; zero width when all worlds score alike, which is no certainty) and a
   pooled E5 bound with a design-effect-reduced sample size (approximate). Paired arm
@@ -133,8 +147,9 @@ Controls:
 - Thresholds are justified per question type from its chance level and a stated
   minimum practically relevant margin. Superiority claims (for example A3 over A2, P1
   over sham) are tested on paired differences with Holm correction across the
-  preregistered claims. Overall success (all criteria jointly) needs no extra
-  correction.
+  preregistered claims. Overall success of one preselected arm (all criteria jointly)
+  needs no extra correction; a claim that "at least one of several arms" succeeds
+  is corrected for the number of arms.
 - Sample size: fixed in version 1.0 from the pilot's per-world variance and the
   preregistered minimum effects, with the probability of detecting them stated.
 - Pilot (exploratory) and confirmatory data are strictly separated.
@@ -172,7 +187,10 @@ Controls:
 - Each run is one workflow job with a declared budget below 5.5 hours; worlds and arms
   run as parallel jobs (at most 20). Parallel jobs shorten a series, not a single run.
 - Model files are downloaded by pinned revision, checked against pinned SHA-256 values
-  and cached.
+  and cached (from milestone 2 on; see section 5 for the milestone 0 exception).
+- Result registration: every run stores its outputs and a completeness verdict on the
+  `results` branch even when a measurement or the collection of outputs fails; the
+  verdict is checked field by field, and an incomplete run fails visibly.
 
 ## 10. Integrity and governance
 
@@ -186,8 +204,11 @@ Controls:
   branch; every run, including failed ones, is listed.
 - Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
   signs one experiment-series authorization (protocol hash, model pins, maximum number
-  of runs). The confirmatory world seed is the SHA-256 of that signature: fixed only
-  after everything else, unpredictable to the agents, reproducible by anyone.
+  of runs). Before signing, the exact authorization text and its SHA-256 are committed
+  to this repository, so the signed message is fixed in advance. The confirmatory world
+  seed is the SHA-256 of the Ed25519 signature bytes (deterministic, RFC 8032): it is
+  unpredictable to anyone without the private key, cannot be chosen by the agents, and
+  is reproducible by anyone from the published signature.
 - Results are taken over into the private repository by hash manifest and recorded in
   its run register.
 - Reviews are blind (no reviewer sees another's verdict first) and include a verbatim

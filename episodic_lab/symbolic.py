@@ -28,6 +28,8 @@ EPISODE_PATTERNS = [
 
 
 class SymbolicMemory:
+    DIGEST_COVERS = ("events",)  # attributes covered by state_digest()
+
     def __init__(self):
         self.events: list[dict] = []
 
@@ -75,8 +77,9 @@ class SymbolicMemory:
         if qtype == "order":
             days = []
             for side in ("a", "b"):
-                m = re.fullmatch(rf"({_NAME}) ({_ACT}) the ({_OBJ})\.", g[side])
-                hits = self._match(person=m.group(1), action=m.group(2), obj=m.group(3)) if m else []
+                m = re.fullmatch(rf"({_NAME}) ({_ACT}) the ({_OBJ}) at ({_PLACE})\.", g[side])
+                hits = (self._match(person=m.group(1), action=m.group(2), obj=m.group(3),
+                                    place=m.group(4)) if m else [])
                 days.append(hits[0]["day"] if len(hits) == 1 else None)
             if None in days:
                 return "unknown"

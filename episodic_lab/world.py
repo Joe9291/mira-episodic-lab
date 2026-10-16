@@ -105,8 +105,8 @@ def _token(rng: HashRng, taken: set) -> str:
             return token
 
 
-def generate_world(seed: str, early: int = 20, followup: int = 10, overlap: str = "high",
-                   people: int = 4, places: int = 3, objects: int = 4, actions: int = 4) -> dict:
+def generate_world(seed: str, early: int = 30, followup: int = 10, overlap: str = "high",
+                   people: int = 4, places: int = 4, objects: int = 4, actions: int = 4) -> dict:
     """Return a world; `overlap` is "high" (follow-ups reuse the early pools) or "low"."""
     if overlap not in ("high", "low"):
         raise ValueError("overlap must be 'high' or 'low'")

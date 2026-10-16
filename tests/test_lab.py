@@ -9,8 +9,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from episodic_lab import score  # noqa: E402
-from episodic_lab.questions import (MINIMUM, answer_for, make_world,  # noqa: E402
-                                    matching)
+from episodic_lab.questions import (MINIMUM, MINIMUM_QTYPE, _binding_needed,  # noqa: E402
+                                    answer_for, make_world, matching)
 from episodic_lab.runner import StateChangedWhileAnswering, retention, run_world  # noqa: E402
 from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
 from episodic_lab.world import Episode, episodes_of, vocabulary  # noqa: E402
@@ -48,6 +48,28 @@ class HandWorldTests(unittest.TestCase):
                  ("find", dict(action="sold", place="Forge", obj="clock"), ["Garden"])]
         for qtype, cue, expected in cases:
             self.assertEqual(answer_for(HAND, qtype, cue), expected, (qtype, cue))
+
+    def test_binding_means_different_answers(self):
+        # Astra's counterexample: each dropped cue leaves several episodes, but all of
+        # them give the same answer - so the full binding is not needed.
+        same = [ep(1, "Ann Lee", "Mill", "repaired", "lantern"),
+                ep(2, "Bob Ray", "Mill", "repaired", "lantern"),
+                ep(3, "Ann Lee", "Mill", "painted", "lantern"),
+                ep(4, "Ann Lee", "Forge", "repaired", "lantern")]
+        cue = dict(person="Ann Lee", action="repaired", place="Mill")
+        self.assertFalse(_binding_needed(same, cue, "object"))
+        varied = [ep(1, "Ann Lee", "Mill", "repaired", "lantern"),
+                  ep(2, "Bob Ray", "Mill", "repaired", "clock"),
+                  ep(3, "Ann Lee", "Mill", "painted", "map"),
+                  ep(4, "Ann Lee", "Forge", "repaired", "lamp")]
+        self.assertTrue(_binding_needed(varied, cue, "object"))
+        # person questions: a person present in every remaining episode answers them all
+        shared = [ep(1, "Ann Lee", "Mill", "hid", "map"),
+                  ep(2, "Ann Lee", "Mill", "hid", "clock", partner="Bob Ray"),
+                  ep(3, "Ann Lee", "Forge", "hid", "map", partner="Cy Fox"),
+                  ep(4, "Ann Lee", "Mill", "sold", "map", partner="Bob Ray")]
+        self.assertFalse(_binding_needed(shared, dict(action="hid", place="Mill", obj="map"),
+                                         "person"))
 
     def test_ill_defined_items_are_refused(self):
         with self.assertRaises(ValueError):
@@ -126,7 +148,35 @@ class QuestionTests(unittest.TestCase):
                 if g["criterion"] == "E2":
                     for drop in g["cue"]:
                         rest = {k: v for k, v in g["cue"].items() if k != drop}
-                        self.assertGreater(len(matching(early, **rest)), 1, (g["cue"], drop))
+                        hits = matching(early, **rest)
+                        if g["qtype"] == "person":
+                            common = set.intersection(*(set(e.participants) for e in hits))
+                            self.assertEqual(common, set(), (g["cue"], drop))
+                        else:
+                            field = "object" if g["qtype"] == "object" else "place"
+                            self.assertGreater(len({getattr(e, field) for e in hits}), 1,
+                                               (g["cue"], drop))
+
+    def test_source_items_ask_about_repeated_content(self):
+        for pair in PAIRS:
+            world, q = pair["high"]
+            early = [e for e in episodes_of(world) if e.block == "early"]
+            for g in q["gold"].values():
+                if g["criterion"] == "E4":
+                    cue = g["cue"]
+                    self.assertIn("place", cue)
+                    days = {e.day for e in matching(early, person=cue["person"],
+                                                    action=cue["action"], obj=cue["obj"])}
+                    self.assertGreaterEqual(len(days), 2)
+                    self.assertIn(int(g["gold"][0]), days)
+
+    def test_state_subtype_minimums(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                for qtype, minimum in MINIMUM_QTYPE.items():
+                    real = sum(g["qtype"] == qtype for g in q["gold"].values())
+                    self.assertEqual(q["counts"][qtype], real)
+                    self.assertGreaterEqual(real, minimum)
 
     def test_lures_are_binding_lures_already_at_phase1(self):
         for pair in PAIRS:
@@ -231,6 +281,9 @@ class ScorerTests(unittest.TestCase):
         self.assertAlmostEqual(d[0], (0.4 + 0.35 + 0.25) / 3)
         with self.assertRaises(ValueError):
             score.paired_difference({"w1": 1.0}, {"w2": 1.0})
+        for bad in ({"w1": "False"}, {"w1": 1}, {}):
+            with self.assertRaises(ValueError):
+                score.world_rate_bounds(bad)
 
 
 class _Constant:
@@ -255,6 +308,18 @@ class _Cheat(SymbolicMemory):
         return "none"
 
 
+class _BufferCheat(SymbolicMemory):
+    """Keeps questions OUTSIDE the digested event list: must still be rejected."""
+
+    def __init__(self):
+        super().__init__()
+        self.seen_questions = []
+
+    def answer(self, text):
+        self.seen_questions.append(text)
+        return super().answer(text)
+
+
 class RunnerTests(unittest.TestCase):
     def test_symbolic_arm_solves_every_item(self):
         for pair in PAIRS:
@@ -277,6 +342,8 @@ class RunnerTests(unittest.TestCase):
         world, q = PAIRS[0]["high"]
         with self.assertRaises(StateChangedWhileAnswering):
             run_world(_Cheat(), world, q)
+        with self.assertRaises(StateChangedWhileAnswering):
+            run_world(_BufferCheat(), world, q)
 
     def test_trivial_baselines(self):
         world, q = PAIRS[0]["high"]

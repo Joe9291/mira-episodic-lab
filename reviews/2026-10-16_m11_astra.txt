@@ -1,0 +1,124 @@
+5m 26s nachgedacht
+
+Teil 1:
+
+raise RuntimeError("no valid world within the attempt limit")
+---END FILE episodic_lab/questions.py---
+
+Teil 2:
+
+8. Report, import into the private repository, external review.
+---END FILE docs/PROTOCOL.md---
+
+Teil 3:
+
+[ "$verdict" = COMPLETE ]
+---END FILE .github/workflows/m0-feasibility.yml---
+
+REQUEST CHANGES. Die Überarbeitung behebt einen großen Teil der Erstbefunde. Zwei ergebnisrelevante Probleme bleiben bei den Bindungsaufgaben und E4; außerdem bestehen Abweichungen zwischen Protokoll und technischer Absicherung.
+
+Die Bewertung beruht ausschließlich auf dem gelieferten Code und Protokoll v0.3. Die berichteten Testergebnisse und der erneute M0-Lauf wurden nicht unabhängig ausgeführt oder abgerufen.
+
+Erstbefund	Bewertung der Korrektur
+
+E5 ignoriert unbekannte oder unbrauchbare Antworten	Behoben für die definierte Erfolgsbewertung: korrekte Zurückweisungen sind jetzt zusätzlich erforderlich; Unsicherheit und sonstige Fehler werden getrennt berichtet.
+Antwortparser akzeptiert Negationen und widersprüchliche Zusätze	Die früheren konkreten Fehler sind behoben.
+E7 unterstellt nicht beschriebene Besitzverhältnisse	Im Wesentlichen behoben: letzte Handhabung beziehungsweise eindeutig beschriebener Akteur ersetzen Besitz.
+Unterschiedliche Anfangswelten und frühe Aufgaben	Behoben: getrennte Zufallsströme und gemeinsame frühe Aufgaben.
+Testfragen werden zu Gedächtnisinput	Teilweise abgesichert: Digest-Kontrolle vorhanden; frische Kontexte werden vom Runner noch nicht selbst hergestellt.
+Unzulässige statistische Garantien	Grundsätzlich behoben: Weltindikatoren für bestätigende Entscheidungen, frühere Näherungen ausdrücklich deskriptiv.
+Unzureichende Gold- und Schwierigkeitstests	Deutlich verbessert; Bindungsprüfung und E4 bleiben offen.
+Fehlerhafte M0-Erfolgsanzeige	Normaler Fehlerpfad behoben: Rückgabecode und Vollständigkeitsprüfung vorhanden; verbleibende Registerlücke unten.
+
+
+1. E2 prüft weiterhin nicht, ob alle Hinweise für die Antwort notwendig sind.
+
+_binding_needed() verlangt nach Weglassen eines Hinweises lediglich mehrere passende Episoden. Diese können jedoch dieselbe Antwort haben.
+
+Ein von Hand konstruiertes Gegenbeispiel:
+
+Tag	Person	Handlung	Gegenstand	Ort
+
+1	Ann Lee	repaired	copper lantern	Mossgate Mill
+2	Bob Ray	repaired	copper lantern	Mossgate Mill
+3	Ann Lee	painted	copper lantern	Mossgate Mill
+4	Ann Lee	repaired	copper lantern	Carrow Forge
+
+
+Die Frage „What did Ann Lee repair at Mossgate Mill?“ erfüllt die implementierte Prüfung:
+
+- Ohne Person passen Tag 1 und 2.
+- Ohne Handlung passen Tag 1 und 3.
+- Ohne Ort passen Tag 1 und 4.
+
+Die Antwort bleibt immer copper lantern. Das System muss die vollständige Ereignisbindung für diese Antwort nicht herstellen.
+
+Erforderliche Änderung: Nach Weglassen jedes Hinweises müssen unterschiedliche Zielantworten möglich sein. Bei Personenfragen mit mehreren zulässigen Personen muss zusätzlich ausgeschlossen werden, dass eine gemeinsame Person sämtliche verbleibenden Episoden korrekt beantwortet. Die Tests müssen diese Antwortmehrdeutigkeit prüfen, statt nur Episoden zu zählen.
+
+2. E4 widerspricht seiner Definition in Protokoll v0.3.
+
+Das Protokoll verlangt ausdrücklich:
+
+> The same content (same person, action, object) occurs in several episodes
+
+
+
+Die E4-Auswahl verlangt dagegen:
+
+_unique_everywhere(both, person=person, action=e.action, obj=e.object)
+
+Damit werden ausschließlich Fragen zu Tripeln zugelassen, die in jeder Bedingung genau einmal vorkommen. Gerade die wiederholten Inhalte, zwischen deren Quellen unterschieden werden soll, werden ausgeschlossen.
+
+Erforderliche Änderung: Wiederkehrende Inhalte für E4 tatsächlich abfragen und einen zusätzlichen Kontext zur eindeutigen Auswahl verwenden, beispielsweise den Ort. Nur die Eindeutigkeitsprüfung zu entfernen wäre falsch: Die bisherige Frage würde dann mehrere richtige Tagesantworten besitzen.
+
+Alternativ muss das Protokoll den engeren Nachweis ausdrücklich als Datumsabruf eindeutig beschriebener Ereignisse benennen. Die behauptete Quellenunterscheidung wiederholter Inhalte wäre damit noch offen.
+
+3. Die Modell-Pinning-Regeln werden von M0 nicht erfüllt.
+
+Abschnitt 5 verlangt Modellrevisionen und SHA-256-Prüfungen vor der ersten Nutzung; Abschnitt 9 verlangt Downloads anhand dieser Pins.
+
+M0 löst weiterhin dynamisch auf:
+
+info = model_info(model_id)
+
+Die aufgelöste Revision wird anschließend für den Download verwendet und protokolliert. Das ist eine sinnvolle Verbesserung der Nachvollziehbarkeit. Im gelieferten Code fehlen aber eine vorher festgelegte erwartete Revision und der Vergleich mit erwarteten Dateihashes.
+
+Erforderliche Änderung: Entweder die vorgeschriebenen Pins und Hashprüfungen auch für M0 implementieren oder eine ausdrückliche, eng begrenzte Ausnahme für die explorative Machbarkeitsmessung dokumentieren. Für den Modellpilot muss die vorgeschriebene Prüfung verbindlich vorliegen.
+
+4. „Jeder fehlgeschlagene Lauf wird registriert“ ist noch nicht vollständig abgesichert.
+
+Der Collector erkennt fehlende oder fehlgeschlagene Modellresultate jetzt sinnvoll. Scheitert aber bereits der vorgelagerte Download-Schritt, ist der nachfolgende Schritt zum Speichern des Registereintrags nicht mit einer eigenen Ausführungsbedingung für diesen Fehlerfall versehen.
+
+if: always() auf Job-Ebene garantiert nicht, dass sämtliche späteren Schritte nach einem fehlgeschlagenen Schritt ausgeführt werden.
+
+Erforderliche Änderung: Den Registereintrag auch bei Fehlern beim Einsammeln vorbereiten und einen dokumentierten Fallback vorsehen. Ein Downloadfehler muss als solcher erscheinen und darf nicht lediglich verhindern, dass überhaupt ein Ergebnisregistereintrag entsteht.
+
+Die Digest-Kontrolle ist eine nützliche Prüfung, aber kein vollständiger Nachweis frischer Antwortkontexte.
+
+Der Runner vergleicht den vom System selbst gelieferten Digest. Ein Adapter könnte beispielsweise nur seinen Ereignisspeicher hashen, während ein zusätzliches Gesprächsprotokoll Fragen speichert. Beide Digests wären dann gleich.
+
+Für S0 ist der gezeigte Zustand überschaubar und passend erfasst. Für die kommenden Modellarme bleibt erforderlich:
+
+- Frische Kontexte technisch im Adapter herstellen.
+- Alle relevanten persistenten Speicher abgrenzen und prüfen.
+- Einen zusätzlichen Test mit einem separaten Fragenpuffer vorsehen, der außerhalb der Ereignisliste liegt.
+
+Diese Umsetzung gehört zum M2-Abnahmekriterium. Die derzeitige Aussage, die Digest-Prüfung verhindere grundsätzlich jeden Gedächtniseintrag durch Testfragen, sollte entsprechend eingeschränkt werden.
+
+Die neue Statistik ist für ihren ausdrücklich geänderten Zielparameter grundsätzlich passend. Exakte einseitige Clopper–Pearson-Grenzen über unabhängige binäre Weltindikatoren lösen das frühere Problem korrelierter Fragen. Die korrekte Zuordnung gepaarter Welten ist ebenfalls verbessert.
+
+Für Version 1.0 müssen dabei zwei Schwellen getrennt feststehen: die Leistung, ab der eine einzelne Welt besteht, und die geforderte Wahrscheinlichkeit, dass eine neue Welt besteht. Die neue Auswertung beantwortet damit eine andere Frage als ein Konfidenzintervall der durchschnittlichen Antwortgenauigkeit.
+
+Die CPU-Planung bleibt plausibel. Bei jetzt 30 Episoden und angenommenen fünf Schritten je Episode ergeben die angegebenen Schrittzeiten ungefähr 52,5 bis 292,5 Sekunden reine Trainingszeit. Die Beibehaltung des wiederholten M0-Strings ist für eine ausdrücklich begrenzte Zeit- und Speichermessung vertretbar. Repräsentative Episoden, lange Prompts und Gedächtnisabruf müssen wie vorgesehen im Pilot folgen.
+
+
+---
+
+Zusätzliche Verbesserungsideen:
+
+- Resampling transparent berichten: Versuche und ausgeschlossene Welten protokollieren. Der Zielbereich der Aussagen sind die durch diese Regel akzeptierten Welten.
+- E3-Untertypen getrennt absichern: Mindestzahlen und Resultate für frühere Zustände und den neuesten Zustand separat ausweisen; die gemeinsame E3b-Zahl kann Unterschiede verdecken.
+- Statistikfunktionen strikt validieren: Bei bestätigenden Weltindikatoren ausschließlich boolesche beziehungsweise echte 0/1-Werte zulassen. bool(v) würde beispielsweise auch "False" als wahr zählen.
+- Collector strukturiert prüfen: JSON einlesen und Modellkennung, Revision sowie Pflichtfelder validieren, statt nur nach einer Statuszeichenfolge zu suchen.
+- Bestätigende Gesamtaussage präzisieren: Für „mindestens einer von mehreren Armen erfüllt alle Kriterien“ auch die Auswahl über mehrere Arme berücksichtigen. Die gemeinsame Erfüllung aller Kriterien innerhalb eines einzelnen Arms ist davon zu unterscheiden.
+- Seed-Ziehung konkretisieren: Ein Signaturhash ist nur dann unvorhersehbar, wenn das Signaturverfahren beziehungsweise sein Eingang diese Eigenschaft tatsächlich liefert. Das Verfahren sollte vor Version 1.0 eindeutig festgelegt werden.

@@ -5,13 +5,18 @@ phase1 questions, present the follow-up episodes once each, test with the final
 questions. The system sees only episode texts and question texts (E1a); the evaluator
 alone holds the gold answers.
 
-Frozen memory during tests: every answer is given from a fresh context, and the system's
-memory state digest must be identical before and after each answer, so questions can
-never become memory input (protocol section 3). A system that changes its state while
-answering is rejected.
+Frozen memory during tests: every answer must come from a fresh context (the adapter
+builds each prompt from scratch). The runner checks this as far as it can see: before
+and after every answer it compares the system's own digest of its memory (for large
+state such as weights, attributes listed in DIGEST_COVERS) AND a fingerprint of every
+other attribute of the system object. A system that changes either while answering is
+rejected. State kept outside the system object (module globals, files) is not covered;
+model adapters must not keep any (protocol section 3, code audit).
 """
 from __future__ import annotations
 
+import hashlib
+import pickle
 from typing import Protocol
 
 from .score import score_world, summarise
@@ -28,6 +33,13 @@ class StateChangedWhileAnswering(RuntimeError):
     pass
 
 
+def fingerprint(system) -> str:
+    """Digest of the system's own memory digest plus every attribute it does not cover."""
+    covered = set(getattr(system, "DIGEST_COVERS", ()))
+    rest = {k: v for k, v in sorted(vars(system).items()) if k not in covered}
+    return hashlib.sha256(system.state_digest().encode() + pickle.dumps(rest, protocol=4)).hexdigest()
+
+
 def run_world(system: System, world: dict, questions: dict) -> dict:
     episodes = episodes_of(world)
     presented = 0
@@ -39,9 +51,9 @@ def run_world(system: System, world: dict, questions: dict) -> dict:
                 presented += 1
         answers[phase] = {}
         for q in questions["public"][phase]:
-            before = system.state_digest()
+            before = fingerprint(system)
             answers[phase][q["qid"]] = system.answer(q["text"])
-            if system.state_digest() != before:
+            if fingerprint(system) != before:
                 raise StateChangedWhileAnswering(q["qid"])
     gold, cands = questions["gold"], questions["candidates"]
     rows = (score_world(gold, cands, answers["phase1"], "phase1")

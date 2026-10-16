@@ -22,7 +22,8 @@ from .rng import HashRng
 from .world import Episode, episodes_of, generate_world
 
 QUESTION_SCHEMA = "episodic_lab.questions.v2"
-MINIMUM = {"E2": 8, "E3a": 4, "E3b": 4, "E4": 4, "E5": 6, "E7": 3}
+MINIMUM = {"E2": 8, "E3a": 4, "E3b": 6, "E4": 4, "E5": 6, "E7": 3}
+MINIMUM_QTYPE = {"at_day": 3, "latest": 3}
 
 PARA = {
     "object": ("What did {person} {action} at {place}?",
@@ -34,8 +35,8 @@ PARA = {
     "person": ("Who {past} the {object} at {place}?",
                "Which person {past} the {object} at {place}?",
                "Name someone who {past} the {object} at {place}."),
-    "day": ("On which day did {person} {action} the {object}?",
-            "Which day was it when {person} {past} the {object}?"),
+    "day": ("On which day did {person} {action} the {object} at {place}?",
+            "Which day was it when {person} {past} the {object} at {place}?"),
     "order": ("Which happened first? (A) {a} (B) {b} Answer A or B.",
               "Two events: (A) {a} (B) {b} Which one was earlier? Answer A or B."),
     "latest": ("Where was {person} most recently?",
@@ -109,10 +110,22 @@ def _unique_everywhere(worlds, **cue) -> bool:
     return all(len(matching(w, **cue)) == 1 for w in worlds)
 
 
-def _binding_needed(early, cue) -> bool:
-    """Dropping any single cue detail leaves more than one early episode."""
-    return all(len(matching(early, **{k: v for k, v in cue.items() if k != drop})) > 1
-               for drop in cue)
+def _binding_needed(early, cue, qtype) -> bool:
+    """Every cue detail is needed for the ANSWER: dropping any single detail leaves early
+    episodes with different answers (for person questions: no one person who took part
+    in all of them, so no single name answers every remaining episode)."""
+    for drop in cue:
+        hits = matching(early, **{k: v for k, v in cue.items() if k != drop})
+        if len(hits) < 2:
+            return False
+        if qtype == "person":
+            if set.intersection(*(set(e.participants) for e in hits)):
+                return False
+        else:
+            key = {"object": "object", "place": "place", "day": "day"}[qtype]
+            if len({getattr(e, key) for e in hits}) < 2:
+                return False
+    return True
 
 
 def build_questions(world: dict, per_type: int = 8) -> dict:
@@ -149,7 +162,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
                                ("person", dict(action=e.action, place=e.place, obj=e.object))):
                 key = (qtype, tuple(sorted(cue.items())))
                 if (key in seen or not _unique_everywhere(both, **cue)
-                        or not _binding_needed(early, cue)):
+                        or not _binding_needed(early, cue, qtype)):
                     continue
                 seen.add(key)
                 e2.append((qtype, cue, e))
@@ -189,26 +202,36 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
                                                       object=cue.get("obj")))
         add("E5", qtype, text, qtype, cue, [], True)
 
-    # E4 source: content (person, action, object) unique in every condition.
-    e4 = [(person, e) for e in early for person in e.participants
-          if _unique_everywhere(both, person=person, action=e.action, obj=e.object)]
+    # Events described uniquely by (person, action, object, place) in every condition.
+    described = [(person, e) for e in early for person in e.participants
+                 if _unique_everywhere(both, person=person, action=e.action, obj=e.object,
+                                       place=e.place)]
+
+    # E4 source: the SAME content (person, action, object) occurs on several early days;
+    # the place tells the occurrences apart, so the content alone does not give the day.
+    e4 = [(person, e) for person, e in described
+          if len({x.day for x in matching(early, person=person, action=e.action,
+                                          obj=e.object)}) >= 2]
     for person, e in pick(e4, per_type):
-        cue = dict(person=person, action=e.action, obj=e.object)
-        text = rng.choice(PARA["day"]).format(**words(e.action, person=person, object=e.object))
+        cue = dict(person=person, action=e.action, obj=e.object, place=e.place)
+        text = rng.choice(PARA["day"]).format(**words(e.action, person=person, object=e.object,
+                                                      place=e.place))
         add("E4", "day", text, "day", cue, [e.episode_id], True)
 
-    # E3a order: two such events; pairs whose presentation order differs from day order first.
-    pairs = [((pa, a), (pb, b)) for i, (pa, a) in enumerate(e4) for pb, b in e4[i + 1:]
-             if a.day != b.day]
+    # E3a order: two described events; pairs whose presentation order differs from day
+    # order first.
+    pairs = [((pa, a), (pb, b)) for i, (pa, a) in enumerate(described)
+             for pb, b in described[i + 1:] if a.day != b.day]
     mixed = [p for p in pairs if (p[0][1].position < p[1][1].position) != (p[0][1].day < p[1][1].day)]
     pairs = mixed + [p for p in pairs if p not in mixed]
     for (pa, a), (pb, b) in pairs[:per_type]:
         if rng.below(2):
             (pa, a), (pb, b) = (pb, b), (pa, a)
-        cue = {"a": dict(person=pa, action=a.action, obj=a.object),
-               "b": dict(person=pb, action=b.action, obj=b.object)}
-        text = rng.choice(PARA["order"]).format(a=f"{pa} {a.action} the {a.object}.",
-                                                b=f"{pb} {b.action} the {b.object}.")
+        cue = {"a": dict(person=pa, action=a.action, obj=a.object, place=a.place),
+               "b": dict(person=pb, action=b.action, obj=b.object, place=b.place)}
+        text = rng.choice(PARA["order"]).format(
+            a=f"{pa} {a.action} the {a.object} at {a.place}.",
+            b=f"{pb} {b.action} the {b.object} at {b.place}.")
         add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True)
 
     # E3b place on a given early day.
@@ -244,7 +267,8 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
         add("E7", "find", text, "place", cue, [e.episode_id, seen_at.episode_id], False)
 
     counts = {c: sum(i["criterion"] == c for i in items) for c in MINIMUM}
-    short = {c: n for c, n in counts.items() if n < MINIMUM[c]}
+    counts.update({t: sum(i["qtype"] == t for i in items) for t in MINIMUM_QTYPE})
+    short = {c: n for c, n in counts.items() if n < {**MINIMUM, **MINIMUM_QTYPE}[c]}
     if short:
         raise ValueError(f"WORLD_TOO_SMALL:{short}")
 

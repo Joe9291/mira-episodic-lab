@@ -68,12 +68,16 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Fetch measurement outputs
+        id: fetch
+        continue-on-error: true
+        uses: actions/download-artifact@v4
         with:
           path: incoming
           pattern: m0-*
           merge-multiple: true
       - name: Store results on the results branch
+        if: always()
         run: |
           set -e
           git config user.name "github-actions[bot]"
@@ -87,15 +91,35 @@ jobs:
           dest="m0/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
           mkdir -p "$dest"
           if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
-          # Completeness: one result per expected model, each with status OK.
-          verdict=COMPLETE
-          for slug in smollm2-135m smollm2-360m qwen2.5-0.5b qwen3-0.6b; do
-            f="$dest/m0_${slug}.json"
-            if [ ! -f "$f" ]; then echo "MISSING $slug" >> "$dest/CHECK.txt"; verdict=INCOMPLETE;
-            elif ! grep -q '"status": "OK"' "$f"; then echo "FAILED $slug" >> "$dest/CHECK.txt"; verdict=INCOMPLETE;
-            else echo "OK $slug" >> "$dest/CHECK.txt"; fi
-          done
-          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} measure-result ${{ needs.measure.result }} verdict ${verdict}" > "$dest/RUN.txt"
+          # Structured completeness check: one valid result per expected model.
+          python3 - "$dest" <<'PY'
+          import json, re, sys
+          from pathlib import Path
+          dest = Path(sys.argv[1])
+          expected = {"smollm2-135m": "HuggingFaceTB/SmolLM2-135M-Instruct",
+                      "smollm2-360m": "HuggingFaceTB/SmolLM2-360M-Instruct",
+                      "qwen2.5-0.5b": "Qwen/Qwen2.5-0.5B-Instruct",
+                      "qwen3-0.6b": "Qwen/Qwen3-0.6B"}
+          lines, ok = [], True
+          for slug, model in expected.items():
+              path = dest / f"m0_{slug}.json"
+              try:
+                  r = json.loads(path.read_text())
+                  problems = [k for k, good in (
+                      ("model_id", r.get("model_id") == model),
+                      ("status", r.get("status") == "OK"),
+                      ("resolved_revision", re.fullmatch(r"[0-9a-f]{40}", str(r.get("resolved_revision"))) is not None),
+                      ("lora_step_s_median", isinstance(r.get("lora_step_s_median"), (int, float))),
+                      ("peak_rss_mb", isinstance(r.get("peak_rss_mb"), (int, float)))) if not good]
+              except (OSError, ValueError) as exc:
+                  problems = [f"unreadable:{type(exc).__name__}"]
+              ok = ok and not problems
+              lines.append(f"{'OK' if not problems else 'FAILED'} {slug} {' '.join(problems)}".rstrip())
+          (dest / "CHECK.txt").write_text("\n".join(lines) + "\n")
+          (dest / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
+          PY
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} measure-result ${{ needs.measure.result }} fetch-outcome ${{ steps.fetch.outcome }} verdict ${verdict}" > "$dest/RUN.txt"
           git add m0
           git commit --quiet -m "M0 feasibility results, run ${GITHUB_RUN_ID}, ${verdict}"
           git push origin results
