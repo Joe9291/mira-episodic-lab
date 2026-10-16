@@ -1,0 +1,49 @@
+{
+  "cpu_count": 4,
+  "download_s": 3.45,
+  "episode_tokens": 101,
+  "files_mb": 953.3,
+  "generate_sample": " Odile Quist. The answer is \"Odile Quist\". Let's break down the information given in the question to determine who repaired the copper lantern:\n\n",
+  "generate_tokens_per_s": 6.72,
+  "load_s": 0.41,
+  "lora_losses": [
+    1.8861,
+    1.6077,
+    1.471,
+    1.3319,
+    1.184,
+    1.0372
+  ],
+  "lora_step_s": [
+    1.539,
+    1.506,
+    1.503,
+    1.479,
+    1.478,
+    1.491
+  ],
+  "lora_step_s_median": 1.503,
+  "lora_targets": [
+    "q_proj",
+    "v_proj"
+  ],
+  "lora_trainable": 540672,
+  "machine": "x86_64",
+  "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+  "parameters_m": 494.0,
+  "peak_rss_mb": 3224.7,
+  "prefill_tokens_per_s": 149.7,
+  "prompt_tokens": 210,
+  "python": "3.12.15",
+  "resolved_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+  "rss_after_load_mb": 3224.7,
+  "schema": "episodic_lab.m0.v1",
+  "status": "OK",
+  "torch_threads": 4,
+  "total_s": 26.37,
+  "versions": {
+    "peft": "0.15.2",
+    "torch": "2.6.0+cpu",
+    "transformers": "4.51.3"
+  }
+}
