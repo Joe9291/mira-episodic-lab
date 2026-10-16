@@ -20,7 +20,9 @@ evaluator knowledge that the arm never stores: for positive items the texts of t
 question's target episodes, for E5 lures confusable early episodes (for every pair of
 the lure's cue details, the first early episode in presentation order that contains that
 pair; deduplicated, in presentation order). A lure is therefore never answered from an
-empty context; rejecting it needs the binding of the details.
+empty context. Limit: three detail pairs cannot share an episode without forming the
+lure itself, so a lure always gets three notes while positive items get one or two; the
+note count can signal a lure, and O1's E5 is no clean binding diagnosis.
 
 E1b (processing per episode): every encoded episode is read once by `encode`. How often
 an episode is placed in an answering prompt follows from the arm's declared EXPOSURE

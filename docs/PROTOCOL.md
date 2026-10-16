@@ -12,7 +12,8 @@ procedure); 0.5 integrates Astra's review of milestone 1.2 (balanced E3a quota, 
 result check, signature details); 0.6 integrates Astra's review of milestone 2 (O1
 confusable evidence for lures and a positive-items selection criterion, strict cell
 schema check, per-cell provenance and E1b counts, E3b subtypes and E5 uncertainty in the
-summary). Reviews: `reviews/`.
+summary) and round 2 of that review (the collector recomputes every published number
+from the answer rows and makes the E1b fields mandatory). Reviews: `reviews/`.
 
 ## 1. Question and scope
 
@@ -94,7 +95,7 @@ presented to the system".
 | Arm | Description | Role |
 |---|---|---|
 | S0 | Symbolic event manager: rule-based parser and database over the same texts | How far plain data handling solves the task |
-| O1 | Oracle evidence (diagnostic): the target episode(s) of each question placed in the prompt; for E5 lures, confusable early episodes, one per pair of the lure's details (first in presentation order, deduplicated), so that no lure is answered from an empty context | Can the model use given evidence at all. Not a memory system: the evaluator supplies the evidence at every question, so its E5 and E6 values are no memory results |
+| O1 | Oracle evidence (diagnostic): the target episode(s) of each question placed in the prompt; for E5 lures, confusable early episodes, one per pair of the lure's details (first in presentation order, deduplicated), so that no lure is answered from an empty context | Can the model use given evidence at all. Not a memory system: the evaluator supplies the evidence at every question, so its E5 and E6 values are no memory results. A lure always gets three notes, positive items one or two, so the note count can signal a lure: O1's E5 is no clean binding diagnosis (equal note counts would be needed for that) |
 | A0 | Model, no memory: empty notes and the instruction to answer "none" when the notes lack the event | Missing-evidence control with requested abstention; guessing and confabulation floor |
 | A1 | All episodes in the prompt (if they fit) | In-context reference, not episodic memory |
 | A2 | Simple retrieval: lexical search, top-k episodes into the prompt | Standard external memory |
@@ -218,11 +219,18 @@ Controls:
   hashes, E1b processing counts, metrics, runtime. In the pilot every cell records the
   code commit, the SHA-256 of the pilot request and of the pins manifest, the model
   revision and weights digest, the SHA-256 of each world and question set, and per
-  episode: encoding reads, prompt inclusions, tokens in prompts and the arm's declared
-  replays, optimizer steps and store writes; every answer row records its prompt length,
-  answer length and whether the token limit cut it off. The collector validates the
-  full cell schema and identity, requires one code commit and identical worlds across
-  arms and models, and marks the run INCOMPLETE if any cell or the summary fails. Results go to a separate `results`
+  episode: encoding reads, prompt inclusions, tokens of the episode, prompt token
+  equivalents (episode tokens x inclusions; tokenisation at text boundaries inside a
+  full prompt can differ slightly) and the arm's declared replays, optimizer steps and
+  store writes; per condition peak memory and the longest prompt; every answer row
+  records its prompt length, answer length and whether the token limit cut it off. The
+  collector validates the full cell schema and identity, recomputes every published
+  number (summaries, E3b subtypes, E5 categories and false recall, E6 retention, token
+  totals, E1b counts) from the rows and per-episode counts and requires exact agreement,
+  requires one code commit and identical worlds and episode ids across arms and models,
+  and marks the run INCOMPLETE if any cell or the summary fails. SUMMARY.md also gives a
+  descriptive format-compliance rate (answers inside the answer grammar); the scoring
+  stays strict. Results go to a separate `results`
   branch; every run, including failed ones, is listed.
 - Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
   signs one experiment-series authorization (protocol hash, model pins, maximum number

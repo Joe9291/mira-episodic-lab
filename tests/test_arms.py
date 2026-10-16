@@ -279,7 +279,56 @@ class CollectorTests(unittest.TestCase):
                     node = node[key]
                 node[path[-1]] = value
             return f
+        def row(cond, **match):
+            def pick(cell):
+                return next(r for r in cell["conditions"][cond]["rows"]
+                            if all(r[k] == v for k, v in match.items()))
+            return pick
+
+        def edit_row(cond, changes, **match):
+            return lambda c: row(cond, **match)(c).update(changes)
+
+        def proc(cond, key):
+            return lambda c: c["conditions"][cond]["processing"][key]
+
+        def first_id(c, cond="low"):
+            return next(iter(c["conditions"][cond]["processing"]["encode_reads"]))
+
+        def restate(c, cond):  # make the stored summaries consistent with edited rows
+            rows = c["conditions"][cond]["rows"]
+            for phase in ("phase1", "final"):
+                c["conditions"][cond][phase] = collect.recompute_summary(rows, phase)
+
+        def all_latest_to_at_day(c):
+            for r in c["conditions"]["low"]["rows"]:
+                if r["qtype"] == "latest":
+                    r["qtype"] = "at_day"
+            restate(c, "low")
+
+        def a1_inclusion_off_by_one(c):
+            pr = c["conditions"]["low"]["processing"]
+            k = first_id(c)
+            pr["prompt_inclusions"][k] -= 1
+            pr["prompt_token_equivalents"][k] = pr["prompt_inclusions"][k] * pr["episode_tokens"][k]
+            pr["prompt_inclusion_summary"] = collect.inclusion_summary(pr["prompt_inclusions"])
+
+        def o1_no_notes(c):
+            pr = c["conditions"]["low"]["processing"]
+            for k in pr["prompt_inclusions"]:
+                pr["prompt_inclusions"][k] = pr["prompt_token_equivalents"][k] = 0
+            pr["prompt_inclusion_summary"] = collect.inclusion_summary(pr["prompt_inclusions"])
+
+        def rename_episode(c):  # consistent inside the cell, different from the other cells
+            pr = c["conditions"]["low"]["processing"]
+            k = first_id(c)
+            for key in ("encode_reads", "prompt_inclusions", "episode_tokens", "prompt_token_equivalents"):
+                pr[key]["ep-zzzzzz"] = pr[key].pop(k)
+
+        def shift_categories(c):
+            cats = c["conditions"]["high"]["final"]["E2"]["categories"]
+            cats["correct"], cats["wrong_value"] = cats["correct"] - 0.25, cats["wrong_value"] + 0.25
         cases = [
+            # identity, status, provenance
             ("A1", put(["arm"], "A0"), "identity:arm"),
             ("A1", put(["model"], "x"), "identity:model"),
             ("A1", put(["index"], 1), "identity:index"),
@@ -290,27 +339,63 @@ class CollectorTests(unittest.TestCase):
             ("A1", put(["provenance", "request_sha256"], "0" * 64), "provenance:request"),
             ("A1", put(["provenance", "pins_sha256"], "0" * 64), "provenance:pins"),
             ("A1", put(["provenance", "code_commit"], "d" * 40), "provenance:mixed_commits"),
+            ("A1", put(["partial"], {}), "partial_left"),
+            ("A1", drop(["max_new_tokens"]), "max_new_tokens"),
+            # structure
             ("A1", drop(["conditions", "low"]), "conditions"),
             ("A1", drop(["conditions", "high", "final"]), "criteria:high:final"),
             ("A1", drop(["conditions", "high", "phase1", "E5"]), "criteria:high:phase1"),
-            ("A1", drop(["conditions", "low", "final", "E3b", "by_qtype"]), "e3b_subtypes:low:final"),
-            ("A1", put(["conditions", "low", "final", "E2", "accuracy"], 1.5), "summary:low:final:E2"),
-            ("A1", put(["conditions", "low", "final", "E2", "n"], 99), "summary:low:final:E2"),
-            ("A1", put(["conditions", "low", "final", "E5", "false_recall"], None), "false_recall:low:final"),
-            ("A1", put(["conditions", "high", "retention", "final"], None), "retention:high"),
-            ("A1", drop(["conditions", "high", "retention"]), "retention:high"),
             ("A1", put(["conditions", "high", "seconds"], None), "seconds:high"),
-            ("A1", put(["conditions", "high", "telemetry", "calls"], 3), "calls_vs_rows:high"),
             ("A1", put(["conditions", "high", "rows"], [{}]), "row_structure:high"),
-            ("A1", lambda c: c["conditions"]["high"]["rows"][0].update(correct=1), "row_structure:high"),
+            ("A1", edit_row("high", {"correct": 1}, criterion="E2"), "row_structure:high"),
             ("A1", lambda c: c["conditions"]["high"]["rows"][0].pop("truncated"), "row_structure:high"),
-            ("A1", put(["conditions", "high", "world_sha256"], "0" * 64), "world_differs:high"),
+            ("A1", edit_row("high", {"qtype": "latest"}, phase="phase1", qtype="at_day"), "row_structure:high"),
+            ("A1", edit_row("high", {"phase": "phase1"}, criterion="E7"), "row_structure:high"),
             ("A1", put(["conditions", "high", "world_sha256"], "x"), "world_sha256:high"),
-            ("A1", put(["conditions", "low", "processing", "exposure"], "none"), "processing:low"),
-            ("A0", lambda c: c["conditions"]["low"]["processing"]["prompt_inclusions"].update(
-                {next(iter(c["conditions"]["low"]["processing"]["prompt_inclusions"])): 1}), "processing_a0:low"),
+            ("A1", put(["conditions", "high", "world_sha256"], "0" * 64), "world_differs:high"),
             ("A1", put(["conditions", "low", "symbolic_all_correct"], False), "reference:low"),
-            ("A1", put(["partial"], {}), "partial_left"),
+            ("A0", rename_episode, "world_differs:low"),
+            # formally valid values that contradict the rows
+            ("A1", put(["conditions", "low", "final", "E3b", "by_qtype", "latest", "accuracy"], 0.0),
+             "summary_vs_rows:low:final"),
+            ("A1", put(["conditions", "low", "final", "E3b", "by_qtype", "latest", "n"], 1),
+             "summary_vs_rows:low:final"),
+            ("A1", drop(["conditions", "low", "final", "E3b", "by_qtype"]), "summary_vs_rows:low:final"),
+            ("A1", all_latest_to_at_day, "e3b_subtypes:low:final"),
+            ("A1", put(["conditions", "low", "final", "E2", "accuracy"], 0.5), "summary_vs_rows:low:final"),
+            ("A1", put(["conditions", "low", "final", "E2", "n"], 99), "summary_vs_rows:low:final"),
+            ("A1", shift_categories, "summary_vs_rows:high:final"),
+            ("A1", put(["conditions", "low", "final", "E5", "false_recall"], 0.5), "summary_vs_rows:low:final"),
+            ("A1", put(["conditions", "high", "retention", "final"], 0.3), "retention_vs_rows:high"),
+            ("A1", drop(["conditions", "high", "retention"]), "retention_vs_rows:high"),
+            ("A1", edit_row("high", {"false_recall": True}, criterion="E5"), "row_inconsistent:high"),
+            ("A1", edit_row("high", {"truncated": True}, criterion="E2"), "row_tokens:high"),
+            ("A1", edit_row("high", {"new_tokens": 17}, criterion="E2"), "row_tokens:high"),
+            ("A1", lambda c: c["conditions"]["high"]["telemetry"].update(calls=3), "telemetry_vs_rows:high"),
+            ("A1", lambda c: c["conditions"]["high"]["telemetry"].update(
+                prompt_tokens=c["conditions"]["high"]["telemetry"]["prompt_tokens"] + 1), "telemetry_vs_rows:high"),
+            ("A1", lambda c: c["conditions"]["high"]["telemetry"].update(new_tokens=0), "telemetry_vs_rows:high"),
+            ("A1", drop(["conditions", "low", "resources"]), "resources:low"),
+            ("A1", put(["conditions", "low", "resources", "max_prompt_tokens"], 1), "resources:low"),
+            # E1b fields are mandatory and must agree with each other and with the arm
+            ("A1", drop(["conditions", "low", "processing", "episode_tokens"]), "processing_fields:low"),
+            ("A1", drop(["conditions", "low", "processing", "prompt_token_equivalents"]), "processing_fields:low"),
+            ("A1", drop(["conditions", "low", "processing", "declared_per_episode"]), "processing_fields:low"),
+            ("A1", drop(["conditions", "low", "processing", "prompt_inclusion_summary"]), "processing_fields:low"),
+            ("A1", put(["conditions", "low", "processing", "exposure"], "none"), "processing_exposure:low"),
+            ("A1", put(["conditions", "low", "processing", "declared_per_episode", "store_writes"], 0),
+             "processing_declared:low"),
+            ("O1", put(["conditions", "low", "processing", "declared_per_episode", "store_writes"], 1),
+             "processing_declared:low"),
+            ("A1", lambda c: proc("low", "episode_tokens")(c).pop(first_id(c)), "processing_maps:low"),
+            ("A1", lambda c: proc("low", "prompt_token_equivalents")(c).update({first_id(c): 1}),
+             "processing_equivalents:low"),
+            ("A1", lambda c: proc("low", "encode_reads")(c).update({first_id(c): 2}), "processing_reads:low"),
+            ("A1", put(["conditions", "low", "episodes_presented"], 39), "processing_reads:low"),
+            ("A1", lambda c: proc("low", "prompt_inclusion_summary")(c).update(total=0), "processing_summary:low"),
+            ("A1", a1_inclusion_off_by_one, "processing_a1:low"),
+            ("A0", lambda c: proc("low", "prompt_inclusions")(c).update({first_id(c): 1}), "processing_a0:low"),
+            ("O1", o1_no_notes, "processing_o1:low"),
         ]
         for arm, change, reason in cases:
             verdict, check, _ = self.mutate(arm, change)
@@ -350,7 +435,7 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(cond["telemetry"]["truncated"], len(cut))
             proc = cond["processing"]
             for k, n in proc["prompt_inclusions"].items():
-                self.assertEqual(proc["prompt_tokens_per_episode"][k], n * proc["episode_tokens"][k])
+                self.assertEqual(proc["prompt_token_equivalents"][k], n * proc["episode_tokens"][k])
 
     def test_partial_answers_survive_a_failing_phase(self):
         class FailsLater(FakeModel):
@@ -383,17 +468,26 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(list(out["partial"]["low"]), ["phase1"])
         self.assertTrue(out["partial"]["low"]["phase1"])
 
-    def test_selection_ignores_lures_and_summary_must_match_rows(self):
+    def test_selection_ignores_lures(self):
         cell = json.loads(json.dumps(self.cells["O1"]))
         for cond in cell["conditions"].values():
             for r in cond["rows"]:
                 if r["criterion"] == "E5":
-                    r.update(correct=False, category="wrong_value")
-        self.assertIn("| m | 1 | 1.000 | 1.000 | yes |",
-                      "\n".join(collect.selection({("m", "O1", 0): cell})))
-        verdict, check, _ = self.run_collect(dict(self.cells, O1=cell))
-        self.assertIn("summary_vs_rows:high:final:E5", check)
+                    r.update(correct=False, category="wrong_value", false_recall=True)
+            for phase in ("phase1", "final"):
+                cond[phase] = collect.recompute_summary(cond["rows"], phase)
+        verdict, check, summary = self.run_collect(dict(self.cells, O1=cell))
+        self.assertEqual(verdict, "COMPLETE", check)  # a consistent cell with wrong lures
+        self.assertIn("| m | 1 | 1.000 | 1.000 | yes |", summary)
 
+    def test_collector_recomputation_equals_the_scorer(self):
+        from episodic_lab.score import summarise
+        for cell in self.cells.values():
+            for cond in cell["conditions"].values():
+                for phase in ("phase1", "final"):
+                    rows = [r for r in cond["rows"] if r["phase"] == phase]
+                    self.assertTrue(collect.same(collect.recompute_summary(cond["rows"], phase),
+                                                 json.loads(json.dumps(summarise(rows)))))
 
 
 if __name__ == "__main__":

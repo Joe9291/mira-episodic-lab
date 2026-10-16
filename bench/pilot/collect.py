@@ -4,15 +4,19 @@ Never raises for a bad cell. Every expected cell (model x arm x world index of t
 request) is validated against the full cell schema: identity (model, arm, series, index
 must equal the matrix entry), status, provenance (code commit equal across cells, request
 and pins manifest hashes equal to the files the collector holds, revision equal to the
-pin), both overlap conditions, phase summaries with every criterion, finite values in
-their ranges, the row structure, E1b processing counts and the symbolic reference. Across
-cells, every model and arm must have seen the same world and question set for a given
-index and condition. CHECK.txt lists every cell as OK or FAILED with reasons.
+pin), both overlap conditions, the row structure and its internal consistency (allowed
+phase/criterion/question-type combinations, categories, false recall, token limit), E1b
+processing fields and the symbolic reference. Every published number (summaries, E3b
+subtypes, E5 categories and false recall, E6 retention, token totals, longest prompt, E1b
+counts, inclusion summary and token equivalents) is recomputed here from the answer rows
+or the per-episode counts with collector-side code and must match exactly. Across cells,
+every model and arm must have seen the same world, question set and episode ids for a
+given index and condition. CHECK.txt lists every cell as OK or FAILED with reasons.
 
 VERDICT is COMPLETE only if every cell is OK AND the summary was written; otherwise
 INCOMPLETE. SUMMARY.md gives, per model and arm, means over worlds (both overlap
 conditions, final test) per criterion with E3b split into at_day and latest, the E5
-answer categories, the truncation rate and the E6 inputs, plus the model-selection
+answer categories, the format-compliance and truncation rates and the E6 inputs, plus the model-selection
 criterion of protocol section 5 (O1 accuracy on positive items only). O1 is diagnostic:
 its evidence is supplied by the evaluator for every question, so its E5 and E6 values are
 no memory results. Exploratory pilot numbers.
@@ -47,64 +51,143 @@ def _num(x) -> bool:
     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
 
 
-def _rate(x) -> bool:
-    return _num(x) and 0.0 <= x <= 1.0
-
-
 def _count(x) -> bool:
     return isinstance(x, int) and not isinstance(x, bool) and x >= 0
 
 
-def _check_summary(summary, phase: str, rows: list, problems: list, where: str) -> None:
-    if not isinstance(summary, dict) or set(summary) != set(CRITERIA[phase]):
-        problems.append(f"criteria:{where}")
-        return
-    for c in CRITERIA[phase]:
-        s = summary[c]
-        sub = [r for r in rows if r.get("phase") == phase and r.get("criterion") == c]
-        if (not isinstance(s, dict) or not _count(s.get("n")) or s["n"] == 0
-                or s["n"] != len(sub) or not _rate(s.get("accuracy"))):
-            problems.append(f"summary:{where}:{c}")
-            continue
-        if abs(s["accuracy"] - sum(r.get("correct") is True for r in sub) / len(sub)) > 1e-9:
-            problems.append(f"summary_vs_rows:{where}:{c}")
-        cats = s.get("categories")
-        if (not isinstance(cats, dict) or set(cats) != set(CATEGORIES)
-                or not all(_rate(v) for v in cats.values())
-                or abs(sum(cats.values()) - 1.0) > 1e-9):
-            problems.append(f"categories:{where}:{c}")
-        if c == "E5" and not _rate(s.get("false_recall")):
-            problems.append(f"false_recall:{where}")
+# Allowed (phase, criterion) -> question types; E7 and "latest" exist only in the final test.
+QTYPES = {
+    "phase1": {"E2": {"object", "place", "person"}, "E3a": {"order"}, "E3b": {"at_day"},
+               "E4": {"day"}, "E5": {"object", "place", "person"}},
+    "final": {"E2": {"object", "place", "person"}, "E3a": {"order"},
+              "E3b": {"at_day", "latest"}, "E4": {"day"}, "E5": {"object", "place", "person"},
+              "E7": {"act", "find"}},
+}
+DECLARED = {"A0": {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0},
+            "A1": {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 1},
+            "O1": {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0}}
+PROCESSING_KEYS = {"exposure", "encode_reads", "declared_per_episode", "prompt_inclusions",
+                   "episode_tokens", "prompt_token_equivalents", "prompt_inclusion_summary"}
+
+
+def recompute_summary(rows: list, phase: str) -> dict:
+    """Independent recomputation of score.summarise for one phase (collector-side code)."""
+    out = {}
+    for c in sorted({r["criterion"] for r in rows if r["phase"] == phase}):
+        sub = [r for r in rows if r["phase"] == phase and r["criterion"] == c]
+        n = len(sub)
+        s = {"n": n, "accuracy": sum(r["correct"] for r in sub) / n,
+             "categories": {k: sum(r["category"] == k for r in sub) / n for k in CATEGORIES}}
+        if c == "E5":
+            s["false_recall"] = sum(r["false_recall"] for r in sub) / n
         if c == "E3b":
-            by = s.get("by_qtype")
-            if (not isinstance(by, dict) or set(by) != set(E3B_SUBTYPES[phase])
-                    or not all(isinstance(v, dict) and _count(v.get("n")) and v["n"] > 0
-                               and _rate(v.get("accuracy")) for v in by.values())):
-                problems.append(f"e3b_subtypes:{where}")
+            s["by_qtype"] = {}
+            for q in sorted({r["qtype"] for r in sub}):
+                qs = [r for r in sub if r["qtype"] == q]
+                s["by_qtype"][q] = {"n": len(qs), "accuracy": sum(r["correct"] for r in qs) / len(qs)}
+        out[c] = s
+    return out
 
 
-def _check_rows(rows, problems: list, where: str) -> None:
+def recompute_retention(rows: list) -> dict:
+    early = [r for r in rows if r["criterion"] in ("E2", "E4")]
+    out = {}
+    for phase in ("phase1", "final"):
+        sub = [r for r in early if r["phase"] == phase]
+        out[phase] = sum(r["correct"] for r in sub) / len(sub) if sub else None
+    return out
+
+
+def inclusion_summary(counts: dict) -> dict:
+    values = list(counts.values())
+    return {"episodes": len(values), "total": sum(values), "min": min(values),
+            "max": max(values), "mean": sum(values) / len(values)}
+
+
+def same(a, b) -> bool:
+    """Deep equality with identical keys and types; floats to 1e-9."""
+    if isinstance(a, dict) or isinstance(b, dict):
+        return (isinstance(a, dict) and isinstance(b, dict) and set(a) == set(b)
+                and all(same(a[k], b[k]) for k in a))
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a is b
+    if isinstance(a, int) and isinstance(b, int):
+        return a == b
+    if _num(a) and _num(b):
+        return abs(a - b) <= 1e-9
+    return a == b
+
+
+def _check_rows(rows, max_new: int | None, problems: list, where: str) -> bool:
+    """Structure and internal consistency of every answer row; False if unusable."""
     if not isinstance(rows, list) or not rows:
         problems.append(f"rows:{where}")
-        return
+        return False
     seen = set()
     for r in rows:
         ok = (isinstance(r, dict) and isinstance(r.get("qid"), str)
-              and isinstance(r.get("criterion"), str) and r.get("phase") in CRITERIA
-              and isinstance(r.get("qtype"), str) and isinstance(r.get("raw"), str)
+              and r.get("phase") in QTYPES and r.get("criterion") in QTYPES[r["phase"]]
+              and r.get("qtype") in QTYPES[r["phase"]][r["criterion"]]
+              and isinstance(r.get("raw"), str)
               and r.get("category") in CATEGORIES and isinstance(r.get("correct"), bool)
               and isinstance(r.get("false_recall"), bool)
               and isinstance(r.get("truncated"), bool)
               and _count(r.get("new_tokens")) and _count(r.get("prompt_tokens"))
-              and r["correct"] == (r["category"] == "correct"))
+              and r["prompt_tokens"] > 0)
         if not ok:
             problems.append(f"row_structure:{where}")
-            return
+            return False
+        if (r["correct"] != (r["category"] == "correct")
+                or r["false_recall"] != (r["criterion"] == "E5" and r["category"] == "wrong_value")
+                or (r["criterion"] == "E5" and r["correct"] and r["category"] != "correct")):
+            problems.append(f"row_inconsistent:{where}")
+            return False
+        if max_new is not None and (r["new_tokens"] > max_new
+                                    or (r["truncated"] and r["new_tokens"] != max_new)):
+            problems.append(f"row_tokens:{where}")
+            return False
         key = (r["phase"], r["qid"])
         if key in seen:
             problems.append(f"row_duplicate:{where}")
-            return
+            return False
         seen.add(key)
+    return True
+
+
+def _check_processing(proc, arm: str, rows: list, presented, problems: list, where: str) -> None:
+    if not isinstance(proc, dict) or set(proc) != PROCESSING_KEYS:
+        problems.append(f"processing_fields:{where}")
+        return
+    if proc["exposure"] != EXPOSURE.get(arm):
+        problems.append(f"processing_exposure:{where}")
+    if proc["declared_per_episode"] != DECLARED.get(arm):
+        problems.append(f"processing_declared:{where}")
+    reads, incl, tokens, equiv = (proc["encode_reads"], proc["prompt_inclusions"],
+                                  proc["episode_tokens"], proc["prompt_token_equivalents"])
+    maps = (reads, incl, tokens, equiv)
+    if (not all(isinstance(m, dict) and m for m in maps)
+            or not all(isinstance(k, str) for k in reads)
+            or not all(set(m) == set(reads) for m in maps)
+            or not all(_count(v) for m in maps for v in m.values())):
+        problems.append(f"processing_maps:{where}")
+        return
+    if any(v != 1 for v in reads.values()) or presented != len(reads):
+        problems.append(f"processing_reads:{where}")
+    if any(v == 0 for v in tokens.values()):
+        problems.append(f"processing_tokens:{where}")
+    if any(equiv[k] != incl[k] * tokens[k] for k in reads):
+        problems.append(f"processing_equivalents:{where}")
+    if not same(proc["prompt_inclusion_summary"], inclusion_summary(incl)):
+        problems.append(f"processing_summary:{where}")
+    n_all = len(rows)
+    n_final = sum(r["phase"] == "final" for r in rows)
+    values = set(incl.values())
+    if arm == "A0" and values != {0}:
+        problems.append(f"processing_a0:{where}")
+    if arm == "A1" and values != {n_all, n_final}:  # early: every question; follow-up: final only
+        problems.append(f"processing_a1:{where}")
+    if arm == "O1" and (sum(incl.values()) < n_all or max(values) > n_all):  # >= 1 note per question
+        problems.append(f"processing_o1:{where}")
 
 
 def validate(data, expected: dict, request_sha: str, pins: dict | None, pins_sha: str | None) -> list:
@@ -153,36 +236,38 @@ def validate(data, expected: dict, request_sha: str, pins: dict | None, pins_sha
         if not _num(c.get("seconds")) or c["seconds"] < 0:
             problems.append(f"seconds:{name}")
         tel = c.get("telemetry")
-        if not isinstance(tel, dict) or not all(_count(tel.get(k)) for k in TELEMETRY):
+        if not isinstance(tel, dict) or set(tel) != set(TELEMETRY) or not all(_count(tel[k]) for k in TELEMETRY):
             problems.append(f"telemetry:{name}")
             tel = None
+        max_new = data.get("max_new_tokens")
+        if not _count(max_new) or max_new == 0:
+            problems.append("max_new_tokens")
+            max_new = None
         rows = c.get("rows")
-        _check_rows(rows, problems, name)
-        rows = rows if isinstance(rows, list) and all(isinstance(r, dict) for r in rows) else []
-        if tel is not None and rows:
-            if tel["calls"] != len(rows):
-                problems.append(f"calls_vs_rows:{name}")
-            if tel["truncated"] != sum(r.get("truncated") is True for r in rows):
-                problems.append(f"truncated_vs_rows:{name}")
+        if not _check_rows(rows, max_new, problems, name):
+            continue
+        if tel is not None and (tel["calls"] != len(rows)
+                                or tel["truncated"] != sum(r["truncated"] for r in rows)
+                                or tel["prompt_tokens"] != sum(r["prompt_tokens"] for r in rows)
+                                or tel["new_tokens"] != sum(r["new_tokens"] for r in rows)):
+            problems.append(f"telemetry_vs_rows:{name}")
         for phase in CRITERIA:
-            _check_summary(c.get(phase), phase, rows, problems, f"{name}:{phase}")
-        ret = c.get("retention")
-        if not isinstance(ret, dict) or not all(_rate(ret.get(p)) for p in ("phase1", "final")):
-            problems.append(f"retention:{name}")
-        proc = c.get("processing")
-        if not isinstance(proc, dict) or proc.get("exposure") != EXPOSURE.get(expected["arm"]):
-            problems.append(f"processing:{name}")
-        else:
-            reads, incl = proc.get("encode_reads"), proc.get("prompt_inclusions")
-            if (not isinstance(reads, dict) or not reads
-                    or any(v != 1 for v in reads.values())
-                    or not isinstance(incl, dict) or set(incl) != set(reads)
-                    or not all(_count(v) for v in incl.values())):
-                problems.append(f"processing_counts:{name}")
-            elif expected["arm"] == "A0" and any(incl.values()):
-                problems.append(f"processing_a0:{name}")
-            if c.get("episodes_presented") != (len(reads) if isinstance(reads, dict) else None):
-                problems.append(f"episodes_presented:{name}")
+            stored = c.get(phase)
+            if not isinstance(stored, dict) or set(stored) != set(CRITERIA[phase]):
+                problems.append(f"criteria:{name}:{phase}")
+            elif not same(stored, recompute_summary(rows, phase)):
+                problems.append(f"summary_vs_rows:{name}:{phase}")
+            elif set(stored["E3b"]["by_qtype"]) != set(E3B_SUBTYPES[phase]):
+                problems.append(f"e3b_subtypes:{name}:{phase}")
+        if not same(c.get("retention"), recompute_retention(rows)):
+            problems.append(f"retention_vs_rows:{name}")
+        res = c.get("resources")
+        if (not isinstance(res, dict) or set(res) != {"peak_rss_mb", "max_prompt_tokens"}
+                or not _num(res["peak_rss_mb"]) or res["peak_rss_mb"] <= 0
+                or res["max_prompt_tokens"] != max(r["prompt_tokens"] for r in rows)):
+            problems.append(f"resources:{name}")
+        _check_processing(c.get("processing"), expected["arm"], rows,
+                          c.get("episodes_presented"), problems, name)
         if c.get("symbolic_all_correct") is not True:
             problems.append(f"reference:{name}")
     if (isinstance(conds.get("high"), dict) and isinstance(conds.get("low"), dict)):
@@ -227,15 +312,17 @@ def summarise(cells: dict) -> str:
     lines = ["# Pilot summary (exploratory)", "",
              "Means over worlds and both overlap conditions, final test. E5 = correct "
              "rejections; uncertain and other answers are not rejections. Trunc = share of "
-             "answers cut off by the token limit. O1 is diagnostic (evaluator-supplied "
-             "evidence for every question, confusable notes for lures): its E5 and E6 "
-             "columns are no memory results. A0 is the missing-evidence control with "
-             "requested abstention.", ""]
+             "answers cut off by the token limit. Format = share of all answers (both test "
+             "points) inside the answer grammar (any category but 'other'), descriptive only; "
+             "the scoring stays strict. O1 is diagnostic (evaluator-supplied evidence for "
+             "every question; for lures three confusable notes, so the note count can signal "
+             "a lure): its E5 and E6 columns are no memory results. A0 is the "
+             "missing-evidence control with requested abstention.", ""]
     groups = {}
     for (model, arm, index), data in cells.items():
         groups.setdefault((model, arm), []).append(data)
     head = ["E2", "E3a", "E3b at_day", "E3b latest", "E4", "E5", "E7", "E5 false recall",
-            "E5 uncertain", "E5 other", "trunc", "E6 phase1", "E6 final high", "E6 final low"]
+            "E5 uncertain", "E5 other", "format", "trunc", "E6 phase1", "E6 final high", "E6 final low"]
     lines.append("| model | arm | worlds | " + " | ".join(head) + " |")
     lines.append("|" + "---|" * (len(head) + 3))
     for (model, arm), datas in sorted(groups.items()):
@@ -250,6 +337,7 @@ def summarise(cells: dict) -> str:
         row.append(f"{mean(x['final']['E5']['false_recall'] for x in both):.2f}")
         row.append(f"{mean(x['final']['E5']['categories']['uncertain'] for x in both):.2f}")
         row.append(f"{mean(x['final']['E5']['categories']['other'] for x in both):.2f}")
+        row.append(f"{mean(r['category'] != 'other' for x in both for r in x['rows']):.2f}")
         row.append(f"{mean(r['truncated'] for x in both for r in x['rows']):.2f}")
         row.append(f"{mean(x['retention']['phase1'] for x in both):.2f}")
         row.append(f"{mean(d['conditions']['high']['retention']['final'] for d in datas):.2f}")
@@ -288,7 +376,8 @@ def main(request_path: str, dest: str, pins_path: str | None = None) -> int:
             results[f"pilot_{m}_{a}_{i}.json"].append("provenance:mixed_commits")
     for i in request["indices"]:
         for o in ("high", "low"):
-            hashes = {(d["conditions"][o]["world_sha256"], d["conditions"][o]["questions_sha256"])
+            hashes = {(d["conditions"][o]["world_sha256"], d["conditions"][o]["questions_sha256"],
+                       tuple(sorted(d["conditions"][o]["processing"]["encode_reads"])))
                       for (m, a, j), d in cells.items() if j == i}
             if len(hashes) > 1:
                 for (m, a, j) in cells:

@@ -11,7 +11,7 @@ the question) and question wording; they differ only in the story notes:
 - A1 (all episodes in the prompt): every episode presented so far, in presentation order;
 - O1 (oracle evidence, diagnostic only): the evaluator's target episodes of the question;
   for lures, confusable early episodes that each contain one pair of the lure's details
-  (so the rejection needs binding, not just an empty context). O1 is not a memory
+  (no empty context; but always three notes, so the note count can signal a lure). O1 is not a memory
   system; it measures whether the model can use given evidence, its evidence is passed by
   the runner and never stored, and its E6 values say nothing about retention.
 A0 is, strictly, a missing-evidence control with requested abstention.

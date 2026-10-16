@@ -2,7 +2,8 @@
 
 Writes a JSON result with every raw answer, the scored rows (each with its prompt length,
 answer length and a truncation flag), summaries, E6 inputs, timing and token telemetry,
-E1b processing counts per episode, provenance (code commit, SHA-256 of the pilot request
+E1b processing counts per episode (prompt token equivalents = isolated episode tokens x
+inclusions), peak memory and longest prompt per condition, provenance (code commit, SHA-256 of the pilot request
 and of the pins manifest, SHA-256 of every world and question set), plus whether the
 symbolic arm solves the same world (reference). On any failure the result keeps what was
 done (finished conditions, raw answers of finished test phases under "partial") and
@@ -14,6 +15,7 @@ import argparse
 import hashlib
 import json
 import os
+import resource
 import sys
 import time
 import traceback
@@ -35,6 +37,11 @@ def canonical_sha256(obj) -> str:
 
 def file_sha256(path: str) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def peak_rss_mb() -> float:
+    """Peak resident memory of this process so far (Linux reports KiB)."""
+    return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
 
 
 def inclusion_summary(counts: dict) -> dict:
@@ -64,13 +71,17 @@ def run_cell(model, arm: str, series: str, index: int, out: dict) -> None:
         processing = result["processing"]
         tokens = {e["episode_id"]: model.count_tokens(e["text"]) for e in world["episodes"]}
         processing["episode_tokens"] = tokens
-        processing["prompt_tokens_per_episode"] = {
+        # token EQUIVALENT: tokens of the episode on its own x prompt inclusions (tokenisation
+        # at text boundaries inside a full prompt can differ slightly)
+        processing["prompt_token_equivalents"] = {
             k: n * tokens[k] for k, n in processing["prompt_inclusions"].items()}
         out["conditions"][overlap] = {
             "seed": world["seed"], "seconds": round(time.perf_counter() - t0, 1),
             "world_sha256": canonical_sha256(world),
             "questions_sha256": canonical_sha256(questions),
             "telemetry": {k: model.stats[k] - before[k] for k in model.stats},
+            "resources": {"peak_rss_mb": peak_rss_mb(),
+                          "max_prompt_tokens": max(c["prompt_tokens"] for c in calls)},
             "phase1": result["phase1"], "final": result["final"],
             "retention": retention(result), "rows": result["rows"],
             "episodes_presented": result["episodes_presented"],

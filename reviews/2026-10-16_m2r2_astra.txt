@@ -1,0 +1,41 @@
+4m 59s nachgedacht
+
+Teil 1:
+
+return out
+---END DIFF---
+
+Teil 2:
+
+unittest.main()
+---END FILE tests/test_arms.py---
+
+REQUEST CHANGES. Die vier bisherigen Befunde sind weitgehend bearbeitet. Es bleiben zwei konkrete Lücken im Collector, die vor dem ersten Pilotlauf geschlossen werden sollten.
+
+Die O1-Modellauswahl ist jetzt nachvollziehbar definiert: positive Finaltest-Items, E5 ausgeschlossen, erst Aggregation innerhalb einer Welt, dann Mittel über Welten, feste Schwelle 0,8. Die diagnostische Kennzeichnung stimmt. Auch Provenienz, getrennte E3b-Spalten, E5-Unsicherheit und die Behandlung fehlgeschlagener Zellen sind deutlich verbessert. Insbesondere verhindert ein fehlgeschlagener Summary-Schritt jetzt COMPLETE.
+
+1. Mehrere veröffentlichte Kennzahlen werden weiterhin nicht gegen die Antwortzeilen geprüft.
+   _check_summary gleicht Gesamtzahl und Gesamtgenauigkeit ab. Bei E3b-Untertypen werden dagegen nur positive Fallzahlen und zulässige Genauigkeiten geprüft. Eine ansonsten gültige Zelle mit vollständig korrekten latest-Zeilen kann deshalb eine Untertypgenauigkeit von 0.0 enthalten und trotzdem akzeptiert werden. SUMMARY.md übernimmt diesen falschen Wert.
+
+   Entsprechende Lücken bestehen bei Kategorieanteilen, E5-false_recall und E6-retention: Werte innerhalb von [0,1] können den Zeilen widersprechen. Auch die Token-Gesamtsummen werden nicht mit den Zeilen abgeglichen.
+
+   Erforderlich: Diese Größen aus den Zeilen neu berechnen oder vollständig dagegen validieren. Für E3b müssen sowohl Untertyp-Fallzahlen als auch Genauigkeiten stimmen; erlaubte Phase/Kriterium/Untertyp-Kombinationen sollten ebenfalls geprüft werden.
+
+2. Die zugesagten E1b-Nachweise sind noch keine verpflichtenden Bestandteile der Validierung.
+   validate verwendet weder episode_tokens noch prompt_tokens_per_episode noch declared_per_episode. Diese Felder können aus einer ansonsten gültigen Zelle vollständig entfernt werden, ohne dass dadurch INCOMPLETE entsteht. Damit garantiert COMPLETE noch nicht den angekündigten vollständigen Verarbeitungsnachweis.
+
+   Erforderlich: Die Felder verpflichtend machen, Typen und Episoden-ID-Mengen prüfen sowie Tokenprodukte und armbezogene Deklarationen abgleichen. Beispielsweise muss für jede Episode das gespeicherte Tokenprodukt zu Tokenzahl und Prompt-Einblendungen passen.
+
+Ergänzt dafür Tests mit formal zulässigen, aber widersprüchlichen Werten sowie gelöschten E1b-Feldern. Die bisherigen Beschädigungstests prüfen überwiegend fehlende Felder oder offensichtlich ungültige Werte; sie schließen diese beiden Lücken nicht.
+
+Getrennte Verbesserungsideen, ohne zusätzliche Freigabebedingungen:
+
+- O1-Lures haben weiterhin ein strukturelles Antwortsignal. Bei drei Cue-Details entstehen zwangsläufig drei verschiedene Evidenzepisoden: Würde eine Episode zwei Cue-Paare erfüllen, erfüllte sie bereits die verbotene vollständige Kombination. Gegenüber positiven Items mit einer oder zwei Zielnotizen kann die Notizanzahl deshalb die Ablehnung verraten. Die Aussage „rejecting needs the binding“ ist zu stark. Für die jetzige positive Modellauswahl ist das unschädlich. Für eine aussagekräftige O1-Bindungsdiagnose sollten positive und negative Kontexte hinsichtlich ihrer Notizanzahl angeglichen werden.
+
+- Den Dryrun als Formatdiagnose nutzen. Die berichteten 0,149 und 31–67 % Abschneidungen zeigen erhebliche Probleme mit dem Antwortformat. Das Wiederholen von „Tom Hill“ ist kein Gold-Leak, sondern ein Instruktionsproblem. Ergänzend zur unveränderten strengen Hauptwertung wäre eine deskriptive Formatbefolgungsrate hilfreich. Änderungen weiterhin als dokumentierte Varianten behandeln.
+
+- E1b-Tokenprodukte genauer benennen. Isolierte Episodentokenzahl × Einblendungen ist ein Tokenäquivalent; wegen Tokenisierung an Textgrenzen muss es nicht exakt dem Episodenanteil im vollständigen Prompt entsprechen.
+
+- Ressourcenmessung vervollständigen. Die berichteten Laufzeiten machen den Inferenzpilot plausibel. Für die Einschätzung unter 4 CPU-Kernen und 16 GB RAM fehlen insbesondere gemessener maximaler RAM-Verbrauch und maximale Kontextlänge je Modell. Die Qwen3-Projektion bleibt eine Schätzung.
+
+Das Urteil beruht ausschließlich auf statischem Lesen der beiden Anhänge; Projektcode und Tests wurden nicht ausgeführt, nichts wurde verändert.
