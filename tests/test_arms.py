@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "bench" / "pilot"))
 
-from episodic_lab.arms import ARMS, INSTRUCTION, NO_NOTES, build_messages  # noqa: E402
+from episodic_lab.arms import ARMS, FORMAT, NO_NOTES, build_messages, instruction  # noqa: E402
 from episodic_lab.models import PinError, verify_snapshot  # noqa: E402
 from episodic_lab.questions import make_world  # noqa: E402
 from episodic_lab.runner import StateChangedWhileAnswering, run_world  # noqa: E402
@@ -40,14 +40,30 @@ class FakeModel:
         if notes != NO_NOTES:
             for line in notes.split("\n"):
                 memory.encode(line)
-        return memory.answer(question)
+        return memory.answer(question, None)
 
 
 class ArmTests(unittest.TestCase):
+    def test_instruction_names_only_the_asked_answer_type(self):
+        for answer_type, (form, example) in FORMAT.items():
+            text = instruction(answer_type)
+            self.assertIn(form, text)
+            self.assertIn(example, text)
+            for other, (other_form, _) in FORMAT.items():
+                if other != answer_type:
+                    self.assertNotIn(other_form, text)
+            self.assertEqual("none" in text, answer_type != "choice")
+
+    def test_examples_never_name_world_vocabulary(self):
+        from episodic_lab.world import FIRST, LAST, OBJ_ADJ, OBJ_NOUN, PLACE_KIND, PLACE_STEM
+        words = set(FIRST + LAST + OBJ_ADJ + OBJ_NOUN + PLACE_KIND + PLACE_STEM)
+        for _, example in FORMAT.values():
+            self.assertFalse(set(example.split()) & words, example)
+
     def test_prompts_differ_only_in_notes(self):
-        a = build_messages("Who?", [])
-        b = build_messages("Who?", ["Day 1: x."])
-        self.assertEqual(a[0], {"role": "system", "content": INSTRUCTION})
+        a = build_messages("Who?", [], "person")
+        b = build_messages("Who?", ["Day 1: x."], "person")
+        self.assertEqual(a[0], {"role": "system", "content": instruction("person")})
         self.assertEqual(a[0], b[0])
         self.assertEqual(a[1]["content"], f"Story notes:\n{NO_NOTES}\n\nQuestion: Who?")
         self.assertEqual(b[1]["content"], "Story notes:\nDay 1: x.\n\nQuestion: Who?")

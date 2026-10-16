@@ -31,7 +31,7 @@ from .world import episodes_of
 
 class System(Protocol):
     def encode(self, text: str) -> None: ...
-    def answer(self, text: str) -> str: ...
+    def answer(self, text: str, answer_type: str) -> str: ...
     def state_digest(self) -> str: ...
 
 
@@ -65,9 +65,10 @@ def run_world(system: System, world: dict, questions: dict) -> dict:
             before = fingerprint(system)
             if oracle:
                 targets = sorted(questions["gold"][q["qid"]]["targets"], key=order.get)
-                reply = system.answer_with(q["text"], [texts[t] for t in targets])
+                reply = system.answer_with(q["text"], [texts[t] for t in targets],
+                                           q["answer_type"])
             else:
-                reply = system.answer(q["text"])
+                reply = system.answer(q["text"], q["answer_type"])
             answers[phase][q["qid"]] = reply
             if fingerprint(system) != before:
                 raise StateChangedWhileAnswering(q["qid"])

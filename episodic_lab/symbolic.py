@@ -55,7 +55,7 @@ class SymbolicMemory:
                 and (place is None or e["place"] == place)
                 and (obj is None or e["object"] == obj)]
 
-    def answer(self, text: str) -> str:
+    def answer(self, text: str, answer_type: str | None = None) -> str:
         for qtype, templates in PARA.items():
             for template in templates:
                 m = re.fullmatch(_template_regex(template), text)

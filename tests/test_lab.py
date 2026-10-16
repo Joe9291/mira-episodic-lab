@@ -355,7 +355,7 @@ class _Constant:
     def encode(self, text):
         pass
 
-    def answer(self, text):
+    def answer(self, text, answer_type=None):
         return self.reply
 
     def state_digest(self):
@@ -365,7 +365,7 @@ class _Constant:
 class _Cheat(SymbolicMemory):
     """Stores every question it sees: must be rejected by the runner."""
 
-    def answer(self, text):
+    def answer(self, text, answer_type=None):
         self.events.append({"question": text})
         return "none"
 
@@ -377,7 +377,7 @@ class _BufferCheat(SymbolicMemory):
         super().__init__()
         self.seen_questions = []
 
-    def answer(self, text):
+    def answer(self, text, answer_type=None):
         self.seen_questions.append(text)
         return super().answer(text)
 

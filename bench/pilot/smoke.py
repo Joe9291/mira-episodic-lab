@@ -16,9 +16,11 @@ from episodic_lab.arms import build_messages  # noqa: E402
 
 NOTES = ["On day 1, Ann Lee repaired the blue map at Stone Mill.",
          "Day 2: at Reed Harbour, Bob Ray sold the old clock."]
-QUESTIONS = ["Who repaired the blue map at Stone Mill?",
-             "On which day did Bob Ray sell the old clock at Reed Harbour?",
-             "What did Ann Lee sell at Reed Harbour?"]
+QUESTIONS = [("Who repaired the blue map at Stone Mill?", "person"),
+             ("On which day did Bob Ray sell the old clock at Reed Harbour?", "day"),
+             ("What did Ann Lee sell at Reed Harbour?", "object"),
+             ("Which happened first? (A) Bob Ray sold the old clock at Reed Harbour. "
+              "(B) Ann Lee repaired the blue map at Stone Mill. Answer A or B.", "choice")]
 
 
 def main(slug: str, out_path: str) -> int:
@@ -34,9 +36,9 @@ def main(slug: str, out_path: str) -> int:
         out["weights_hash_s"] = round(time.perf_counter() - t1, 2)
         out["weights_digest_stable"] = digest == model.weights_digest()
         for notes in ([], NOTES):
-            for q in QUESTIONS:
+            for q, answer_type in QUESTIONS:
                 t1 = time.perf_counter()
-                answer = model.generate(build_messages(q, notes))
+                answer = model.generate(build_messages(q, notes, answer_type))
                 out["answers"].append({"notes": len(notes), "question": q, "answer": answer,
                                        "seconds": round(time.perf_counter() - t1, 2)})
         out["stats"] = model.stats

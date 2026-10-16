@@ -5,8 +5,8 @@ per question, no history, no cache across questions. The model is any object wit
 `generate(messages) -> str` and `weights_digest() -> str` (see models.py); tests use a
 fake model, so the prompt logic is checked without PyTorch.
 
-The three arms see exactly the same instruction and question wording; they differ only
-in the story notes:
+The three arms see exactly the same instruction (which names the public answer type of
+the question) and question wording; they differ only in the story notes:
 - A0 (no memory): no notes;
 - A1 (all episodes in the prompt): every episode presented so far, in presentation order;
 - O1 (oracle evidence, diagnostic only): the evaluator's target episodes of the question
@@ -18,15 +18,31 @@ from __future__ import annotations
 import hashlib
 import json
 
-INSTRUCTION = ("You read story notes and answer a question about them. Answer with only "
-               "the name, the place, the object, the day number, or the letter A or B. "
-               "If the notes do not contain the event the question asks about, answer: none.")
+# The answer type is public (it is part of every question record), so naming the
+# expected form is fair; examples use names that never occur in any world.
+FORMAT = {
+    "person": ("a person's full name", "Tom Hill"),
+    "place": ("a place name", "Elm Court"),
+    "object": ("an object name", "red door"),
+    "day": ("a day number", "Day 3"),
+    "choice": ("the letter A or the letter B", "A"),
+}
 NO_NOTES = "(no notes)"
 
 
-def build_messages(question: str, notes: list[str]) -> list[dict]:
+def instruction(answer_type: str) -> str:
+    form, example = FORMAT[answer_type]
+    text = (f"You read story notes and answer one question about them. Answer with only "
+            f"{form} (for example: {example}), nothing else.")
+    if answer_type != "choice":
+        text += (" If the notes do not contain the event the question asks about, answer "
+                 "with the single word: none.")
+    return text
+
+
+def build_messages(question: str, notes: list[str], answer_type: str) -> list[dict]:
     body = "\n".join(notes) if notes else NO_NOTES
-    return [{"role": "system", "content": INSTRUCTION},
+    return [{"role": "system", "content": instruction(answer_type)},
             {"role": "user", "content": f"Story notes:\n{body}\n\nQuestion: {question}"}]
 
 
@@ -51,8 +67,8 @@ class NoMemory(_ModelArm):
     def encode(self, text: str) -> None:
         pass
 
-    def answer(self, text: str) -> str:
-        return self.model.generate(build_messages(text, []))
+    def answer(self, text: str, answer_type: str) -> str:
+        return self.model.generate(build_messages(text, [], answer_type))
 
 
 class AllInPrompt(_ModelArm):
@@ -61,8 +77,8 @@ class AllInPrompt(_ModelArm):
     def encode(self, text: str) -> None:
         self.notes.append(text)
 
-    def answer(self, text: str) -> str:
-        return self.model.generate(build_messages(text, list(self.notes)))
+    def answer(self, text: str, answer_type: str) -> str:
+        return self.model.generate(build_messages(text, list(self.notes), answer_type))
 
 
 class OracleEvidence(_ModelArm):
@@ -71,11 +87,11 @@ class OracleEvidence(_ModelArm):
     def encode(self, text: str) -> None:
         pass
 
-    def answer(self, text: str) -> str:  # pragma: no cover - O1 always gets evidence
+    def answer(self, text: str, answer_type: str) -> str:  # pragma: no cover
         raise RuntimeError("O1 answers only with evidence")
 
-    def answer_with(self, text: str, evidence: list[str]) -> str:
-        return self.model.generate(build_messages(text, list(evidence)))
+    def answer_with(self, text: str, evidence: list[str], answer_type: str) -> str:
+        return self.model.generate(build_messages(text, list(evidence), answer_type))
 
 
 ARMS = {"A0": NoMemory, "A1": AllInPrompt, "O1": OracleEvidence}
