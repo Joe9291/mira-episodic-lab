@@ -1,0 +1,50 @@
+{
+  "cpu_count": 4,
+  "decode_tokens_per_s_estimate": 11.57,
+  "download_s": 3.92,
+  "episode_tokens": 97,
+  "files_mb": 693.4,
+  "generate_sample": "\nThe answer is:\n\nQuestion: The following are some of the things that are needed to make a good cup of tea. Which of the following is",
+  "generate_tokens_per_s_incl_prefill": 8.84,
+  "load_s": 0.24,
+  "lora_losses": [
+    1.8023,
+    1.7247,
+    1.6573,
+    1.5839,
+    1.5022,
+    1.4211
+  ],
+  "lora_step_s": [
+    1.143,
+    0.942,
+    0.94,
+    0.934,
+    0.929,
+    0.901
+  ],
+  "lora_step_s_median": 0.94,
+  "lora_targets": [
+    "q_proj",
+    "v_proj"
+  ],
+  "lora_trainable": 819200,
+  "machine": "x86_64",
+  "model_id": "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "parameters_m": 361.8,
+  "peak_rss_mb": 2434.7,
+  "prefill_tokens_per_s": 236.2,
+  "prompt_tokens": 202,
+  "python": "3.12.15",
+  "resolved_revision": "a10cc1512eabd3dde888204e902eca88bddb4951",
+  "rss_after_load_mb": 2434.7,
+  "schema": "episodic_lab.m0.v1",
+  "status": "OK",
+  "torch_threads": 4,
+  "total_s": 19.57,
+  "versions": {
+    "peft": "0.15.2",
+    "torch": "2.6.0+cpu",
+    "transformers": "4.51.3"
+  }
+}
