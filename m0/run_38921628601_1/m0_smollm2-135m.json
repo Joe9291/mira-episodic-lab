@@ -1,0 +1,50 @@
+{
+  "cpu_count": 4,
+  "decode_tokens_per_s_estimate": 23.06,
+  "download_s": 2.98,
+  "episode_tokens": 97,
+  "files_mb": 259.9,
+  "generate_sample": "\nAnswer:\nThe answer to this question is:\n\nAnswer:\n\nExplanation and example use of the word \"copper\" in a sentence:",
+  "generate_tokens_per_s_incl_prefill": 18.46,
+  "load_s": 0.17,
+  "lora_losses": [
+    1.6766,
+    1.6066,
+    1.531,
+    1.4543,
+    1.377,
+    1.2983
+  ],
+  "lora_step_s": [
+    0.447,
+    0.432,
+    0.414,
+    0.417,
+    0.426,
+    0.414
+  ],
+  "lora_step_s_median": 0.426,
+  "lora_targets": [
+    "q_proj",
+    "v_proj"
+  ],
+  "lora_trainable": 460800,
+  "machine": "x86_64",
+  "model_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "parameters_m": 134.5,
+  "peak_rss_mb": 1139.9,
+  "prefill_tokens_per_s": 583.5,
+  "prompt_tokens": 202,
+  "python": "3.12.15",
+  "resolved_revision": "12fd25f77366fa6b3b4b768ec3050bf629380bac",
+  "rss_after_load_mb": 1113.7,
+  "schema": "episodic_lab.m0.v1",
+  "status": "OK",
+  "torch_threads": 4,
+  "total_s": 12.18,
+  "versions": {
+    "peft": "0.15.2",
+    "torch": "2.6.0+cpu",
+    "transformers": "4.51.3"
+  }
+}
