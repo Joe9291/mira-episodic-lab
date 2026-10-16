@@ -1,0 +1,31 @@
+2m 17s nachgedacht
+
+Teil 1:
+
+raise SystemExit(main(*sys.argv[1:4]))
+---END FILE bench/pilot/collect.py---
+
+Teil 2:
+
+unittest.main()
+---END FILE tests/test_arms.py---
+
+APPROVE für Meilenstein 2 als Grundlage des explorativen Piloten. Beide Pflichtpunkte aus Runde 2 sind nachvollziehbar behoben. Aus den vorliegenden Änderungen ergibt sich kein weiterer Freigabeblocker.
+
+- Kennzahlen und Antwortzeilen werden jetzt abgeglichen. Der Collector berechnet Kriteriengenauigkeiten, Kategorieanteile, E3b-Untertypen einschließlich Fallzahlen, E5-False-Recall und E6-Retention selbst nach. Auch Token-Gesamtsummen und Abschneidungen müssen den Zeilen entsprechen. Zulässige Phase/Kriterium/Untertyp-Kombinationen werden geprüft; ein vollständig verschwundener E3b-Untertyp wird zusätzlich erkannt.
+
+- Die E1b-Nachweise sind verpflichtend. Fehlende Felder, unterschiedliche Episoden-ID-Mengen, falsche Tokenprodukte, widersprüchliche Einblendungssummen und unpassende Armdeklarationen führen zur Ablehnung. Die neuen Beschädigungsfälle treffen insbesondere die zuvor beanstandeten Lücken: formal gültige, aber widersprüchliche Werte sowie entfernte Nachweisfelder.
+
+- Die wissenschaftliche Interpretation ist sauberer begrenzt. Das Notizanzahl-Signal bei O1-Lures wird ausdrücklich dokumentiert. E5 bleibt aus der Modellauswahl ausgeschlossen; O1-E5/E6 werden nicht als Gedächtnisnachweis interpretiert. Gleiche Notizanzahlen sind für diesen begrenzten Verwendungszweck keine zusätzliche Voraussetzung.
+
+- Die Ergänzungen verändern die Hauptwertung nicht. Formatakzeptanz bleibt deskriptiv, Tokenäquivalente sind korrekt benannt, und der technische Dryrun verwendet weiterhin eine getrennte Serie. Der berichtete erfolgreiche Dryrun ergänzt die statische Plausibilitätsprüfung.
+
+Getrennte Verbesserungsideen, ohne zusätzliche Freigabebedingungen:
+
+1. Ergebnisse künftig gegen ein erwartetes Itemmanifest prüfen. Momentan sichern Hashvergleiche und Zeilenprüfungen vor allem Übereinstimmung und interne Konsistenz. Ein unabhängiger Abgleich der erwarteten (phase, qid, criterion, qtype) würde zusätzlich fehlende oder umbenannte Items erkennen, selbst wenn Zusammenfassungen dazu passend neu berechnet wurden.
+
+2. A1-Einblendungen pro Episode ihrem Block zuordnen. set(incl.values()) == {n_all, n_final} prüft die vorkommenden Werte, aber weder deren Häufigkeit noch die Zuordnung zu frühen und späteren Episoden. Ein entsprechender Tausch könnte passieren. Der vorhandene Runner-Test prüft diese Zuordnung bereits konkret; derselbe Abgleich wäre auch im Collector sinnvoll.
+
+3. RSS als kumulativen Prozesshöchstwert kennzeichnen. ru_maxrss gilt seit Prozessbeginn. Der Wert der zweiten Bedingung kann deshalb die Spitze der ersten enthalten. Für die Speichergrenze eines gesamten Laufs ist das brauchbar; getrennte Bedingungsvergleiche benötigen eine andere Messung. Die berichteten 1106 MB und 1064 Prompttokens sind ein guter erster Messpunkt für das 135M-Modell. Größere Modelle sollten unter den vorgesehenen vier CPU-Kernen separat vermessen werden.
+
+Die Prüfung erfolgte ausschließlich durch Lesen der lokalen Anhänge. Die berichteten Tests, Mutationstests und Dryrun-Ergebnisse habe ich nicht ausgeführt oder extern verifiziert; nichts wurde verändert.
