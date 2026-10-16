@@ -1,0 +1,49 @@
+{
+  "cpu_count": 4,
+  "download_s": 7.02,
+  "episode_tokens": 101,
+  "files_mb": 1448.8,
+  "generate_sample": " A. Varo Tellin B. Odile Quist C. Varo Tellin and Odile Quist D. Varo Tellin and Odile",
+  "generate_tokens_per_s": 7.11,
+  "load_s": 0.79,
+  "lora_losses": [
+    1.7746,
+    1.4073,
+    1.1157,
+    0.8293,
+    0.5598,
+    0.3236
+  ],
+  "lora_step_s": [
+    1.51,
+    1.533,
+    1.433,
+    1.468,
+    1.423,
+    1.451
+  ],
+  "lora_step_s_median": 1.468,
+  "lora_targets": [
+    "q_proj",
+    "v_proj"
+  ],
+  "lora_trainable": 1146880,
+  "machine": "x86_64",
+  "model_id": "Qwen/Qwen3-0.6B",
+  "parameters_m": 596.0,
+  "peak_rss_mb": 4707.3,
+  "prefill_tokens_per_s": 181.0,
+  "prompt_tokens": 210,
+  "python": "3.12.15",
+  "resolved_revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "rss_after_load_mb": 4707.3,
+  "schema": "episodic_lab.m0.v1",
+  "status": "OK",
+  "torch_threads": 4,
+  "total_s": 29.07,
+  "versions": {
+    "peft": "0.15.2",
+    "torch": "2.6.0+cpu",
+    "transformers": "4.51.3"
+  }
+}
