@@ -1,0 +1,814 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.2 v4, PART 2 OF 2 (operators in full, collector, tests)
+
+Continuation of part 1 (same review request). This file ends with the line "=== END OF LAB ROUND 3.2 v4 PART 2 ===".
+
+---BEGIN FILE episodic_lab/memory.py---
+"""Round 3.2 agent memory (docs/ROUND_3_2.md), evolved from S0.
+
+Store: an append-only JSON-lines file, one record per experienced episode, written once
+and flushed, chained by SHA-256 so that any changed, removed or reordered record is
+detected on load. Current state is always derived from the records at query time.
+
+Operators answer structured queries over the records and return the value, a status and
+the trace (episode ids, operation). Negative results are three-valued: "none_in_scope"
+(the cue's people, objects and places are known, but this combination never occurred),
+"no_observation" (nothing was ever recorded about one of the cue's entities) and
+"ambiguous" (several records match with different answers).
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from .questions import BASE, PARA
+from .symbolic import EPISODE_PATTERNS, PAST, _template_regex
+
+STORE_SCHEMA = "episodic_lab.memory_record.v1"
+FIELDS = ("actor", "partner", "action", "object", "place", "event_day")
+SOURCE_KINDS = ("observed", "own_action", "reported", "inferred")
+GENESIS = "0" * 64
+
+
+class StoreCorrupted(RuntimeError):
+    pass
+
+
+def _digest(record: dict) -> str:
+    body = {k: v for k, v in record.items() if k != "hash"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+class EpisodeStore:
+    """Append-only episodic store backed by one file (or memory only if path is None)."""
+
+    def __init__(self, path: str | os.PathLike | None = None, stream: str = "agent",
+                 expect: dict | None = None):
+        """`expect` = a seal kept OUTSIDE the record chain ({"count", "head"}); with it, a
+        store whose last records were cut off is refused as well."""
+        self.path = Path(path) if path is not None else None
+        self.stream = stream
+        self._records: list[dict] = []
+        if self.path is not None and self.path.exists():
+            prev = GENESIS
+            for n, line in enumerate(self.path.read_text(encoding="utf-8").splitlines()):
+                rec = json.loads(line)
+                if rec.get("prev") != prev or rec.get("seq") != n or _digest(rec) != rec.get("hash"):
+                    raise StoreCorrupted(f"record {n}")
+                prev = rec["hash"]
+                self._records.append(rec)
+        if expect is not None and self.seal() != expect:
+            raise StoreCorrupted(f"seal mismatch: {self.seal()} != {expect}")
+
+    def seal(self) -> dict:
+        return {"count": len(self._records),
+                "head": self._records[-1]["hash"] if self._records else GENESIS}
+
+    def content_digest(self) -> str:
+        """Digest of the actual record contents (not of the stored hashes), so any change
+        of a record in working memory changes it."""
+        return hashlib.sha256(json.dumps(self._records, sort_keys=True).encode()).hexdigest()
+
+    @property
+    def records(self) -> list[dict]:
+        return [dict(r) for r in self._records]
+
+    def append(self, text: str, content: dict, source: dict | None = None,
+               encoder: str = "regex", relations: list | None = None, extra: dict | None = None) -> dict:
+        source = source or {"kind": "observed", "by": None}
+        if source.get("kind") not in SOURCE_KINDS:
+            raise ValueError("unknown source kind")
+        if set(content) != set(FIELDS):
+            raise ValueError(f"content needs exactly {FIELDS}")
+        prev = self._records[-1]["hash"] if self._records else GENESIS
+        rec = {"schema": STORE_SCHEMA, "seq": len(self._records), "stream": self.stream,
+               "id": "m" + hashlib.sha256((prev + text).encode()).hexdigest()[:12],
+               **content, "source": source, "text": text, "relations": relations or [],
+               "encoder": encoder, "extra": extra or {}, "prev": prev}
+        rec["hash"] = _digest(rec)
+        if self.path is not None:
+            with self.path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(rec, sort_keys=True) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+        self._records.append(rec)
+        return dict(rec)
+
+
+# ----------------------------------------------------------------- encoders
+def regex_encode(text: str) -> dict:
+    """S0's template parser (control encoder)."""
+    for pattern in EPISODE_PATTERNS:
+        m = re.fullmatch(pattern, text)
+        if m:
+            g = m.groupdict()
+            return {"actor": g["actor"], "partner": g["partner"],
+                    "action": "hid" if g["action"] == "hidden" else g["action"],
+                    "object": g["object"], "place": g["place"], "event_day": int(g["day"])}
+    raise ValueError(f"unparsed episode: {text}")
+
+
+# ----------------------------------------------------------------- operators
+# Every operator takes the record set it may use and whether that set is the COMPLETE
+# store (`complete`). Statuses:
+#   ok                    a value supported by the records used
+#   none_in_scope         complete scope; the cue's entities are known, the combination never occurred
+#   no_observation        complete scope; one of the cue's entities was never recorded
+#   ambiguous             several records with different answers
+#   insufficient_evidence incomplete scope; nothing (or no unique latest/negative) can be concluded
+# Global statements (a negative, "latest", "last handler") require a complete scope.
+STATUSES = ("ok", "none_in_scope", "no_observation", "ambiguous", "insufficient_evidence")
+
+
+@dataclass
+class Result:
+    value: str | None
+    status: str
+    ids: list = field(default_factory=list)
+    trace: list = field(default_factory=list)
+
+    def answer(self) -> str:
+        """Closed-benchmark answer: a value, "none" only for none_in_scope, else "unknown"."""
+        if self.status == "ok":
+            return self.value
+        return "none" if self.status == "none_in_scope" else "unknown"
+
+    def to_json(self) -> dict:
+        return {"value": self.value, "status": self.status, "ids": list(self.ids),
+                "trace": [[op, arg, list(ids)] for op, arg, ids in self.trace]}
+
+
+def _people(r):
+    return {r["actor"]} | ({r["partner"]} if r["partner"] else set())
+
+
+def _day(r):
+    """Event day if it is a valid integer, else None (an encoder error stays a datum)."""
+    d = r.get("event_day")
+    return d if isinstance(d, int) and not isinstance(d, bool) else None
+
+
+# A field is UNKNOWN if the encoder declared it so (record extra "unknown", e.g. an
+# invalid or missing LM slot; its value is then None) or if a field every episode has
+# (actor, action, place, a valid integer day) is missing. A missing partner or object
+# without that declaration means "none in this episode" (legitimate in the templates
+# for the partner, in the round 3.3 environment also for the object).
+ALWAYS_PRESENT = ("actor", "action", "place", "event_day")
+
+
+def unknown(r, f) -> bool:
+    if f in ((r.get("extra") or {}).get("unknown") or ()):
+        return True
+    if f == "event_day":
+        return _day(r) is None
+    return f in ALWAYS_PRESENT and r[f] is None
+
+
+def match(records, person=None, action=None, obj=None, place=None, day=None):
+    return [r for r in records
+            if (person is None or person in _people(r)) and (action is None or r["action"] == action)
+            and (obj is None or r["object"] == obj) and (place is None or r["place"] == place)
+            and (day is None or _day(r) == day)]
+
+
+def possible(records, person=None, action=None, obj=None, place=None, day=None):
+    """Records that match the cue OR could match it because a needed field is unknown
+    (see `unknown`): an unknown value is never evidence of absence. A person could be
+    the actor or the partner of a record in which either is unknown."""
+    def ok(r, value, f):
+        return value is None or unknown(r, f) or r[f] == value
+    return [r for r in records
+            if (person is None or person in _people(r) or unknown(r, "actor") or unknown(r, "partner"))
+            and ok(r, action, "action") and ok(r, obj, "object") and ok(r, place, "place")
+            and (day is None or unknown(r, "event_day") or _day(r) == day)]
+
+
+def _ids(rs):
+    return [r["id"] for r in rs]
+
+
+def _minus(rs, exclude):
+    ids = set(_ids(exclude))
+    return [r for r in rs if r["id"] not in ids]
+
+
+def could_be_latest(exact, maybe):
+    """Records that could be the latest one about an entity: the exact records of the
+    latest known day, exact undated records, and possible records (an unknown field could
+    make them about the entity) that are undated or not earlier than that day. Records
+    outside this set cannot change a latest-state answer."""
+    dated = [r for r in exact if _day(r) is not None]
+    if not dated:
+        return list(exact) + list(maybe), None
+    top = max(_day(r) for r in dated)
+    return ([r for r in exact if _day(r) in (top, None)]
+            + [r for r in maybe if _day(r) is None or _day(r) >= top]), top
+
+
+def _known(records, person=None, obj=None, place=None, **_):
+    people = set().union(*(_people(r) for r in records)) if records else set()
+    return ((person is None or person in people)
+            and (obj is None or any(r["object"] == obj for r in records))
+            and (place is None or any(r["place"] == place for r in records)))
+
+
+def _negative(records, cue, complete, universe=None):
+    """Negative status. `universe` = the whole store when the selection was certified by
+    an index scan over it (entity knowledge then comes from the index, not the subset)."""
+    if not complete:
+        return "insufficient_evidence"
+    return "none_in_scope" if _known(universe if universe is not None else records, **cue) else "no_observation"
+
+
+def _ok(value, ids, trace) -> Result:
+    """Every ok result carries a valid answer value (a non-empty string); a missing value
+    (an encoder that gave none for a required slot) is uncertainty, never an answer."""
+    if isinstance(value, str) and value:
+        return Result(value, "ok", ids, trace)
+    return Result(None, "ambiguous", ids, trace)
+
+
+def find(records, cue: dict, want: str, complete: bool = True, universe=None) -> Result:
+    hits = match(records, **cue)
+    maybe = _minus(possible(records, **cue), hits)
+    trace = [("find", dict(cue), [h["id"] for h in hits + maybe])]
+    if not hits:
+        if maybe:  # a record with an unknown field could be the event
+            return Result(None, "insufficient_evidence", [r["id"] for r in maybe], trace)
+        return Result(None, _negative(records, cue, complete, universe), [], trace)
+    if want == "day":
+        values = {str(_day(h)) if _day(h) is not None else None for h in hits + maybe}
+    else:
+        values = {h["actor"] if want == "person" else h[want] for h in hits + maybe}
+    if len(values) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in hits + maybe], trace)
+    return _ok(values.pop(), [h["id"] for h in hits], trace)
+
+
+def latest(records, person: str, complete: bool = True) -> Result:
+    """Latest place of a person. Every record that could be the latest one about the
+    person (an undated record of the person, or a record whose unknown actor/partner
+    could be the person and that is not earlier) must agree on the place."""
+    hits = match(records, person=person)
+    maybe = _minus(possible(records, person=person), hits)
+    trace = [("latest", person, _ids(hits + maybe))]
+    if not complete:
+        return Result(None, "insufficient_evidence", _ids(hits + maybe), trace)
+    if not hits:
+        return Result(None, "insufficient_evidence" if maybe else "no_observation", _ids(maybe), trace)
+    cands, top = could_be_latest(hits, maybe)
+    if top is None:
+        return Result(None, "ambiguous", _ids(cands), trace)
+    places = {r["place"] for r in cands}
+    if len(places) != 1:
+        return Result(None, "ambiguous", _ids(cands), trace)
+    return _ok(places.pop(), [h["id"] for h in hits if _day(h) == top], trace)
+
+
+def state_at(records, person: str, day: int, complete: bool = True, universe=None) -> Result:
+    """Place of a person on a day. Possible records (undated records of the person, or
+    records of that day or undated whose unknown actor/partner could be the person) could
+    be from that day: without an exact hit they give insufficient_evidence, with one they
+    must agree on the place."""
+    hits = match(records, person=person, day=day)
+    maybe = _minus(possible(records, person=person, day=day), hits)
+    trace = [("state_at", [person, day], _ids(hits + maybe))]
+    if not hits:
+        if maybe:
+            return Result(None, "insufficient_evidence", _ids(maybe), trace)
+        return Result(None, _negative(records, {"person": person}, complete, universe), [], trace)
+    places = {r["place"] for r in hits + maybe}
+    if len(places) != 1:
+        return Result(None, "ambiguous", _ids(hits + maybe), trace)
+    return _ok(places.pop(), _ids(hits), trace)
+
+
+def compare_time(records, cue_a: dict, cue_b: dict, complete: bool = True, universe=None) -> Result:
+    """Which of two unique events happened first. A second exact match makes a side
+    ambiguous; so does a second POSSIBLE match (if it were the event, the side would not
+    be unique), whatever its day."""
+    a, b = match(records, **cue_a), match(records, **cue_b)
+    pa, pb = possible(records, **cue_a), possible(records, **cue_b)
+    ids = _ids(a + b)
+    trace = [("compare_time", [dict(cue_a), dict(cue_b)], _ids(pa + _minus(pb, pa)))]
+    if len(a) > 1 or len(b) > 1:
+        return Result(None, "ambiguous", ids, trace)
+    if len(pa) > 1 or len(pb) > 1:  # before the negative: a side that may not be unique
+        return Result(None, "ambiguous", _ids(pa + _minus(pb, pa)), trace)
+    if not a or not b:
+        missing = cue_a if not a else cue_b
+        if possible(records, **missing):
+            return Result(None, "insufficient_evidence", ids, trace)
+        return Result(None, _negative(records, missing, complete, universe), ids, trace)
+    da, db = _day(a[0]), _day(b[0])
+    if da is None or db is None or da == db:
+        return Result(None, "ambiguous", ids, trace)
+    return Result("A" if da < db else "B", "ok", ids, trace)
+
+
+def link_latest(records, cue: dict, complete: bool = True, universe=None) -> Result:
+    """E7 "find": the person of the unique event matching `cue`, then that person's latest place."""
+    first = find(records, cue, "person", complete, universe)
+    if first.status != "ok":
+        return Result(None, first.status, first.ids, first.trace)
+    nxt = latest(records, first.value, complete)
+    return Result(nxt.value, nxt.status, first.ids + nxt.ids, first.trace + nxt.trace)
+
+
+def last_handler_latest(records, obj: str, complete: bool = True) -> Result:
+    """E7 "act": the actor of the latest event with the object, then that actor's latest
+    place. Every record that could be the latest event with the object (an undated one, or
+    one whose unknown object could be it and that is not earlier) must have the same,
+    known actor."""
+    with_obj = match(records, obj=obj)
+    maybe = _minus(possible(records, obj=obj), with_obj)
+    trace = [("last_handler", obj, _ids(with_obj + maybe))]
+    if not complete:
+        return Result(None, "insufficient_evidence", _ids(with_obj + maybe), trace)
+    if not with_obj:
+        return Result(None, "insufficient_evidence" if maybe else "no_observation", _ids(maybe), trace)
+    cands, top = could_be_latest(with_obj, maybe)
+    holders = {r["actor"] for r in cands}
+    if top is None or len(holders) != 1 or not isinstance(next(iter(holders)), str):
+        return Result(None, "ambiguous", _ids(cands), trace)
+    nxt = latest(records, holders.pop(), complete)
+    return Result(nxt.value, nxt.status, _ids(cands) + nxt.ids, trace + nxt.trace)
+
+
+def misbind(records: list[dict], seed: str) -> list[dict]:
+    """Control store: places and objects permuted across records (marginals kept)."""
+    import random
+    rng = random.Random(seed)
+    places, objects = [r["place"] for r in records], [r["object"] for r in records]
+    rng.shuffle(places)
+    rng.shuffle(objects)
+    return [dict(r, place=pl, object=ob) for r, pl, ob in zip(records, places, objects)]
+
+
+# ----------------------------------------------------------------- question parsing (shared)
+_EVENT = re.compile(r"(?P<person>[A-Z][a-z]+ [A-Z][a-z]+) (?P<action>\w+) the (?P<obj>[a-z]+ [a-z]+) "
+                    r"at (?P<place>[A-Z][a-z]+ [A-Z][a-z]+)\.")
+
+
+def parse_question(text: str) -> tuple[str, dict] | None:
+    """Template question -> (qtype, structured query); shared by every round 3.2 cell."""
+    for qtype, templates in PARA.items():
+        for template in templates:
+            m = re.fullmatch(_template_regex(template), text)
+            if not m:
+                continue
+            g = m.groupdict()
+            action = PAST.get(g.get("action"), g.get("past"))
+            if qtype in ("object", "place", "person", "day"):
+                cue = {k: v for k, v in {"person": g.get("person"), "action": action,
+                                         "place": g.get("place"), "obj": g.get("object")}.items()
+                       if v is not None}
+                return qtype, {"cue": cue}
+            if qtype == "order":
+                sides = []
+                for side in ("a", "b"):
+                    e = _EVENT.fullmatch(g[side])
+                    sides.append(dict(e.groupdict()) if e else None)
+                return qtype, {"a": sides[0], "b": sides[1]}
+            if qtype == "latest":
+                return qtype, {"person": g["person"]}
+            if qtype == "at_day":
+                return qtype, {"person": g["person"], "day": int(g["day"])}
+            if qtype == "act":
+                return qtype, {"obj": g["object"]}
+            if qtype == "find":
+                return qtype, {"cue": {"action": g["past"], "place": g["place"], "obj": g["object"]}}
+    return None
+
+
+def answer_query(records, qtype: str, query: dict, complete: bool = True, universe=None) -> Result:
+    if qtype in ("object", "place", "person", "day"):
+        return find(records, query["cue"], qtype, complete, universe)
+    if qtype == "order":
+        if query["a"] is None or query["b"] is None:
+            return Result(None, "no_observation")
+        return compare_time(records, query["a"], query["b"], complete, universe)
+    if qtype == "latest":
+        return latest(records, query["person"], complete)
+    if qtype == "at_day":
+        return state_at(records, query["person"], query["day"], complete, universe)
+    if qtype == "act":
+        return last_handler_latest(records, query["obj"], complete)
+    if qtype == "find":
+        return link_latest(records, query["cue"], complete, universe)
+    raise ValueError(qtype)
+
+
+def encode_into(store: EpisodeStore, text: str, encoder, encoder_name: str) -> dict:
+    """An encoder returns the record content, or (content, unknown slots); declared
+    unknown slots are kept in the record (extra "unknown") and read by `unknown`."""
+    out = encoder(text)
+    content, unk = out if isinstance(out, tuple) else (out, [])
+    return store.append(text, content, encoder=encoder_name, extra={"unknown": list(unk)} if unk else None)
+
+
+class MemoryAgent:
+    """struct+ops cell: encodes every presented episode into the store, answers from it."""
+    DIGEST_COVERS = ("store",)
+
+    def __init__(self, store: EpisodeStore, encoder=regex_encode, encoder_name: str = "regex"):
+        self.store = store
+        self.encoder = encoder
+        self.encoder_name = encoder_name
+
+    def encode(self, text: str) -> None:
+        encode_into(self.store, text, self.encoder, self.encoder_name)
+
+    def state_digest(self) -> str:
+        return self.store.content_digest()
+
+    def answer(self, text: str, answer_type: str | None = None) -> str:
+        parsed = parse_question(text)
+        if parsed is None:
+            return "unknown"
+        return answer_query(self.store._records, *parsed).answer()
+---END FILE episodic_lab/memory.py---
+
+---BEGIN DIFF d369969..HEAD bench/m3/collect_round32.py .github/workflows/round32.yml---
+diff --git a/.github/workflows/round32.yml b/.github/workflows/round32.yml
+index ae89d7b..ec6da95 100644
+--- a/.github/workflows/round32.yml
++++ b/.github/workflows/round32.yml
+@@ -94,9 +94,10 @@ jobs:
+           mkdir -p "$dest"
+           if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+           cp "$RUNNER_TEMP/code/config/round32.json" "$dest/request.json"
+-          python3 "$RUNNER_TEMP/code/bench/m3/collect_round32.py" "$RUNNER_TEMP/code/config/round32.json" "$dest" "$RUNNER_TEMP/code/config/model_pins.json" || echo INCOMPLETE > "$dest/VERDICT"
++          python3 "$RUNNER_TEMP/code/bench/m3/collect_round32.py" "$RUNNER_TEMP/code/config/round32.json" "$dest" "$RUNNER_TEMP/code/config/model_pins.json" "${GITHUB_SHA}" || { echo INCOMPLETE > "$dest/VERDICT"; echo UNDECIDABLE > "$dest/ENCODER_DECISION"; }
+           verdict=$(cat "$dest/VERDICT")
+-          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} worlds ${{ needs.world.result }} fetch ${{ steps.fetch.outcome }} verdict ${verdict}" > "$dest/RUN.txt"
++          decision=$(cat "$dest/ENCODER_DECISION" 2>/dev/null || echo UNDECIDABLE)
++          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} worlds ${{ needs.world.result }} fetch ${{ steps.fetch.outcome }} verdict ${verdict} encoder ${decision}" > "$dest/RUN.txt"
+           git add round32
+           git commit --quiet -m "Round 3.2 results, run ${GITHUB_RUN_ID}, ${verdict}"
+           pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+diff --git a/bench/m3/collect_round32.py b/bench/m3/collect_round32.py
+index 8736da7..7271bd5 100644
+--- a/bench/m3/collect_round32.py
++++ b/bench/m3/collect_round32.py
+@@ -108,7 +108,7 @@ def replay(name, world, questions, encoder=None):
+             r = next(recs)
+             if r["text"] != text:
+                 raise ValueError("encoder records out of order")
+-            return {k: r["lm"][k] for k in CONTENT}
++            return {k: r["lm"][k] for k in CONTENT}, list(r["invalid"])
+         cell = CELLS["full+ops"](encoder=enc, encoder_name=encoder["encoder_name"])
+     elif name in DETERMINISTIC:
+         cell = CELLS[name]()
+@@ -231,20 +231,47 @@ def lure_shares(rows):
+             "unknown": sum(r["category"] == "uncertain" for r in lures) / n}
+ 
+ 
+-def table(cells) -> str:
+-    L = ["# Round 3.2 summary (exploratory, template benchmark)", "",
++def adoption(cells, complete: bool) -> tuple[str, str]:
++    """(decision, text). The adoption rule is evaluated only on the complete, fully
++    validated set of planned world reports; otherwise it is not decidable."""
++    if not complete:
++        return "UNDECIDABLE", ("Adoption rule (docs/ROUND_3_2.md): NOT DECIDABLE - the evaluation is incomplete "
++                               f"({len(cells)} valid world reports); partial tables above are diagnostic only.")
++    every = [c for d in cells.values() for c in d["conditions"].values()]
++    acc = slot_accuracy([(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]])
++    ref_pos = per_world(cells, "full+ops", positive_score)
++    lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
++    fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
++              for d in cells.values())
++    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
++    return ("ADOPT" if adopt else "KEEP"), (
++        f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
++        f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
++        f"recall {fr:.3f} <= 0.05 -> "
++        + ("ADOPT the LM encoder for the round 3.2 template episode formats (other formats, e.g. the round 3.3 "
++           "environment with \"You\" and object-free events, need their own check)" if adopt
++           else "keep the template encoder; limit stated") + ".")
++
++
++def table(cells, complete: bool = True) -> str:
++    L = ["# Round 3.2 summary (exploratory, template benchmark)", ""]
++    if not complete:
++        L += ["**INCOMPLETE evaluation: only the valid world reports are tabulated, as diagnostics; "
++              "no decision is drawn from them.**", ""]
++    L += [
+          "Means over worlds (both overlap conditions pooled within a world). Development worlds "
+          "(dev-m3) and the pilot worlds already used (pilot-m2) are shown separately. "
+          "E5 = correct rejection of binding lures; FR = in-world false recall; unknown = "
+          "abstention. Coverage = share of final items whose selection was certified "
+-         "sufficient for the question; acc|cov = accuracy on those items; gold support = "
++         "sufficient for the question; accuracy covered = accuracy on those items, pooled over all "
++         "covered final items of the series; gold support = "
+          "share of positive items whose gold target episodes were all selected (evaluator "
+          "information, not an upper bound of accuracy).", ""]
+     for series in sorted({s for s, _ in cells}):
+         part = {k: v for k, v in cells.items() if k[0] == series}
+         conds = [c for d in part.values() for c in d["conditions"].values()]
+         L += [f"## {series} ({len(part)} worlds)", "",
+-              "| cell | positives | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | E5 unknown | coverage | acc|cov | gold support | calls | prompt tokens | seconds |",
++              "| cell | positives | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | E5 unknown | coverage | accuracy covered | gold support | calls | prompt tokens | seconds |",
+               "|" + "---|" * (len(CRIT) + 11)]
+         for name in CELL_NAMES:
+             cs = [c["cells"][name] for c in conds]
+@@ -274,20 +301,13 @@ def table(cells) -> str:
+         L.append("")
+     every = [c for d in cells.values() for c in d["conditions"].values()]
+     pairs = [(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]]
+-    acc = slot_accuracy(pairs)
++    acc = slot_accuracy(pairs) if pairs else {}
+     invalid = sum(bool(r["invalid"]) for c in every for r in c["encoder"]["records"])
+-    ref_pos = per_world(cells, "full+ops", positive_score)
+-    lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
+-    fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
+-              for d in cells.values())
+-    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
+-    L += ["## LM encoder (slot filling) vs template truth (all worlds)", "",
++    L += ["## LM encoder (slot filling) vs template truth (valid worlds)", "",
+           "| " + " | ".join(acc) + " | records with invalid slots |", "|" + "---|" * (len(acc) + 1),
+           "| " + " | ".join(f"{v:.3f}" for v in acc.values()) + f" | {invalid}/{len(pairs)} |", "",
+-          f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
+-          f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
+-          f"recall {fr:.3f} <= 0.05 -> {'ADOPT the LM encoder for round 3.3+' if adopt else 'keep the template encoder; limit stated'}.",
+-          "", "## Controls (all worlds)", "",
++          adoption(cells, complete)[1],
++          "", "## Controls (valid worlds)", "",
+           f"- misbound store + operators: E2 {mean(c['misbound']['summary']['E2']['accuracy'] for c in every):.2f}, "
+           f"E5 FR {mean(c['misbound']['summary']['E5']['false_recall'] for c in every):.2f}",
+           f"- restart (store file of full+ops): same answers {sum(c['restart']['same_as_in_process'] for c in every)}/{len(every)}, "
+@@ -302,7 +322,7 @@ def sha256_file(path) -> str:
+     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+ 
+ 
+-def main(request_path, dest, pins_path):
++def main(request_path, dest, pins_path, commit=None):
+     req = json.loads(Path(request_path).read_text())
+     request_sha, pins_sha = sha256_file(request_path), sha256_file(pins_path)
+     dest, cells, lines = Path(dest), {}, []
+@@ -322,16 +342,24 @@ def main(request_path, dest, pins_path):
+     ok = len(cells) == sum(len(v) for v in req["worlds"].values()) and len(commits) <= 1
+     if len(commits) > 1:
+         lines.append("FAILED provenance:mixed_commits")
++    if commit is not None and commits - {commit}:
++        ok = False
++        lines.append("FAILED provenance:commit")
++    decision = "UNDECIDABLE"
+     try:
+-        (dest / "SUMMARY.md").write_text(table(cells))
++        (dest / "SUMMARY.md").write_text(table(cells, ok))
++        decision = adoption(cells, ok)[0]
+     except Exception as exc:
+         ok = False
+         lines.append(f"FAILED SUMMARY.md {type(exc).__name__}")
+         (dest / "SUMMARY.md").write_text(f"summary failed: {type(exc).__name__}: {exc}\n")
++    if not ok:
++        decision = "UNDECIDABLE"
+     (dest / "CHECK.txt").write_text("\n".join(lines) + "\n")
+     (dest / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
++    (dest / "ENCODER_DECISION").write_text(decision + "\n")
+     return 0
+ 
+ 
+ if __name__ == "__main__":
+-    raise SystemExit(main(sys.argv[1], sys.argv[2], sys.argv[3]))
++    raise SystemExit(main(*sys.argv[1:5]))
+---END DIFF---
+
+---BEGIN DIFF d369969..HEAD tests/test_round32.py---
+diff --git a/tests/test_round32.py b/tests/test_round32.py
+index 0b22500..b71f810 100644
+--- a/tests/test_round32.py
++++ b/tests/test_round32.py
+@@ -184,9 +184,11 @@ class CellTests(unittest.TestCase):
+         from episodic_lab.memory import find
+         res = find(s4.records, {"person": "Ana Bell", "action": "hid", "place": "Oak Mill"}, "object")
+         self.assertEqual(res.status, "insufficient_evidence")
+-        # and the index does not certify a selection while undated or unknown records could match
++        # the index certifies a selection only if it holds every record that could be the
++        # latest (here both), so the operators on it give the full-store answer
+         got, ok = struct_select(s.records, "latest", {"person": "Ana Bell"})
+-        self.assertFalse(ok)
++        self.assertEqual((ok, len(got)), (True, 2))
++        self.assertEqual(latest(got, "Ana Bell").status, "ambiguous")
+ 
+     def test_unknown_values_in_handlers_index_and_encoder(self):
+         from episodic_lab.cells import postprocess
+@@ -209,6 +211,146 @@ class CellTests(unittest.TestCase):
+         content, bad = postprocess(raw)
+         self.assertEqual((content["place"], bad), (None, ["place"]))
+ 
++    def test_unknown_person_object_and_comparison(self):
++        """v4 (Astra's review of v3): unknown actors/partners, unknown objects and second
++        possible matches; and the cases in which the unknown cannot change the answer."""
++        from episodic_lab.memory import compare_time, find, last_handler_latest, latest, state_at
++        def store(*rows):
++            s = EpisodeStore()
++            for i, (actor, partner, action, obj, place, day, unk) in enumerate(rows):
++                s.append(f"r{i}", {"actor": actor, "partner": partner, "action": action, "object": obj,
++                                   "place": place, "event_day": day}, extra={"unknown": unk} if unk else None)
++            return s.records
++        # Astra's counterexample: a later record with an unknown actor could be Ana Bell
++        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
++                     (None, None, "hid", "red cup", "Ash Mill", 9, ["actor"]))
++        self.assertEqual(latest(recs, "Ana Bell").status, "ambiguous")
++        self.assertEqual(state_at(recs, "Ana Bell", 9).status, "insufficient_evidence")
++        got, ok = struct_select(recs, "latest", {"person": "Ana Bell"})
++        self.assertTrue(ok and {r["seq"] for r in got} == {0, 1})  # the possible record is selected
++        # ... but an EARLIER unknown-actor record, or a later one at the same place, cannot change it
++        for day, place in ((5, "Ash Mill"), (9, "Oak Mill")):
++            recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
++                         (None, None, "hid", "red cup", place, day, ["actor"]))
++            r = latest(recs, "Ana Bell")
++            self.assertEqual((r.status, r.value), ("ok", "Oak Mill"))
++        # an unknown partner could be the person as well
++        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
++                     ("Cal Dorr", None, "gave", "red cup", "Ash Mill", 8, ["partner"]))
++        self.assertEqual(latest(recs, "Ana Bell").status, "ambiguous")
++        # without the declaration a missing partner means "no second person"
++        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
++                     ("Cal Dorr", None, "gave", "red cup", "Ash Mill", 8, []))
++        self.assertEqual(latest(recs, "Ana Bell").value, "Oak Mill")
++        # unknown object: a later event whose object is unknown, by another actor
++        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 5, []),
++                     ("Cal Dorr", None, "hid", None, "Ash Mill", 6, ["object"]))
++        self.assertEqual(last_handler_latest(recs, "red cup").status, "ambiguous")
++        got, ok = struct_select(recs, "act", {"obj": "red cup"})
++        self.assertFalse(ok)
++        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 5, []),
++                     ("Cal Dorr", None, "hid", None, "Ash Mill", 4, ["object"]))  # earlier: no effect
++        self.assertEqual(last_handler_latest(recs, "red cup").value, "Oak Mill")
++        # comparison: a second POSSIBLE match makes a side non-unique
++        a = {"person": "Ana Bell", "action": "hid", "obj": "red cup", "place": "Oak Mill"}
++        b = {"person": "Cal Dorr", "action": "gave", "obj": "blue map", "place": "Ash Mill"}
++        base = (("Ana Bell", None, "hid", "red cup", "Oak Mill", 2, []), ("Cal Dorr", None, "gave", "blue map", "Ash Mill", 5, []))
++        self.assertEqual(compare_time(store(*base), a, b).value, "A")
++        self.assertEqual(compare_time(store(*base, ("Ana Bell", None, "hid", "red cup", None, 6, ["place"])), a, b).status,
++                         "ambiguous")
++        # ... also when the other side is missing (the answer could be "ambiguous" or "none")
++        self.assertEqual(compare_time(store(base[0], ("Ana Bell", None, "hid", "red cup", None, 6, ["place"])), a, b).status,
++                         "ambiguous")
++        # a record whose KNOWN fields contradict the cue is no possible match
++        self.assertEqual(compare_time(store(*base, ("Ana Bell", None, "hid", "blue map", None, 6, ["place"])), a, b).value,
++                         "A")
++        # find: an unknown field in an otherwise matching record blocks a confident "none"
++        res = find(store(("Ana Bell", None, "hid", None, "Oak Mill", 3, ["object"])),
++                   {"person": "Ana Bell", "action": "hid", "obj": "red cup"}, "place")
++        self.assertEqual(res.status, "insufficient_evidence")
++
++    def test_invalid_encoder_values_become_declared_unknowns(self):
++        from episodic_lab.cells import postprocess
++        from episodic_lab.memory import find
++        raw = {"event_day": "Day 3", "actor": "Ana Bell", "partner": "someone", "action": "hid",
++               "object": "red cup", "place": "unclear"}
++        content, bad = postprocess(raw)
++        self.assertEqual((content["place"], content["partner"], bad), (None, None, ["partner", "place"]))
++
++        class Fixed:
++            def __call__(self, text):
++                return postprocess(raw)
++        cell = CELLS["full+ops"](encoder=Fixed(), encoder_name="lm:fixed")
++        cell.encode("Ana Bell hid the red cup at Oak Mill on day 3.")
++        rec = cell.store.records[0]
++        self.assertEqual(rec["extra"], {"unknown": ["partner", "place"]})
++        # the invalid place is no evidence that Ana Bell hid nothing at Elm Mill
++        res = find(cell.store.records, {"person": "Ana Bell", "action": "hid", "place": "Elm Mill"}, "object")
++        self.assertEqual(res.status, "insufficient_evidence")
++
++    def test_soundness_against_every_completion_of_the_unknowns(self):
++        """An answer other than "unknown" (full store, or a certified struct3 selection)
++        must equal the answer under EVERY completion of the unknown fields; and a certified
++        selection gives the full-store answer."""
++        import itertools
++        import random
++        from episodic_lab.memory import answer_query
++        P, O, L, A = ["Ana Bell", "Ben Cole", "Cal Dorr"], ["red cup", "blue map"], ["Oak Mill", "Ash Mill"], ["hid", "gave"]
++        dom = {"actor": P + ["Zed Fox"], "partner": [None] + P + ["Zed Fox"], "action": A + ["sold"],
++               "object": O + ["old key"], "place": L + ["Elm Mill"], "event_day": [1, 2, 3, 4, 5]}
++        fields = tuple(dom)
++        rng = random.Random("v4-soundness")
++
++        def build(rows):
++            s = EpisodeStore()
++            for i, (c, u) in enumerate(rows):
++                s.append(f"t{i}", dict(c), extra={"unknown": u} if u else None)
++            return s.records
++        checked = 0
++        for _ in range(400):
++            rows = []
++            for _ in range(rng.randint(1, 4)):
++                c = {"actor": rng.choice(P), "partner": rng.choice([None, None] + P), "action": rng.choice(A),
++                     "object": rng.choice(O), "place": rng.choice(L), "event_day": rng.randint(1, 4)}
++                unk = [f for f in fields if rng.random() < 0.12]
++                for f in unk:
++                    c[f] = None
++                if c["partner"] == c["actor"]:
++                    c["partner"] = None
++                rows.append((c, unk if rng.random() < 0.6 else [f for f in unk if f != "partner" and f != "object"]))
++            slots = [(i, f) for i, (_, u) in enumerate(rows) for f in u]
++            if not slots or len(slots) > 3:
++                continue
++            real = build(rows)
++            comps = []
++            for vals in itertools.product(*[dom[f] for _, f in slots]):
++                done = [(dict(c), []) for c, _ in rows]
++                for (i, f), v in zip(slots, vals):
++                    done[i][0][f] = v
++                if all(c["partner"] != c["actor"] for c, _ in done):
++                    comps.append(build(done))
++            ev = lambda: {"person": rng.choice(P), "action": rng.choice(A), "obj": rng.choice(O), "place": rng.choice(L)}
++            cue = {k: v for k, v in {"person": rng.choice(P + [None]), "action": rng.choice(A + [None]),
++                                     "obj": rng.choice(O + [None]), "place": rng.choice(L + [None])}.items() if v}
++            for qtype, query in ((rng.choice(["object", "place", "person", "day"]), {"cue": cue or {"obj": "red cup"}}),
++                                 ("order", {"a": ev(), "b": ev()}), ("latest", {"person": rng.choice(P)}),
++                                 ("at_day", {"person": rng.choice(P), "day": rng.randint(1, 4)}),
++                                 ("act", {"obj": rng.choice(O)}),
++                                 ("find", {"cue": {"action": rng.choice(A), "place": rng.choice(L), "obj": rng.choice(O)}})):
++                full = answer_query(real, qtype, query)
++                answers = [full.answer()]
++                sel, ok = struct_select(real, qtype, query)
++                if ok:
++                    part = answer_query(sel, qtype, query, True, real)
++                    self.assertEqual((part.status, part.answer()), (full.status, full.answer()), (qtype, query))
++                    answers.append(part.answer())
++                for given in answers:
++                    if given != "unknown":
++                        checked += 1
++                        self.assertEqual({answer_query(c, qtype, query).answer() for c in comps}, {given},
++                                         (qtype, query, rows))
++        self.assertGreater(checked, 500)
++
+     def test_env_object_location_with_an_undated_placing(self):
+         from episodic_lab.env_agent import object_location
+         s = EpisodeStore()
+@@ -286,26 +428,57 @@ class JobTests(unittest.TestCase):
+ 
+ 
+ class CollectorTests(unittest.TestCase):
+-    def run_collect(self, data):
++    def run_collect(self, data, planned=(0,), commit=None, decision=False):
+         with tempfile.TemporaryDirectory() as tmp:
+             dest = Path(tmp)
+             req, pins = dest / "req.json", dest / "pins.json"
+-            req.write_text(json.dumps({"model": "m", "worlds": {SERIES: [0]}}))
++            req.write_text(json.dumps({"model": "m", "worlds": {SERIES: list(planned)}}))
+             pins.write_text("{}")
+             data = json.loads(json.dumps(data))
+             data["provenance"].update(request_sha256=collect_round32.sha256_file(req),
+                                       pins_sha256=collect_round32.sha256_file(pins))
+             (dest / f"r32_{SERIES}_0.json").write_text(json.dumps(data))
+-            collect_round32.main(str(req), str(dest), str(pins))
+-            return ((dest / "VERDICT").read_text().strip(), (dest / "CHECK.txt").read_text(),
+-                    (dest / "SUMMARY.md").read_text())
++            collect_round32.main(str(req), str(dest), str(pins), commit)
++            out = ((dest / "VERDICT").read_text().strip(), (dest / "CHECK.txt").read_text(),
++                   (dest / "SUMMARY.md").read_text())
++            return out + ((dest / "ENCODER_DECISION").read_text().strip(),) if decision else out
+ 
+     def test_complete(self):
+-        verdict, check, summary = self.run_collect(DATA)
++        verdict, check, summary, decision = self.run_collect(DATA, commit="c", decision=True)
+         self.assertEqual(verdict, "COMPLETE", check)
+         self.assertIn("| full+ops | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0.00 | 0.00 | 1.00 | 1.00 | 1.00 |", summary)
+-        self.assertIn("ADOPT the LM encoder", summary)
++        self.assertIn("ADOPT the LM encoder for the round 3.2 template episode formats", summary)
++        self.assertEqual(decision, "ADOPT")
+         self.assertIn("truncated refused 2/2", summary)
++        self.assertNotIn("acc|cov", summary)
++
++    def test_declared_unknowns_are_replayed(self):
++        # an LM encoder with invalid slots: the collector must rebuild the same records
++        # (declared unknowns included) and reproduce every answer and diagnostic
++        class Vague(SlotModel):
++            def generate(self, messages):
++                reply = super().generate(messages)
++                if "second person" in messages[1]["content"]:
++                    return "someone"
++                return reply
++        data = job(Vague())
++        recs = data["conditions"]["low"]["encoder"]["records"]
++        self.assertTrue(recs and all(r["invalid"] == ["partner"] and r["lm"]["partner"] is None for r in recs))
++        verdict, check, summary = self.run_collect(data)
++        self.assertEqual(verdict, "COMPLETE", check)
++        self.assertIn("keep the template encoder", summary)
++
++    def test_incomplete_evaluation_gives_no_adoption(self):
++        # one good world report, a second planned report missing: INCOMPLETE, no ADOPT
++        verdict, check, summary, decision = self.run_collect(DATA, planned=(0, 1), decision=True)
++        self.assertEqual((verdict, decision), ("INCOMPLETE", "UNDECIDABLE"), check)
++        self.assertIn("FAILED r32_round32-test_1.json", check)
++        self.assertNotIn("ADOPT", summary)
++        self.assertIn("NOT DECIDABLE", summary)
++        # a report from another code commit than the run's
++        verdict, check, _, decision = self.run_collect(DATA, commit="other", decision=True)
++        self.assertEqual((verdict, decision), ("INCOMPLETE", "UNDECIDABLE"))
++        self.assertIn("provenance:commit", check)
+ 
+     def test_damage_is_detected(self):
+         def edit(f):
+---END DIFF---
+
+=== END OF LAB ROUND 3.2 v4 PART 2 ===
