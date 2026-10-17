@@ -1,0 +1,102 @@
+7m 12s nachgedacht
+
+Runde 3.2 v3, Teil 1:
+
+__all__ = ["CELLS", "LMEncoder", "Result", "bm25_top", "match", "slot_accuracy", "struct_select"]
+---END FILE episodic_lab/cells.py---
+
+Runde 3.2 v3, Teil 2:
+
+verdict, check, _ = self.run_collect(edit(change))
+---END DIFF---
+
+Runde 3.3 v2:
+
+unittest.main()
+---END FILE tests/test_round33.py---
+
+Runde 3.2 v3: REQUEST CHANGES.
+
+Die gemeinsamen Promptinformationen und der Enthaltungsvertrag sind jetzt umgesetzt. Auch die Rekonstruktion sämtlicher Diagnosefelder, der ursprünglichen Encoderidentitäten sowie der Referenzwerte und Rohantwortbereinigung adressiert meine entsprechenden Einwände.
+
+Zwei Probleme bleiben. Alle folgenden Feststellungen stammen aus der statischen Prüfung; die gemeldeten Tests und lokalen Ergebnisse habe ich nicht selbst ausgeführt.
+
+1. Die Unsicherheitsbehandlung erfasst noch nicht alle relevanten unbekannten Felder.
+
+possible() ist ein sinnvoller Ansatz. Mehrere Operatoren verwenden ihn allerdings weiterhin nur eingeschränkt oder gar nicht.
+
+Ein Gegenbeispiel für latest() und state_at():
+
+actor	event_day	place
+
+Ana Bell	7	Oak Mill
+None	9	Ash Mill
+
+
+Der zweite Datensatz könnte ebenfalls Ana Bell betreffen. Trotzdem ergibt der vorgelegte Code:
+
+- latest(..., "Ana Bell"): Oak Mill mit Status ok.
+- state_at(..., "Ana Bell", 9): none_in_scope.
+
+Beide Funktionen beginnen mit exaktem Personenmatching und verlieren dadurch den möglichen Treffer. _recent() kann dieselbe unzureichende Auswahl zertifizieren.
+
+Entsprechende Lücken bestehen beim unbekannten Objekt in last_handler_latest() und der strukturierten act-Auswahl. compare_time() berücksichtigt zusätzliche mögliche Treffer nicht mehr, sobald beide Seiten bereits einen exakten Treffer besitzen.
+
+Außerdem markiert postprocess() beispielsweise einen ungültigen Ortswert wie "unclear" als invalid, lässt den String aber im nutzbaren Feld stehen. possible() behandelt dort nur None als unbekannt. Ein ausdrücklich ungültiger Wert kann dadurch wieder als sicher abweichender Wert zur Begründung einer Abwesenheit dienen.
+
+Erforderliche Änderung: Ungültige Pflichtwerte im nutzbaren Datensatz als unbekannt darstellen; die Rohantwort separat erhalten. Alle betroffenen Operatoren und Zertifizierungen müssen prüfen, ob mögliche zusätzliche Zuordnungen das Ergebnis verändern könnten.
+
+Gezielte Tests sollten unbekannte Personen, unbekannte Objekte, zusätzliche mögliche Vergleichstreffer und fehlerhaft formatierte Strings abdecken. Dabei auch Fälle prüfen, in denen die unbekannte Information das Ergebnis tatsächlich nicht verändern kann.
+
+2. Eine unvollständige Auswertung kann trotzdem eine Encoderübernahme empfehlen.
+
+main() entfernt fehlende oder ungültige Weltberichte aus cells und setzt das Gesamtverdikt gegebenenfalls auf INCOMPLETE. Anschließend berechnet table(cells) trotzdem die Übernahmeentscheidung aus den verbliebenen Welten.
+
+Damit ist beispielsweise möglich:
+
+> Ein guter Weltbericht vorhanden, weitere geplante Berichte fehlen → INCOMPLETE, aber im Bericht steht ADOPT.
+
+
+
+Das verletzt die festgelegte Entscheidung über alle 15 Welten. Besonders problematisch wäre das Ausscheiden gerade jener Welten, in denen die Encoderzelle scheitert.
+
+Erforderliche Änderung: Eine Übernahmeempfehlung ausschließlich aus dem vollständig validierten geplanten Datensatz erzeugen. Bei unvollständiger Auswertung muss die Entscheidung ausdrücklich „nicht entscheidbar“ lauten. Diagnostische Teilberichte können weiterhin erscheinen.
+
+Ein passender Test enthält einen gültigen guten Bericht und mindestens einen weiteren geplanten, fehlenden Bericht: INCOMPLETE und keine ADOPT-Empfehlung.
+
+Verbesserungsideen für 3.2
+
+- Die Tabellenüberschrift acc|cov enthält ein ungeschütztes Markdown-Trennzeichen. acc\|cov oder „accuracy covered“ verhindert verschobene Spalten.
+- Die Übernahmeempfehlung auf die geprüften Episodenformate begrenzen. Die Umgebung aus 3.3 verwendet zusätzlich You und legitime Ereignisse ohne Objekt; dafür qualifiziert ein Bestehen auf den bisherigen Vorlagen den LM-Encoder noch nicht.
+- Die Prüfung gegen den erwarteten Codecommit aus 3.3 auch für 3.2 übernehmen. Die bisherige Übereinstimmung der Berichte untereinander ist schwächer.
+- Bei „Genauigkeit auf abgedeckten Fällen“ ausdrücklich angeben, ob über alle abgedeckten Antworten gepoolt oder zunächst je Welt gemittelt wird. Der aktuelle Code poolt diese Kennzahl.
+
+Runde 3.3 v2: APPROVE für den beschriebenen modellfreien Zieltest.
+
+Die drei beanstandeten Punkte sind angemessen behoben:
+
+- Ergebnisfreigabe: VERDICT und MILESTONE sind getrennt. Das Meilensteinurteil hängt tatsächlich von allen Kriterien ab; der Workflow verlangt COMPLETE und PASS.
+- Fallzahlen: Verfügbarkeit und informative Fälle haben nun explizite Mindestanforderungen. Fehlende Kontrollen verschwinden damit nicht mehr folgenlos aus der Bewertung.
+- Prozessgrenze: Jeder verfügbare Fall durchläuft einen eigenen neuen Interpreter. Der Aufruf erhält den einzelnen Speicher, dessen Seal und die Entscheidung.
+- Unabhängige Referenz: Vorhersagen entstehen aus truth_content mit getrennten Gegenfaktik- und Entscheidungsfunktionen. Die Gedächtnisvarianten entstehen dagegen aus dem tatsächlich einmal kodierten Speicher. Der vorgesehene Encoderfehlertest prüft diese Trennung sinnvoll.
+- Nachvollziehbarkeit: Entscheidungstraces bleiben erhalten. Die bereits bekannte lokale Ergebnissituation und der Charakter des GitHub-Laufs als Reproduktionsprüfung sind offengelegt.
+
+Das reicht als begrenzter funktionaler Nachweis für diese explizite Gedächtnisimplementierung: Eine frühere Erfahrung bleibt über den Prozesswechsel verfügbar und beeinflusst die spätere Handlung spezifisch in der vorhergesagten Richtung.
+
+Die offenen Fehler aus 3.2 betreffen unvollständige beziehungsweise ungültige LM-Felder und die Encoderübernahme. Dieser 3.3-Test verwendet weiterhin die gültigen Templatekodierungen.
+
+Verbesserungsideen für 3.3 und den Übergang zu 3.4
+
+- Im Collector zusätzlich die erneut berechneten Integritätsflags again["refused"] prüfen und mit dem gespeicherten Ergebnis vergleichen. Gegenwärtig wird hierfür nur das gespeicherte Ergebnis auf zweimal True geprüft.
+- Die verbliebene Überschrift „Pre-registered criteria“ ebenfalls der ehrlichen Einordnung im Dokument anpassen, etwa zu „Vor dem GitHub-Lauf festgelegte Entwicklungskriterien“.
+- „Memory used“ als Anteil der Entscheidungen über den Gedächtniszweig bezeichnen. Den eigentlichen kausalen Beleg liefern die Interventionen.
+- Bei späteren statistischen Aussagen die Paare als Auswertungseinheiten behandeln. Die 1.440 Entscheidungen sind wiederholte Bedingungen derselben Welten.
+
+Für 3.4 bleibt die übernommene historische Zielaufgabe meine erste Wahl. Besonders aussagekräftig wäre:
+
+1. Einmal speichern und denselben Speicher für unterschiedliche, erst danach gewählte Ziele verwenden.
+2. Den identischen Endzustand beider Welten für Objekte und Personen ausdrücklich prüfen.
+3. Die ältere Episode verändern: Die historische Entscheidung soll sich vorhergesagt ändern, die aktuelle Suchentscheidung erhalten bleiben.
+4. Die Baseline mit ausschließlich aktuellem Zustandswissen unter denselben Erfahrungen mitführen.
+
+Das liefert zusätzlichen Beleg dafür, dass erhaltene historische Episodendetails abhängig vom späteren Ziel genutzt werden. Anschließend lässt sich die Sprachschnittstelle mit einem eingefrorenen LM-Encoder und zurückgehaltenen Formulierungen erweitern.

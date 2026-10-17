@@ -83,6 +83,12 @@ VERDICT is COMPLETE and MILESTONE is PASS.
 Status of these criteria: they were written after a local development run of the same
 design (round 3.3 v1) and fixed before the GitHub run; the GitHub run is therefore a
 reproduction and integrity check of a locally known result, not a test on unseen data.
+Evaluation units are the pairs (40 per kind): the 1,440 decisions are repeated
+conditions of the same worlds, so any later statistical statement treats pairs, not
+decisions, as independent units. The column "share decided via memory branch" only
+describes the policy; the causal evidence is the intervention pattern. The collector also
+re-runs the two store-integrity probes and compares them with the stored result
+(after Astra's v2 review; her ideas adopted before the run).
 
 ## What a pass shows, and what it does not
 

@@ -145,7 +145,8 @@ class JobTests(unittest.TestCase):
             for change, reason in (
                     (lambda x: next(r for r in x["rows"] if r["available"]).update(success=False), "rerun_rows_differ"),
                     (lambda x: x["provenance"].update(request_sha256="0"), "provenance:request"),
-                    (lambda x: x.update(schema="other"), "schema")):
+                    (lambda x: x.update(schema="other"), "schema"),
+                    (lambda x: x.update(refused={"cut": True, "changed": False}), "store_integrity")):
                 bad = json.loads(json.dumps(data))
                 change(bad)
                 (d / "r.json").write_text(json.dumps(bad))

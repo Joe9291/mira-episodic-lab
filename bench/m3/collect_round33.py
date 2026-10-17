@@ -6,8 +6,8 @@ identity and provenance (request hash, code commit) check out, the pair design h
 re-run of the whole deterministic job reproduces every row, the decision process refuses
 cut-off and changed stores.
 
-MILESTONE (PASS / FAIL): the pre-registered criteria of docs/ROUND_3_3.md, including the
-required numbers of available and informative cases. The workflow fails unless both are
+MILESTONE (PASS / FAIL): the development criteria of docs/ROUND_3_3.md (fixed before the
+GitHub run), including the required numbers of available and informative cases. The workflow fails unless both are
 COMPLETE and PASS.
 """
 from __future__ import annotations
@@ -88,7 +88,7 @@ def main(request_path: str, result_path: str, dest: str, commit: str | None = No
         problems.append("rerun_rows_differ")
     if again["summary"] != data.get("summary") or again["pair_hashes"] != data.get("pair_hashes"):
         problems.append("rerun_summary_or_hashes_differ")
-    if data.get("refused") != {"cut": True, "changed": True}:
+    if data.get("refused") != {"cut": True, "changed": True} or again["refused"] != data.get("refused"):
         problems.append("store_integrity")
     verdict = "COMPLETE" if not problems else "INCOMPLETE"
     results = criteria(again["summary"], req["pairs_per_kind"])
@@ -99,8 +99,10 @@ def main(request_path: str, result_path: str, dest: str, commit: str | None = No
     s = again["summary"]
     md = ["# Round 3.3 summary (paired action worlds, explicit agent memory)", "",
           f"{req['pairs_per_kind']} pairs per kind. Every case was decided by its own fresh isolated "
-          "process that received only that case's store, seal and decision text.", "",
-          "| kind | intervention | n / planned | success | pair success | as predicted | informative n | as predicted (informative) | memory used |",
+          "process that received only that case's store, seal and decision text. The evaluation "
+          "units are the pairs: the cases are repeated conditions of the same worlds. The causal "
+          "evidence is the intervention pattern; the memory-branch share only describes the policy.", "",
+          "| kind | intervention | n / planned | success | pair success | as predicted | informative n | as predicted (informative) | share decided via memory branch |",
           "|---|---|---|---|---|---|---|---|---|"]
     for key, v in s.items():
         kind, name = key.split(":")
@@ -112,7 +114,7 @@ def main(request_path: str, result_path: str, dest: str, commit: str | None = No
                   f"{v['as_predicted']:.2f} | {v['n_informative']} | {inf} | {v['memory_policy']:.2f} |")
     md += ["", f"Store integrity in the decision process: cut-off store refused {data.get('refused', {}).get('cut')}, "
            f"changed store refused {data.get('refused', {}).get('changed')}.", "",
-           f"VERDICT {verdict} - MILESTONE {milestone}", "", "Pre-registered criteria:", ""]
+           f"VERDICT {verdict} - MILESTONE {milestone}", "", "Development criteria (fixed before the GitHub run, after a local development run):", ""]
     md += [f"- {'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
     d = Path(dest)
     (d / "CHECK.txt").write_text("\n".join(lines) + "\n")

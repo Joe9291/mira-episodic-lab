@@ -1,6 +1,6 @@
 {
  "schema": "episodic_lab.round33_request.v1",
- "enabled": false,
+ "enabled": true,
  "note": "Round 3.3 (docs/ROUND_3_3.md): paired action worlds with memory interventions, decisions in a fresh process. No model inference.",
  "series": "env-m3",
  "pairs_per_kind": 40
