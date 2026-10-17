@@ -1,0 +1,2836 @@
+{
+ "battery_seed": "diag-m3",
+ "code_commit": "8b89d174ae211b6901a4a97150efe9e730f0adc7",
+ "model": "qwen2.5-0.5b",
+ "n_cases": 121,
+ "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+ "rows": [
+  {
+   "cand": {
+    "choice": "Fenhollow Market",
+    "correct": true,
+    "scores": [
+     -0.008200566284358501,
+     -6.332499980926514,
+     -41.1955451965332,
+     -7.923374176025391
+    ]
+   },
+   "cid": "c0d3382df74",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Fenhollow Market",
+    "value": "Fenhollow Market"
+   },
+   "gold": "Fenhollow Market",
+   "kind": "place",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "cracked umbrella",
+    "correct": true,
+    "scores": [
+     -0.17701901495456696,
+     -6.346266269683838,
+     -24.277738571166992,
+     -9.199862480163574
+    ]
+   },
+   "cid": "c4b48c577a4",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "cracked umbrella",
+    "value": "cracked umbrella"
+   },
+   "gold": "cracked umbrella",
+   "kind": "object",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Dorran Haverl",
+    "correct": true,
+    "scores": [
+     -0.0289042666554451,
+     -12.432562828063965,
+     -46.180381774902344,
+     -9.877522468566895
+    ]
+   },
+   "cid": "ceed2194e8c",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Dorran Haverl",
+    "value": "Dorran Haverl"
+   },
+   "gold": "Dorran Haverl",
+   "kind": "person",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Day 1",
+    "correct": true,
+    "scores": [
+     -10.632067680358887,
+     -21.331592559814453,
+     -23.60075569152832,
+     -13.141512870788574
+    ]
+   },
+   "cid": "cac366c071e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "1",
+    "value": "1"
+   },
+   "gold": "Day 1",
+   "kind": "day",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Wyndle Library",
+    "correct": true,
+    "scores": [
+     -0.029999425634741783,
+     -9.133692741394043,
+     -27.735254287719727,
+     -9.40200424194336
+    ]
+   },
+   "cid": "c4f46981976",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Wyndle Library",
+    "value": "Wyndle Library"
+   },
+   "gold": "Wyndle Library",
+   "kind": "place",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "tiny map",
+    "correct": true,
+    "scores": [
+     -0.4710445702075958,
+     -11.123865127563477,
+     -29.005483627319336,
+     -9.182186126708984
+    ]
+   },
+   "cid": "c484b9104ae",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "tiny map",
+    "value": "tiny map"
+   },
+   "gold": "tiny map",
+   "kind": "object",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Tamric Haverl",
+    "correct": true,
+    "scores": [
+     -0.01695595495402813,
+     -10.14412784576416,
+     -39.35762023925781,
+     -7.8770294189453125
+    ]
+   },
+   "cid": "c0abd9cd66d",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Tamric Haverl",
+    "value": "Tamric Haverl"
+   },
+   "gold": "Tamric Haverl",
+   "kind": "person",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Day 13",
+    "correct": true,
+    "scores": [
+     -9.050882339477539,
+     -19.648691177368164,
+     -15.404106140136719,
+     -13.825002670288086
+    ]
+   },
+   "cid": "ca39d2dfe5f",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "13",
+    "value": "13"
+   },
+   "gold": "Day 13",
+   "kind": "day",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Harbour",
+    "correct": true,
+    "scores": [
+     -0.014922164380550385,
+     -10.596086502075195,
+     -37.42300796508789,
+     -5.373382568359375
+    ]
+   },
+   "cid": "cd06ccc38c5",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Pellan Harbour",
+    "value": "Pellan Harbour"
+   },
+   "gold": "Pellan Harbour",
+   "kind": "place",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "cracked mirror",
+    "correct": true,
+    "scores": [
+     -0.09274644404649734,
+     -14.920365333557129,
+     -23.547683715820312,
+     -10.620681762695312
+    ]
+   },
+   "cid": "c875427db78",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "cracked mirror",
+    "value": "cracked mirror"
+   },
+   "gold": "cracked mirror",
+   "kind": "object",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Casimo Corland",
+    "correct": true,
+    "scores": [
+     -0.011744081974029541,
+     -11.930618286132812,
+     -57.61009216308594,
+     -10.916450500488281
+    ]
+   },
+   "cid": "c210c59a033",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Casimo Corland",
+    "value": "Casimo Corland"
+   },
+   "gold": "Casimo Corland",
+   "kind": "person",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Day 11",
+    "correct": true,
+    "scores": [
+     -9.766064643859863,
+     -17.20693588256836,
+     -18.361900329589844,
+     -15.478739738464355
+    ]
+   },
+   "cid": "c4880a0d842",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "11",
+    "value": "11"
+   },
+   "gold": "Day 11",
+   "kind": "day",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Brannick Orchard",
+    "correct": true,
+    "scores": [
+     -0.004409273155033588,
+     -7.8123698234558105,
+     -36.44580078125,
+     -11.401297569274902
+    ]
+   },
+   "cid": "cc73b02198a",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Brannick Orchard",
+    "value": "Brannick Orchard"
+   },
+   "gold": "Brannick Orchard",
+   "kind": "place",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "copper clock",
+    "correct": true,
+    "scores": [
+     -0.32349658012390137,
+     -14.253623962402344,
+     -23.582725524902344,
+     -9.753716468811035
+    ]
+   },
+   "cid": "ced62573511",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "copper clock",
+    "value": "copper clock"
+   },
+   "gold": "copper clock",
+   "kind": "object",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Varo Lunsey",
+    "correct": true,
+    "scores": [
+     -0.012286054901778698,
+     -12.894030570983887,
+     -34.45317077636719,
+     -11.305004119873047
+    ]
+   },
+   "cid": "cee7ccde4da",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Varo Lunsey",
+    "value": "Varo Lunsey"
+   },
+   "gold": "Varo Lunsey",
+   "kind": "person",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Day 7",
+    "correct": true,
+    "scores": [
+     -7.767822742462158,
+     -17.412885665893555,
+     -19.70770263671875,
+     -13.550127983093262
+    ]
+   },
+   "cid": "ca9168c4028",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "7",
+    "value": "7"
+   },
+   "gold": "Day 7",
+   "kind": "day",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Thornby Market",
+    "correct": true,
+    "scores": [
+     -0.026872122660279274,
+     -11.53416633605957,
+     -40.98637008666992,
+     -15.669282913208008
+    ]
+   },
+   "cid": "cba08ff2a5e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Thornby Market",
+    "value": "Thornby Market"
+   },
+   "gold": "Thornby Market",
+   "kind": "place",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "wooden ledger",
+    "correct": true,
+    "scores": [
+     -0.015145758166909218,
+     -13.469308853149414,
+     -32.313507080078125,
+     -13.153325080871582
+    ]
+   },
+   "cid": "ccb6d945513",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "wooden ledger",
+    "value": "wooden ledger"
+   },
+   "gold": "wooden ledger",
+   "kind": "object",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Elvie Ambery",
+    "correct": true,
+    "scores": [
+     -0.007983526214957237,
+     -16.437747955322266,
+     -53.71070861816406,
+     -10.74073600769043
+    ]
+   },
+   "cid": "c0665fa622e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Elvie Ambery",
+    "value": "Elvie Ambery"
+   },
+   "gold": "Elvie Ambery",
+   "kind": "person",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "Day 8",
+    "correct": true,
+    "scores": [
+     -8.316169738769531,
+     -21.042434692382812,
+     -18.53618621826172,
+     -16.4284725189209
+    ]
+   },
+   "cid": "cfc64a78fa0",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "8",
+    "value": "8"
+   },
+   "gold": "Day 8",
+   "kind": "day",
+   "pair": null,
+   "skill": "S1"
+  },
+  {
+   "cand": {
+    "choice": "striped compass",
+    "correct": true,
+    "scores": [
+     -0.023015456274151802,
+     -12.915648460388184
+    ]
+   },
+   "cid": "c2be903cdc9",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "striped compass",
+    "value": "striped compass"
+   },
+   "gold": "striped compass",
+   "kind": "content",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.006794885732233524,
+     -5.014577865600586
+    ]
+   },
+   "cid": "cf392f8f644",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "wooden lantern",
+    "correct": false,
+    "scores": [
+     -0.026914965361356735,
+     -8.989388465881348
+    ]
+   },
+   "cid": "c9248a97003",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "wooden lantern",
+    "value": "wooden lantern"
+   },
+   "gold": "striped compass",
+   "kind": "content",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.08390813320875168,
+     -2.521575927734375
+    ]
+   },
+   "cid": "c3d1e48a84f",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "heavy lantern",
+    "correct": true,
+    "scores": [
+     -0.6061707735061646,
+     -0.8664097189903259
+    ]
+   },
+   "cid": "c1bd185aa50",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "heavy lantern",
+    "value": "heavy lantern"
+   },
+   "gold": "heavy lantern",
+   "kind": "content",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.10390053689479828,
+     -2.317155599594116
+    ]
+   },
+   "cid": "cc34fa9b8a0",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver ledger",
+    "correct": false,
+    "scores": [
+     -0.003332376480102539,
+     -9.683281898498535
+    ]
+   },
+   "cid": "cf73d8efb02",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver ledger",
+    "value": "silver ledger"
+   },
+   "gold": "heavy lantern",
+   "kind": "content",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.0058400449343025684,
+     -5.162065505981445
+    ]
+   },
+   "cid": "cc4b9127cae",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "striped mirror",
+    "correct": true,
+    "scores": [
+     -0.017079699784517288,
+     -14.819461822509766
+    ]
+   },
+   "cid": "c3173ba0078",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "striped mirror",
+    "value": "striped mirror"
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.004735853057354689,
+     -5.3808698654174805
+    ]
+   },
+   "cid": "cdf626b6014",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "copper map",
+    "correct": false,
+    "scores": [
+     -0.09311537444591522,
+     -3.472994804382324
+    ]
+   },
+   "cid": "c9d95829101",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "copper map",
+    "value": "copper map"
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.06641112267971039,
+     -2.7469890117645264
+    ]
+   },
+   "cid": "cb94cc8c1dd",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver lantern",
+    "correct": true,
+    "scores": [
+     -0.006649223156273365,
+     -7.712873935699463
+    ]
+   },
+   "cid": "c40e877e873",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "silver lantern",
+    "value": "silver lantern"
+   },
+   "gold": "silver lantern",
+   "kind": "content",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.08248797059059143,
+     -2.5377964973449707
+    ]
+   },
+   "cid": "c146e4201df",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "tiny telescope",
+    "correct": false,
+    "scores": [
+     -0.050296030938625336,
+     -6.540236473083496
+    ]
+   },
+   "cid": "c34d913a498",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "tiny telescope",
+    "value": "tiny telescope"
+   },
+   "gold": "silver lantern",
+   "kind": "content",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.005488039460033178,
+     -5.23226261138916
+    ]
+   },
+   "cid": "c7e63f32af3",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "wooden telescope",
+    "correct": true,
+    "scores": [
+     -0.03482681140303612,
+     -9.353707313537598
+    ]
+   },
+   "cid": "cc247b1fdb6",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "wooden telescope",
+    "value": "wooden telescope"
+   },
+   "gold": "wooden telescope",
+   "kind": "content",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.006097498815506697,
+     -5.123289585113525
+    ]
+   },
+   "cid": "cd5716629c2",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "blue lantern",
+    "correct": false,
+    "scores": [
+     -0.24596141278743744,
+     -1.6609134674072266
+    ]
+   },
+   "cid": "c90c979ebc5",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "blue lantern",
+    "value": "blue lantern"
+   },
+   "gold": "wooden telescope",
+   "kind": "content",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.13342730700969696,
+     -2.0811872482299805
+    ]
+   },
+   "cid": "c971e1e91aa",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver telescope",
+    "correct": false,
+    "scores": [
+     -1.9137513637542725,
+     -0.47249507904052734
+    ]
+   },
+   "cid": "cd96d4c78f0",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver telescope",
+    "value": "silver telescope"
+   },
+   "gold": "tiny map",
+   "kind": "content",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.10150264948606491,
+     -2.3392434120178223
+    ]
+   },
+   "cid": "cceca7ec479",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver telescope",
+    "correct": false,
+    "scores": [
+     -0.0064340983517467976,
+     -9.732828140258789
+    ]
+   },
+   "cid": "c2fbc4d5862",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver telescope",
+    "value": "silver telescope"
+   },
+   "gold": "tiny map",
+   "kind": "content",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.0024840778205543756,
+     -6.039588928222656
+    ]
+   },
+   "cid": "ceff435d470",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "tiny lantern",
+    "correct": true,
+    "scores": [
+     -0.027595484629273415,
+     -8.201279640197754
+    ]
+   },
+   "cid": "cb36d565c5d",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "tiny lantern",
+    "value": "tiny lantern"
+   },
+   "gold": "tiny lantern",
+   "kind": "content",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.003940597176551819,
+     -5.567497253417969
+    ]
+   },
+   "cid": "c79b7f726ef",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver ledger",
+    "correct": false,
+    "scores": [
+     -0.009207084774971008,
+     -8.331841468811035
+    ]
+   },
+   "cid": "cd9919ace59",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver ledger",
+    "value": "silver ledger"
+   },
+   "gold": "tiny lantern",
+   "kind": "content",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.08266125619411469,
+     -2.5356967449188232
+    ]
+   },
+   "cid": "cbaf82fc541",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver telescope",
+    "correct": false,
+    "scores": [
+     -0.913990318775177,
+     -0.533298671245575
+    ]
+   },
+   "cid": "cc04c6a6fe6",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver telescope",
+    "value": "silver telescope"
+   },
+   "gold": "blue basket",
+   "kind": "content",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.14317132532596588,
+     -2.0155818462371826
+    ]
+   },
+   "cid": "c1d26527ab8",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver telescope",
+    "correct": false,
+    "scores": [
+     -0.006187722086906433,
+     -6.85806131362915
+    ]
+   },
+   "cid": "ccb451d40b1",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver telescope",
+    "value": "silver telescope"
+   },
+   "gold": "blue basket",
+   "kind": "content",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.0035252636298537254,
+     -5.685121059417725
+    ]
+   },
+   "cid": "cab9c402361",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "copper violin",
+    "correct": true,
+    "scores": [
+     -0.003300979034975171,
+     -13.239791870117188
+    ]
+   },
+   "cid": "c91336b181c",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "copper violin",
+    "value": "copper violin"
+   },
+   "gold": "copper violin",
+   "kind": "content",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.004615701735019684,
+     -5.404266834259033
+    ]
+   },
+   "cid": "c0689f8abdb",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "cracked telescope",
+    "correct": false,
+    "scores": [
+     -0.5019205212593079,
+     -1.1395126581192017
+    ]
+   },
+   "cid": "c8a062fe790",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "cracked telescope",
+    "value": "cracked telescope"
+   },
+   "gold": "copper violin",
+   "kind": "content",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.12903966009616852,
+     -2.1124777793884277
+    ]
+   },
+   "cid": "cd06f4779da",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "striped mirror",
+    "correct": true,
+    "scores": [
+     -0.016370823606848717,
+     -6.235750675201416
+    ]
+   },
+   "cid": "c5d8fbf99f5",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "striped mirror",
+    "value": "striped mirror"
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": true,
+    "scores": [
+     -0.07185861468315125,
+     -2.6704437732696533
+    ]
+   },
+   "cid": "c17d2d4fff3",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "silver compass",
+    "correct": false,
+    "scores": [
+     -0.0026078473310917616,
+     -12.759319305419922
+    ]
+   },
+   "cid": "cfbdc547691",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "silver compass",
+    "value": "silver compass"
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "A",
+    "correct": false,
+    "scores": [
+     -0.005426038056612015,
+     -5.239835739135742
+    ]
+   },
+   "cid": "cca377b1d28",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cand": {
+    "choice": "cracked umbrella",
+    "correct": true,
+    "scores": [
+     -1.3207048177719116,
+     -2.9914867877960205,
+     -4.89534854888916,
+     -22.04495620727539,
+     -7.531529426574707
+    ]
+   },
+   "cid": "cbab24216e5",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "cracked umbrella",
+    "value": "cracked umbrella"
+   },
+   "gold": "cracked umbrella",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "blue mirror",
+    "correct": false,
+    "scores": [
+     -1.4121730327606201,
+     -3.9966249465942383,
+     -0.37874993681907654,
+     -22.178150177001953,
+     -12.478564262390137
+    ]
+   },
+   "cid": "c5385aead17",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "blue mirror",
+    "value": "blue mirror"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "blue clock",
+    "correct": false,
+    "scores": [
+     -1.3397823572158813,
+     -8.10191822052002,
+     -0.42984089255332947,
+     -23.063711166381836,
+     -9.975273132324219
+    ]
+   },
+   "cid": "c4486356df2",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "blue clock",
+    "value": "blue clock"
+   },
+   "gold": "heavy compass",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "heavy clock",
+    "correct": false,
+    "scores": [
+     -1.2742986679077148,
+     -0.6566779017448425,
+     -6.212733268737793,
+     -24.241640090942383,
+     -8.793363571166992
+    ]
+   },
+   "cid": "c4c2af040a7",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "heavy clock",
+    "value": "heavy clock"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "tiny umbrella",
+    "correct": true,
+    "scores": [
+     -1.711908221244812,
+     -5.931093215942383,
+     -8.90549373626709,
+     -26.433319091796875,
+     -9.225566864013672
+    ]
+   },
+   "cid": "cfa9519468e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "umbrella",
+    "value": "tiny umbrella"
+   },
+   "gold": "tiny umbrella",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden lantern",
+    "correct": false,
+    "scores": [
+     -0.5389466881752014,
+     -1.6730380058288574,
+     -10.258005142211914,
+     -28.120508193969727,
+     -8.939506530761719
+    ]
+   },
+   "cid": "c62eb2253d0",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "wooden lantern",
+    "value": "wooden lantern"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "cracked lantern",
+    "correct": true,
+    "scores": [
+     -0.41634631156921387,
+     -5.868039131164551,
+     -2.5104870796203613,
+     -24.62615203857422,
+     -9.011086463928223
+    ]
+   },
+   "cid": "ce1ef73f235",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "cracked lantern",
+    "value": "cracked lantern"
+   },
+   "gold": "cracked lantern",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "blue basket",
+    "correct": false,
+    "scores": [
+     -9.25725269317627,
+     -0.1397879421710968,
+     -2.8333449363708496,
+     -23.721532821655273,
+     -9.275541305541992
+    ]
+   },
+   "cid": "c23f4530da9",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "blue basket",
+    "value": "blue basket"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "tiny lantern",
+    "correct": true,
+    "scores": [
+     -0.8080123662948608,
+     -1.0648303031921387,
+     -7.658710479736328,
+     -25.396181106567383,
+     -8.568138122558594
+    ]
+   },
+   "cid": "c22d1ec84fb",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "tiny lantern",
+    "value": "tiny lantern"
+   },
+   "gold": "tiny lantern",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden ledger",
+    "correct": false,
+    "scores": [
+     -2.416968822479248,
+     -1.0191690921783447,
+     -6.224409580230713,
+     -21.76104164123535,
+     -5.94647741317749
+    ]
+   },
+   "cid": "c86b27a2bd0",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "wooden ledger",
+    "value": "wooden ledger"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "blue map",
+    "correct": true,
+    "scores": [
+     -0.048248324543237686,
+     -13.777409553527832,
+     -7.610737323760986,
+     -24.40932846069336,
+     -8.960963249206543
+    ]
+   },
+   "cid": "ce78d33ea08",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "blue map",
+    "value": "blue map"
+   },
+   "gold": "blue map",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "blue clock",
+    "correct": false,
+    "scores": [
+     -2.3011302947998047,
+     -7.383434772491455,
+     -0.2124200016260147,
+     -16.666303634643555,
+     -11.157175064086914
+    ]
+   },
+   "cid": "c1ce9cc0b7c",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "blue clock",
+    "value": "blue clock"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden lantern",
+    "correct": false,
+    "scores": [
+     -4.152869701385498,
+     -4.022953987121582,
+     -5.289498329162598,
+     -26.230369567871094,
+     -10.244872093200684
+    ]
+   },
+   "cid": "c0b03c1f24e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "kettle",
+    "value": "cracked kettle"
+   },
+   "gold": "cracked kettle",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden violin",
+    "correct": false,
+    "scores": [
+     -0.06335796415805817,
+     -10.756475448608398,
+     -4.213953495025635,
+     -27.369054794311523,
+     -10.360956192016602
+    ]
+   },
+   "cid": "c75b07b31e1",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "wooden violin",
+    "value": "wooden violin"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden mirror",
+    "correct": false,
+    "scores": [
+     -2.6128451824188232,
+     -2.110701560974121,
+     -9.927543640136719,
+     -29.500438690185547,
+     -9.277897834777832
+    ]
+   },
+   "cid": "ca2aebc874e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "map",
+    "value": "heavy map"
+   },
+   "gold": "heavy map",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden lantern",
+    "correct": false,
+    "scores": [
+     -3.339357852935791,
+     -0.3713274300098419,
+     -2.0234735012054443,
+     -23.743146896362305,
+     -9.819452285766602
+    ]
+   },
+   "cid": "cb3e80b10f1",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "wooden lantern",
+    "value": "wooden lantern"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "blue compass",
+    "correct": false,
+    "scores": [
+     -2.15378475189209,
+     -1.6462223529815674,
+     -1.1726605892181396,
+     -21.078134536743164,
+     -9.464510917663574
+    ]
+   },
+   "cid": "c3f3577a767",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "blue compass",
+    "value": "blue compass"
+   },
+   "gold": "heavy basket",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "wooden clock",
+    "correct": false,
+    "scores": [
+     -1.1283738613128662,
+     -0.994025468826294,
+     -2.9134671688079834,
+     -30.13433074951172,
+     -8.198620796203613
+    ]
+   },
+   "cid": "c7a39c8c815",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "wooden clock",
+    "value": "wooden clock"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "tiny telescope",
+    "correct": true,
+    "scores": [
+     -1.615341067314148,
+     -1.6391291618347168,
+     -8.043582916259766,
+     -23.29627799987793,
+     -10.33122730255127
+    ]
+   },
+   "cid": "cdb6939854b",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "telescope",
+    "value": "tiny telescope"
+   },
+   "gold": "tiny telescope",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "tiny ledger",
+    "correct": false,
+    "scores": [
+     -3.5257811546325684,
+     -0.6646527051925659,
+     -10.054478645324707,
+     -25.242507934570312,
+     -8.0120210647583
+    ]
+   },
+   "cid": "c5ed1930f0b",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "tiny ledger",
+    "value": "tiny ledger"
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cand": {
+    "choice": "Thornby Chapel",
+    "correct": false,
+    "scores": [
+     -0.6925831437110901,
+     -1.3783488273620605,
+     -1.7600668668746948,
+     -30.13422203063965,
+     -6.893936634063721
+    ]
+   },
+   "cid": "c9b5d554a0f",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Thornby Chapel",
+    "value": "Thornby Chapel"
+   },
+   "gold": "Brannick Library",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Forge",
+    "correct": false,
+    "scores": [
+     -0.08585479110479355,
+     -2.89866042137146,
+     -5.302579402923584,
+     -33.75048065185547,
+     -9.80311107635498
+    ]
+   },
+   "cid": "cd14d29b8d0",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Lindmere Forge",
+    "value": "Lindmere Forge"
+   },
+   "gold": "Ellsmere Mill",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Garden",
+    "correct": false,
+    "scores": [
+     -0.05040866136550903,
+     -5.877896308898926,
+     -9.965166091918945,
+     -30.88469886779785,
+     -5.983725547790527
+    ]
+   },
+   "cid": "ceee87148a3",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Pellan Garden",
+    "value": "Pellan Garden"
+   },
+   "gold": "Carrow Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Market",
+    "correct": false,
+    "scores": [
+     -0.018583673983812332,
+     -11.408990859985352,
+     -5.792045593261719,
+     -36.1285285949707,
+     -11.553192138671875
+    ]
+   },
+   "cid": "cac1858c4ec",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Lindmere Market",
+    "value": "Lindmere Market"
+   },
+   "gold": "Mossgate Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Fenhollow Garden",
+    "correct": false,
+    "scores": [
+     -0.05081375688314438,
+     -4.8975443840026855,
+     -13.116791725158691,
+     -30.415945053100586,
+     -4.094786643981934
+    ]
+   },
+   "cid": "cc2c8dd956e",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Fenhollow Garden",
+    "value": "Fenhollow Garden"
+   },
+   "gold": "Pellan Market",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Orchard",
+    "correct": false,
+    "scores": [
+     -0.010980561375617981,
+     -8.069308280944824,
+     -10.861160278320312,
+     -36.40044021606445,
+     -9.294294357299805
+    ]
+   },
+   "cid": "cf9eb9ee35a",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Lindmere Orchard",
+    "value": "Lindmere Orchard"
+   },
+   "gold": "Ashgrove Market",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Bridge",
+    "correct": false,
+    "scores": [
+     -0.013137212023139,
+     -7.679627895355225,
+     -6.007638931274414,
+     -31.876930236816406,
+     -8.178262710571289
+    ]
+   },
+   "cid": "cc804ab5f16",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Lindmere Bridge",
+    "value": "Lindmere Bridge"
+   },
+   "gold": "Fenhollow Harbour",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Mossgate Forge",
+    "correct": false,
+    "scores": [
+     -0.1752687245607376,
+     -8.78866195678711,
+     -2.1141207218170166,
+     -45.74270248413086,
+     -9.151766777038574
+    ]
+   },
+   "cid": "c649468a279",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Mossgate Forge",
+    "value": "Mossgate Forge"
+   },
+   "gold": "Ashgrove Bridge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Ellsmere Chapel",
+    "correct": false,
+    "scores": [
+     -0.08459237217903137,
+     -5.183177947998047,
+     -5.933648586273193,
+     -30.59861183166504,
+     -8.755208969116211
+    ]
+   },
+   "cid": "c4c664f668f",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ellsmere Chapel",
+    "value": "Ellsmere Chapel"
+   },
+   "gold": "Carrow Orchard",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Mossgate Library",
+    "correct": true,
+    "scores": [
+     -0.7585979104042053,
+     -0.718456506729126,
+     -8.596444129943848,
+     -34.435401916503906,
+     -7.639276027679443
+    ]
+   },
+   "cid": "c3e6a5443b0",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Mossgate Library",
+    "value": "Mossgate Library"
+   },
+   "gold": "Mossgate Library",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Ellsmere Chapel",
+    "correct": false,
+    "scores": [
+     -0.22867006063461304,
+     -8.29826831817627,
+     -2.3914458751678467,
+     -33.572940826416016,
+     -8.68317985534668
+    ]
+   },
+   "cid": "cfee00e5ecc",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ellsmere Chapel",
+    "value": "Ellsmere Chapel"
+   },
+   "gold": "Fenhollow Orchard",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Fenhollow Chapel",
+    "correct": false,
+    "scores": [
+     -0.015568953938782215,
+     -4.798880100250244,
+     -8.505526542663574,
+     -38.61180114746094,
+     -8.444466590881348
+    ]
+   },
+   "cid": "ceff24d1932",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Fenhollow Chapel",
+    "value": "Fenhollow Chapel"
+   },
+   "gold": "Thornby Library",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Wyndle Chapel",
+    "correct": false,
+    "scores": [
+     -0.09309258311986923,
+     -3.8942224979400635,
+     -6.203516006469727,
+     -26.896068572998047,
+     -8.33101749420166
+    ]
+   },
+   "cid": "c2b8a456d99",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Wyndle Chapel",
+    "value": "Wyndle Chapel"
+   },
+   "gold": "Ellsmere Bridge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Ashgrove Orchard",
+    "correct": false,
+    "scores": [
+     -0.16738660633563995,
+     -4.9460906982421875,
+     -2.32060170173645,
+     -29.365201950073242,
+     -6.909046649932861
+    ]
+   },
+   "cid": "cabb62f233d",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ashgrove Orchard",
+    "value": "Ashgrove Orchard"
+   },
+   "gold": "Wyndle Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Garden",
+    "correct": false,
+    "scores": [
+     -0.0315496027469635,
+     -3.932241201400757,
+     -12.10214900970459,
+     -43.75067138671875,
+     -10.378250122070312
+    ]
+   },
+   "cid": "c26de9e7e5e",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Lindmere Garden",
+    "value": "Lindmere Garden"
+   },
+   "gold": "Thornby Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Mill",
+    "correct": false,
+    "scores": [
+     -0.0074173142202198505,
+     -6.6267900466918945,
+     -8.722018241882324,
+     -41.591461181640625,
+     -11.080812454223633
+    ]
+   },
+   "cid": "c01a90f1df5",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Lindmere Mill",
+    "value": "Lindmere Mill"
+   },
+   "gold": "Ellsmere Orchard",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Mill",
+    "correct": false,
+    "scores": [
+     -0.0845813974738121,
+     -12.992146492004395,
+     -2.844966173171997,
+     -52.7804069519043,
+     -8.124577522277832
+    ]
+   },
+   "cid": "cc235eac10e",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Pellan Mill",
+    "value": "Pellan Mill"
+   },
+   "gold": "Mossgate Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Brannick Market",
+    "correct": false,
+    "scores": [
+     -0.04374663904309273,
+     -7.897928237915039,
+     -4.041484832763672,
+     -33.63678741455078,
+     -8.746480941772461
+    ]
+   },
+   "cid": "c08857a8ab8",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Brannick Market",
+    "value": "Brannick Market"
+   },
+   "gold": "Pellan Harbour",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Thornby Harbour",
+    "correct": false,
+    "scores": [
+     -0.026269886642694473,
+     -7.330329895019531,
+     -8.471273422241211,
+     -35.54056930541992,
+     -9.097251892089844
+    ]
+   },
+   "cid": "ce0a4da2abe",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Thornby Harbour",
+    "value": "Thornby Harbour"
+   },
+   "gold": "Fenhollow Chapel",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Ashgrove Library",
+    "correct": false,
+    "scores": [
+     -0.013590043410658836,
+     -7.365232467651367,
+     -7.468382835388184,
+     -39.33539962768555,
+     -13.660296440124512
+    ]
+   },
+   "cid": "c2fde1d30cf",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ashgrove Library",
+    "value": "Ashgrove Library"
+   },
+   "gold": "Sorrow Harbour",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Bridge",
+    "correct": true,
+    "scores": [
+     -0.06858042627573013,
+     -3.2087085247039795,
+     -49.016326904296875,
+     -11.142545700073242
+    ]
+   },
+   "cid": "c01ef208e10",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Lindmere Bridge",
+    "value": "Lindmere Bridge"
+   },
+   "gold": "Lindmere Bridge",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Lindmere Forge",
+    "correct": true,
+    "scores": [
+     -1.1684578657150269,
+     -0.46142277121543884,
+     -38.274070739746094,
+     -12.796005249023438
+    ]
+   },
+   "cid": "c881ae42ab8",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Lindmere Forge",
+    "value": "Lindmere Forge"
+   },
+   "gold": "Lindmere Forge",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Ellsmere Bridge",
+    "correct": false,
+    "scores": [
+     -0.8127084970474243,
+     -1.0217921733856201,
+     -44.50027084350586,
+     -6.964255332946777
+    ]
+   },
+   "cid": "cb13f139dba",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Quarrel Garden",
+    "value": "Quarrel Garden"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Bridge",
+    "correct": true,
+    "scores": [
+     -0.16086047887802124,
+     -2.1963584423065186,
+     -39.388736724853516,
+     -4.729367733001709
+    ]
+   },
+   "cid": "ca120173898",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Pellan Bridge",
+    "value": "Pellan Bridge"
+   },
+   "gold": "Pellan Bridge",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Fenhollow Harbour",
+    "correct": true,
+    "scores": [
+     -4.436002731323242,
+     -0.020798390731215477,
+     -41.1461296081543,
+     -6.431713104248047
+    ]
+   },
+   "cid": "c0bc3d90258",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Fenhollow Harbour",
+    "value": "Fenhollow Harbour"
+   },
+   "gold": "Fenhollow Harbour",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Sorrow Bridge",
+    "correct": false,
+    "scores": [
+     -0.14265522360801697,
+     -2.3795723915100098,
+     -27.760923385620117,
+     -4.230645179748535
+    ]
+   },
+   "cid": "cebe43ead42",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Sorrow Bridge",
+    "value": "Sorrow Bridge"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Ellsmere Garden",
+    "correct": true,
+    "scores": [
+     -0.08845696598291397,
+     -2.7943034172058105,
+     -25.414615631103516,
+     -9.345948219299316
+    ]
+   },
+   "cid": "c7325ce1f98",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Ellsmere Garden",
+    "value": "Ellsmere Garden"
+   },
+   "gold": "Ellsmere Garden",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Quarrel Orchard",
+    "correct": true,
+    "scores": [
+     -4.469071388244629,
+     -0.026429053395986557,
+     -32.86471939086914,
+     -12.075324058532715
+    ]
+   },
+   "cid": "c410a02cde9",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Quarrel Orchard",
+    "value": "Quarrel Orchard"
+   },
+   "gold": "Quarrel Orchard",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Ashgrove Orchard",
+    "correct": false,
+    "scores": [
+     -1.3960566520690918,
+     -0.3071279227733612,
+     -33.218685150146484,
+     -8.264105796813965
+    ]
+   },
+   "cid": "c805482e814",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ashgrove Orchard",
+    "value": "Ashgrove Orchard"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Thornby Mill",
+    "correct": true,
+    "scores": [
+     -0.060270559042692184,
+     -3.4146924018859863,
+     -31.304059982299805,
+     -11.406033515930176
+    ]
+   },
+   "cid": "c7172b569cb",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Thornby Mill",
+    "value": "Thornby Mill"
+   },
+   "gold": "Thornby Mill",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Bridge",
+    "correct": true,
+    "scores": [
+     -1.1143540143966675,
+     -0.43406957387924194,
+     -34.54021453857422,
+     -8.064492225646973
+    ]
+   },
+   "cid": "ce832d71cd4",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Pellan Bridge",
+    "value": "Pellan Bridge"
+   },
+   "gold": "Pellan Bridge",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Mill",
+    "correct": false,
+    "scores": [
+     -0.1548171192407608,
+     -2.1143343448638916,
+     -36.742000579833984,
+     -5.742179870605469
+    ]
+   },
+   "cid": "cc7028891c7",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Pellan Mill",
+    "value": "Pellan Mill"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Mossgate Station",
+    "correct": true,
+    "scores": [
+     -0.21577373147010803,
+     -1.843931794166565,
+     -32.94733428955078,
+     -10.36143970489502
+    ]
+   },
+   "cid": "c59c7ee698e",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Mossgate Station",
+    "value": "Mossgate Station"
+   },
+   "gold": "Mossgate Station",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Ellsmere Station",
+    "correct": false,
+    "scores": [
+     -0.3244476020336151,
+     -1.4244328737258911,
+     -34.06053161621094,
+     -9.833000183105469
+    ]
+   },
+   "cid": "c170aa3600f",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ellsmere Station",
+    "value": "Ellsmere Station"
+   },
+   "gold": "Ashgrove Market",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Station",
+    "correct": false,
+    "scores": [
+     -0.33035826683044434,
+     -1.3914880752563477,
+     -27.050588607788086,
+     -5.4036030769348145
+    ]
+   },
+   "cid": "ca2ab5d5d35",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Pellan Station",
+    "value": "Pellan Station"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Ashgrove Harbour",
+    "correct": false,
+    "scores": [
+     -1.3472142219543457,
+     -0.3314059376716614,
+     -28.912940979003906,
+     -9.5201416015625
+    ]
+   },
+   "cid": "c1d4a163cd7",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Ashgrove Harbour",
+    "value": "Ashgrove Harbour"
+   },
+   "gold": "Pellan Library",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Quarrel Garden",
+    "correct": false,
+    "scores": [
+     -0.47247105836868286,
+     -1.0295313596725464,
+     -38.81070327758789,
+     -12.068243026733398
+    ]
+   },
+   "cid": "cd6658bc09e",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Quarrel Garden",
+    "value": "Quarrel Garden"
+   },
+   "gold": "Lindmere Orchard",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Pellan Market",
+    "correct": false,
+    "scores": [
+     -0.6922840476036072,
+     -2.1716580390930176,
+     -40.478797912597656,
+     -6.110807418823242
+    ]
+   },
+   "cid": "c57e6782ee5",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Pellan Market",
+    "value": "Pellan Market"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Wyndle Harbour",
+    "correct": true,
+    "scores": [
+     -0.05085251107811928,
+     -5.556151866912842,
+     -42.631507873535156,
+     -9.433488845825195
+    ]
+   },
+   "cid": "cdf72a791fa",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Wyndle Harbour",
+    "value": "Wyndle Harbour"
+   },
+   "gold": "Wyndle Harbour",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Quarrel Chapel",
+    "correct": true,
+    "scores": [
+     -1.3856385946273804,
+     -0.3651611804962158,
+     -36.748146057128906,
+     -11.297990798950195
+    ]
+   },
+   "cid": "c99d6c3ee84",
+   "free": {
+    "correct": true,
+    "parsed": "value",
+    "raw": "Quarrel Chapel",
+    "value": "Quarrel Chapel"
+   },
+   "gold": "Quarrel Chapel",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cand": {
+    "choice": "Quarrel Chapel",
+    "correct": false,
+    "scores": [
+     -2.863192558288574,
+     -0.0840778723359108,
+     -33.25160217285156,
+     -9.671032905578613
+    ]
+   },
+   "cid": "c602b63ef77",
+   "free": {
+    "correct": false,
+    "parsed": "value",
+    "raw": "Quarrel Chapel",
+    "value": "Quarrel Chapel"
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  }
+ ],
+ "schema": "episodic_lab.diag_result.v1",
+ "seconds": 598.6,
+ "status": "OK",
+ "style": "v1",
+ "summary": {
+  "S1": {
+   "cand": 1.0,
+   "cand_by_kind": {
+    "day": 1.0,
+    "object": 1.0,
+    "person": 1.0,
+    "place": 1.0
+   },
+   "free": 1.0,
+   "free_by_kind": {
+    "day": 1.0,
+    "object": 1.0,
+    "person": 1.0,
+    "place": 1.0
+   },
+   "n": 20
+  },
+  "S2": {
+   "cand": 0.45,
+   "cand_by_kind": {
+    "content": 0.4,
+    "letter": 0.5
+   },
+   "cand_pairs": {
+    "content": 0.0,
+    "letter": 0.0
+   },
+   "free": 0.45,
+   "free_by_kind": {
+    "content": 0.4,
+    "letter": 0.5
+   },
+   "free_pairs": {
+    "content": 0.0,
+    "letter": 0.0
+   },
+   "n": 40
+  },
+  "S3": {
+   "cand": 0.3,
+   "cand_by_kind": {
+    "lure": 0.0,
+    "positive": 0.6
+   },
+   "free": 0.4,
+   "free_by_kind": {
+    "lure": 0.0,
+    "positive": 0.8
+   },
+   "n": 20
+  },
+  "S4": {
+   "cand": 0.05,
+   "cand_by_kind": {
+    "link": 0.05
+   },
+   "free": 0.05,
+   "free_by_kind": {
+    "link": 0.05
+   },
+   "n": 20
+  },
+  "S5": {
+   "cand": 0.5238095238095238,
+   "cand_by_kind": {
+    "missing": 0.0,
+    "observed": 0.8571428571428571,
+    "reported": 0.7142857142857143
+   },
+   "free": 0.5238095238095238,
+   "free_by_kind": {
+    "missing": 0.0,
+    "observed": 0.8571428571428571,
+    "reported": 0.7142857142857143
+   },
+   "n": 21
+  }
+ },
+ "weights_digest": "8f67cfdd66abbd1338639c042c2d9c645fa717f20899e89c59abc487707b6aed"
+}
