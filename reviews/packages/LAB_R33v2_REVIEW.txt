@@ -1,0 +1,848 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.3 v2, one part
+
+Review request (Astra; Claude is lead reviewer). Please re-review round 3.3 after your REQUEST CHANGES (archived verbatim as reviews/2026-10-17_r33_astra.txt), before the GitHub run (config/round33.json "enabled": false). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 3.3 v2 REVIEW ===".
+
+STATE: lab main = a45c907. Tests green; mutation test of the v2 checks 5/5 (two first survived - the milestone not depending on the criteria, the giver uniqueness rule of the reference - and got tests).
+
+RESPONSE TO THE THREE REQUIRED CHANGES
+1. Verdict and milestone. Two separate results: VERDICT (COMPLETE/INCOMPLETE: schema, identity, provenance - request hash and the run's code commit, passed by the workflow -, pair design, full re-run reproduces every row, cut-off/changed store refused) and MILESTONE (PASS/FAIL: all pre-registered criteria, only if VERDICT is COMPLETE). The workflow stores both and fails unless COMPLETE and PASS. Case numbers are part of the criteria: every planned case of intact, none, random, relevant_removed available (80 per kind); swapped_binding and irrelevant_removed in >= 90% of planned cases; informative cases >= 60% of planned for swap and relevant removal. Tests: a summary with one case missing or zero informative cases fails; a forced criterion failure gives COMPLETE + FAIL; schema, request hash and commit mismatches are reported.
+2. Process isolation. Every case (world x intervention) is now decided by its own new isolated interpreter (python -I) that receives only that case's store path, seal and decision (as one JSON argument). A test counts the processes: exactly one per available case plus the two integrity probes. The summary text says so.
+3. Independent predictions. New episodic_lab/env_reference.py: interventions are planned from the generator's structured events (truth_content), the counterfactual is applied to those events by its own code, and the prediction is made by its own decision rules - no store, no memory operators, no experience encoder. The memory side (env_agent.derive_variant) applies the same plan to the ACTUALLY ENCODED store (encoded once per world) with a separate implementation, and each variant is re-sealed (your materialisation idea). Tests: both sides agree for a correct encoding; an injected encoding error (wrong place in the critical record) leaves every prediction unchanged while the agent's decision changes; the giver rule explores when two "gave" episodes exist.
+IDEAS ADOPTED: decision traces kept per case (status, record ids, trace); the criteria's status stated honestly (written after a local development run of v1, fixed before the GitHub run, so the GitHub run is a reproduction and integrity check, not a test on unseen data); the pair-zero rule limited to the fixed deterministic policy; your historical-goal design with identical final state and a current-state-only baseline is the first extension of round 3.4; plausible wrong bindings as an extra random control noted.
+
+LOCAL RESULT OF v2 (40 pairs per kind, 1,440 cases, one fresh process each; 86 s):
+OK schema, provenance, design, re-run and store integrity
+
+VERDICT COMPLETE
+
+PASS every case planned for intact, none, random, relevant_removed is available
+PASS swapped_binding and irrelevant_removed available in >= 90% of planned cases
+PASS informative cases (prediction != truth) >= 60% of planned for swap and relevant removal
+PASS intact: success 1.0 and pair success 1.0
+PASS no memory and random memory: pair success 0 (fixed, deterministic exploration policy)
+PASS swapped binding: action as predicted in >= 0.95 of informative cases
+PASS relevant episode removed: action as predicted in >= 0.95 of informative cases
+PASS irrelevant episode removed: success 1.0
+
+MILESTONE PASS
+
+---BEGIN FILE docs/ROUND_3_3.md---
+# Round 3.3 - paired action worlds with causal memory interventions (v2, after Astra's review)
+
+Milestone-3 goal (docs/STRATEGY.md): an agent keeps a single experience across a process
+restart, uses it for a goal announced later, and targeted interventions on exactly that
+memory change its actual decision. This round tests that goal for the explicit agent
+memory of round 3.2 (store + operators, template encoder), without model inference, as
+Astra advised: the functional core first; the language interface (LM encoder of free
+wordings, LM reader agents) is the next extension and its limited reach stays stated.
+
+## Environment (episodic_lab/env.py)
+
+Six places, eight objects, three people plus the agent ("You"). One experience per day,
+14 days, given as a sentence: what the agent saw (someone hid / left / put an object
+somewhere; someone was at a place), what it did itself (put an object somewhere; went
+somewhere), what someone did to it (gave it an object). Then the goal and the current
+observation: "You are in the hall. Goal: ... You can go to: <six places>." The
+environment knows the true state and scores the action (going to a place).
+
+Kinds (40 pairs each, series `env-m3`):
+- **hidden**: the agent saw a person hide/leave/put the object at P; goal "Find the X".
+- **moved**: the object was placed at P_old, later the agent put it at P; the later
+  episode decides.
+- **giver**: a person gave the agent the object; later the agent saw that person at P;
+  goal "Find the person who gave you the X" (two episodes linked through the person; a
+  second person gave another object).
+
+Pairs: two worlds identical in every experience except the critical episode, identical
+at decision time (same goal, same observation, same options); the critical episode makes
+a different place correct. Distractors re-use people, places and objects (bindings).
+
+## Agent and memory boundary (episodic_lab/env_agent.py, bench/m3/run_round33.py)
+
+Experience phase: each world's experiences are encoded ONCE into an append-only, chained,
+sealed store file; every intervention is derived from that encoded store and written as
+a new sealed store. Decision phase: for EVERY case (world x intervention) a new isolated
+interpreter (`python -I`) receives only that case's store path, seal and decision text
+and decides from the store with explicit operators (latest placing of the object; the
+unique "gave" episode, then the giver's latest appearance); it returns the action and the
+operator result (status, record ids, trace), which is kept. Without a supported memory
+answer it explores: it goes to the first listed place (memory-free, identical in both
+worlds of a pair). The environment scores the actions afterwards.
+
+## Reference path (episodic_lab/env_reference.py)
+
+Interventions are planned, and their predictions computed, on the environment side from
+the generator's structured events (`truth_content`), with this module's own counterfactual
+application and decision rules. It uses neither the store, nor its operators, nor the
+experience encoder; a test injects an encoding error and shows that the prediction stays
+the same while the agent's decision changes.
+
+## Interventions (on the memory only) and predictions (from the environment's events)
+
+| intervention | memory content | predicted action |
+|---|---|---|
+| intact | all experiences | the true place |
+| none | empty | exploration place |
+| random | equal number of irrelevant episodes, same vocabulary | exploration place |
+| swapped_binding | hidden/moved: the critical episode exchanges its place with another object's placing episode; giver: the two "gave" episodes exchange their person | the place implied by the swapped binding |
+| relevant_removed | the critical episode deleted | hidden: exploration; moved: the earlier place; giver: the giver's last appearance before |
+| irrelevant_removed | one distractor deleted that mentions neither the object nor the people involved | the true place |
+
+## Two results: VERDICT and MILESTONE
+
+VERDICT (COMPLETE / INCOMPLETE) = the evaluation is complete and reproducible: schema,
+identity, provenance (request hash, code commit of the run), pair design, the collector's
+full re-run reproduces every row, cut-off and changed stores are refused.
+
+MILESTONE (PASS / FAIL) = all criteria below, in every kind; the workflow fails unless
+VERDICT is COMPLETE and MILESTONE is PASS.
+
+1. every planned case of intact, none, random and relevant_removed is available (80 per
+   kind); swapped_binding and irrelevant_removed in >= 90% of the planned cases;
+   informative cases (prediction differs from the truth) >= 60% of the planned cases for
+   swapped_binding and relevant_removed;
+2. intact: success 1.0 and pair success (both worlds right) 1.0;
+3. none and random: pair success 0 - this follows from the FIXED, deterministic
+   exploration policy (same action in both worlds, different correct places); for
+   stochastic LM agents later it holds only with coupled random draws;
+4. swapped_binding and relevant_removed: the action equals the prediction in >= 0.95 of
+   the informative cases;
+5. irrelevant_removed: success 1.0.
+
+Status of these criteria: they were written after a local development run of the same
+design (round 3.3 v1) and fixed before the GitHub run; the GitHub run is therefore a
+reproduction and integrity check of a locally known result, not a test on unseen data.
+
+## What a pass shows, and what it does not
+
+It shows, for an explicit, externally implemented agent memory: single experiences kept
+across a restart in a declared memory, used for a later-announced goal, with the
+behaviour depending causally and specifically on the relevant memory (swap moves the
+decision in the predicted direction, irrelevant edits do nothing). It does not show:
+robustness to free wording (the encoder is the template parser), an LM agent's ability
+to use the memory, source monitoring with reports and corrections, or scale. These are
+the extensions of round 3.4, one at a time. First extension (Astra's proposal, adopted):
+a historical goal chosen after storage with an identical final state - both worlds end
+with the same object and person locations and differ only in an earlier placing episode;
+the goal is either "find X now" (same action in both worlds) or a historical one such as
+"go to where X was first put" (different actions); removing or swapping the earlier
+episode must change only the historical decision; plus a baseline that stores only the
+current state (latest place per object/person and the relations the current goals need),
+all systems with the same experiences and their stored information disclosed. Then the
+frozen LM encoder on held-out wordings with unchanged operators, reports and corrections,
+longer histories. The random control will add plausible wrong bindings with the same
+target entities.
+---END FILE docs/ROUND_3_3.md---
+
+---BEGIN FILE episodic_lab/env_reference.py---
+"""Round 3.3 reference path (environment side), independent of the agent's memory.
+
+Interventions are PLANNED here from the environment's structured events (`truth_content`
+of a world, produced by the generator, not by any encoder): which episode is critical,
+which one is swapped with it, which distractor is irrelevant, which random episodes
+replace the memory. The prediction for every intervention is computed by applying the
+counterfactual to those events with this module's own code and deciding with this
+module's own rules. Nothing here uses the memory store, its operators or the
+experience encoder, so an encoding error on the agent side cannot change a prediction.
+"""
+from __future__ import annotations
+
+import re
+
+from .env import PLACING, SELF, _distractor, _render, _vocab
+from .rng import HashRng
+
+INTERVENTIONS = ("intact", "none", "random", "swapped_binding", "relevant_removed", "irrelevant_removed")
+_OBJECT_GOAL = re.compile(r"Find the ([a-z]+ [a-z]+)\.")
+_GIVER_GOAL = re.compile(r"Find the person who gave you the ([a-z]+ [a-z]+)\.")
+
+
+def plan(pair: dict, world_name: str) -> dict:
+    """{intervention: spec or None (not applicable)} from the environment's events."""
+    ev = pair["worlds"][world_name]["truth_content"]
+    kind, obj, person, other = pair["kind"], pair["object"], pair["person"], pair["other_person"]
+    crit, relevant, truth = pair["critical"], pair["relevant"], pair["worlds"][world_name]["truth"]
+    specs = {"intact": {"op": "keep"}, "none": {"op": "clear"}}
+
+    rng = HashRng(f"intervene:{pair['seed']}:{kind}:{world_name}")
+    v = _vocab(HashRng(f"env:{pair['seed']}:{kind}"))
+    random_events = []
+    while len(random_events) < len(ev):
+        e = _distractor(rng, v, obj, {person, other})
+        if e[0] == "seen" and e[1] in (person, other):
+            continue
+        if e[0] == "placing" and e[1] in (person, other):
+            e = ("went", e[-1])
+        random_events.append(dict(_render(len(random_events) + 1, e)[1], event_day=len(random_events) + 1))
+    specs["random"] = {"op": "replace", "events": random_events}
+
+    if kind in ("hidden", "moved"):
+        j = next((i for i, e in enumerate(ev) if e["action"] in PLACING and e["object"] not in (obj, None)
+                  and e["place"] != truth and i not in relevant), None)
+        specs["swapped_binding"] = None if j is None else {"op": "swap", "field": "place", "i": crit, "j": j}
+    else:
+        g1 = next(i for i, e in enumerate(ev) if e["action"] == "gave" and e["object"] == obj)
+        g2 = next(i for i, e in enumerate(ev) if e["action"] == "gave" and e["object"] != obj)
+        specs["swapped_binding"] = {"op": "swap", "field": "actor", "i": g1, "j": g2}
+    specs["relevant_removed"] = {"op": "remove", "i": crit}
+    k = next((i for i, e in enumerate(ev) if i not in relevant and e["object"] != obj
+              and person not in (e["actor"], e["partner"]) and other not in (e["actor"], e["partner"])), None)
+    specs["irrelevant_removed"] = None if k is None else {"op": "remove", "i": k}
+    return specs
+
+
+def apply_to_events(spec: dict, events: list[dict]) -> list[dict]:
+    """The counterfactual on the environment's events (reference implementation)."""
+    out = [dict(e) for e in events]
+    if spec["op"] == "keep":
+        return out
+    if spec["op"] == "clear":
+        return []
+    if spec["op"] == "replace":
+        return [dict(e) for e in spec["events"]]
+    if spec["op"] == "swap":
+        f, i, j = spec["field"], spec["i"], spec["j"]
+        out[i][f], out[j][f] = events[j][f], events[i][f]
+        return out
+    if spec["op"] == "remove":
+        return [e for n, e in enumerate(out) if n != spec["i"]]
+    raise ValueError(spec["op"])
+
+
+def reference_decision(events: list[dict], decision: dict) -> str:
+    """Where an agent that remembers exactly these events should go (own rules)."""
+    explore = decision["options"][0]
+    goal = decision["goal"]
+    m = _GIVER_GOAL.fullmatch(goal)
+    if m:
+        gave = [e for e in events if e["action"] == "gave" and e["object"] == m.group(1) and e["partner"] == SELF]
+        if len(gave) != 1:
+            return explore
+        giver = gave[0]["actor"]
+        seen = [e for e in events if giver in (e["actor"], e["partner"])]
+        last_day = max(e["event_day"] for e in seen)
+        places = {e["place"] for e in seen if e["event_day"] == last_day}
+        return places.pop() if len(places) == 1 else explore
+    m = _OBJECT_GOAL.fullmatch(goal)
+    if m:
+        placed = [e for e in events if e["object"] == m.group(1) and e["action"] in PLACING]
+        if not placed:
+            return explore
+        last_day = max(e["event_day"] for e in placed)
+        places = {e["place"] for e in placed if e["event_day"] == last_day}
+        return places.pop() if len(places) == 1 else explore
+    return explore
+
+
+def predictions(pair: dict, world_name: str) -> dict:
+    """{intervention: predicted place or None (not applicable)}."""
+    world = pair["worlds"][world_name]
+    out = {}
+    for name, spec in plan(pair, world_name).items():
+        out[name] = None if spec is None else reference_decision(
+            apply_to_events(spec, world["truth_content"]), world["decision"])
+    return out
+---END FILE episodic_lab/env_reference.py---
+
+---BEGIN FILE episodic_lab/env_agent.py---
+"""Round 3.3 agent and memory interventions (docs/ROUND_3_3.md).
+
+The agent writes every experience into its episodic store (episodic_lab.memory) and, at
+decision time, answers the goal only from the store with the explicit operators. If the
+memory gives no supported answer it explores: it goes to the first listed place (a fixed,
+memory-free policy, identical in both worlds of a pair).
+
+Interventions change only the memory content: the agent's store is encoded ONCE per
+world, every variant is derived from that encoded store (derive_variant) following the
+plan of env_reference.plan and written as a new sealed store; the decision is taken by a
+fresh process per case that sees nothing but one store, its seal and the decision text.
+Predictions are computed on the environment side (episodic_lab/env_reference.py) from
+the generator's structured events, independently of the encoder and the operators.
+"""
+from __future__ import annotations
+
+from .env import PLACING, SELF, env_encode, parse_goal, render_content
+from .memory import EpisodeStore, Result, _day, _ok, latest, match
+
+from .env_reference import INTERVENTIONS  # noqa: E402  (one list of interventions)
+
+
+def object_location(records, obj: str) -> Result:
+    """Latest placing of the object; an undated placing elsewhere makes it ambiguous."""
+    hits = [r for r in match(records, obj=obj) if r["action"] in PLACING]
+    trace = [("object_location", obj, [r["id"] for r in hits])]
+    if not hits:
+        return Result(None, "no_observation", [], trace)
+    dated = [r for r in hits if _day(r) is not None]
+    if not dated:
+        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+    top = max(_day(r) for r in dated)
+    places = {r["place"] for r in dated if _day(r) == top} | {r["place"] for r in hits if _day(r) is None}
+    if len(places) != 1:
+        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+    return _ok(places.pop(), [r["id"] for r in dated if _day(r) == top], trace)
+
+
+def giver_location(records, obj: str) -> Result:
+    gave = [r for r in match(records, action="gave", obj=obj) if r["partner"] == SELF]
+    trace = [("giver", obj, [r["id"] for r in gave])]
+    if len(gave) != 1:
+        return Result(None, "no_observation" if not gave else "ambiguous", [r["id"] for r in gave], trace)
+    nxt = latest(records, gave[0]["actor"])
+    return Result(nxt.value, nxt.status, [gave[0]["id"]] + nxt.ids, trace + nxt.trace)
+
+
+def decide(records, decision: dict) -> dict:
+    """Memory-based decision; falls back to exploring the first listed place."""
+    parsed = parse_goal(decision["goal"])
+    result = Result(None, "no_observation")
+    if parsed:
+        kind, obj = parsed
+        result = object_location(records, obj) if kind == "object" else giver_location(records, obj)
+    if result.status == "ok" and result.value in decision["options"]:
+        place, policy = result.value, "memory"
+    else:
+        place, policy = decision["options"][0], "explore"
+    text = (f"I remember: {result.value}. I go to {place}." if policy == "memory"
+            else f"I do not remember where. I search {place}.")
+    return {"action": {"go": place}, "answer": text, "policy": policy, "result": result.to_json()}
+
+
+def write_store(path, experiences: list, contents: list | None = None) -> EpisodeStore:
+    """Encode experiences into a new store. With `contents` (an intervened memory) every
+    record gets the content and a text re-rendered from it, so text and fields agree."""
+    store = EpisodeStore(path)
+    for i, exp in enumerate(experiences):
+        if contents is None:
+            text, content = exp["text"], env_encode(exp["text"])
+        else:
+            content = contents[i]
+            text = render_content(content)
+        store.append(text, content, source=exp["source"], encoder="env-template")
+    return store
+
+
+CONTENT = ("actor", "partner", "action", "object", "place", "event_day")
+
+
+def derive_variant(spec: dict, records: list[dict]) -> list[dict]:
+    """Memory side: the intervened record contents, derived from the ACTUALLY ENCODED store
+    (agent's records), following the plan made by env_reference.plan. This is a separate
+    implementation of the counterfactual; predictions never use it."""
+    contents = [{k: r[k] for k in CONTENT} for r in records]
+    op = spec["op"]
+    if op == "keep":
+        return contents
+    if op == "clear":
+        return []
+    if op == "replace":  # the random memory comes from the environment's random events
+        return [{k: e[k] for k in CONTENT} for e in spec["events"]]
+    if op == "swap":
+        f, i, j = spec["field"], spec["i"], spec["j"]
+        a, b = contents[i][f], contents[j][f]
+        contents[i] = dict(contents[i], **{f: b})
+        contents[j] = dict(contents[j], **{f: a})
+        return contents
+    if op == "remove":
+        return [c for n, c in enumerate(contents) if n != spec["i"]]
+    raise ValueError(op)
+
+
+def materialize(path, contents: list[dict], sources: list[dict]) -> EpisodeStore:
+    """A new sealed store from intervened contents; every text is re-rendered from its
+    fields, so text and fields of a record never contradict each other."""
+    store = EpisodeStore(path)
+    for content, source in zip(contents, sources):
+        store.append(render_content(content), content, source=source, encoder="env-template")
+    return store
+---END FILE episodic_lab/env_agent.py---
+
+---BEGIN FILE bench/m3/run_round33.py---
+"""Round 3.3 job: paired worlds, memory interventions, one fresh decision process per case.
+
+Experience phase (this process): each world's experiences are encoded ONCE into a sealed
+store; every intervention is derived from that encoded store and written as a new sealed
+store. Decision phase: for EVERY case (world x intervention) a new isolated interpreter
+receives only that case's store path, seal and decision text and returns the action with
+its operator result (status, record ids, trace). Predictions come from the environment
+side (episodic_lab/env_reference.py). No model inference is involved.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from episodic_lab.env import KINDS, SELF, generate_pair  # noqa: E402
+from episodic_lab.env_agent import derive_variant, materialize, write_store  # noqa: E402
+from episodic_lab.env_reference import INTERVENTIONS, plan, predictions  # noqa: E402
+
+SCHEMA = "episodic_lab.round33.v2"
+DECIDE = ("import json, sys\nsys.path.insert(0, sys.argv[1])\n"
+          "from episodic_lab.memory import EpisodeStore\nfrom episodic_lab.env_agent import decide\n"
+          "item = json.loads(sys.argv[2])\n"
+          "store = EpisodeStore(item['store'], expect=item['seal'])\n"
+          "print(json.dumps(decide(store.records, item['decision'])))\n")
+
+
+def canonical_sha256(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def fresh_decision(item: dict, workdir: Path):
+    """One new isolated interpreter for one case; None if it refuses or fails."""
+    script = workdir / "decide.py"
+    if not script.exists():
+        script.write_text(DECIDE)
+    out = subprocess.run([sys.executable, "-I", str(script), str(ROOT), json.dumps(item)],
+                         capture_output=True, text=True)
+    return json.loads(out.stdout) if out.returncode == 0 else None
+
+
+def _source(content: dict) -> dict:
+    return {"kind": "own_action" if content["actor"] == SELF else "observed", "by": None}
+
+
+def run(series: str, pairs_per_kind: int, workdir: Path) -> dict:
+    rows, pair_hashes, probe = [], {}, None
+    for kind in KINDS:
+        for i in range(pairs_per_kind):
+            seed = f"{series}-{i}"
+            pair = generate_pair(seed, kind)
+            pair_hashes[f"{kind}:{seed}"] = canonical_sha256(pair)
+            for world in ("A", "B"):
+                w = pair["worlds"][world]
+                encoded = write_store(workdir / f"{kind}_{i}_{world}_encoded.jsonl", w["experiences"])
+                specs, preds = plan(pair, world), predictions(pair, world)
+                for name in INTERVENTIONS:
+                    row = {"kind": kind, "seed": seed, "world": world, "intervention": name}
+                    if specs[name] is None:
+                        rows.append(dict(row, available=False))
+                        continue
+                    contents = derive_variant(specs[name], encoded.records)
+                    path = workdir / f"{kind}_{i}_{world}_{name}.jsonl"
+                    store = materialize(path, contents, [_source(c) for c in contents])
+                    item = {"store": str(path), "seal": store.seal(), "decision": w["decision"]}
+                    probe = probe or item
+                    d = fresh_decision(item, workdir)
+                    if d is None:
+                        raise RuntimeError(f"decision process failed: {kind} {seed} {world} {name}")
+                    rows.append(dict(row, available=True, predicted=preds[name], truth=w["truth"],
+                                     records=len(contents), action=d["action"]["go"], policy=d["policy"],
+                                     answer=d["answer"], result=d["result"],
+                                     success=d["action"]["go"] == w["truth"],
+                                     as_predicted=d["action"]["go"] == preds[name]))
+    lines = Path(probe["store"]).read_text().splitlines()
+    (workdir / "cut.jsonl").write_text("\n".join(lines[:-1]) + "\n")
+    changed = json.loads(lines[0])
+    changed["place"] = changed["place"] + "x"
+    (workdir / "changed.jsonl").write_text("\n".join([json.dumps(changed, sort_keys=True)] + lines[1:]) + "\n")
+    refused = {name: fresh_decision(dict(probe, store=str(workdir / f"{name}.jsonl")), workdir) is None
+               for name in ("cut", "changed")}
+    return {"rows": rows, "pair_hashes": pair_hashes, "refused": refused, "summary": summarise(rows)}
+
+
+def summarise(rows: list) -> dict:
+    out = {}
+    for kind in KINDS:
+        for name in INTERVENTIONS:
+            all_rows = [r for r in rows if r["kind"] == kind and r["intervention"] == name]
+            sub = [r for r in all_rows if r["available"]]
+            if not sub:
+                out[f"{kind}:{name}"] = {"n": 0, "n_planned": len(all_rows)}
+                continue
+            by_pair = {}
+            for r in sub:
+                by_pair.setdefault(r["seed"], []).append(r["success"])
+            informative = [r for r in sub if r["predicted"] != r["truth"]]
+            out[f"{kind}:{name}"] = {
+                "n": len(sub), "n_planned": len(all_rows),
+                "success": sum(r["success"] for r in sub) / len(sub),
+                "pair_success": sum(len(v) == 2 and all(v) for v in by_pair.values()) / len(by_pair),
+                "as_predicted": sum(r["as_predicted"] for r in sub) / len(sub),
+                "n_informative": len(informative),
+                "as_predicted_informative": (sum(r["as_predicted"] for r in informative) / len(informative)
+                                             if informative else None),
+                "memory_policy": sum(r["policy"] == "memory" for r in sub) / len(sub)}
+    return out
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--series", default="env-m3")
+    ap.add_argument("--pairs", type=int, default=40)
+    ap.add_argument("--request", default="config/round33.json")
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+    out = {"schema": SCHEMA, "series": args.series, "pairs_per_kind": args.pairs, "status": "ERROR",
+           "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
+                          "request_sha256": hashlib.sha256(Path(args.request).read_bytes()).hexdigest()}}
+    with tempfile.TemporaryDirectory() as tmp:
+        out.update(run(args.series, args.pairs, Path(tmp)))
+    out["status"] = "OK"
+    Path(args.out).write_text(json.dumps(out, indent=1, sort_keys=True) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/m3/run_round33.py---
+
+---BEGIN FILE bench/m3/collect_round33.py---
+"""Collector of round 3.3. Two separate results:
+
+VERDICT (COMPLETE / INCOMPLETE): the evaluation is complete and reproducible - schema,
+identity and provenance (request hash, code commit) check out, the pair design holds
+(worlds differ only in the critical episode, identical decision inputs), the collector's
+re-run of the whole deterministic job reproduces every row, the decision process refuses
+cut-off and changed stores.
+
+MILESTONE (PASS / FAIL): the pre-registered criteria of docs/ROUND_3_3.md, including the
+required numbers of available and informative cases. The workflow fails unless both are
+COMPLETE and PASS.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round33  # noqa: E402
+from episodic_lab.env import KINDS, generate_pair  # noqa: E402
+
+FULLY_AVAILABLE = ("intact", "none", "random", "relevant_removed")
+MIN_AVAILABLE = 0.9      # swapped_binding, irrelevant_removed: share of planned cases
+MIN_INFORMATIVE = 0.6    # swapped_binding, relevant_removed: informative cases / planned
+
+
+def criteria(s: dict, pairs: int) -> list[tuple[str, bool]]:
+    planned = 2 * pairs
+    out = []
+
+    def every(fn):
+        return all(fn(k) for k in KINDS)
+    out.append(("every case planned for intact, none, random, relevant_removed is available",
+                every(lambda k: all(s[f"{k}:{n}"].get("n") == planned == s[f"{k}:{n}"]["n_planned"]
+                                    for n in FULLY_AVAILABLE))))
+    out.append((f"swapped_binding and irrelevant_removed available in >= {MIN_AVAILABLE:.0%} of planned cases",
+                every(lambda k: all(s[f"{k}:{n}"].get("n", 0) >= MIN_AVAILABLE * planned
+                                    for n in ("swapped_binding", "irrelevant_removed")))))
+    out.append((f"informative cases (prediction != truth) >= {MIN_INFORMATIVE:.0%} of planned for swap and relevant removal",
+                every(lambda k: all(s[f"{k}:{n}"].get("n_informative", 0) >= MIN_INFORMATIVE * planned
+                                    for n in ("swapped_binding", "relevant_removed")))))
+    out.append(("intact: success 1.0 and pair success 1.0",
+                every(lambda k: s[f"{k}:intact"]["success"] == 1.0 and s[f"{k}:intact"]["pair_success"] == 1.0)))
+    out.append(("no memory and random memory: pair success 0 (fixed, deterministic exploration policy)",
+                every(lambda k: s[f"{k}:none"]["pair_success"] == 0.0 and s[f"{k}:random"]["pair_success"] == 0.0)))
+    out.append(("swapped binding: action as predicted in >= 0.95 of informative cases",
+                every(lambda k: (s[f"{k}:swapped_binding"].get("as_predicted_informative") or 0) >= 0.95)))
+    out.append(("relevant episode removed: action as predicted in >= 0.95 of informative cases",
+                every(lambda k: (s[f"{k}:relevant_removed"].get("as_predicted_informative") or 0) >= 0.95)))
+    out.append(("irrelevant episode removed: success 1.0", every(lambda k: s[f"{k}:irrelevant_removed"]["success"] == 1.0)))
+    return out
+
+
+def design_problems(series: str, pairs: int) -> list:
+    p = []
+    for kind in KINDS:
+        for i in range(pairs):
+            pair = generate_pair(f"{series}-{i}", kind)
+            a, b = pair["worlds"]["A"], pair["worlds"]["B"]
+            diff = [j for j, (x, y) in enumerate(zip(a["experiences"], b["experiences"])) if x != y]
+            if diff != [pair["critical"]] or a["decision"] != b["decision"] or a["truth"] == b["truth"]:
+                p.append(f"pair_design:{kind}:{i}")
+    return p
+
+
+def main(request_path: str, result_path: str, dest: str, commit: str | None = None) -> int:
+    req = json.loads(Path(request_path).read_text())
+    data = json.loads(Path(result_path).read_text())
+    problems = []
+    if data.get("schema") != run_round33.SCHEMA:
+        problems.append("schema")
+    if (data.get("series"), data.get("pairs_per_kind"), data.get("status")) != (req["series"], req["pairs_per_kind"], "OK"):
+        problems.append("identity_or_status")
+    prov = data.get("provenance") or {}
+    if prov.get("request_sha256") != hashlib.sha256(Path(request_path).read_bytes()).hexdigest():
+        problems.append("provenance:request")
+    if not isinstance(prov.get("code_commit"), str) or (commit and prov["code_commit"] != commit):
+        problems.append("provenance:commit")
+    problems += design_problems(req["series"], req["pairs_per_kind"])
+    with tempfile.TemporaryDirectory() as tmp:
+        again = run_round33.run(req["series"], req["pairs_per_kind"], Path(tmp))
+    if json.dumps(again["rows"], sort_keys=True) != json.dumps(data.get("rows"), sort_keys=True):
+        problems.append("rerun_rows_differ")
+    if again["summary"] != data.get("summary") or again["pair_hashes"] != data.get("pair_hashes"):
+        problems.append("rerun_summary_or_hashes_differ")
+    if data.get("refused") != {"cut": True, "changed": True}:
+        problems.append("store_integrity")
+    verdict = "COMPLETE" if not problems else "INCOMPLETE"
+    results = criteria(again["summary"], req["pairs_per_kind"])
+    milestone = "PASS" if verdict == "COMPLETE" and all(ok for _, ok in results) else "FAIL"
+    lines = [f"FAILED {x}" for x in problems] or ["OK schema, provenance, design, re-run and store integrity"]
+    lines += ["", f"VERDICT {verdict}", ""] + [f"{'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
+    lines += ["", f"MILESTONE {milestone}"]
+    s = again["summary"]
+    md = ["# Round 3.3 summary (paired action worlds, explicit agent memory)", "",
+          f"{req['pairs_per_kind']} pairs per kind. Every case was decided by its own fresh isolated "
+          "process that received only that case's store, seal and decision text.", "",
+          "| kind | intervention | n / planned | success | pair success | as predicted | informative n | as predicted (informative) | memory used |",
+          "|---|---|---|---|---|---|---|---|---|"]
+    for key, v in s.items():
+        kind, name = key.split(":")
+        if not v.get("n"):
+            md.append(f"| {kind} | {name} | 0 / {v['n_planned']} | - | - | - | - | - | - |")
+            continue
+        inf = "-" if v["as_predicted_informative"] is None else f"{v['as_predicted_informative']:.2f}"
+        md.append(f"| {kind} | {name} | {v['n']} / {v['n_planned']} | {v['success']:.2f} | {v['pair_success']:.2f} | "
+                  f"{v['as_predicted']:.2f} | {v['n_informative']} | {inf} | {v['memory_policy']:.2f} |")
+    md += ["", f"Store integrity in the decision process: cut-off store refused {data.get('refused', {}).get('cut')}, "
+           f"changed store refused {data.get('refused', {}).get('changed')}.", "",
+           f"VERDICT {verdict} - MILESTONE {milestone}", "", "Pre-registered criteria:", ""]
+    md += [f"- {'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
+    d = Path(dest)
+    (d / "CHECK.txt").write_text("\n".join(lines) + "\n")
+    (d / "SUMMARY.md").write_text("\n".join(md) + "\n")
+    (d / "VERDICT").write_text(verdict + "\n")
+    (d / "MILESTONE").write_text(milestone + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(*sys.argv[1:5]))
+---END FILE bench/m3/collect_round33.py---
+
+---BEGIN FILE .github/workflows/round33.yml---
+name: round33
+# Round 3.3 paired action worlds (docs/ROUND_3_3.md), no model inference; runs only if
+# config/round33.json says "enabled": true. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round33.json"
+permissions:
+  contents: write
+concurrency:
+  group: round33
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: plan
+        run: python3 -c "import json;print('enabled=' + ('true' if json.load(open('config/round33.json')).get('enabled') is True else 'false'))" >> "$GITHUB_OUTPUT"
+      - name: Run, check and store
+        if: steps.plan.outputs.enabled == 'true'
+        run: |
+          set -e
+          series=$(python3 -c "import json;print(json.load(open('config/round33.json'))['series'])")
+          pairs=$(python3 -c "import json;print(json.load(open('config/round33.json'))['pairs_per_kind'])")
+          mkdir -p out
+          python3 bench/m3/run_round33.py --series "$series" --pairs "$pairs" --request config/round33.json --out out/round33.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r . "$RUNNER_TEMP/code"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round33/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp "$RUNNER_TEMP/code/out/round33.json" "$dest/"
+          cp "$RUNNER_TEMP/code/config/round33.json" "$dest/request.json"
+          python3 "$RUNNER_TEMP/code/bench/m3/collect_round33.py" "$RUNNER_TEMP/code/config/round33.json" "$dest/round33.json" "$dest" "${GITHUB_SHA}" || { echo INCOMPLETE > "$dest/VERDICT"; echo FAIL > "$dest/MILESTONE"; }
+          verdict=$(cat "$dest/VERDICT")
+          milestone=$(cat "$dest/MILESTONE")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} verdict ${verdict} milestone ${milestone}" > "$dest/RUN.txt"
+          git add round33
+          git commit --quiet -m "Round 3.3 results, run ${GITHUB_RUN_ID}, ${verdict}, milestone ${milestone}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+          [ "$verdict" = COMPLETE ] && [ "$milestone" = PASS ]
+---END FILE .github/workflows/round33.yml---
+
+---BEGIN FILE tests/test_round33.py---
+"""Round 3.3: environment pairs, reference path, memory-side variants, per-case fresh
+decision processes, collector with separate verdict and milestone."""
+from __future__ import annotations
+
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "bench" / "m3"))
+
+import collect_round33  # noqa: E402
+import run_round33  # noqa: E402
+from episodic_lab import env_agent  # noqa: E402
+from episodic_lab.env import KINDS, env_encode, generate_pair, render_content  # noqa: E402
+from episodic_lab.env_agent import decide, derive_variant, write_store  # noqa: E402
+from episodic_lab.env_reference import INTERVENTIONS, apply_to_events, plan, predictions  # noqa: E402
+
+SERIES, N = "env-test", 3
+
+
+class EnvTests(unittest.TestCase):
+    def test_pairs_differ_only_in_the_critical_episode(self):
+        self.assertEqual(collect_round33.design_problems(SERIES, 8), [])
+
+    def test_encoder_and_renderer_agree(self):
+        for kind in KINDS:
+            pair = generate_pair(f"{SERIES}-0", kind)
+            for world in pair["worlds"].values():
+                for exp, truth in zip(world["experiences"], world["truth_content"]):
+                    self.assertEqual(env_encode(exp["text"]), truth)
+                    self.assertEqual(render_content(truth), exp["text"])
+
+    def test_memoryless_policy_cannot_win_both_worlds(self):
+        for kind in KINDS:
+            for i in range(8):
+                pair = generate_pair(f"{SERIES}-{i}", kind)
+                a = decide([], pair["worlds"]["A"]["decision"])["action"]
+                b = decide([], pair["worlds"]["B"]["decision"])["action"]
+                self.assertEqual(a, b)
+                self.assertFalse(a["go"] == pair["worlds"]["A"]["truth"] and b["go"] == pair["worlds"]["B"]["truth"])
+
+    def test_memory_side_and_reference_side_agree_on_a_correct_encoding(self):
+        for kind in KINDS:
+            pair = generate_pair(f"{SERIES}-1", kind)
+            for name in ("A", "B"):
+                w = pair["worlds"][name]
+                store = write_store(None, w["experiences"])
+                for spec in plan(pair, name).values():
+                    if spec is not None:
+                        self.assertEqual(derive_variant(spec, store.records), apply_to_events(spec, w["truth_content"]))
+
+    def test_an_encoding_error_cannot_change_a_prediction(self):
+        pair = generate_pair(f"{SERIES}-2", "hidden")
+        crit_text = pair["worlds"]["A"]["experiences"][pair["critical"]]["text"]
+        before = predictions(pair, "A")
+
+        def faulty(text):
+            c = env_encode(text)
+            return dict(c, place="Wrong Place") if text == crit_text else c
+        with mock.patch.object(env_agent, "env_encode", faulty):
+            store = write_store(None, pair["worlds"]["A"]["experiences"])
+            self.assertEqual(predictions(pair, "A"), before)
+            self.assertEqual(store.records[pair["critical"]]["place"], "Wrong Place")
+            self.assertNotEqual(decide(store.records, pair["worlds"]["A"]["decision"])["action"]["go"],
+                                before["intact"])
+
+
+class ReferenceTests(unittest.TestCase):
+    def test_reference_rules(self):
+        from episodic_lab.env_reference import reference_decision
+        dec = {"goal": "Find the person who gave you the red cup.", "options": ["A Place", "B Place", "C Place"]}
+        gave = lambda who, day, place: {"actor": who, "partner": "You", "action": "gave", "object": "red cup",
+                                        "place": place, "event_day": day}
+        seen = lambda who, day, place: {"actor": who, "partner": None, "action": "was", "object": None,
+                                        "place": place, "event_day": day}
+        self.assertEqual(reference_decision([gave("Ana Bell", 1, "B Place"), seen("Ana Bell", 2, "C Place")], dec), "C Place")
+        self.assertEqual(reference_decision([gave("Ana Bell", 1, "B Place"), gave("Cal Dorr", 2, "C Place")], dec),
+                         "A Place")  # two givers: no unique answer, explore
+        self.assertEqual(reference_decision([], dec), "A Place")
+
+
+class JobTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.calls = 0
+        original = run_round33.fresh_decision
+
+        def counting(item, workdir):
+            cls.calls += 1
+            return original(item, workdir)
+        cls.tmp = tempfile.TemporaryDirectory()
+        with mock.patch.object(run_round33, "fresh_decision", counting):
+            cls.result = run_round33.run(SERIES, N, Path(cls.tmp.name))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_one_fresh_process_per_case(self):
+        cases = sum(r["available"] for r in self.result["rows"])
+        self.assertEqual(self.calls, cases + 2)  # plus the cut-off and changed-store probes
+        self.assertEqual(cases, len({(r["kind"], r["seed"], r["world"], r["intervention"])
+                                     for r in self.result["rows"] if r["available"]}))
+
+    def test_expected_causal_pattern_and_traces(self):
+        s = self.result["summary"]
+        for kind in KINDS:
+            self.assertEqual(s[f"{kind}:intact"]["pair_success"], 1.0)
+            self.assertEqual(s[f"{kind}:none"]["pair_success"], 0.0)
+            self.assertEqual(s[f"{kind}:irrelevant_removed"]["success"], 1.0)
+            for name in ("swapped_binding", "relevant_removed"):
+                self.assertEqual(s[f"{kind}:{name}"]["as_predicted"], 1.0, (kind, name))
+        self.assertEqual(self.result["refused"], {"cut": True, "changed": True})
+        memory_rows = [r for r in self.result["rows"] if r.get("policy") == "memory"]
+        self.assertTrue(memory_rows and all(r["result"]["status"] == "ok" and r["result"]["ids"] for r in memory_rows))
+
+    def test_criteria_check_the_numbers_of_cases(self):
+        s = json.loads(json.dumps(self.result["summary"]))
+        self.assertTrue(all(ok for _, ok in collect_round33.criteria(s, N)))
+        s["hidden:relevant_removed"]["n"] -= 1
+        self.assertFalse(dict(collect_round33.criteria(s, N))[
+            "every case planned for intact, none, random, relevant_removed is available"])
+        s = json.loads(json.dumps(self.result["summary"]))
+        s["giver:swapped_binding"]["n_informative"] = 0
+        self.assertFalse(all(ok for _, ok in collect_round33.criteria(s, N)))
+
+    def test_collector_verdict_and_milestone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            req = d / "req.json"
+            req.write_text(json.dumps({"series": SERIES, "pairs_per_kind": N}))
+            import hashlib
+            data = dict(self.result, schema=run_round33.SCHEMA, series=SERIES, pairs_per_kind=N, status="OK",
+                        provenance={"code_commit": "c1",
+                                    "request_sha256": hashlib.sha256(req.read_bytes()).hexdigest()})
+            (d / "r.json").write_text(json.dumps(data))
+            collect_round33.main(str(req), str(d / "r.json"), str(d), "c1")
+            self.assertEqual(((d / "VERDICT").read_text().strip(), (d / "MILESTONE").read_text().strip()),
+                             ("COMPLETE", "PASS"), (d / "CHECK.txt").read_text())
+            for change, reason in (
+                    (lambda x: next(r for r in x["rows"] if r["available"]).update(success=False), "rerun_rows_differ"),
+                    (lambda x: x["provenance"].update(request_sha256="0"), "provenance:request"),
+                    (lambda x: x.update(schema="other"), "schema")):
+                bad = json.loads(json.dumps(data))
+                change(bad)
+                (d / "r.json").write_text(json.dumps(bad))
+                collect_round33.main(str(req), str(d / "r.json"), str(d), "c1")
+                self.assertIn(reason, (d / "CHECK.txt").read_text())
+                self.assertEqual((d / "MILESTONE").read_text().strip(), "FAIL")
+            (d / "r.json").write_text(json.dumps(data))
+            with mock.patch.object(collect_round33, "criteria", lambda s, n: [("forced failure", False)]):
+                collect_round33.main(str(req), str(d / "r.json"), str(d), "c1")
+            self.assertEqual(((d / "VERDICT").read_text().strip(), (d / "MILESTONE").read_text().strip()),
+                             ("COMPLETE", "FAIL"))
+            collect_round33.main(str(req), str(d / "r.json"), str(d), "c2")
+            self.assertIn("provenance:commit", (d / "CHECK.txt").read_text())
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_round33.py---
+
+=== END OF LAB ROUND 3.3 v2 REVIEW ===

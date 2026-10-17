@@ -1,0 +1,716 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.2 v3, PART 2 OF 2 (job, collector, tests)
+
+Continuation of part 1 (same review request). This file ends with the line "=== END OF LAB ROUND 3.2 v3 PART 2 ===".
+
+---BEGIN FILE bench/m3/run_round32.py---
+"""Round 3.2 cell job: one world (both overlap conditions), every comparison cell.
+
+Cells (docs/ROUND_3_2.md): A0, A1 (pilot baselines, v1 instruction); lex3+reader and
+lex3+ops (same BM25 selection); struct3+reader and struct3+ops (same index selection);
+full+ops (reference, regex encoder, store on disk with a seal); random3+ops (control);
+full+ops/lm-encoder (the LM slot-filling encoder). Plus the misbound-store control, the
+encoder record by record, and the restart test on exactly the store file of full+ops.
+
+Per answer row: the selected record ids, the scope flag, the operator status and trace
+(replayed deterministically after the run from the record set of that test point, never
+while answering) and, as evaluator-only information, whether all gold target episodes
+were selected. A failing cell is recorded with its traceback; the other cells still run.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import time
+import traceback
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from episodic_lab.arms import AllInPrompt, NoMemory  # noqa: E402
+from episodic_lab.cells import (FullOps, Lex3Ops, Lex3Reader, LMEncoder, Random3Ops,  # noqa: E402
+                                Struct3Ops, Struct3Reader, diagnose)
+from episodic_lab.memory import (EpisodeStore, answer_query, misbind, parse_question,  # noqa: E402
+                                 regex_encode)
+from episodic_lab.questions import make_world  # noqa: E402
+from episodic_lab.runner import retention, run_world  # noqa: E402
+from episodic_lab.score import score_world, summarise  # noqa: E402
+
+SCHEMA = "episodic_lab.round32_cell.v2"
+CONTENT = ("actor", "partner", "action", "object", "place", "event_day")
+RESTART = ("import json, sys\nsys.path.insert(0, sys.argv[1])\n"
+           "from episodic_lab.memory import EpisodeStore, answer_query, parse_question\n"
+           "store = EpisodeStore(sys.argv[2], expect=json.loads(open(sys.argv[3]).read()))\n"
+           "qs = json.loads(open(sys.argv[4]).read())\n"
+           "print(json.dumps({q['qid']: answer_query(store.records, *parse_question(q['text'])).answer()"
+           " for q in qs}))\n")
+SLIM = ("qid", "criterion", "qtype", "phase", "raw", "category", "correct", "false_recall")
+
+
+def canonical_sha256(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def slim(rows):
+    return [{k: r[k] for k in SLIM + ("pair",) if k in r} for r in rows]
+
+
+def restart_test(store_path: Path, seal: dict, questions, in_process: dict) -> dict:
+    tmp = store_path.parent
+    (tmp / "seal.json").write_text(json.dumps(seal))
+    (tmp / "q.json").write_text(json.dumps(questions["public"]["final"]))
+    (tmp / "restart.py").write_text(RESTART)
+
+    def fresh(path, seal_path):
+        out = subprocess.run([sys.executable, "-I", str(tmp / "restart.py"), str(ROOT), str(path),
+                              str(seal_path), str(tmp / "q.json")], capture_output=True, text=True)
+        return json.loads(out.stdout) if out.returncode == 0 else None
+    after = fresh(store_path, tmp / "seal.json")
+    (tmp / "empty_seal.json").write_text(json.dumps({"count": 0, "head": "0" * 64}))
+    empty = fresh(tmp / "missing.jsonl", tmp / "empty_seal.json")
+    lines = store_path.read_text().splitlines()
+    (tmp / "truncated.jsonl").write_text("\n".join(lines[:-1]) + "\n")
+    rec = json.loads(lines[0])
+    rec["place"] = rec["place"] + "x"
+    (tmp / "changed.jsonl").write_text("\n".join([json.dumps(rec, sort_keys=True)] + lines[1:]) + "\n")
+    gold = questions["gold"]
+    positives = [q for q in gold if gold[q]["gold"] != ["none"]]
+    return {"same_as_in_process": after == in_process,
+            "accuracy_after_restart": (sum(after[q] in gold[q]["gold"] for q in after) / len(after)) if after else None,
+            "empty_store_positive_accuracy": sum(empty[q] in gold[q]["gold"] for q in positives) / len(positives),
+            "truncated_store_refused": fresh(tmp / "truncated.jsonl", tmp / "seal.json") is None,
+            "changed_store_refused": fresh(tmp / "changed.jsonl", tmp / "seal.json") is None}
+
+
+def run_cell(name, cell, model, world, questions):
+    t0 = time.perf_counter()
+    before = dict(model.stats) if model is not None else {}
+    try:
+        result = run_world(cell, world, questions)
+        rows = slim(result["rows"])
+        if hasattr(cell, "explain"):
+            diagnose(cell, rows, world, questions)
+        entry = {"status": "OK", "phase1": result["phase1"], "final": result["final"],
+                 "retention": retention(result), "rows": rows}
+    except Exception:
+        entry = {"status": "ERROR", "traceback": traceback.format_exc()[-3000:]}
+    entry["seconds"] = round(time.perf_counter() - t0, 1)
+    entry["cost"] = ({k: model.stats[k] - before.get(k, 0) for k in ("calls", "prompt_tokens", "new_tokens")}
+                     if model is not None else {"calls": 0, "prompt_tokens": 0, "new_tokens": 0})
+    return entry
+
+
+def run_condition(model, world, questions, out: dict, workdir: Path) -> None:
+    store_path = workdir / f"{world['overlap']}_full.jsonl"
+    full = FullOps(store=EpisodeStore(store_path))
+    lm_encoder = LMEncoder(model)
+    cells = {"A0": NoMemory(model, "v1"), "A1": AllInPrompt(model, "v1"),
+             "lex3+reader": Lex3Reader(model), "lex3+ops": Lex3Ops(),
+             "struct3+reader": Struct3Reader(model), "struct3+ops": Struct3Ops(),
+             "full+ops": full, "random3+ops": Random3Ops(),
+             "full+ops/lm-encoder": FullOps(encoder=lm_encoder, encoder_name="lm:" + model.slug)}
+    for name, cell in cells.items():
+        uses_model = name in ("A0", "A1", "lex3+reader", "struct3+reader", "full+ops/lm-encoder")
+        out["cells"][name] = run_cell(name, cell, model if uses_model else None, world, questions)
+    lm_cell = cells["full+ops/lm-encoder"]
+    out["encoder"] = {"encoder_name": lm_cell.encoder_name, "records": [
+        {"text": r["text"], "lm": {k: r[k] for k in CONTENT}, "truth": regex_encode(r["text"]),
+         "invalid": bad, "raw": raw}
+        for r, bad, raw in zip(lm_cell.store._records, lm_encoder.invalid, lm_encoder.raw)]}
+    records = full.store.records
+    mis = score_world(questions["gold"], questions["candidates"],
+                      {q["qid"]: answer_query(misbind(records, world["seed"]), *parse_question(q["text"])).answer()
+                       for q in questions["public"]["final"]}, "final")
+    out["misbound"] = {"summary": summarise(mis), "rows": slim(mis)}
+    in_process = {q["qid"]: answer_query(records, *parse_question(q["text"])).answer()
+                  for q in questions["public"]["final"]}
+    out["restart"] = restart_test(store_path, full.store.seal(), questions, in_process)
+    out["store_seal"] = full.store.seal()
+
+
+def check_weights(model, start: str) -> None:
+    """The reader's weights must be unchanged after the whole job (recomputed from tensors)."""
+    if model.weights_digest(recompute=True) != start:
+        raise RuntimeError("weights changed")
+
+
+def file_sha256(path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model", required=True)
+    ap.add_argument("--series", required=True)
+    ap.add_argument("--index", type=int, required=True)
+    ap.add_argument("--pins", default="config/model_pins.json")
+    ap.add_argument("--request", default="config/round32.json")
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+    out = {"schema": SCHEMA, "model": args.model, "series": args.series, "index": args.index,
+           "status": "ERROR", "conditions": {},
+           "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
+                          "request_sha256": file_sha256(args.request),
+                          "pins_sha256": file_sha256(args.pins)}}
+    t0 = time.perf_counter()
+    try:
+        from episodic_lab.models import PinnedModel
+        model = PinnedModel(args.model, args.pins)
+        start = model.weights_digest()
+        out.update({"revision": model.revision, "weights_digest": start})
+        attempt, pair = make_world(args.series, args.index, order_both=True)
+        out["attempt"] = attempt
+        with tempfile.TemporaryDirectory() as tmp:
+            for overlap, (world, questions) in pair.items():
+                cond = out["conditions"][overlap] = {
+                    "seed": world["seed"], "world_sha256": canonical_sha256(world),
+                    "questions_sha256": canonical_sha256(questions), "cells": {}}
+                run_condition(model, world, questions, cond, Path(tmp))
+        check_weights(model, start)
+        out["status"] = "OK"
+    except Exception:
+        out["traceback"] = traceback.format_exc()[-4000:]
+    out["seconds"] = round(time.perf_counter() - t0, 1)
+    Path(args.out).write_text(json.dumps(out, indent=1, sort_keys=True) + "\n")
+    return 0 if out["status"] == "OK" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/m3/run_round32.py---
+
+---BEGIN FILE bench/m3/collect_round32.py---
+"""Collector of round 3.2. Nothing published is taken on trust:
+
+- the world and question set of every cell are regenerated from series and index and must
+  match the recorded hashes; every expected (phase, qid) must be answered exactly once;
+- every answer row is re-scored from its raw answer with the regenerated gold
+  (category, correctness, false recall, pair ids) and every summary and retention is
+  recomputed from the re-scored rows;
+- the deterministic cells (lex3+ops, struct3+ops, full+ops, random3+ops) are re-run
+  completely by the collector and must give the same raw answers; the selections of the
+  reader cells are replayed; the LM-encoder cell is replayed from its recorded records;
+- encoder slot accuracies, the misbound control and the restart flags are recomputed or
+  type-checked; provenance (request and pins hashes, one code commit) must agree.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from episodic_lab.cells import CELLS, SLOT_QUESTIONS, diagnose, postprocess, slot_accuracy  # noqa: E402
+from episodic_lab.memory import STATUSES, answer_query, misbind, parse_question, regex_encode  # noqa: E402
+from episodic_lab.questions import make_world  # noqa: E402
+from episodic_lab.runner import retention, run_world  # noqa: E402
+from episodic_lab.score import score_world, summarise  # noqa: E402
+
+SCHEMA = "episodic_lab.round32_cell.v2"
+CELL_NAMES = ("A0", "A1", "lex3+reader", "lex3+ops", "struct3+reader", "struct3+ops", "full+ops",
+              "random3+ops", "full+ops/lm-encoder")
+DETERMINISTIC = ("lex3+ops", "struct3+ops", "full+ops", "random3+ops")
+SELECTING = ("lex3+reader", "lex3+ops", "struct3+reader", "struct3+ops", "full+ops", "random3+ops",
+             "full+ops/lm-encoder")
+CONTENT = ("actor", "partner", "action", "object", "place", "event_day")
+SLIM = ("qid", "criterion", "qtype", "phase", "raw", "category", "correct", "false_recall")
+CRIT = ("E2", "E3a", "E3b", "E4", "E5", "E7")
+
+
+def canonical_sha256(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def same(a, b) -> bool:
+    return json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+
+
+def slim(rows):
+    return [{k: r[k] for k in SLIM + ("pair",) if k in r} for r in rows]
+
+
+def rescore(rows, questions):
+    """Re-score from raw answers; returns slim rows in the scorer's order, or None."""
+    if not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows):
+        return None
+    out = []
+    for phase in ("phase1", "final"):
+        expected = [q["qid"] for q in questions["public"][phase]]
+        got = {r.get("qid"): r.get("raw") for r in rows if r.get("phase") == phase}
+        if sorted(got) != sorted(expected) or len([r for r in rows if r.get("phase") == phase]) != len(expected):
+            return None
+        if not all(isinstance(v, str) for v in got.values()):
+            return None
+        out += slim(score_world(questions["gold"], questions["candidates"], got, phase))
+    return out
+
+
+def check_cell(name, cell, world, questions, problems, where):
+    if not isinstance(cell, dict) or cell.get("status") != "OK":
+        problems.append(f"cell_status:{where}")
+        return
+    rows = cell.get("rows")
+    fresh = rescore(rows, questions)
+    if fresh is None:
+        problems.append(f"items:{where}")
+        return
+    stored = sorted((json.dumps({k: r[k] for k in r if k != "diag"}, sort_keys=True) for r in rows))
+    if stored != sorted(json.dumps(r, sort_keys=True) for r in fresh):
+        problems.append(f"rows_vs_rescore:{where}")
+    for phase in ("phase1", "final"):
+        if not same(cell.get(phase), summarise([r for r in fresh if r["phase"] == phase])):
+            problems.append(f"summary:{where}:{phase}")
+    if not same(cell.get("retention"), retention({"rows": fresh})):
+        problems.append(f"retention:{where}")
+    cost = cell.get("cost")
+    if not (isinstance(cost, dict) and all(isinstance(cost.get(k), int) and cost[k] >= 0
+                                           for k in ("calls", "prompt_tokens", "new_tokens"))):
+        problems.append(f"cost:{where}")
+
+
+class _NoModel:
+    """Stands in for the reader model when only the selection is replayed."""
+    def weights_digest(self, recompute=False):
+        return ""
+
+
+def presented(world):
+    """Episode texts in the runner's encoding order (early block, then follow-ups)."""
+    return [e["text"] for blk in ("early", "followup") for e in world["episodes"] if e["block"] == blk]
+
+
+def replay(name, world, questions, encoder=None):
+    """Re-create a cell's store exactly; deterministic cells are re-run completely."""
+    if name == "full+ops/lm-encoder":
+        recs = iter(encoder["records"])
+
+        def enc(text):
+            r = next(recs)
+            if r["text"] != text:
+                raise ValueError("encoder records out of order")
+            return {k: r["lm"][k] for k in CONTENT}
+        cell = CELLS["full+ops"](encoder=enc, encoder_name=encoder["encoder_name"])
+    elif name in DETERMINISTIC:
+        cell = CELLS[name]()
+    else:
+        cell = CELLS[name](_NoModel())
+        for text in presented(world):
+            cell.encode(text)
+        return None, cell
+    result = run_world(cell, world, questions)
+    return {(r["phase"], r["qid"]): r["raw"] for r in result["rows"]}, cell
+
+
+def check_encoder(enc, world) -> bool:
+    if not (isinstance(enc, dict) and isinstance(enc.get("encoder_name"), str)
+            and isinstance(enc.get("records"), list)):
+        return False
+    if [r.get("text") for r in enc["records"]] != presented(world):
+        return False
+    for r in enc["records"]:
+        if r.get("truth") != regex_encode(r["text"]):
+            return False
+        if not isinstance(r.get("raw"), dict) or set(r["raw"]) != set(SLOT_QUESTIONS):
+            return False
+        content, bad = postprocess(r["raw"])
+        if content != r.get("lm") or bad != r.get("invalid"):
+            return False
+    return True
+
+
+def validate(data, expected, request_sha, pins_sha):
+    if not isinstance(data, dict):
+        return ["not_an_object"]
+    p = []
+    if data.get("schema") != SCHEMA:
+        p.append("schema")
+    for key in ("model", "series", "index"):
+        if data.get(key) != expected[key]:
+            p.append(f"identity:{key}")
+    if data.get("status") != "OK":
+        return p + ["status"]
+    prov = data.get("provenance") or {}
+    if prov.get("request_sha256") != request_sha or prov.get("pins_sha256") != pins_sha:
+        p.append("provenance")
+    attempt, pair = make_world(expected["series"], expected["index"], order_both=True)
+    if data.get("attempt") != attempt or set(data.get("conditions", {})) != {"high", "low"}:
+        return p + ["conditions"]
+    for overlap, (world, questions) in pair.items():
+        c = data["conditions"][overlap]
+        if (c.get("world_sha256"), c.get("questions_sha256")) != (canonical_sha256(world), canonical_sha256(questions)):
+            p.append(f"world_hash:{overlap}")
+            continue
+        cells = c.get("cells", {})
+        if set(cells) != set(CELL_NAMES):
+            p.append(f"cells:{overlap}")
+            continue
+        for name in CELL_NAMES:
+            check_cell(name, cells[name], world, questions, p, f"{overlap}:{name}")
+        enc = c.get("encoder")
+        if not check_encoder(enc, world):
+            p.append(f"encoder:{overlap}")
+            enc = None
+        for name in SELECTING:
+            if cells[name].get("status") != "OK" or (name == "full+ops/lm-encoder" and enc is None):
+                continue
+            try:
+                raws, cell = replay(name, world, questions, enc)
+            except Exception as exc:
+                p.append(f"replay_error:{overlap}:{name}:{type(exc).__name__}")
+                continue
+            rows = cells[name]["rows"]
+            if raws is not None and raws != {(r["phase"], r["qid"]): r["raw"] for r in rows}:
+                p.append(f"replay:{overlap}:{name}")
+            if name == "full+ops" and c.get("store_seal") != cell.store.seal():
+                p.append(f"seal:{overlap}")
+            fresh = [{k: v for k, v in r.items() if k != "diag"} for r in rows]
+            diagnose(cell, fresh, world, questions)
+            if [f["diag"] for f in fresh] != [r.get("diag") for r in rows]:
+                p.append(f"diag_replay:{overlap}:{name}")
+        ref = CELLS["full+ops"]()
+        for text in presented(world):
+            ref.encode(text)
+        mis_rows = slim(score_world(questions["gold"], questions["candidates"], {
+            q["qid"]: answer_query(misbind(ref.store.records, world["seed"]), *parse_question(q["text"])).answer()
+            for q in questions["public"]["final"]}, "final"))
+        mis = c.get("misbound") or {}
+        if not (same(mis.get("rows"), mis_rows) and same(mis.get("summary"), summarise(mis_rows))):
+            p.append(f"misbound:{overlap}")
+        r = c.get("restart") or {}
+        if not (all(isinstance(r.get(k), bool) for k in ("same_as_in_process", "truncated_store_refused",
+                                                          "changed_store_refused"))
+                and isinstance(r.get("empty_store_positive_accuracy"), float)):
+            p.append(f"restart:{overlap}")
+    return p
+
+
+def mean(v):
+    v = [x for x in v if x is not None]
+    return sum(v) / len(v) if v else float("nan")
+
+
+def positive_score(rows) -> float:
+    """Positive final items (E2, E3a, E3b, E4, E7), the two A/B orientations of an E3a pair
+    weighing 1/2 each (as in the pilot's model selection)."""
+    pos = [r for r in rows if r["phase"] == "final" and r["criterion"] in ("E2", "E3a", "E3b", "E4", "E7")]
+    w = [0.5 if "pair" in r else 1.0 for r in pos]
+    return sum(x for x, r in zip(w, pos) if r["correct"]) / sum(w)
+
+
+def per_world(cells, name, fn):
+    """fn over the rows of both conditions of a world, then the mean over worlds."""
+    return mean(fn([r for c in d["conditions"].values() for r in c["cells"][name]["rows"]])
+                for d in cells.values())
+
+
+def lure_shares(rows):
+    lures = [r for r in rows if r["phase"] == "final" and r["criterion"] == "E5"]
+    n = len(lures)
+    return {"rejected": sum(r["category"] == "none_answer" or r["correct"] for r in lures) / n,
+            "false_recall": sum(r["false_recall"] for r in lures) / n,
+            "unknown": sum(r["category"] == "uncertain" for r in lures) / n}
+
+
+def table(cells) -> str:
+    L = ["# Round 3.2 summary (exploratory, template benchmark)", "",
+         "Means over worlds (both overlap conditions pooled within a world). Development worlds "
+         "(dev-m3) and the pilot worlds already used (pilot-m2) are shown separately. "
+         "E5 = correct rejection of binding lures; FR = in-world false recall; unknown = "
+         "abstention. Coverage = share of final items whose selection was certified "
+         "sufficient for the question; acc|cov = accuracy on those items; gold support = "
+         "share of positive items whose gold target episodes were all selected (evaluator "
+         "information, not an upper bound of accuracy).", ""]
+    for series in sorted({s for s, _ in cells}):
+        part = {k: v for k, v in cells.items() if k[0] == series}
+        conds = [c for d in part.values() for c in d["conditions"].values()]
+        L += [f"## {series} ({len(part)} worlds)", "",
+              "| cell | positives | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | E5 unknown | coverage | acc|cov | gold support | calls | prompt tokens | seconds |",
+              "|" + "---|" * (len(CRIT) + 11)]
+        for name in CELL_NAMES:
+            cs = [c["cells"][name] for c in conds]
+            row = [name, f"{per_world(part, name, positive_score):.2f}"]
+            row += [f"{mean(x['final'][k]['accuracy'] for x in cs):.2f}" for k in CRIT]
+            pairs = [x["final"]["E3a"].get("pairs") for x in cs]
+            row.append(f"{mean(q['both_correct'] for q in pairs):.2f}" if all(pairs) else "-")
+            row.append(f"{mean(x['final']['E5']['false_recall'] for x in cs):.2f}")
+            row.append(f"{per_world(part, name, lambda rows: lure_shares(rows)['unknown']):.2f}")
+            final = [r for x in cs for r in x["rows"] if r["phase"] == "final"]
+            if final and "diag" in final[0]:
+                cov = [r for r in final if r["diag"]["covered"]]
+                row.append(f"{len(cov) / len(final):.2f}")
+                row.append(f"{mean(r['correct'] for r in cov):.2f}" if cov else "-")
+                sup = [r["diag"]["gold_support_selected"] for r in final if r["diag"]["gold_support_selected"] is not None]
+                row.append(f"{mean(sup):.2f}" if sup else "-")
+            else:
+                row += ["-", "-", "-"]
+            row += [str(sum(x["cost"]["calls"] for x in cs)), str(sum(x["cost"]["prompt_tokens"] for x in cs)),
+                    f"{sum(x['seconds'] for x in cs):.0f}"]
+            L.append("| " + " | ".join(row) + " |")
+        L += ["", "Operator statuses (final test):", "", "| cell | " + " | ".join(STATUSES) + " |",
+              "|" + "---|" * (len(STATUSES) + 1)]
+        for name in ("lex3+ops", "struct3+ops", "full+ops", "random3+ops", "full+ops/lm-encoder"):
+            st = [r["diag"]["result"]["status"] for c in conds for r in c["cells"][name]["rows"] if r["phase"] == "final"]
+            L.append(f"| {name} | " + " | ".join(f"{st.count(s) / len(st):.2f}" for s in STATUSES) + " |")
+        L.append("")
+    every = [c for d in cells.values() for c in d["conditions"].values()]
+    pairs = [(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]]
+    acc = slot_accuracy(pairs)
+    invalid = sum(bool(r["invalid"]) for c in every for r in c["encoder"]["records"])
+    ref_pos = per_world(cells, "full+ops", positive_score)
+    lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
+    fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
+              for d in cells.values())
+    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
+    L += ["## LM encoder (slot filling) vs template truth (all worlds)", "",
+          "| " + " | ".join(acc) + " | records with invalid slots |", "|" + "---|" * (len(acc) + 1),
+          "| " + " | ".join(f"{v:.3f}" for v in acc.values()) + f" | {invalid}/{len(pairs)} |", "",
+          f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
+          f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
+          f"recall {fr:.3f} <= 0.05 -> {'ADOPT the LM encoder for round 3.3+' if adopt else 'keep the template encoder; limit stated'}.",
+          "", "## Controls (all worlds)", "",
+          f"- misbound store + operators: E2 {mean(c['misbound']['summary']['E2']['accuracy'] for c in every):.2f}, "
+          f"E5 FR {mean(c['misbound']['summary']['E5']['false_recall'] for c in every):.2f}",
+          f"- restart (store file of full+ops): same answers {sum(c['restart']['same_as_in_process'] for c in every)}/{len(every)}, "
+          f"accuracy after restart {mean(c['restart']['accuracy_after_restart'] for c in every):.3f}, "
+          f"empty store on positive items {mean(c['restart']['empty_store_positive_accuracy'] for c in every):.3f}, "
+          f"truncated refused {sum(c['restart']['truncated_store_refused'] for c in every)}/{len(every)}, "
+          f"changed refused {sum(c['restart']['changed_store_refused'] for c in every)}/{len(every)}"]
+    return "\n".join(L) + "\n"
+
+
+def sha256_file(path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def main(request_path, dest, pins_path):
+    req = json.loads(Path(request_path).read_text())
+    request_sha, pins_sha = sha256_file(request_path), sha256_file(pins_path)
+    dest, cells, lines = Path(dest), {}, []
+    for series, indices in req["worlds"].items():
+        for i in indices:
+            name = f"r32_{series}_{i}.json"
+            try:
+                data = json.loads((dest / name).read_text())
+                problems = validate(data, {"model": req["model"], "series": series, "index": i},
+                                    request_sha, pins_sha)
+            except Exception as exc:
+                data, problems = None, [f"unreadable:{type(exc).__name__}"]
+            lines.append(f"{'OK' if not problems else 'FAILED'} {name} {' '.join(problems)}".rstrip())
+            if not problems:
+                cells[(series, i)] = data
+    commits = {d["provenance"]["code_commit"] for d in cells.values()}
+    ok = len(cells) == sum(len(v) for v in req["worlds"].values()) and len(commits) <= 1
+    if len(commits) > 1:
+        lines.append("FAILED provenance:mixed_commits")
+    try:
+        (dest / "SUMMARY.md").write_text(table(cells))
+    except Exception as exc:
+        ok = False
+        lines.append(f"FAILED SUMMARY.md {type(exc).__name__}")
+        (dest / "SUMMARY.md").write_text(f"summary failed: {type(exc).__name__}: {exc}\n")
+    (dest / "CHECK.txt").write_text("\n".join(lines) + "\n")
+    (dest / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1], sys.argv[2], sys.argv[3]))
+---END FILE bench/m3/collect_round32.py---
+
+---BEGIN DIFF dbf9caf..83b4a9d tests/test_round32.py---
+diff --git a/tests/test_round32.py b/tests/test_round32.py
+index 0a927db..0b22500 100644
+--- a/tests/test_round32.py
++++ b/tests/test_round32.py
+@@ -30,6 +30,8 @@ class SlotModel(FakeModel):
+ 
+     def generate(self, messages):
+         user = messages[1]["content"]
++        if user.startswith("Coverage:"):
++            return self.contract_reader(user)
+         if not user.startswith("Note:\n"):
+             return super().generate(messages)
+         self.stats["calls"] += 1
+@@ -43,6 +45,29 @@ class SlotModel(FakeModel):
+         return "unknown"
+ 
+ 
++def _contract_reader(self, user):
++    """An ideal reader that follows the round 3.2 contract: reads only its notes, says
++    "none" only for complete coverage with all names known, "unknown" otherwise."""
++    from episodic_lab.symbolic import SymbolicMemory
++    self.stats["calls"] += 1
++    head, rest = user.split("\n\nMemory notes:\n")
++    notes, question = rest.split("\n\nQuestion: ")
++    covered = "Coverage: complete" in head
++    all_known = "Every person, place and object" in head
++    memory = SymbolicMemory()
++    if notes != "(no notes)":
++        for line in notes.split("\n"):
++            memory.encode(line)
++    reply = memory.answer(question, None)
++    qtype = parse_question(question)[0]
++    if reply in ("none", "unknown") or (not covered and qtype in ("latest", "act", "find")):
++        return "none" if (reply == "none" and covered and all_known) else "unknown"
++    return reply
++
++
++SlotModel.contract_reader = _contract_reader
++
++
+ def job(model=None):
+     data = {"schema": run_round32.SCHEMA, "model": "m", "series": SERIES, "index": 0, "status": "OK",
+             "attempt": ATTEMPT, "conditions": {},
+@@ -69,7 +94,15 @@ class CellTests(unittest.TestCase):
+                 b.encode(e["text"])
+             for q in questions["public"]["final"]:
+                 ea, eb = a.explain(q["text"], a.store._records), b.explain(q["text"], b.store._records)
+-                self.assertEqual((ea["selected"], ea["complete"]), (eb["selected"], eb["complete"]))
++                self.assertEqual((ea["selected"], ea["covered"], ea["entity_note"]),
++                                 (eb["selected"], eb["covered"], eb["entity_note"]))
++                # what the reader is told equals what the operators use
++                prompt = a.reader_prompt(q["text"], q["answer_type"], a.store._records)[1]["content"]
++                self.assertEqual("Coverage: complete" in prompt, eb["covered"])
++                self.assertEqual(eb["entity_note"] is not None and eb["entity_note"] in prompt, eb["covered"])
++                notes = prompt.split("Memory notes:\n")[1].split("\n\nQuestion: ")[0].split("\n")
++                texts = {r["id"]: r["text"] for r in b.store._records}
++                self.assertEqual(notes, [texts[i] for i in eb["selected"]] or ["(no notes)"])
+ 
+     def test_incomplete_scope_never_gives_a_negative_or_latest(self):
+         world, questions = PAIR["high"]
+@@ -122,6 +155,68 @@ class CellTests(unittest.TestCase):
+         if amb.status == "ambiguous":
+             self.assertIsNone(amb.value)
+ 
++    def test_unknown_values_give_uncertainty_not_answers(self):
++        from episodic_lab.memory import last_handler_latest, latest, state_at
++        def rec(store, actor, day, place, obj="red cup", action="hid"):
++            store.append(f"{actor}{day}{place}", {"actor": actor, "partner": None, "action": action,
++                                                   "object": obj, "place": place, "event_day": day})
++        s = EpisodeStore()
++        rec(s, "Ana Bell", 7, "Oak Mill")
++        rec(s, "Ana Bell", None, "Ash Mill")
++        self.assertEqual(latest(s.records, "Ana Bell").status, "ambiguous")
++        self.assertEqual(state_at(s.records, "Ana Bell", 9).status, "insufficient_evidence")
++        self.assertEqual(last_handler_latest(s.records, "red cup").status, "ambiguous")
++        # an undated record with the SAME place, or of another person, does not block the answer
++        s2 = EpisodeStore()
++        rec(s2, "Ana Bell", 7, "Oak Mill")
++        rec(s2, "Ana Bell", None, "Oak Mill")
++        rec(s2, "Cal Dorr", None, "Ash Mill", obj="blue map")
++        self.assertEqual((latest(s2.records, "Ana Bell").status, latest(s2.records, "Ana Bell").value), ("ok", "Oak Mill"))
++        self.assertEqual(state_at(s2.records, "Ana Bell", 7).value, "Oak Mill")
++        # a missing place is never an ok answer
++        s3 = EpisodeStore()
++        rec(s3, "Ana Bell", 7, None)
++        r = latest(s3.records, "Ana Bell")
++        self.assertEqual((r.status, r.answer()), ("ambiguous", "unknown"))
++        # an unknown field can make a lure undecidable, never a confident "none"
++        s4 = EpisodeStore()
++        rec(s4, "Ana Bell", 3, None)
++        from episodic_lab.memory import find
++        res = find(s4.records, {"person": "Ana Bell", "action": "hid", "place": "Oak Mill"}, "object")
++        self.assertEqual(res.status, "insufficient_evidence")
++        # and the index does not certify a selection while undated or unknown records could match
++        got, ok = struct_select(s.records, "latest", {"person": "Ana Bell"})
++        self.assertFalse(ok)
++
++    def test_unknown_values_in_handlers_index_and_encoder(self):
++        from episodic_lab.cells import postprocess
++        from episodic_lab.memory import last_handler_latest
++        s = EpisodeStore()
++        for actor, day, place in (("Ana Bell", 5, "Oak Mill"), ("Cal Dorr", None, "Ash Mill")):
++            s.append(actor + str(day), {"actor": actor, "partner": None, "action": "hid",
++                                        "object": "red cup", "place": place, "event_day": day})
++        self.assertEqual(last_handler_latest(s.records, "red cup").status, "ambiguous")
++        # possible matches (unknown place) count against the budget of the index
++        s2 = EpisodeStore()
++        for i in range(4):
++            s2.append(f"p{i}", {"actor": "Ana Bell", "partner": None, "action": "hid",
++                                "object": "red cup", "place": None, "event_day": i + 1})
++        got, ok = struct_select(s2.records, "object", {"cue": {"person": "Ana Bell", "action": "hid", "place": "Oak Mill"}})
++        self.assertFalse(ok)
++        # a required slot answered with "none" is an invalid slot
++        raw = {"event_day": "Day 3", "actor": "Ana Bell", "partner": "none", "action": "hid",
++               "object": "red cup", "place": "none"}
++        content, bad = postprocess(raw)
++        self.assertEqual((content["place"], bad), (None, ["place"]))
++
++    def test_env_object_location_with_an_undated_placing(self):
++        from episodic_lab.env_agent import object_location
++        s = EpisodeStore()
++        for day, place in ((4, "Oak Mill"), (None, "Ash Mill")):
++            s.append(f"x{day}", {"actor": "Ana Bell", "partner": None, "action": "hid",
++                                  "object": "red cup", "place": place, "event_day": day})
++        self.assertEqual(object_location(s.records, "red cup").status, "ambiguous")
++
+     def test_in_memory_change_during_answer_is_detected(self):
+         class Sneaky(CELLS["full+ops"]):
+             def answer(self, text, answer_type):
+@@ -161,6 +256,15 @@ class CellTests(unittest.TestCase):
+ 
+ 
+ class JobTests(unittest.TestCase):
++    def test_ideal_contract_reader_equals_the_operators(self):
++        # same selection, same coverage and entity information, same abstention contract:
++        # a reader that follows the contract perfectly answers exactly like the operators
++        for c in DATA["conditions"].values():
++            for reader, ops in (("lex3+reader", "lex3+ops"), ("struct3+reader", "struct3+ops")):
++                a = {(r["phase"], r["qid"]): r["raw"] for r in c["cells"][reader]["rows"]}
++                b = {(r["phase"], r["qid"]): r["raw"] for r in c["cells"][ops]["rows"]}
++                self.assertEqual(a, b, reader)
++
+     def test_condition_results(self):
+         c = DATA["conditions"]["high"]
+         cells = c["cells"]
+@@ -199,7 +303,8 @@ class CollectorTests(unittest.TestCase):
+     def test_complete(self):
+         verdict, check, summary = self.run_collect(DATA)
+         self.assertEqual(verdict, "COMPLETE", check)
+-        self.assertIn("| full+ops | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0.00 |", summary)
++        self.assertIn("| full+ops | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0.00 | 0.00 | 1.00 | 1.00 | 1.00 |", summary)
++        self.assertIn("ADOPT the LM encoder", summary)
+         self.assertIn("truncated refused 2/2", summary)
+ 
+     def test_damage_is_detected(self):
+@@ -214,8 +319,8 @@ class CollectorTests(unittest.TestCase):
+             (lambda d: first(low(d)["A0"]["rows"], "E2").update(correct=True, category="correct"), "rows_vs_rescore:low:A0"),
+             (lambda d: low(d)["A1"]["rows"].pop(), "items:low:A1"),
+             (lambda d: first(low(d)["full+ops"]["rows"], "E2").update(raw="nothing"), "replay:low:full+ops"),
+-            (lambda d: first(low(d)["struct3+reader"]["rows"], "E2")["diag"].update(selected=[]), "selection_replay:low:struct3+reader"),
+-            (lambda d: d["conditions"]["low"]["encoder"]["records"][0]["lm"].update(place="Elsewhere Place"), "replay:low:full+ops/lm-encoder"),
++            (lambda d: first(low(d)["struct3+reader"]["rows"], "E2")["diag"].update(selected=[]), "diag_replay:low:struct3+reader"),
++            (lambda d: d["conditions"]["low"]["encoder"]["records"][0]["lm"].update(place="Elsewhere Place"), "encoder:low"),
+             (lambda d: d["conditions"]["low"].update(world_sha256="0" * 64), "world_hash:low"),
+             (lambda d: d["conditions"]["low"]["misbound"]["summary"]["E2"].update(accuracy=0.9), "misbound:low"),
+             (lambda d: d["conditions"]["low"]["restart"].update(changed_store_refused="yes"), "restart:low"),
+@@ -224,6 +329,19 @@ class CollectorTests(unittest.TestCase):
+             (lambda d: d["provenance"].update(code_commit="d"), None),
+             (lambda d: low(d).pop("random3+ops"), "cells:low"),
+             (lambda d: low(d)["lex3+reader"].update(status="ERROR"), "cell_status:low:lex3+reader"),
++            (lambda d: first(low(d)["struct3+ops"]["rows"], "E2")["diag"].update(gold_support_selected=False),
++             "diag_replay:low:struct3+ops"),
++            (lambda d: first(low(d)["full+ops"]["rows"], "E5")["diag"]["result"].update(status="ambiguous"),
++             "diag_replay:low:full+ops"),
++            (lambda d: first(low(d)["lex3+ops"]["rows"], "E2")["diag"]["result"].update(trace=[]),
++             "diag_replay:low:lex3+ops"),
++            (lambda d: first(low(d)["lex3+reader"]["rows"], "E2")["diag"].update(covered=True),
++             "diag_replay:low:lex3+reader"),
++            (lambda d: d["conditions"]["low"]["encoder"]["records"][0]["truth"].update(place="Elsewhere Place"),
++             "encoder:low"),
++            (lambda d: d["conditions"]["low"]["encoder"]["records"][0]["raw"].update(place="Elsewhere Place"),
++             "encoder:low"),
++            (lambda d: d["conditions"]["low"]["encoder"]["records"][0].update(invalid=["day"]), "encoder:low"),
+         ]
+         for change, reason in cases:
+             verdict, check, _ = self.run_collect(edit(change))
+---END DIFF---
+
+=== END OF LAB ROUND 3.2 v3 PART 2 ===

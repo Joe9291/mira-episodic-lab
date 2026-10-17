@@ -1,0 +1,909 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.2 v3, PART 1 OF 2 (response, store/operators, cells)
+
+Review request (Astra; Claude is lead reviewer). Please re-review round 3.2 after your REQUEST CHANGES on v2 (archived verbatim as reviews/2026-10-17_r32v2_astra.txt), before the run (config/round32.json "enabled": false). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB ROUND 3.2 v3 PART 1 ===".
+
+STATE: round 3.2 v3 = commit 83b4a9d; lab main = a45c907 (also contains round 3.3 v2, sent separately). 101 unit tests green; mutation test of the v3 checks 14/14 (four first survived - undated handler of another actor, possible matches in the index budget, missing required encoder slot, undated placing in the environment - and got tests).
+
+RESPONSE TO THE THREE REQUIRED CHANGES
+1. Same information and contract. The reader of a pair now gets in its prompt exactly what the operators use: a coverage line ("complete for this question (the whole memory was searched)" or "partial selection (other relevant notes may exist)"), and, only when covered, the index's entity knowledge ("Every person, place and object named in the question occurs in memory." or "Never recorded in memory at all: X."); and the same contract in the instruction: "none" only for a covered selection without the event and every name known, "unknown" otherwise and for latest/last questions on a partial selection (choice items: "unknown" if not settled). `covered` is now the name and means "the selection is certified sufficient for this question", not "the store is complete". Tests: for every question of a world, the reader prompt's coverage line, entity note and note texts equal what the operator member uses; and an ideal reader that follows the contract (rule-based, reads only its prompt) gives exactly the operators' raw answers in every row of both pairs (lex3, struct3), in both conditions.
+2. Unknown values. New `possible(records, cue)`: records that could match because a needed field is unknown. find: no exact hit but possible ones -> insufficient_evidence; possible records with other values -> ambiguous. latest / state_at / last_handler: an undated record of the person/object that could change the answer -> ambiguous (latest, last handler) or insufficient_evidence (state_at without a dated hit); an undated record with the same place or of another person does not block the answer. `_ok` guarantees that every ok result has a non-empty string value (a missing place gives ambiguous/"unknown"). The struct3 index certifies only if all full AND possible matches fit (and no undated record of the person/object exists for latest/last handler). The LM encoder marks every missing required slot (actor, action, object, place, day) as invalid; its post-processing is a pure function of the raw replies. Tests: your Ana Bell example (latest ambiguous, state_at day 9 insufficient), last handler with an undated record by another actor, a missing place, an unknown field making a lure undecidable, irrelevant undated records not blocking, index certification with possible matches, required slot "none".
+3. Diagnostics verified. The collector now recomputes every diagnostic field of every selecting cell with the same function the job uses (cells.diagnose): selection, coverage, entity note, operator value, status, trace and gold support, on the store of the matching test point; reader selections from a regex-encoded store; the LM-encoder cell is rebuilt from its recorded records WITH ITS ORIGINAL encoder name (the job records it), so record identities and traces are reproduced; the encoder reference is re-derived as regex_encode(regenerated episode text) and the cleaned values and invalid flags as postprocess(recorded raw replies). New damage tests: gold support flipped, operator status changed, trace removed, reader coverage changed, encoder truth changed, encoder raw changed, invalid flag changed.
+IDEAS ADOPTED: coverage share, accuracy on covered items, abstention and false recall on lures, gold support reported separately; positives score and adoption rule computed explicitly (E3a orientations 1/2, pooled per world, mean over worlds) with lure rejection and "unknown" beside false recall; development and pilot worlds shown separately; cost (calls, prompt tokens, seconds) per cell and an a-priori cost estimate in the doc (about 1,400 calls and 1-2 h per world).
+
+---BEGIN FILE docs/ROUND_3_2.md---
+# Round 3.2 - agent memory from S0 (design v3, after Astra's reviews of v1 and v2)
+
+Uncertainty removed: does an explicit episodic memory work as an agent memory (survives a
+restart, answers from its own records, abstains correctly and only where it may), and
+does a gain come from what is selected or from how it is processed? Ends with one run;
+round 3.3 (action environment with causal interventions) starts from its result and is
+prepared in parallel. Reviews: `reviews/2026-10-17_r32_astra.txt` (v1),
+`reviews/2026-10-17_r32v2_astra.txt` (v2).
+
+Basis: round 3.1/3.1b (docs/ROUND_3_1.md). Direct and instructed step-by-step answers of
+both small readers fail at comparison, conjunctive matching with abstention, linking and
+source filtering; extraction of a single detail works. Qwen3's whole thinking
+configuration (thinking mode, its sampling and a 1024-token budget, changed together)
+lifts all four, S5 to 20/21 (observed cases 6/7) - a reason for a limited later test,
+not a reliability proof. The candidate procedure used did not remove the failures; it
+does not prove that output format, scoring and calibration play no part.
+
+## 1. Store (episodic_lab/memory.py)
+
+Append-only JSON-lines file; one record per episode, written once and flushed; SHA-256
+chain (changed, removed or reordered records are refused) plus an external seal (record
+count and head hash kept outside the file) that also refuses a store whose last records
+were cut off. Fields: identity (`id`, `stream`, `seq` = record time), `event_day`,
+`actor`, `partner`, `action`, `object`, `place`, `source` (kind, by), original `text`,
+`relations`, `encoder`. Derived state (latest place etc.) is computed at query time. The
+runner's fingerprint uses a digest of the actual record contents, so any change of a
+record in working memory while answering is detected.
+
+## 2. Operators and scope
+
+Every operator receives the records it may use and whether that set is the complete
+store. Statuses: `ok`; `none_in_scope` and `no_observation` (only with a complete scope:
+the cue's entities are known but the combination never occurred / an entity was never
+recorded); `ambiguous`; `insufficient_evidence` (incomplete scope: no negative, no
+"latest", no "last handler" may be concluded). Only `none_in_scope` maps to "none" in the
+closed benchmark; everything that is not `ok` or `none_in_scope` answers "unknown". All
+operators use the same semantics (compare_time included). Days that are not valid
+integers (an encoder error) are treated as unknown, never compared.
+
+Unknown values (v3): a record whose day, place, object, action or person is unknown (an
+encoder error) is never evidence of absence or of order. `possible()` returns records
+that could match a cue because a needed field is unknown: a find without exact hits but
+with possible ones gives `insufficient_evidence`; possible records with other values make
+a find `ambiguous`; latest/last-handler/state-at with an undated record of the person or
+object that could change the answer give `ambiguous` or `insufficient_evidence`; an
+undated or unknown record that cannot change the answer (same place, other person) does
+not block it. Every `ok` result carries a non-empty string value.
+
+## 3. Cells - reader and operators get the same selection, information and contract
+
+| cell | selection | processing |
+|---|---|---|
+| lex3+reader / lex3+ops | BM25 over the raw texts, top 3; cannot certify completeness | LM reads the 3 notes / operators with incomplete scope |
+| struct3+reader / struct3+ops | index scan over all records: all full matches of each event in the query first, best partial matches after; time-aware for "latest" (the person's most recent records), two-stage for E7 (the unique cue match, then its person's most recent records); certified complete when the full matches (or the latest-day records) fit into the 3 | LM reads the 3 notes / operators with the certified scope |
+| full+ops (reference) | all records | operators, complete scope |
+| random3+ops (control) | 3 records by a hash of the question | operators, incomplete scope |
+| full+ops/lm-encoder | all records of a store written by the LM encoder | operators |
+
+`covered` means: the selection is certified sufficient for THIS question (not that the
+store is complete). struct3 certifies only if all full and possible matches (or all
+records of the latest day, with no undated record of the person/object) fit into the 3.
+Within a pair, the reader receives in its prompt exactly what the operators use: the
+coverage line (complete for this question / partial selection), and, when covered, the
+index's entity knowledge (whether every name in the question occurs in memory); and it
+follows the same contract: "none" only for a covered selection without the event and
+with every name known, "unknown" otherwise (and for latest/last questions on a partial
+selection). A test shows that an ideal reader following this contract gives exactly the
+operators' answers in every row. The struct3 retriever contains processing of its own
+(time order, two stages); this is part of the "struct" method and is reported as such. Baselines A0 and A1 (v1
+instruction) run on the same worlds. Removed from round 3.2 (decision): the
+thinking-reader cell (about 38 s per answer; a small targeted source test later is more
+useful than a costly repeat of all criteria) and the `by_source` operator (the template
+benchmark has no source items; source filtering returns with the action environment).
+
+## 4. Per-answer record and evaluation
+
+Every answer row stores, besides raw answer and category: the selected record ids, the
+scope flag, the operator status and trace (replayed deterministically after the run from
+the record set of that test point, never while answering) and, as evaluator-only
+information, whether all gold target episodes were selected ("gold support"; not an
+upper bound of accuracy). Cost per cell: LM calls, prompt and new tokens. A failing cell
+is recorded with its traceback and does not stop the others.
+
+Reported separately per cell: coverage share, accuracy on covered items, abstention
+("unknown") and false recall on lures, gold support, cost (calls, prompt tokens, seconds),
+and the development worlds (dev-m3) apart from the already used pilot worlds (pilot-m2).
+Expected cost per world (both conditions): about 2 x [4 (Q1 + Qf) + 6 E] model calls
+(four LM cells, six encoder questions per episode), roughly 1,400 calls and 1-2 hours on
+the runner, well inside the 6-hour job limit.
+
+The collector trusts nothing: it regenerates world and questions from series and index
+(hashes must match, every expected item answered exactly once), re-scores every row from
+its raw answer, recomputes all summaries, re-runs the deterministic cells and compares
+their raw answers, recomputes every diagnostic field of every selecting cell (selection,
+coverage, entity note, operator value, status, trace, gold support) from the store of the
+matching test point, rebuilds the LM-encoder cell from its recorded records with its
+original encoder name (so record identities are reproduced), re-derives the encoder's
+reference from the regenerated episodes and its cleaned values and invalid flags from the
+recorded raw replies, recomputes the misbound control, checks provenance (request and
+pins hashes, one code commit) and the restart flags.
+
+## 5. LM encoder
+
+Slot filling by single-detail questions (day, first person, second person or none,
+action, object, place), one fresh chat per slot, v1-style instruction; every value is
+type-checked; invalid values are kept as data (`invalid`) and never stop the run. S1
+qualified person, place, object and day; the second person and the action are measured
+here for the first time. Adoption rule for round 3.3 (fixed now): all_slots (share of
+episodes with every slot right) >= 0.95 AND the full+ops/lm-encoder cell within 0.02 of
+full+ops on positive final items AND its lure false recall <= 0.05. "Positive final
+items" = E2, E3a, E3b, E4, E7 of the final test, the two A/B orientations of an E3a pair
+weighing 1/2 each, pooled over both conditions within a world, then the mean over all 15
+worlds; lure false recall the same way. Lure correct rejection and "unknown" are reported
+next to it (a low false recall alone is no rejection). These are technical decision
+rules for development, not reliability claims. Otherwise the regex
+encoder is used in 3.3 and the limit is stated.
+
+## 6. Restart test (completion point)
+
+Exactly the store file of the full+ops cell and its seal are handed to a fresh isolated
+interpreter that receives only the store path, the seal, the fixed code and the public
+questions. Passed if: (a) answers equal the in-process answers; (b) with an empty store
+no positive item is answered correctly; (c) a store with its last record cut off and (d)
+a store with one changed record are refused.
+
+## 7. Worlds, model, run
+
+Development series `dev-m3` worlds 0-9 and `pilot-m2` worlds 0-4 (paired with the pilot),
+both overlap conditions, v1 question sets. Reader and LM encoder: qwen2.5-0.5b (selected;
+no switch to Qwen3 without a measured reason: both pass S1). Expected on the template
+benchmark: full+ops and struct3+ops near 1.0; the informative results are the reader vs
+operator difference at equal selection, the lex vs struct difference, the LM encoder
+and the restart test.
+---END FILE docs/ROUND_3_2.md---
+
+---BEGIN FILE episodic_lab/memory.py---
+"""Round 3.2 agent memory (docs/ROUND_3_2.md), evolved from S0.
+
+Store: an append-only JSON-lines file, one record per experienced episode, written once
+and flushed, chained by SHA-256 so that any changed, removed or reordered record is
+detected on load. Current state is always derived from the records at query time.
+
+Operators answer structured queries over the records and return the value, a status and
+the trace (episode ids, operation). Negative results are three-valued: "none_in_scope"
+(the cue's people, objects and places are known, but this combination never occurred),
+"no_observation" (nothing was ever recorded about one of the cue's entities) and
+"ambiguous" (several records match with different answers).
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from .questions import BASE, PARA
+from .symbolic import EPISODE_PATTERNS, PAST, _template_regex
+
+STORE_SCHEMA = "episodic_lab.memory_record.v1"
+FIELDS = ("actor", "partner", "action", "object", "place", "event_day")
+SOURCE_KINDS = ("observed", "own_action", "reported", "inferred")
+GENESIS = "0" * 64
+
+
+class StoreCorrupted(RuntimeError):
+    pass
+
+
+def _digest(record: dict) -> str:
+    body = {k: v for k, v in record.items() if k != "hash"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+class EpisodeStore:
+    """Append-only episodic store backed by one file (or memory only if path is None)."""
+
+    def __init__(self, path: str | os.PathLike | None = None, stream: str = "agent",
+                 expect: dict | None = None):
+        """`expect` = a seal kept OUTSIDE the record chain ({"count", "head"}); with it, a
+        store whose last records were cut off is refused as well."""
+        self.path = Path(path) if path is not None else None
+        self.stream = stream
+        self._records: list[dict] = []
+        if self.path is not None and self.path.exists():
+            prev = GENESIS
+            for n, line in enumerate(self.path.read_text(encoding="utf-8").splitlines()):
+                rec = json.loads(line)
+                if rec.get("prev") != prev or rec.get("seq") != n or _digest(rec) != rec.get("hash"):
+                    raise StoreCorrupted(f"record {n}")
+                prev = rec["hash"]
+                self._records.append(rec)
+        if expect is not None and self.seal() != expect:
+            raise StoreCorrupted(f"seal mismatch: {self.seal()} != {expect}")
+
+    def seal(self) -> dict:
+        return {"count": len(self._records),
+                "head": self._records[-1]["hash"] if self._records else GENESIS}
+
+    def content_digest(self) -> str:
+        """Digest of the actual record contents (not of the stored hashes), so any change
+        of a record in working memory changes it."""
+        return hashlib.sha256(json.dumps(self._records, sort_keys=True).encode()).hexdigest()
+
+    @property
+    def records(self) -> list[dict]:
+        return [dict(r) for r in self._records]
+
+    def append(self, text: str, content: dict, source: dict | None = None,
+               encoder: str = "regex", relations: list | None = None, extra: dict | None = None) -> dict:
+        source = source or {"kind": "observed", "by": None}
+        if source.get("kind") not in SOURCE_KINDS:
+            raise ValueError("unknown source kind")
+        if set(content) != set(FIELDS):
+            raise ValueError(f"content needs exactly {FIELDS}")
+        prev = self._records[-1]["hash"] if self._records else GENESIS
+        rec = {"schema": STORE_SCHEMA, "seq": len(self._records), "stream": self.stream,
+               "id": "m" + hashlib.sha256((prev + text).encode()).hexdigest()[:12],
+               **content, "source": source, "text": text, "relations": relations or [],
+               "encoder": encoder, "extra": extra or {}, "prev": prev}
+        rec["hash"] = _digest(rec)
+        if self.path is not None:
+            with self.path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(rec, sort_keys=True) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+        self._records.append(rec)
+        return dict(rec)
+
+
+# ----------------------------------------------------------------- encoders
+def regex_encode(text: str) -> dict:
+    """S0's template parser (control encoder)."""
+    for pattern in EPISODE_PATTERNS:
+        m = re.fullmatch(pattern, text)
+        if m:
+            g = m.groupdict()
+            return {"actor": g["actor"], "partner": g["partner"],
+                    "action": "hid" if g["action"] == "hidden" else g["action"],
+                    "object": g["object"], "place": g["place"], "event_day": int(g["day"])}
+    raise ValueError(f"unparsed episode: {text}")
+
+
+# ----------------------------------------------------------------- operators
+# Every operator takes the record set it may use and whether that set is the COMPLETE
+# store (`complete`). Statuses:
+#   ok                    a value supported by the records used
+#   none_in_scope         complete scope; the cue's entities are known, the combination never occurred
+#   no_observation        complete scope; one of the cue's entities was never recorded
+#   ambiguous             several records with different answers
+#   insufficient_evidence incomplete scope; nothing (or no unique latest/negative) can be concluded
+# Global statements (a negative, "latest", "last handler") require a complete scope.
+STATUSES = ("ok", "none_in_scope", "no_observation", "ambiguous", "insufficient_evidence")
+
+
+@dataclass
+class Result:
+    value: str | None
+    status: str
+    ids: list = field(default_factory=list)
+    trace: list = field(default_factory=list)
+
+    def answer(self) -> str:
+        """Closed-benchmark answer: a value, "none" only for none_in_scope, else "unknown"."""
+        if self.status == "ok":
+            return self.value
+        return "none" if self.status == "none_in_scope" else "unknown"
+
+    def to_json(self) -> dict:
+        return {"value": self.value, "status": self.status, "ids": list(self.ids),
+                "trace": [[op, arg, list(ids)] for op, arg, ids in self.trace]}
+
+
+def _people(r):
+    return {r["actor"]} | ({r["partner"]} if r["partner"] else set())
+
+
+def _day(r):
+    """Event day if it is a valid integer, else None (an encoder error stays a datum)."""
+    d = r.get("event_day")
+    return d if isinstance(d, int) and not isinstance(d, bool) else None
+
+
+def match(records, person=None, action=None, obj=None, place=None, day=None):
+    return [r for r in records
+            if (person is None or person in _people(r)) and (action is None or r["action"] == action)
+            and (obj is None or r["object"] == obj) and (place is None or r["place"] == place)
+            and (day is None or _day(r) == day)]
+
+
+def possible(records, person=None, action=None, obj=None, place=None, day=None):
+    """Records that match the cue OR could match it because a needed field is unknown
+    (None, or an invalid day): an unknown value is never evidence of absence."""
+    def ok(value, field):
+        return value is None or field is None or field == value
+    return [r for r in records
+            if (person is None or person in _people(r) or r["actor"] is None)
+            and ok(action, r["action"]) and ok(obj, r["object"]) and ok(place, r["place"])
+            and ok(day, _day(r))]
+
+
+def _known(records, person=None, obj=None, place=None, **_):
+    people = set().union(*(_people(r) for r in records)) if records else set()
+    return ((person is None or person in people)
+            and (obj is None or any(r["object"] == obj for r in records))
+            and (place is None or any(r["place"] == place for r in records)))
+
+
+def _negative(records, cue, complete, universe=None):
+    """Negative status. `universe` = the whole store when the selection was certified by
+    an index scan over it (entity knowledge then comes from the index, not the subset)."""
+    if not complete:
+        return "insufficient_evidence"
+    return "none_in_scope" if _known(universe if universe is not None else records, **cue) else "no_observation"
+
+
+def _ok(value, ids, trace) -> Result:
+    """Every ok result carries a valid answer value (a non-empty string); a missing value
+    (an encoder that gave none for a required slot) is uncertainty, never an answer."""
+    if isinstance(value, str) and value:
+        return Result(value, "ok", ids, trace)
+    return Result(None, "ambiguous", ids, trace)
+
+
+def find(records, cue: dict, want: str, complete: bool = True, universe=None) -> Result:
+    hits = match(records, **cue)
+    maybe = [r for r in possible(records, **cue) if r not in hits]
+    trace = [("find", dict(cue), [h["id"] for h in hits + maybe])]
+    if not hits:
+        if maybe:  # a record with an unknown field could be the event
+            return Result(None, "insufficient_evidence", [r["id"] for r in maybe], trace)
+        return Result(None, _negative(records, cue, complete, universe), [], trace)
+    if want == "day":
+        values = {str(_day(h)) if _day(h) is not None else None for h in hits + maybe}
+    else:
+        values = {h["actor"] if want == "person" else h[want] for h in hits + maybe}
+    if len(values) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in hits + maybe], trace)
+    return _ok(values.pop(), [h["id"] for h in hits], trace)
+
+
+def latest(records, person: str, complete: bool = True) -> Result:
+    """Latest place of a person. Records with an unknown day could be later than every
+    dated one: if one of them has another place, the answer is ambiguous."""
+    hits = match(records, person=person)
+    trace = [("latest", person, [h["id"] for h in hits])]
+    if not complete:
+        return Result(None, "insufficient_evidence", [h["id"] for h in hits], trace)
+    if not hits:
+        return Result(None, "no_observation", [], trace)
+    dated = [h for h in hits if _day(h) is not None]
+    if not dated:
+        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
+    top = max(_day(h) for h in dated)
+    last = [h for h in dated if _day(h) == top]
+    places = {h["place"] for h in last} | {h["place"] for h in hits if _day(h) is None}
+    if len(places) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
+    return _ok(places.pop(), [h["id"] for h in last], trace)
+
+
+def state_at(records, person: str, day: int, complete: bool = True, universe=None) -> Result:
+    hits = match(records, person=person, day=day)
+    undated = [h for h in match(records, person=person) if _day(h) is None]
+    trace = [("state_at", [person, day], [h["id"] for h in hits + undated])]
+    if not hits:
+        if undated:  # an undated record could be from that day
+            return Result(None, "insufficient_evidence", [h["id"] for h in undated], trace)
+        return Result(None, _negative(records, {"person": person}, complete, universe), [], trace)
+    places = {h["place"] for h in hits} | {h["place"] for h in undated}
+    if len(places) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in hits + undated], trace)
+    return _ok(places.pop(), [h["id"] for h in hits], trace)
+
+
+def compare_time(records, cue_a: dict, cue_b: dict, complete: bool = True, universe=None) -> Result:
+    a, b = match(records, **cue_a), match(records, **cue_b)
+    ids = [r["id"] for r in a + b]
+    trace = [("compare_time", [dict(cue_a), dict(cue_b)], ids)]
+    if len(a) > 1 or len(b) > 1:
+        return Result(None, "ambiguous", ids, trace)
+    if not a or not b:
+        missing = cue_a if not a else cue_b
+        if possible(records, **missing):
+            return Result(None, "insufficient_evidence", ids, trace)
+        return Result(None, _negative(records, missing, complete, universe), ids, trace)
+    da, db = _day(a[0]), _day(b[0])
+    if da is None or db is None or da == db:
+        return Result(None, "ambiguous", ids, trace)
+    return Result("A" if da < db else "B", "ok", ids, trace)
+
+
+def link_latest(records, cue: dict, complete: bool = True, universe=None) -> Result:
+    """E7 "find": the person of the unique event matching `cue`, then that person's latest place."""
+    first = find(records, cue, "person", complete, universe)
+    if first.status != "ok":
+        return Result(None, first.status, first.ids, first.trace)
+    nxt = latest(records, first.value, complete)
+    return Result(nxt.value, nxt.status, first.ids + nxt.ids, first.trace + nxt.trace)
+
+
+def last_handler_latest(records, obj: str, complete: bool = True) -> Result:
+    """E7 "act": the actor of the latest event with the object, then that actor's latest
+    place. An undated event with the object by another actor makes the handler ambiguous."""
+    with_obj = match(records, obj=obj)
+    trace = [("last_handler", obj, [r["id"] for r in with_obj])]
+    if not complete:
+        return Result(None, "insufficient_evidence", [r["id"] for r in with_obj], trace)
+    if not with_obj:
+        return Result(None, "no_observation", [], trace)
+    dated = [r for r in with_obj if _day(r) is not None]
+    if not dated:
+        return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
+    top = max(_day(r) for r in dated)
+    holders = {r["actor"] for r in dated if _day(r) == top} | {r["actor"] for r in with_obj if _day(r) is None}
+    if len(holders) != 1 or not isinstance(next(iter(holders)), str):
+        return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
+    nxt = latest(records, holders.pop(), complete)
+    return Result(nxt.value, nxt.status, [r["id"] for r in with_obj] + nxt.ids, trace + nxt.trace)
+
+
+def misbind(records: list[dict], seed: str) -> list[dict]:
+    """Control store: places and objects permuted across records (marginals kept)."""
+    import random
+    rng = random.Random(seed)
+    places, objects = [r["place"] for r in records], [r["object"] for r in records]
+    rng.shuffle(places)
+    rng.shuffle(objects)
+    return [dict(r, place=pl, object=ob) for r, pl, ob in zip(records, places, objects)]
+
+
+# ----------------------------------------------------------------- question parsing (shared)
+_EVENT = re.compile(r"(?P<person>[A-Z][a-z]+ [A-Z][a-z]+) (?P<action>\w+) the (?P<obj>[a-z]+ [a-z]+) "
+                    r"at (?P<place>[A-Z][a-z]+ [A-Z][a-z]+)\.")
+
+
+def parse_question(text: str) -> tuple[str, dict] | None:
+    """Template question -> (qtype, structured query); shared by every round 3.2 cell."""
+    for qtype, templates in PARA.items():
+        for template in templates:
+            m = re.fullmatch(_template_regex(template), text)
+            if not m:
+                continue
+            g = m.groupdict()
+            action = PAST.get(g.get("action"), g.get("past"))
+            if qtype in ("object", "place", "person", "day"):
+                cue = {k: v for k, v in {"person": g.get("person"), "action": action,
+                                         "place": g.get("place"), "obj": g.get("object")}.items()
+                       if v is not None}
+                return qtype, {"cue": cue}
+            if qtype == "order":
+                sides = []
+                for side in ("a", "b"):
+                    e = _EVENT.fullmatch(g[side])
+                    sides.append(dict(e.groupdict()) if e else None)
+                return qtype, {"a": sides[0], "b": sides[1]}
+            if qtype == "latest":
+                return qtype, {"person": g["person"]}
+            if qtype == "at_day":
+                return qtype, {"person": g["person"], "day": int(g["day"])}
+            if qtype == "act":
+                return qtype, {"obj": g["object"]}
+            if qtype == "find":
+                return qtype, {"cue": {"action": g["past"], "place": g["place"], "obj": g["object"]}}
+    return None
+
+
+def answer_query(records, qtype: str, query: dict, complete: bool = True, universe=None) -> Result:
+    if qtype in ("object", "place", "person", "day"):
+        return find(records, query["cue"], qtype, complete, universe)
+    if qtype == "order":
+        if query["a"] is None or query["b"] is None:
+            return Result(None, "no_observation")
+        return compare_time(records, query["a"], query["b"], complete, universe)
+    if qtype == "latest":
+        return latest(records, query["person"], complete)
+    if qtype == "at_day":
+        return state_at(records, query["person"], query["day"], complete, universe)
+    if qtype == "act":
+        return last_handler_latest(records, query["obj"], complete)
+    if qtype == "find":
+        return link_latest(records, query["cue"], complete, universe)
+    raise ValueError(qtype)
+
+
+class MemoryAgent:
+    """struct+ops cell: encodes every presented episode into the store, answers from it."""
+    DIGEST_COVERS = ("store",)
+
+    def __init__(self, store: EpisodeStore, encoder=regex_encode, encoder_name: str = "regex"):
+        self.store = store
+        self.encoder = encoder
+        self.encoder_name = encoder_name
+
+    def encode(self, text: str) -> None:
+        self.store.append(text, self.encoder(text), encoder=self.encoder_name)
+
+    def state_digest(self) -> str:
+        return self.store.content_digest()
+
+    def answer(self, text: str, answer_type: str | None = None) -> str:
+        parsed = parse_question(text)
+        if parsed is None:
+            return "unknown"
+        return answer_query(self.store._records, *parsed).answer()
+---END FILE episodic_lab/memory.py---
+
+---BEGIN FILE episodic_lab/cells.py---
+"""Round 3.2 comparison cells (docs/ROUND_3_2.md section 4) and the LM encoder.
+
+All cells share the store (episodes appended once, in presentation order) and the
+template question parser. Within one retrieval method, the reader cell and the operator
+cell receive exactly the same selected records:
+
+  lex3   BM25 over the raw texts, top 3. Cannot certify completeness (scope incomplete).
+  struct3 an index scan over ALL records: per event in the query the records matching
+         every cue feature (pattern completion fills up with the best partial matches);
+         time-aware for "latest" (the person's most recent records) and two-stage for E7
+         (the unique cue match, then its person's most recent records). Because the scan
+         covered the whole store, a missing full match or a latest record is certified
+         (scope complete for this query) as long as the full matches fit in the budget.
+         This processing inside the retriever is part of the "struct" method.
+  full   all records (the reference system, operators only).
+  random3 3 records chosen by a hash of the question (control, operators only).
+
+Readers get the selected notes as text; operators get the selected records and the scope
+flag. Answering never changes a cell's state (runner fingerprint over the actual record
+contents).
+"""
+from __future__ import annotations
+
+import hashlib
+import math
+import re
+
+from .arms import FORMAT_V1
+from .memory import (FIELDS, EpisodeStore, Result, _day, _known, answer_query, match, parse_question,
+                     regex_encode)
+
+K = 3
+STYLE = "v1"
+_WORD = re.compile(r"[a-z0-9]+")
+
+
+def bm25_top(records: list[dict], query: str, k: int = K, k1: float = 1.5, b: float = 0.75) -> list[dict]:
+    """Lexical retrieval over the raw episode texts; ties by record order."""
+    docs = [_WORD.findall(r["text"].lower()) for r in records]
+    if not docs:
+        return []
+    n, avg = len(docs), sum(map(len, docs)) / len(docs)
+    terms = set(_WORD.findall(query.lower()))
+    df = {t: sum(t in d for d in docs) for t in terms}
+    scores = []
+    for i, d in enumerate(docs):
+        s = 0.0
+        for t in terms:
+            f = d.count(t)
+            if f:
+                idf = math.log(1 + (n - df[t] + 0.5) / (df[t] + 0.5))
+                s += idf * f * (k1 + 1) / (f + k1 * (1 - b + b * len(d) / avg))
+        scores.append((-s, i))
+    return sorted((records[i] for _, i in sorted(scores)[:k]), key=lambda r: r["seq"])
+
+
+def _overlap(record: dict, cue: dict) -> int:
+    n = 0
+    for key, value in cue.items():
+        if key == "person":
+            n += value in (record["actor"], record["partner"])
+        elif key == "obj":
+            n += record["object"] == value
+        elif key == "day":
+            n += _day(record) == value
+        else:
+            n += record[key] == value
+    return n
+
+
+def _best(records, cue, budget):
+    """Full matches first, then records that could be full matches because a needed field
+    is unknown, then the best partial matches. Certified only if all full and possible
+    matches fit into the budget."""
+    from .memory import possible
+    full = [r for r in records if _overlap(r, cue) == len(cue)]
+    maybe = [r for r in possible(records, **cue) if r not in full]
+    partial = sorted((r for r in records if 0 < _overlap(r, cue) < len(cue) and r not in maybe),
+                     key=lambda r: (-_overlap(r, cue), r["seq"]))
+    return (full + maybe + partial)[:budget], len(full) + len(maybe) <= budget
+
+
+def _recent(records, person, budget):
+    mine = [r for r in records if person in (r["actor"], r["partner"])]
+    hits = sorted((r for r in mine if _day(r) is not None), key=lambda r: (-_day(r), r["seq"]))
+    # certified if every record of the latest day fits and no record of the person is undated
+    top = _day(hits[0]) if hits else None
+    undated = len(mine) - len(hits)
+    return hits[:budget], undated == 0 and sum(_day(r) == top for r in hits) <= budget
+
+
+def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> tuple[list[dict], bool]:
+    if qtype in ("object", "place", "person", "day"):
+        got, ok = _best(records, query["cue"], k)
+    elif qtype == "order":
+        sides = [q for q in (query["a"], query["b"]) if q]
+        got, ok = [], True
+        for cue in sides:
+            part, c = _best(records, cue, max(1, k // len(sides)) if sides else k)
+            got += [r for r in part if r not in got]
+            ok = ok and c
+    elif qtype == "latest":
+        got, ok = _recent(records, query["person"], k)
+    elif qtype == "at_day":
+        got, ok = _best(records, {"person": query["person"], "day": query["day"]}, k)
+    elif qtype == "find":
+        first, ok = _best(records, query["cue"], 1)
+        full = [r for r in first if _overlap(r, query["cue"]) == len(query["cue"])]
+        got = list(first)
+        if full:
+            more, c = _recent(records, full[0]["actor"], k - 1)
+            got += [r for r in more if r not in got]
+            ok = ok and c
+    elif qtype == "act":
+        all_obj = [r for r in records if r["object"] == query["obj"]]
+        with_obj = sorted((r for r in all_obj if _day(r) is not None), key=lambda r: (-_day(r), r["seq"]))
+        got = with_obj[:1]
+        ok = (len(with_obj) == len(all_obj)
+              and len([r for r in with_obj if _day(r) == _day(with_obj[0])]) <= 1)
+        if got:
+            more, c = _recent(records, got[0]["actor"], k - 1)
+            got += [r for r in more if r not in got]
+            ok = ok and c
+    else:
+        got, ok = [], False
+    return sorted(got, key=lambda r: r["seq"])[:k], ok
+
+
+def _entities(qtype: str, query: dict) -> list[tuple[str, str]]:
+    cues = [query["cue"]] if "cue" in query else [q for q in (query.get("a"), query.get("b")) if q]
+    out = []
+    for cue in cues:
+        for key in ("person", "obj", "place"):
+            if cue.get(key):
+                out.append((key, cue[key]))
+    if qtype in ("latest", "at_day"):
+        out.append(("person", query["person"]))
+    if qtype == "act":
+        out.append(("obj", query["obj"]))
+    return sorted(set(out))
+
+
+def entity_note(qtype: str, query: dict, universe: list[dict]) -> str:
+    """The index's knowledge about the question's names (the same knowledge the operators
+    use to tell none_in_scope from no_observation)."""
+    missing = [v for k, v in _entities(qtype, query) if not _known(universe, **{k: v})]
+    if not missing:
+        return "Every person, place and object named in the question occurs in memory."
+    return "Never recorded in memory at all: " + ", ".join(missing) + "."
+
+
+def reader_messages(question: str, notes: list[str], covered: bool, note: str | None,
+                    answer_type: str) -> list[dict]:
+    """Reader prompt with the SAME information and abstention contract as the operators:
+    coverage of the selection for this question, the index's entity knowledge when the
+    selection is covered, "none" only for a covered selection without the event and with
+    every name known, "unknown" otherwise."""
+    text = ("You answer one question from notes retrieved from your memory. Answer with only "
+            f"{FORMAT_V1[answer_type]}, nothing else.")
+    if answer_type == "choice":
+        text += " If the notes do not settle it, answer with the single word: unknown."
+    else:
+        text += (" If the notes are complete for this question and none of them contains the event "
+                 "asked about, answer with the single word: none - unless a name in the question was "
+                 "never recorded in memory; then answer: unknown. If the notes are not complete and do "
+                 "not settle the answer, or the question asks for the latest or last state and the notes "
+                 "are not complete, answer with the single word: unknown.")
+    coverage = ("Coverage: complete for this question (the whole memory was searched)." if covered
+                else "Coverage: partial selection (other relevant notes may exist).")
+    lines = [coverage] + ([note] if covered and note else [])
+    body = "\n".join(notes) if notes else "(no notes)"
+    user = "\n".join(lines) + f"\n\nMemory notes:\n{body}\n\nQuestion: {question}"
+    return [{"role": "system", "content": text}, {"role": "user", "content": user}]
+
+
+class _Cell:
+    DIGEST_COVERS = ("store", "model", "encoder")
+    EXPOSURE = None
+    E1B = {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 1}
+    READER = False
+
+    def __init__(self, model=None, store: EpisodeStore | None = None, encoder=regex_encode,
+                 encoder_name: str = "regex"):
+        if self.READER and model is None:
+            raise ValueError("reader cells need a model")
+        self.model = model if self.READER else None
+        self.store = store if store is not None else EpisodeStore()
+        self.encoder = encoder
+        self.encoder_name = encoder_name
+
+    def encode(self, text: str) -> None:
+        self.store.append(text, self.encoder(text), encoder=self.encoder_name)
+
+    def state_digest(self) -> str:
+        models = [m for m in (self.model, getattr(self.encoder, "model", None)) if m is not None]
+        return self.store.content_digest() + "".join(m.weights_digest() for m in models)
+
+    def select(self, text: str, qtype: str, query: dict, records: list[dict]) -> tuple[list[dict], bool]:
+        raise NotImplementedError
+
+    def explain(self, text: str, records: list[dict]) -> dict:
+        """Deterministic replay of the selection (and the operator result) for one question
+        over a given record set; used by the evaluator after the run, never while answering."""
+        parsed = parse_question(text)
+        if parsed is None:
+            return {"selected": [], "covered": False, "entity_note": None, "result": None}
+        got, covered = self.select(text, *parsed, records)
+        out = {"selected": [r["id"] for r in got], "covered": covered,
+               "entity_note": entity_note(*parsed, records) if covered else None, "result": None}
+        if not self.READER:
+            out["result"] = self._ops(got, parsed, covered, records).to_json()
+        return out
+
+    def _ops(self, got, parsed, covered, records):
+        # `covered`: the selection is certified sufficient for THIS question (an index scan
+        # over the whole store); the index then also knows which names occur at all
+        return answer_query(got, *parsed, complete=covered, universe=records if covered else None)
+
+    def reader_prompt(self, text: str, answer_type: str, records: list[dict]) -> list[dict]:
+        parsed = parse_question(text)
+        got, covered = self.select(text, *parsed, records)
+        note = entity_note(*parsed, records) if covered else None
+        return reader_messages(text, [r["text"] for r in got], covered, note, answer_type)
+
+    def answer(self, text: str, answer_type: str) -> str:
+        parsed = parse_question(text)
+        if parsed is None:
+            return "unknown"
+        records = self.store._records
+        if not self.READER:
+            got, covered = self.select(text, *parsed, records)
+            return self._ops(got, parsed, covered, records).answer()
+        return self.model.generate(self.reader_prompt(text, answer_type, records))
+
+
+class Lex3Reader(_Cell):
+    NAME, READER = "lex3+reader", True
+
+    def select(self, text, qtype, query, records):
+        return bm25_top(records, text), False
+
+
+class Lex3Ops(Lex3Reader):
+    NAME, READER = "lex3+ops", False
+
+
+class Struct3Reader(_Cell):
+    NAME, READER = "struct3+reader", True
+
+    def select(self, text, qtype, query, records):
+        return struct_select(records, qtype, query)
+
+
+class Struct3Ops(Struct3Reader):
+    NAME, READER = "struct3+ops", False
+
+
+class FullOps(_Cell):
+    NAME = "full+ops"
+
+    def select(self, text, qtype, query, records):
+        return list(records), True
+
+
+class Random3Ops(_Cell):
+    NAME = "random3+ops"
+
+    def select(self, text, qtype, query, records):
+        order = sorted(records, key=lambda r: hashlib.sha256((text + r["id"]).encode()).hexdigest())
+        return sorted(order[:K], key=lambda r: r["seq"]), False
+
+
+CELLS = {c.NAME: c for c in (Lex3Reader, Lex3Ops, Struct3Reader, Struct3Ops, FullOps, Random3Ops)}
+
+
+# ----------------------------------------------------------------- LM encoder
+SLOT_QUESTIONS = {
+    "event_day": ("On which day did the event in the note happen?", "day"),
+    "actor": ("Who is the first person named in the note?", "person"),
+    "partner": ("Who is the second person named in the note? If only one person is named, "
+                "answer none.", "person"),
+    "action": ("What did the first person do? Answer with the single verb from the note, in "
+               "the past tense.", "action"),
+    "object": ("Which object is named in the note?", "object"),
+    "place": ("Which place is named in the note?", "place"),
+}
+SLOT_FORMAT = {"day": "the day number", "person": "the person's full name as written in the note",
+               "action": "one verb in the past tense as written in the note",
+               "object": "the object name as written in the note",
+               "place": "the place name as written in the note"}
+
+
+def _clean(raw: str, kind: str):
+    text = raw.strip().split("\n", 1)[0].strip().strip(".").strip()
+    low = text.lower()
+    if low in ("none", "nobody", "no one", "nothing"):
+        return None
+    if kind == "day":
+        m = re.fullmatch(r"(?:day\s*)?(\d+)", low)
+        return int(m.group(1)) if m else INVALID
+    if kind == "object" and low.startswith("the "):
+        text = text[4:]
+    if kind == "place" and low.startswith("at "):
+        text = text[3:]
+    if kind == "action" and low == "hidden":  # the one irregular participle of the templates
+        text = "hid"
+    return text
+
+
+INVALID = object()
+_NAME_SHAPE = {"person": re.compile(r"[A-Z][a-z]+ [A-Z][a-z]+"), "place": re.compile(r"[A-Z][a-z]+ [A-Z][a-z]+"),
+               "object": re.compile(r"[a-z]+ [a-z]+"), "action": re.compile(r"[a-z]+")}
+
+
+class LMEncoder:
+    """Slot filling by single-detail questions. S1 qualified person, place, object and day;
+    the second person and the action are measured here for the first time. Every slot is
+    type-checked: an invalid value (no day number, a reply not shaped like a name) is kept
+    as a datum in `invalid` and stored as None (day) or as the raw string (it will then
+    simply match nothing); it never stops the run."""
+
+    def __init__(self, model):
+        self.model = model
+        self.raw: list[dict] = []       # telemetry per encoded episode, not memory
+        self.invalid: list[list] = []   # invalid slots per encoded episode
+
+    def __call__(self, text: str) -> dict:
+        raw = {}
+        for slot, (question, kind) in SLOT_QUESTIONS.items():
+            msgs = [{"role": "system", "content": "You read one note and answer one question "
+                     f"about it. Answer with only {SLOT_FORMAT[kind]}, nothing else."},
+                    {"role": "user", "content": f"Note:\n{text}\n\nQuestion: {question}"}]
+            raw[slot] = self.model.generate(msgs)
+        content, bad = postprocess(raw)
+        self.raw.append(raw)
+        self.invalid.append(bad)
+        return content
+
+
+def postprocess(raw: dict) -> tuple[dict, list]:
+    """Raw slot replies -> (record content, invalid slots); deterministic, so the
+    collector can re-derive both from the recorded raw replies."""
+    out, bad = {}, []
+    for slot, (_, kind) in SLOT_QUESTIONS.items():
+        value = _clean(raw[slot], kind)
+        if value is INVALID:
+            bad.append(slot)
+            value = None
+        elif value is not None and kind in _NAME_SHAPE and not _NAME_SHAPE[kind].fullmatch(value):
+            bad.append(slot)
+        out[slot] = value
+    for slot in ("actor", "action", "object", "place", "event_day"):  # required in every episode
+        if out[slot] is None:
+            bad.append(slot)
+    if out["partner"] == out["actor"]:
+        out["partner"] = None
+    return {k: out[k] for k in FIELDS}, sorted(set(bad))
+
+
+def diagnose(cell, rows: list[dict], world: dict, questions: dict) -> None:
+    """Per answer row: deterministic replay of the selection, coverage, entity note and
+    operator result on the record set of that test point, plus evaluator-only gold support.
+    Used by the job after the run and by the collector to recompute every field."""
+    texts = {e["episode_id"]: e["text"] for e in world["episodes"]}
+    by_qid = {q["qid"]: q["text"] for q in questions["public"]["final"]}
+    n_early = sum(e["block"] == "early" for e in world["episodes"])
+    for row in rows:
+        recs = cell.store._records if row["phase"] == "final" else [r for r in cell.store._records
+                                                                      if r["seq"] < n_early]
+        diag = cell.explain(by_qid[row["qid"]], recs)
+        chosen = {r["text"] for r in recs if r["id"] in set(diag["selected"])}
+        targets = questions["gold"][row["qid"]]["targets"]
+        diag["gold_support_selected"] = all(texts[t] in chosen for t in targets) if targets else None
+        row["diag"] = diag
+
+
+def slot_accuracy(pairs: list[tuple[dict, dict]]) -> dict:
+    """pairs: (lm record content, regex truth) -> share correct per slot and all slots."""
+    acc = {s: sum(a[s] == t[s] for a, t in pairs) / len(pairs) for s in FIELDS}
+    acc["all_slots"] = sum(all(a[s] == t[s] for s in FIELDS) for a, t in pairs) / len(pairs)
+    return acc
+
+
+__all__ = ["CELLS", "LMEncoder", "Result", "bm25_top", "match", "slot_accuracy", "struct_select"]
+---END FILE episodic_lab/cells.py---
+
+=== END OF LAB ROUND 3.2 v3 PART 1 ===
