@@ -1,0 +1,14 @@
+OK schema, provenance, design, re-run and store integrity
+
+VERDICT COMPLETE
+
+PASS every case planned for intact, none, random, relevant_removed is available
+PASS swapped_binding and irrelevant_removed available in >= 90% of planned cases
+PASS informative cases (prediction != truth) >= 60% of planned for swap and relevant removal
+PASS intact: success 1.0 and pair success 1.0
+PASS no memory and random memory: pair success 0 (fixed, deterministic exploration policy)
+PASS swapped binding: action as predicted in >= 0.95 of informative cases
+PASS relevant episode removed: action as predicted in >= 0.95 of informative cases
+PASS irrelevant episode removed: success 1.0
+
+MILESTONE PASS
