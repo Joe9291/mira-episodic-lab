@@ -60,7 +60,7 @@ than another.
 | struct+reader | conjunctive match over the records (pattern completion: most cue features matched), up to 3 | same LM reader |
 | lex+ops | BM25 top 3 | explicit operators over the records of the retrieved episodes |
 | struct+ops | conjunctive match | explicit operators (the full system) |
-| reasoning reader | as struct+reader, with the LM in a reasoning mode | only if round 3.1b found a sub-skill >= 0.95 |
+| struct+think | as struct+reader, reader = Qwen3-0.6B in thinking mode | added because round 3.1b found S5 at 0.95 and S2/S3 at 0.75-0.82 with thinking; run on the 5 pilot-m2 worlds only (about 38 s per answer) |
 
 Controls: no memory (A0), all in prompt (A1), S0 reference, random retrieval (3 random
 episodes) + operators, misbound store (participants, objects and places permuted across

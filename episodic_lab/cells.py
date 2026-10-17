@@ -192,6 +192,8 @@ def _clean(raw: str, kind: str):
         text = text[4:]
     if kind == "place" and low.startswith("at "):
         text = text[3:]
+    if kind == "action" and low == "hidden":  # the one irregular participle of the templates
+        text = "hid"
     return text
 
 

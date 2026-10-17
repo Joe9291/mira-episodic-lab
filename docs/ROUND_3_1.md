@@ -75,3 +75,33 @@ whether an LM-reasoning reader is added to the round 3.2 comparison.
 - The direct battery workflow re-runs once on this commit because its code changed (the
   summary function now handles runs without the candidate channel); its numbers must be
   identical to run 39016623785 (regression check).
+
+### Round 3.1b result (run 39018909077, commit a5a680e, VERDICT COMPLETE)
+
+| sub-skill | Qwen3 think | Qwen3 cot | Qwen2.5 cot (registered / post-hoc lenient) |
+|---|---|---|---|
+| S2 compare | **0.82** (content 0.90, pairs 0.90; letter 0.75, pairs 0.60) | 0.45 | 0.00 / 0.45 |
+| S3 binding | **0.75** (lures 0.60, positives 0.90) | 0.40 (lures 0.10) | 0.00 / 0.10 |
+| S4 link | **0.60** | 0.00 | 0.00 / 0.15 |
+| S5 source | **0.95** (missing 1.00, observed 0.86, reported 1.00) | 0.62 | 0.00 / 0.38 |
+
+- Qwen3's trained thinking mode changes the picture: every sub-skill rises strongly over
+  its direct value (S2 0.53 -> 0.82, S3 0.35 -> 0.75, S4 0.05 -> 0.60, S5 0.48 -> 0.95).
+  Cost: 246 new tokens per answer on average, all 101 replies finished within 1024
+  tokens, 38 s per answer on the runner (3840 s for 101 cases), versus about 1 s direct.
+- An instructed step-by-step prompt does not reproduce this: Qwen3 cot stays near its
+  direct values. Qwen2.5 cot scores 0.00 under the registered extraction rule because it
+  almost never wrote the required "Answer:" line (format failure, 100 of 101 "other");
+  a post-hoc lenient reading of its last line (not used for any decision) gives 0.10-0.45.
+- Decision by the registered rule: S5 meets 0.95 with thinking -> "LM reasoning can carry
+  source filtering at about 38 s per answer"; a thinking-reader cell (Qwen3 thinking over
+  structured retrieval) is added to the round 3.2 comparison. S2-S4 stay below 0.95 ->
+  explicit operators; no further reasoning variants in this round.
+- Correction of round 3.1's reading: "the reader cannot compare / bind / link" holds for
+  direct answers and instructed step-by-step answers of these models, not for Qwen3 with
+  its thinking mode, which comes within reach on S2/S3 and is at target on S5.
+
+Infrastructure note: the dry run of commit a5a680e failed because several collectors
+pushed to the results branch at the same time; its cells were unaffected and the next dry
+run (d344be6) was complete. All collectors now retry the push after a rebase, and broad
+or self-referential workflow triggers were removed so that unchanged checks do not rerun.

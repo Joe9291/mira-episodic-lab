@@ -8,7 +8,6 @@ on:
     paths:
       - "episodic_lab/diagnostics.py"
       - "bench/diag/**"
-      - ".github/workflows/diag.yml"
 permissions:
   contents: read
 concurrency:
@@ -74,5 +73,5 @@ jobs:
           echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} models ${{ needs.model.result }} verdict ${verdict}" > "$dest/RUN.txt"
           git add diag
           git commit --quiet -m "Diagnostic battery, run ${GITHUB_RUN_ID}, ${verdict}"
-          git push origin results
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
           [ "$verdict" = COMPLETE ]
