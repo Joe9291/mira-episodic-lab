@@ -1,0 +1,78 @@
+name: diag
+# Round 3.1 diagnostic battery (docs/STRATEGY.md): reader sub-skills of two models, two
+# output channels. Runs on changes of the battery or its runner. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "episodic_lab/diagnostics.py"
+      - "bench/diag/**"
+      - ".github/workflows/diag.yml"
+permissions:
+  contents: read
+concurrency:
+  group: diag
+  cancel-in-progress: false
+jobs:
+  model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [qwen2.5-0.5b, qwen3-0.6b]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned packages
+        run: |
+          python -m pip install --upgrade pip==24.3.1
+          pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -r bench/m0/requirements.txt
+      - name: Run battery
+        run: |
+          mkdir -p out
+          python bench/diag/run_diag.py --model "${{ matrix.model }}" --out "out/diag_${{ matrix.model }}.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diag-${{ matrix.model }}
+          path: out/
+          if-no-files-found: warn
+  collect:
+    needs: model
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: fetch
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: diag-*
+          merge-multiple: true
+      - name: Store
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r . "$RUNNER_TEMP/code"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="diag/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+          python3 "$RUNNER_TEMP/code/bench/diag/collect_diag.py" "$dest" "qwen2.5-0.5b,qwen3-0.6b" || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} models ${{ needs.model.result }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add diag
+          git commit --quiet -m "Diagnostic battery, run ${GITHUB_RUN_ID}, ${verdict}"
+          git push origin results
+          [ "$verdict" = COMPLETE ]

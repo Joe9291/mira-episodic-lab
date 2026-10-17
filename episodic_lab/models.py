@@ -76,6 +76,24 @@ class PinnedModel:
         """Tokens of a text on its own (E1b: tokens processed per episode)."""
         return len(self.tokenizer(text, add_special_tokens=False)["input_ids"])
 
+    def score_candidates(self, messages: list[dict], candidates: list[str]) -> list[float]:
+        """Log-probability of each candidate as the COMPLETE answer (its tokens followed by
+        the end-of-turn token), after the same chat prompt as `generate`. One forward
+        pass per candidate; no state kept."""
+        torch = self._torch
+        ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
+                                                 return_tensors="pt", **self.template_kwargs)
+        out = []
+        for cand in candidates:
+            cid = self.tokenizer(cand, add_special_tokens=False)["input_ids"] + [self.tokenizer.eos_token_id]
+            full = torch.cat([ids, torch.tensor([cid], dtype=ids.dtype)], dim=1)
+            with torch.no_grad():
+                logits = self.model(full, attention_mask=torch.ones_like(full)).logits[0]
+            logp = torch.log_softmax(logits[ids.shape[1] - 1:-1].float(), dim=-1)
+            out.append(float(sum(logp[i, t] for i, t in enumerate(cid))))
+        self.stats["scored"] = self.stats.get("scored", 0) + len(candidates)
+        return out
+
     def generate(self, messages: list[dict]) -> str:
         torch = self._torch
         ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
