@@ -1,0 +1,472 @@
+MIRA EPISODIC LAB - REVIEW M0/M1, PART 1 OF 2 (summary and generator; lab commit 1fecf01)
+
+Review request (Gemini and Astra review separately and blind; Claude is lead reviewer). Please review milestones 0 and 1 of the Mira episodic lab: the feasibility numbers and their planning consequences, and the benchmark code (generator, questions, evaluator, statistics, symbolic arm, tests, workflows). Look especially for: ways a system could score without episodic memory (shortcuts, leaks of gold, template artefacts), wrong or ambiguous gold answers, unfair answer extraction, statistical errors, and anything that breaks the protocol (v0.2). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part you received. This file ends with the line "=== END OF LAB M1 REVIEW PART 1 ===".
+
+STATE: public lab repository Joe9291/mira-episodic-lab, main = 1fecf01 (milestones 0 and 1). Protocol v0.2 (docs/PROTOCOL.md, integrates your blind reviews of v0.1) governs the pilot; it is not the confirmatory preregistration.
+
+MILESTONE 0 - FEASIBILITY ON THE REAL RUNNER (GitHub standard runner, public repo: 4 vCPU Intel Xeon Platinum 8573C, 16 GB RAM; Python 3.12, torch 2.6.0+cpu, transformers 4.51.3, peft 0.15.2; float32; first run, all four jobs OK; results on branch "results", run 38915077515)
+model                         params  prefill tok/s  generate tok/s  LoRA step (r=8, q/v, ~100-token episode)  peak RAM
+SmolLM2-135M-Instruct         135M    791            24.0            0.35 s                                  1.2 GB
+SmolLM2-360M-Instruct         362M    172             7.2            1.33 s                                  2.4 GB
+Qwen2.5-0.5B-Instruct         494M    150             6.7            1.50 s                                  3.2 GB
+Qwen3-0.6B                    596M    120             5.2            1.95 s                                  4.7 GB
+Download and load take seconds. LoRA loss falls on the episode in 6 steps for all models.
+Planning consequences (estimates from these numbers, to be confirmed in the pilot):
+- Inference arms: a 20-episode world with about 110 answers (two test points) is roughly 1-2 minutes per arm with the 135M model and roughly 10-15 minutes with the 0.5B models (all-episodes prompts of about 700 tokens are the expensive case). 20 parallel jobs.
+- P1 (one LoRA update per episode): 20 episodes x 5 steps is about 35 s (135M) to 3 min (0.6B) per world. The concern that per-episode training would exceed the 6-hour limit is not borne out at this scale.
+- P2 (rank-one edits) still needs its covariance statistics; at about 120-800 prefill tokens/s, 100k statistics tokens cost about 2-14 minutes per model - feasible, decided in milestone 4.
+- Raw prompting without chat template produced rambling or multiple-choice style continuations (Qwen3, SmolLM2): the pilot must use each model's chat template, a short answer instruction and a small max_new_tokens; Qwen3 with enable_thinking=False.
+
+MILESTONE 1 - BENCHMARK, EVALUATOR, SYMBOLIC ARM (no model)
+- rng.py: own SHA-256 counter generator (Python-version independent).
+- world.py (schema v2): per world an early block (default 12 episodes) and a follow-up block (default 8) on consecutive days, one event per day; small pools (5 people, 4 places, 5 objects, 8 actions) so details recur and only combinations identify an episode; about a quarter of early episodes are narrated out of chronological order ("Looking back to day d", "Earlier, on day d ... had ..."); episode ids are random tokens never shown to the system; follow-ups either reuse the early pools ("high" overlap, competing) or use disjoint names ("low" overlap) for E6.
+- questions.py: E2 binding recall (object / place / person cued by the other details; exactly one matching episode in the WHOLE world), E5 binding lures (same templates; every pair of cue details co-occurs somewhere, the full combination never), E4 day of a uniquely described event, E3a which of two uniquely described events was first (pairs whose presentation order differs from day order first), E3b latest place and place on day d, E7 "give the object back to the last person who had it - where do you go" (needs the latest episode with the object AND that person's latest episode at another place). Paraphrase sets differ from the episode wording. Two test points: phase1 (after the early block; only questions whose answer cannot change by the follow-ups) and final. Public files hold only qid, text, answer type; gold is evaluator-only.
+- score.py: an answer counts only if it names exactly one candidate of the asked type (full name or unique short form) or a "none" form; otherwise invalid = wrong; first line only. Per world and criterion accuracy; E5 false recall = a concrete (valid, non-none) answer to a lure. Statistics: mean over worlds with conservative t-interval, paired per-world differences, one-sided exact (Clopper-Pearson) upper bound with an effective sample size n / design effect for E5.
+- symbolic.py (arm S0): regex parser plus event table over the same texts, presented once each; rule answers. It answers every question of 24 test worlds correctly - this is the benchmark-is-solvable-by-data-handling reference and also an independent check that texts and gold agree.
+- runner.py: protocol schedule (early block once, phase1 test, follow-ups once, final test), counts presentations (E1a).
+- Tests: 15 unit tests, also run by a workflow on GitHub (green). Mutation test: 13 of 13 mutants detected after four tests were added (binding-lure pair condition, E7 two-episode condition, invalid answer not counted as false recall, partner never equal to actor).
+
+KNOWN GAPS (planned for milestone 2/3, not yet done): E7 yields only 1-2 items per world with the default pools (to be increased by more objects or further action templates); E6 analysis (phase1 vs final on early targets, high vs low overlap) is computed from the rows but not yet summarised; the misbound-memory and random-retrieval controls and the A3 store are milestone 3.
+
+---BEGIN FILE episodic_lab/rng.py---
+"""Deterministic, version-independent random choices (SHA-256 counter mode).
+
+Python's `random` module is not guaranteed to give the same sequence across
+versions for every method; worlds must be byte-identical everywhere, so the lab
+uses its own generator.
+"""
+from __future__ import annotations
+
+import hashlib
+
+
+class HashRng:
+    def __init__(self, seed: str):
+        self._seed = seed.encode("utf-8")
+        self._counter = 0
+
+    def _next_u64(self) -> int:
+        block = hashlib.sha256(self._seed + b"\0" + str(self._counter).encode()).digest()
+        self._counter += 1
+        return int.from_bytes(block[:8], "big")
+
+    def below(self, n: int) -> int:
+        """Uniform integer in [0, n) without modulo bias."""
+        if n <= 0:
+            raise ValueError("n must be positive")
+        limit = (1 << 64) - ((1 << 64) % n)
+        while True:
+            value = self._next_u64()
+            if value < limit:
+                return value % n
+
+    def choice(self, items):
+        return items[self.below(len(items))]
+
+    def shuffled(self, items):
+        result = list(items)
+        for i in range(len(result) - 1, 0, -1):
+            j = self.below(i + 1)
+            result[i], result[j] = result[j], result[i]
+        return result
+
+    def sample(self, items, k: int):
+        if k > len(items):
+            raise ValueError("sample larger than population")
+        return self.shuffled(items)[:k]
+---END FILE episodic_lab/rng.py---
+
+---BEGIN FILE episodic_lab/world.py---
+"""Synthetic episodic worlds (protocol section 3).
+
+Invented people, places, objects and actions with deliberate feature overlap: the same
+people, places and objects recur, so only a combination identifies an episode (binding).
+One event per day. An early block is followed by K follow-up episodes that either
+overlap strongly with it (competing) or use disjoint names (low overlap), for E6.
+Some early episodes are told out of chronological order (E3a). Episode identifiers are
+random tokens and reveal no order (E4).
+
+Every fact a question can ask about is generated here, never by a model.
+"""
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+
+from .rng import HashRng
+
+WORLD_SCHEMA = "episodic_lab.world.v2"
+
+FIRST = ("Varo", "Ilsen", "Tamric", "Odile", "Brenna", "Casimo", "Yelda", "Fenwick",
+         "Marit", "Quillon", "Sabeth", "Dorran", "Elvie", "Gorvin", "Halsey", "Juno")
+LAST = ("Tellin", "Marrow", "Quist", "Ambery", "Corland", "Vesk", "Pellow", "Drummet",
+        "Haverl", "Ostrin", "Lunsey", "Brack")
+PLACE_STEM = ("Brannick", "Mossgate", "Wyndle", "Carrow", "Ellsmere", "Thornby",
+              "Quarrel", "Fenhollow", "Ashgrove", "Lindmere", "Pellan", "Sorrow")
+PLACE_KIND = ("Mill", "Harbour", "Library", "Market", "Bridge", "Orchard", "Forge",
+              "Chapel", "Station", "Garden")
+OBJ_ADJ = ("copper", "blue", "cracked", "heavy", "tiny", "silver", "wooden", "striped")
+OBJ_NOUN = ("lantern", "ledger", "kettle", "compass", "violin", "map", "basket",
+            "telescope", "clock", "umbrella", "ladder", "mirror")
+ACTIONS = ("repaired", "painted", "sold", "hid", "found", "measured", "cleaned", "carried")
+PARTICIPLE = {"hid": "hidden"}
+
+IN_ORDER = (
+    "On day {day}, {actor} {action} the {object} at {place}{partner}.",
+    "Day {day}: at {place}, {actor}{partner} {action} the {object}.",
+    "{actor} was at {place} on day {day} and {action} the {object}{partner}.",
+)
+OUT_OF_ORDER = (
+    "Looking back to day {day}: {actor} {action} the {object} at {place}{partner}.",
+    "Earlier, on day {day}, {actor}{partner} had {participle} the {object} at {place}.",
+)
+
+
+@dataclass(frozen=True)
+class Episode:
+    episode_id: str
+    day: int
+    actor: str
+    partner: str | None
+    place: str
+    action: str
+    object: str
+    block: str            # "early" or "followup"
+    position: int         # presentation position (0-based)
+    out_of_order: bool
+    text: str
+
+    @property
+    def participants(self) -> tuple[str, ...]:
+        return (self.actor,) if self.partner is None else (self.actor, self.partner)
+
+
+def _pools(rng: HashRng, people: int, places: int, objects: int, used: dict) -> dict:
+    """Draw name pools that do not reuse any first name, place or object noun in `used`."""
+    firsts = rng.sample([f for f in FIRST if f not in used["first"]], people)
+    person_names = [f"{first} {rng.choice(LAST)}" for first in firsts]
+    stems = rng.sample([s for s in PLACE_STEM if s not in used["stem"]], places)
+    place_names = [f"{stem} {rng.choice(PLACE_KIND)}" for stem in stems]
+    nouns = rng.sample([n for n in OBJ_NOUN if n not in used["noun"]], objects)
+    object_names = [f"{rng.choice(OBJ_ADJ)} {noun}" for noun in nouns]
+    used["first"].update(firsts)
+    used["stem"].update(stems)
+    used["noun"].update(nouns)
+    return {"people": person_names, "places": place_names, "objects": object_names}
+
+
+def _event(rng: HashRng, pool: dict, day: int) -> dict:
+    actor = rng.choice(pool["people"])
+    partner = rng.choice([p for p in pool["people"] if p != actor]) if rng.below(3) == 0 else None
+    return {"day": day, "actor": actor, "partner": partner, "place": rng.choice(pool["places"]),
+            "action": rng.choice(ACTIONS), "object": rng.choice(pool["objects"])}
+
+
+def _token(rng: HashRng) -> str:
+    return "ep-" + "".join(rng.choice("abcdefghjkmnpqrstuvwxyz23456789") for _ in range(6))
+
+
+def generate_world(seed: str, early: int = 12, followup: int = 8, overlap: str = "high",
+                   people: int = 5, places: int = 4, objects: int = 5) -> dict:
+    """Return a world; `overlap` is "high" (follow-ups reuse the early pools) or "low"."""
+    if overlap not in ("high", "low"):
+        raise ValueError("overlap must be 'high' or 'low'")
+    if not (4 <= early <= 200 and 0 <= followup <= 200 and 3 <= people <= 8
+            and 2 <= places <= 6 and 2 <= objects <= 6):
+        raise ValueError("world size out of range")
+    rng = HashRng(f"world:{seed}:{overlap}")
+    used = {"first": set(), "stem": set(), "noun": set()}
+    early_pool = _pools(rng, people, places, objects, used)
+    follow_pool = early_pool if overlap == "high" else _pools(rng, people, places, objects, used)
+
+    events = [dict(_event(rng, early_pool, day), block="early") for day in range(1, early + 1)]
+    events += [dict(_event(rng, follow_pool, day), block="followup")
+               for day in range(early + 1, early + followup + 1)]
+
+    # Presentation order: chronological, except that about a quarter of the early
+    # episodes are moved to a later position inside the early block.
+    order = list(range(early))
+    for _ in range(max(1, early // 4)):
+        index = rng.below(early - 1)
+        item = order.pop(index)
+        new_pos = index + 1 + rng.below(early - index - 1) if early - index - 1 > 0 else index
+        order.insert(new_pos, item)
+    order += list(range(early, early + followup))
+
+    tokens: set[str] = set()
+    episodes: list[Episode] = []
+    for position, index in enumerate(order):
+        event = events[index]
+        late = any(events[j]["day"] > event["day"] for j in order[:position])
+        templates = OUT_OF_ORDER if late else IN_ORDER
+        partner_text = f" together with {event['partner']}" if event["partner"] else ""
+        text = rng.choice(templates).format(day=event["day"], actor=event["actor"],
+                                            action=event["action"],
+                                            participle=PARTICIPLE.get(event["action"], event["action"]),
+                                            object=event["object"],
+                                            place=event["place"], partner=partner_text)
+        token = _token(rng)
+        while token in tokens:
+            token = _token(rng)
+        tokens.add(token)
+        episodes.append(Episode(token, event["day"], event["actor"], event["partner"],
+                                event["place"], event["action"], event["object"],
+                                event["block"], position, late, text))
+    return {
+        "schema": WORLD_SCHEMA,
+        "seed": seed,
+        "overlap": overlap,
+        "early_pool": early_pool,
+        "followup_pool": follow_pool,
+        "actions": list(ACTIONS),
+        "episodes": [asdict(e) for e in episodes],
+    }
+
+
+def episodes_of(world: dict) -> list[Episode]:
+    return [Episode(**e) for e in world["episodes"]]
+
+
+def vocabulary(world: dict) -> dict:
+    """All people, places and objects that occur anywhere in the world."""
+    result = {"people": set(), "places": set(), "objects": set()}
+    for pool in (world["early_pool"], world["followup_pool"]):
+        result["people"].update(pool["people"])
+        result["places"].update(pool["places"])
+        result["objects"].update(pool["objects"])
+    return {k: sorted(v) for k, v in result.items()}
+---END FILE episodic_lab/world.py---
+
+---BEGIN FILE episodic_lab/questions.py---
+"""Question sets with ground truth for a world (protocol sections 2 and 3).
+
+Two test points: `phase1` right after the early block (only questions whose answer is
+the same before and after the follow-ups) and `final` after all episodes. The public
+question files carry no answers; the gold file is for the evaluator only.
+"""
+from __future__ import annotations
+
+from .rng import HashRng
+from .world import Episode, episodes_of
+
+QUESTION_SCHEMA = "episodic_lab.questions.v1"
+
+PARA = {
+    "object": ("What did {person} {action} at {place}?",
+               "At {place}, which thing did {person} {action}?",
+               "Name the object that {person} {past} at {place}."),
+    "place": ("Where did {person} {action} the {object}?",
+              "At which place did {person} {action} the {object}?",
+              "Name the place where {person} {past} the {object}."),
+    "person": ("Who {past} the {object} at {place}?",
+               "Which person {past} the {object} at {place}?",
+               "Name someone who {past} the {object} at {place}."),
+    "day": ("On which day did {person} {action} the {object}?",
+            "Which day was it when {person} {past} the {object}?"),
+    "order": ("Which happened first? (A) {a} (B) {b} Answer A or B.",
+              "Two events: (A) {a} (B) {b} Which one was earlier? Answer A or B."),
+    "latest": ("Where was {person} most recently?",
+               "At which place was {person} seen last?"),
+    "at_day": ("Where was {person} on day {day}?",
+               "At which place was {person} on day {day}?"),
+    "act": ("You want to give the {object} back to the last person who had it. "
+            "To which place do you go to find that person?",
+            "The {object} must go back to whoever last had it. Which place do you visit "
+            "to meet that person?"),
+}
+BASE = {"repaired": "repair", "painted": "paint", "sold": "sell", "hid": "hide",
+        "found": "find", "measured": "measure", "cleaned": "clean", "carried": "carry"}
+
+
+def _match(episodes, person=None, action=None, place=None, obj=None):
+    return [e for e in episodes
+            if (person is None or person in e.participants)
+            and (action is None or e.action == action)
+            and (place is None or e.place == place)
+            and (obj is None or e.object == obj)]
+
+
+def _describe(e: Episode, person: str) -> str:
+    return f"{person} {e.action} the {e.object}."
+
+
+def build_questions(world: dict, per_type: int = 8) -> dict:
+    """Return {"public": {"phase1": [...], "final": [...]}, "gold": {qid: {...}}}."""
+    rng = HashRng(f"questions:{world['seed']}:{world['overlap']}")
+    eps = episodes_of(world)
+    early = [e for e in eps if e.block == "early"]
+    people = sorted({p for e in eps for p in e.participants})
+    places = sorted({e.place for e in eps})
+    objects = sorted({e.object for e in eps})
+    actions = sorted({e.action for e in eps})
+    items: list[dict] = []
+
+    def add(criterion, qtype, text, answer_type, gold, targets, phase1, cue=None):
+        items.append({"criterion": criterion, "qtype": qtype, "text": text,
+                      "answer_type": answer_type, "gold": gold, "targets": targets,
+                      "phase1": phase1, "cue": cue})
+
+    def pick(candidates, n):
+        return rng.sample(candidates, min(n, len(candidates)))
+
+    # E2 binding recall and E5 lures (same templates); targets in the early block only,
+    # uniqueness and absence checked over the WHOLE world, so phase1 and final agree.
+    seen = set()
+    e2 = []
+    for e in early:
+        for person in e.participants:
+            for qtype, cue in (("object", dict(person=person, action=e.action, place=e.place)),
+                               ("place", dict(person=person, action=e.action, obj=e.object)),
+                               ("person", dict(action=e.action, place=e.place, obj=e.object))):
+                key = (qtype, tuple(sorted(cue.items())))
+                if key in seen or len(_match(eps, **cue)) != 1:
+                    continue
+                seen.add(key)
+                e2.append((qtype, cue, e))
+    for qtype, cue, e in pick(e2, 3 * per_type):
+        fill = {"person": cue.get("person"), "action": BASE[e.action], "past": e.action,
+                "place": e.place, "object": e.object}
+        gold = {"object": [e.object], "place": [e.place], "person": list(e.participants)}[qtype]
+        add("E2", qtype, rng.choice(PARA[qtype]).format(**fill), qtype, gold, [e.episode_id], True)
+
+    lures = []
+    for _ in range(400):
+        qtype = rng.choice(("object", "place", "person"))
+        person, action, place, obj = (rng.choice(people), rng.choice(actions),
+                                      rng.choice(places), rng.choice(objects))
+        cue = {"object": dict(person=person, action=action, place=place),
+               "place": dict(person=person, action=action, obj=obj),
+               "person": dict(action=action, place=place, obj=obj)}[qtype]
+        # Lure: every detail occurs in the world, but never in this combination; each
+        # pair of cue details does co-occur somewhere, so single facts do not reveal it.
+        if _match(eps, **cue):
+            continue
+        keys = list(cue)
+        if not all(_match(eps, **{a: cue[a], b: cue[b]}) for i, a in enumerate(keys)
+                   for b in keys[i + 1:]):
+            continue
+        key = (qtype, tuple(sorted(cue.items())))
+        if key in seen:
+            continue
+        seen.add(key)
+        lures.append((qtype, cue))
+        if len(lures) >= 2 * per_type:
+            break
+    for qtype, cue in lures:
+        fill = {"person": cue.get("person"), "action": BASE[cue["action"]],
+                "past": cue["action"], "place": cue.get("place"), "object": cue.get("obj")}
+        add("E5", qtype, rng.choice(PARA[qtype]).format(**fill), qtype, ["none"], [], True,
+            cue=cue)
+
+    # E4 source: content (person, action, object) unique, asked for the day.
+    e4 = []
+    for e in early:
+        for person in e.participants:
+            if len(_match(eps, person=person, action=e.action, obj=e.object)) == 1:
+                e4.append((person, e))
+    for person, e in pick(e4, per_type):
+        text = rng.choice(PARA["day"]).format(person=person, action=BASE[e.action],
+                                              past=e.action, object=e.object)
+        add("E4", "day", text, "day", [str(e.day)], [e.episode_id], True)
+
+    # E3a order: two uniquely described events with different days; prefer pairs whose
+    # presentation order differs from their day order.
+    described = [(person, e) for person, e in e4]
+    pairs = []
+    for i, (pa, a) in enumerate(described):
+        for pb, b in described[i + 1:]:
+            if a.day != b.day:
+                pairs.append(((pa, a), (pb, b), (a.position < b.position) != (a.day < b.day)))
+    pairs = [p for p in pairs if p[2]] + [p for p in pairs if not p[2]]
+    for (pa, a), (pb, b), _ in pairs[:per_type]:
+        if rng.below(2):
+            (pa, a), (pb, b) = (pb, b), (pa, a)
+        text = rng.choice(PARA["order"]).format(a=_describe(a, pa), b=_describe(b, pb))
+        add("E3a", "order", text, "choice", ["A" if a.day < b.day else "B"],
+            [a.episode_id, b.episode_id], True)
+
+    # E3b state: latest place (final only) and place on a given day (both phases when
+    # the day lies in the early block).
+    for person in pick(people, per_type // 2):
+        mine = _match(eps, person=person)
+        if mine:
+            last = max(mine, key=lambda x: x.day)
+            add("E3b", "latest", rng.choice(PARA["latest"]).format(person=person), "place",
+                [last.place], [last.episode_id], False)
+    at_day = [(p, e) for e in early for p in e.participants]
+    for person, e in pick(at_day, per_type // 2):
+        add("E3b", "at_day", rng.choice(PARA["at_day"]).format(person=person, day=e.day),
+            "place", [e.place], [e.episode_id], True)
+
+    # E7 action: needs the latest episode with the object (its actor, no partner) AND
+    # that person's latest episode, at a different place.
+    for obj in pick(objects, len(objects)):
+        with_obj = _match(eps, obj=obj)
+        if not with_obj:
+            continue
+        first = max(with_obj, key=lambda x: x.day)
+        if first.partner is not None:
+            continue
+        second = max(_match(eps, person=first.actor), key=lambda x: x.day)
+        if second.episode_id == first.episode_id or second.place == first.place:
+            continue
+        add("E7", "act", rng.choice(PARA["act"]).format(object=obj), "place",
+            [second.place], [first.episode_id, second.episode_id], False)
+
+    items = rng.shuffled(items)
+    public = {"phase1": [], "final": []}
+    gold = {}
+    for n, item in enumerate(items):
+        qid = f"q{n:03d}"
+        record = {"qid": qid, "text": item["text"], "answer_type": item["answer_type"]}
+        public["final"].append(record)
+        if item["phase1"]:
+            public["phase1"].append(record)
+        gold[qid] = {k: item[k] for k in ("criterion", "qtype", "answer_type", "gold",
+                                          "targets", "phase1", "cue")}
+    return {"schema": QUESTION_SCHEMA, "public": public, "gold": gold,
+            "candidates": {"person": people, "place": places, "object": objects}}
+---END FILE episodic_lab/questions.py---
+
+---BEGIN FILE episodic_lab/runner.py---
+"""Run one system on one world under the protocol's encoding and test schedule.
+
+Schedule: present the early episodes once each in presentation order, test with the
+phase1 questions, present the follow-up episodes once each, test with the final
+questions. The system sees only episode texts and question texts (E1a); the evaluator
+alone holds the gold answers.
+"""
+from __future__ import annotations
+
+from typing import Protocol
+
+from .questions import build_questions
+from .score import score_world, summarise
+from .world import episodes_of, generate_world
+
+
+class System(Protocol):
+    def encode(self, text: str) -> None: ...
+    def answer(self, text: str) -> str: ...
+
+
+def run_world(system: System, seed: str, overlap: str = "high", **world_args) -> dict:
+    world = generate_world(seed, overlap=overlap, **world_args)
+    qs = build_questions(world)
+    episodes = episodes_of(world)
+    presented = 0
+    answers = {}
+    for block, phase in (("early", "phase1"), ("followup", "final")):
+        for e in episodes:
+            if e.block == block:
+                system.encode(e.text)
+                presented += 1
+        answers[phase] = {q["qid"]: system.answer(q["text"]) for q in qs["public"][phase]}
+    rows = (score_world(qs["gold"], qs["candidates"], answers["phase1"], "phase1")
+            + score_world(qs["gold"], qs["candidates"], answers["final"], "final"))
+    return {"seed": seed, "overlap": overlap, "episodes_presented": presented,
+            "episodes_in_world": len(episodes), "rows": rows,
+            "phase1": summarise([r for r in rows if r["phase"] == "phase1"]),
+            "final": summarise([r for r in rows if r["phase"] == "final"])}
+---END FILE episodic_lab/runner.py---
+
+=== END OF LAB M1 REVIEW PART 1 ===

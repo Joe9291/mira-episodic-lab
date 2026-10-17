@@ -1,0 +1,789 @@
+MIRA EPISODIC LAB - REVIEW M0/M1, PART 2 OF 2 (evaluator, symbolic arm, tests, workflows; lab commit 1fecf01)
+
+Review request (Gemini and Astra review separately and blind; Claude is lead reviewer). Please review milestones 0 and 1 of the Mira episodic lab: the feasibility numbers and their planning consequences, and the benchmark code (generator, questions, evaluator, statistics, symbolic arm, tests, workflows). Look especially for: ways a system could score without episodic memory (shortcuts, leaks of gold, template artefacts), wrong or ambiguous gold answers, unfair answer extraction, statistical errors, and anything that breaks the protocol (v0.2). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part you received. This file ends with the line "=== END OF LAB M1 REVIEW PART 2 ===".
+
+
+---BEGIN FILE episodic_lab/score.py---
+"""Evaluator: answer extraction, scoring and world-level statistics (protocol section 6).
+
+Answer rule (fixed before use): the answer counts only if it names exactly one candidate
+of the asked type (or is a "none" form); several or no candidates make it invalid, and
+invalid answers are wrong. People may be named by full name or first name, places by
+full name or stem, objects by full name or noun; each short form is unique in a world.
+"""
+from __future__ import annotations
+
+import math
+import re
+
+NONE_FORMS = ("none", "nobody", "no one", "noone", "nothing", "nowhere", "never",
+              "unknown", "not mentioned", "no such event", "did not happen")
+
+
+def normalise(text: str) -> str:
+    text = text.lower().replace("’", "'")
+    text = re.sub(r"[^a-z0-9' ]+", " ", text)
+    return " ".join(text.split())
+
+
+def _mentions(norm: str, phrase: str) -> bool:
+    return re.search(rf"(?<![a-z0-9]){re.escape(phrase)}(?![a-z0-9])", norm) is not None
+
+
+def extract(answer: str, answer_type: str, candidates: dict) -> str | None:
+    """Return the canonical answer, "none", or None for an invalid answer."""
+    if not isinstance(answer, str):
+        return None
+    first_line = answer.strip().split("\n", 1)[0]
+    norm = normalise(first_line)
+    if not norm:
+        return None
+    is_none = any(_mentions(norm, form) for form in NONE_FORMS)
+    if answer_type == "choice":
+        found = set(re.findall(r"(?<![A-Za-z])([AB])(?![A-Za-z])", first_line))
+        return found.pop() if len(found) == 1 else None
+    if answer_type == "day":
+        days = set(re.findall(r"\d+", norm))
+        if len(days) == 1 and not is_none:
+            return str(int(days.pop()))
+        return "none" if is_none and not days else None
+    names = candidates[answer_type]
+    hits = set()
+    for name in names:
+        forms = [normalise(name)]
+        if answer_type == "person":
+            forms.append(normalise(name.split()[0]))
+        elif answer_type == "place":
+            forms.append(normalise(name.split()[0]))
+        elif answer_type == "object":
+            forms.append(normalise(name.split()[-1]))
+        if any(_mentions(norm, f) for f in forms):
+            hits.add(name)
+    if len(hits) == 1 and not is_none:
+        return hits.pop()
+    if not hits and is_none:
+        return "none"
+    return None
+
+
+def score_world(gold: dict, candidates: dict, answers: dict, phase: str) -> list[dict]:
+    """One record per question of the phase; `answers` maps qid -> raw answer text."""
+    rows = []
+    for qid, g in sorted(gold.items()):
+        if phase == "phase1" and not g["phase1"]:
+            continue
+        raw = answers.get(qid)
+        got = extract(raw, g["answer_type"], candidates) if raw is not None else None
+        rows.append({"qid": qid, "criterion": g["criterion"], "qtype": g["qtype"],
+                     "phase": phase, "extracted": got, "valid": got is not None,
+                     "correct": got is not None and got in g["gold"],
+                     "false_recall": g["gold"] == ["none"] and got not in (None, "none"),
+                     "targets": g["targets"]})
+    return rows
+
+
+def summarise(rows: list[dict]) -> dict:
+    """Per-criterion accuracy for one world and phase; E5 also as false-recall rate."""
+    out = {}
+    for criterion in sorted({r["criterion"] for r in rows}):
+        sub = [r for r in rows if r["criterion"] == criterion]
+        out[criterion] = {"n": len(sub), "accuracy": sum(r["correct"] for r in sub) / len(sub),
+                          "invalid": sum(not r["valid"] for r in sub)}
+        if criterion == "E5":
+            out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / len(sub)
+    return out
+
+
+# ---------------------------------------------------------------- statistics over worlds
+_T975 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306,
+         9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131,
+         16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086, 25: 2.060, 30: 2.042,
+         40: 2.021, 60: 2.000, 120: 1.980}
+
+
+def t975(df: int) -> float:
+    if df < 1:
+        raise ValueError("need at least two worlds")
+    if df > 120:
+        return 1.980  # conservative: value for df = 120
+    # conservative: the largest tabulated df not above the actual df (larger quantile)
+    return _T975[max(k for k in _T975 if k <= df)]
+
+
+def mean_interval(values: list[float]) -> tuple[float, float, float]:
+    """Mean over worlds with a two-sided 95% t-interval (worlds are the units)."""
+    n = len(values)
+    mean = sum(values) / n
+    if n < 2:
+        return mean, float("nan"), float("nan")
+    sd = math.sqrt(sum((v - mean) ** 2 for v in values) / (n - 1))
+    half = t975(n - 1) * sd / math.sqrt(n)
+    return mean, mean - half, mean + half
+
+
+def paired_difference(a: list[float], b: list[float]) -> tuple[float, float, float]:
+    """Paired per-world difference a - b with its 95% t-interval."""
+    if len(a) != len(b):
+        raise ValueError("paired comparison needs the same worlds")
+    return mean_interval([x - y for x, y in zip(a, b)])
+
+
+def _betacf(a: float, b: float, x: float) -> float:
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c, d = 1.0, 1.0 - qab * x / qap
+    d = 1.0 / (d if abs(d) > 1e-300 else 1e-300)
+    h = d
+    for m in range(1, 300):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > 1e-300 else 1e-300)
+        c = 1.0 + aa / c if abs(1.0 + aa / c) > 1e-300 else 1e-300
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > 1e-300 else 1e-300)
+        c = 1.0 + aa / c if abs(1.0 + aa / c) > 1e-300 else 1e-300
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < 1e-12:
+            break
+    return h
+
+
+def betainc(a: float, b: float, x: float) -> float:
+    """Regularised incomplete beta I_x(a, b)."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lbeta = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+    front = math.exp(lbeta + a * math.log(x) + b * math.log1p(-x))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * _betacf(a, b, x) / a
+    return 1.0 - front * _betacf(b, a, 1.0 - x) / b
+
+
+def upper_bound(errors: float, n: float, confidence: float = 0.95) -> float:
+    """One-sided exact (Clopper-Pearson) upper bound; n may be an effective sample size."""
+    if n <= 0:
+        return 1.0
+    errors = min(errors, n)
+    if errors >= n:
+        return 1.0
+    lo, hi = errors / n, 1.0
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        # P(X <= errors | p = mid) = 1 - I_mid(errors + 1, n - errors)
+        if 1.0 - betainc(errors + 1.0, n - errors, mid) > 1.0 - confidence:
+            lo = mid
+        else:
+            hi = mid
+    return hi
+
+
+def false_recall_bound(errors_per_world: list[int], questions_per_world: list[int],
+                       design_effect: float = 1.0) -> float:
+    """E5 upper bound on the pooled count with an effective sample size n / design effect."""
+    errors = sum(errors_per_world)
+    n = sum(questions_per_world)
+    deff = max(1.0, design_effect)
+    return upper_bound(errors / deff, n / deff)
+---END FILE episodic_lab/score.py---
+
+---BEGIN FILE episodic_lab/symbolic.py---
+"""Arm S0: a rule-based event manager (protocol section 4).
+
+It reads the same episode texts the models see, once each and in presentation order,
+stores parsed events in a table and answers the same questions by rules. It shows how
+far the benchmark is solved by plain data handling, without any language model.
+"""
+from __future__ import annotations
+
+import re
+
+from .questions import BASE, PARA
+
+PAST = {base: past for past, base in BASE.items()}
+_NAME = r"[A-Z][a-z]+ [A-Z][a-z]+"
+_PLACE = r"[A-Z][a-z]+ [A-Z][a-z]+"
+_OBJ = r"[a-z]+ [a-z]+"
+_ACT = "|".join(BASE)
+_PART = r"(?: together with (?P<partner>" + _NAME + r"))?"
+EPISODE_PATTERNS = [
+    rf"On day (?P<day>\d+), (?P<actor>{_NAME}) (?P<action>{_ACT}) the (?P<object>{_OBJ}) at (?P<place>{_PLACE}){_PART}\.",
+    rf"Day (?P<day>\d+): at (?P<place>{_PLACE}), (?P<actor>{_NAME}){_PART} (?P<action>{_ACT}) the (?P<object>{_OBJ})\.",
+    rf"(?P<actor>{_NAME}) was at (?P<place>{_PLACE}) on day (?P<day>\d+) and (?P<action>{_ACT}) the (?P<object>{_OBJ}){_PART}\.",
+    rf"Looking back to day (?P<day>\d+): (?P<actor>{_NAME}) (?P<action>{_ACT}) the (?P<object>{_OBJ}) at (?P<place>{_PLACE}){_PART}\.",
+    rf"Earlier, on day (?P<day>\d+), (?P<actor>{_NAME}){_PART} had (?P<action>{_ACT}|hidden) the (?P<object>{_OBJ}) at (?P<place>{_PLACE})\.",
+]
+
+
+class SymbolicMemory:
+    def __init__(self):
+        self.events: list[dict] = []
+
+    def encode(self, text: str) -> None:
+        for pattern in EPISODE_PATTERNS:
+            m = re.fullmatch(pattern, text)
+            if m:
+                event = m.groupdict()
+                event["day"] = int(event["day"])
+                if event["action"] == "hidden":
+                    event["action"] = "hid"
+                self.events.append(event)
+                return
+        raise ValueError(f"unparsed episode: {text}")
+
+    def _match(self, person=None, action=None, place=None, obj=None):
+        return [e for e in self.events
+                if (person is None or person in (e["actor"], e["partner"]))
+                and (action is None or e["action"] == action)
+                and (place is None or e["place"] == place)
+                and (obj is None or e["object"] == obj)]
+
+    def answer(self, text: str) -> str:
+        for qtype, templates in PARA.items():
+            for template in templates:
+                m = re.fullmatch(_template_regex(template), text)
+                if m:
+                    return self._answer(qtype, m.groupdict())
+        return "unparsed"
+
+    def _answer(self, qtype: str, g: dict) -> str:
+        action = PAST.get(g.get("action"), g.get("past"))
+        if qtype in ("object", "place", "person", "day"):
+            cue = {"person": g.get("person"), "action": action, "place": g.get("place"),
+                   "obj": g.get("object")}
+            hits = self._match(**{k: v for k, v in cue.items() if v is not None})
+            if len(hits) != 1:
+                return "none"
+            e = hits[0]
+            return {"object": e["object"], "place": e["place"], "person": e["actor"],
+                    "day": str(e["day"])}[qtype]
+        if qtype == "order":
+            days = []
+            for side in ("a", "b"):
+                m = re.fullmatch(rf"({_NAME}) ({_ACT}) the ({_OBJ})\.", g[side])
+                hits = self._match(person=m.group(1), action=m.group(2), obj=m.group(3)) if m else []
+                days.append(hits[0]["day"] if len(hits) == 1 else None)
+            if None in days:
+                return "unknown"
+            return "A" if days[0] < days[1] else "B"
+        if qtype == "latest":
+            hits = self._match(person=g["person"])
+            return max(hits, key=lambda e: e["day"])["place"] if hits else "none"
+        if qtype == "at_day":
+            hits = [e for e in self._match(person=g["person"]) if e["day"] == int(g["day"])]
+            return hits[0]["place"] if hits else "none"
+        if qtype == "act":
+            with_obj = self._match(obj=g["object"])
+            if not with_obj:
+                return "none"
+            holder = max(with_obj, key=lambda e: e["day"])["actor"]
+            return max(self._match(person=holder), key=lambda e: e["day"])["place"]
+        return "unparsed"
+
+
+def _template_regex(template: str) -> str:
+    parts = re.split(r"(\{[a-z]+\})", template)
+    groups = {"{person}": rf"(?P<person>{_NAME})", "{place}": rf"(?P<place>{_PLACE})",
+              "{object}": rf"(?P<object>{_OBJ})", "{action}": rf"(?P<action>{'|'.join(PAST)})",
+              "{past}": rf"(?P<past>{_ACT})", "{day}": r"(?P<day>\d+)",
+              "{a}": r"(?P<a>.+?)", "{b}": r"(?P<b>.+?)"}
+    return "".join(groups.get(p, re.escape(p)) for p in parts)
+---END FILE episodic_lab/symbolic.py---
+
+---BEGIN FILE tests/test_lab.py---
+"""Milestone 1 tests: generator, questions, evaluator, statistics and the symbolic arm."""
+from __future__ import annotations
+
+import json
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from episodic_lab import score  # noqa: E402
+from episodic_lab.questions import build_questions  # noqa: E402
+from episodic_lab.runner import run_world  # noqa: E402
+from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
+from episodic_lab.world import episodes_of, generate_world, vocabulary  # noqa: E402
+
+SEEDS = [f"test-{i}" for i in range(12)]
+
+
+def matches(eps, person=None, action=None, place=None, obj=None):
+    return [e for e in eps if (person is None or person in e.participants)
+            and (action is None or e.action == action) and (place is None or e.place == place)
+            and (obj is None or e.object == obj)]
+
+
+class WorldTests(unittest.TestCase):
+    def test_deterministic_and_seed_dependent(self):
+        a = json.dumps(generate_world("x"), sort_keys=True)
+        self.assertEqual(a, json.dumps(generate_world("x"), sort_keys=True))
+        self.assertNotEqual(a, json.dumps(generate_world("y"), sort_keys=True))
+        qa = json.dumps(build_questions(generate_world("x")), sort_keys=True)
+        self.assertEqual(qa, json.dumps(build_questions(generate_world("x")), sort_keys=True))
+
+    def test_structure(self):
+        for seed in SEEDS:
+            for overlap in ("high", "low"):
+                w = generate_world(seed, overlap=overlap)
+                eps = episodes_of(w)
+                self.assertEqual(sorted(e.day for e in eps), list(range(1, len(eps) + 1)))
+                self.assertEqual(len({e.episode_id for e in eps}), len(eps))
+                self.assertEqual([e.position for e in eps], list(range(len(eps))))
+                for e in eps:
+                    self.assertIn(f"day {e.day}", e.text.lower())
+                    self.assertNotIn(e.episode_id, e.text)
+                    self.assertTrue(all(p in e.text for p in e.participants))
+                self.assertTrue(any(e.out_of_order for e in eps), seed)
+                if overlap == "low":
+                    early = {p for e in eps if e.block == "early" for p in e.participants}
+                    late = {p for e in eps if e.block == "followup" for p in e.participants}
+                    self.assertFalse(early & late)
+                    self.assertFalse({e.object for e in eps if e.block == "early"}
+                                     & {e.object for e in eps if e.block == "followup"})
+
+    def test_feature_overlap_makes_binding_necessary(self):
+        w = generate_world("overlap")
+        eps = episodes_of(w)
+        for person in w["early_pool"]["people"]:
+            self.assertGreaterEqual(len({e.place for e in matches(eps, person=person)}), 1)
+        # every person, place and object of the early pool recurs or co-occurs widely
+        places_per_person = [len({e.place for e in matches(eps, person=p)})
+                             for p in w["early_pool"]["people"]]
+        self.assertGreater(max(places_per_person), 1)
+
+
+class PartnerTests(unittest.TestCase):
+    def test_partner_differs_from_actor(self):
+        for seed in SEEDS:
+            for e in episodes_of(generate_world(seed)):
+                self.assertNotEqual(e.actor, e.partner)
+
+
+class QuestionTests(unittest.TestCase):
+    def test_gold_is_unique_and_recomputed(self):
+        for seed in SEEDS:
+            for overlap in ("high", "low"):
+                w = generate_world(seed, overlap=overlap)
+                q = build_questions(w)
+                eps = {e.episode_id: e for e in episodes_of(w)}
+                for qid, g in q["gold"].items():
+                    if g["criterion"] == "E5":
+                        self.assertEqual(g["gold"], ["none"])
+                        self.assertEqual(g["targets"], [])
+                    else:
+                        self.assertTrue(g["targets"], qid)
+                        self.assertTrue(all(t in eps for t in g["targets"]))
+                    if g["phase1"]:
+                        self.assertTrue(all(eps[t].block == "early" for t in g["targets"]))
+
+    def test_lures_use_known_details_only(self):
+        for seed in SEEDS:
+            w = generate_world(seed)
+            q = build_questions(w)
+            vocab = vocabulary(w)
+            texts = {r["qid"]: r["text"] for r in q["public"]["final"]}
+            for qid, g in q["gold"].items():
+                if g["criterion"] != "E5":
+                    continue
+                names = [n for kind in vocab.values() for n in kind if n in texts[qid]]
+                self.assertGreaterEqual(len(names), 2, texts[qid])
+
+    def test_lures_are_binding_lures(self):
+        for seed in SEEDS:
+            for overlap in ("high", "low"):
+                w = generate_world(seed, overlap=overlap)
+                eps = episodes_of(w)
+                for g in build_questions(w)["gold"].values():
+                    if g["criterion"] != "E5":
+                        continue
+                    cue = g["cue"]
+                    self.assertEqual(matches(eps, **cue), [])
+                    keys = list(cue)
+                    for i, x in enumerate(keys):
+                        for y in keys[i + 1:]:
+                            self.assertTrue(matches(eps, **{x: cue[x], y: cue[y]}), (cue, x, y))
+
+    def test_action_items_need_two_episodes(self):
+        found = 0
+        for seed in SEEDS:
+            w = generate_world(seed)
+            eps = {e.episode_id: e for e in episodes_of(w)}
+            for g in build_questions(w)["gold"].values():
+                if g["criterion"] == "E7":
+                    first, second = (eps[t] for t in g["targets"])
+                    self.assertNotEqual(first.episode_id, second.episode_id)
+                    self.assertNotEqual(first.place, g["gold"][0])
+                    self.assertEqual(second.place, g["gold"][0])
+                    self.assertIsNone(first.partner)
+                    found += 1
+        self.assertGreater(found, 0)
+
+    def test_public_files_hold_no_answers(self):
+        w = generate_world("public")
+        q = build_questions(w)
+        for phase in ("phase1", "final"):
+            for record in q["public"][phase]:
+                self.assertEqual(set(record), {"qid", "text", "answer_type"})
+        dump = json.dumps(q["public"])
+        for e in episodes_of(w):
+            self.assertNotIn(e.episode_id, dump)
+
+    def test_all_criteria_present_and_order_items_mixed(self):
+        crits, mixed = set(), 0
+        for seed in SEEDS:
+            w = generate_world(seed)
+            q = build_questions(w)
+            crits |= {g["criterion"] for g in q["gold"].values()}
+            eps = {e.episode_id: e for e in episodes_of(w)}
+            for g in q["gold"].values():
+                if g["criterion"] == "E3a":
+                    a, b = (eps[t] for t in g["targets"])
+                    mixed += (a.position < b.position) != (a.day < b.day)
+        self.assertEqual(crits, {"E2", "E3a", "E3b", "E4", "E5", "E7"})
+        self.assertGreater(mixed, 0)
+
+
+class ScorerTests(unittest.TestCase):
+    cands = {"person": ["Varo Tellin", "Odile Quist"], "place": ["Mossgate Mill", "Carrow Forge"],
+             "object": ["copper lantern", "blue map"]}
+
+    def test_extraction(self):
+        ex = score.extract
+        self.assertEqual(ex("Varo Tellin.", "person", self.cands), "Varo Tellin")
+        self.assertEqual(ex("It was Varo", "person", self.cands), "Varo Tellin")
+        self.assertIsNone(ex("Varo or Odile", "person", self.cands))
+        self.assertIsNone(ex("Tellin", "person", self.cands))
+        self.assertEqual(ex("Nobody did that.", "person", self.cands), "none")
+        self.assertEqual(ex("the lantern", "object", self.cands), "copper lantern")
+        self.assertEqual(ex("At Mossgate.", "place", self.cands), "Mossgate Mill")
+        self.assertEqual(ex("Day 7", "day", self.cands), "7")
+        self.assertIsNone(ex("day 7 or 8", "day", self.cands))
+        self.assertEqual(ex("B", "choice", self.cands), "B")
+        self.assertIsNone(ex("A and B", "choice", self.cands))
+        self.assertIsNone(ex("", "place", self.cands))
+        self.assertEqual(ex("Mossgate Mill\nbecause...Carrow Forge", "place", self.cands),
+                         "Mossgate Mill")
+
+    def test_invalid_answer_is_wrong_but_not_false_recall(self):
+        gold = {"q1": {"criterion": "E5", "qtype": "place", "answer_type": "place",
+                       "gold": ["none"], "targets": [], "phase1": True, "cue": {}},
+                "q2": {"criterion": "E5", "qtype": "place", "answer_type": "place",
+                       "gold": ["none"], "targets": [], "phase1": True, "cue": {}}}
+        rows = score.score_world(gold, self.cands, {"q1": "Mossgate or Carrow", "q2": "Carrow"},
+                                 "final")
+        self.assertEqual([(r["correct"], r["false_recall"]) for r in rows],
+                         [(False, False), (False, True)])
+
+    def test_statistics(self):
+        self.assertAlmostEqual(score.upper_bound(0, 100), 1 - 0.05 ** (1 / 100), places=6)
+        self.assertAlmostEqual(score.upper_bound(1, 100), 0.0466, places=3)
+        self.assertGreater(score.false_recall_bound([0, 0, 0], [10, 10, 10], 2.0),
+                           score.false_recall_bound([0, 0, 0], [10, 10, 10], 1.0))
+        mean, lo, hi = score.mean_interval([0.5, 0.6, 0.7, 0.8])
+        self.assertAlmostEqual(mean, 0.65)
+        self.assertAlmostEqual(hi - mean, 3.182 * 0.12909944 / 2, places=4)
+        self.assertEqual(score.t975(22), 2.086)
+        d = score.paired_difference([0.9, 0.8, 0.85], [0.5, 0.45, 0.6])
+        self.assertGreater(d[1], 0)
+
+
+class _Constant:
+    def __init__(self, reply):
+        self.reply, self.encoded = reply, 0
+
+    def encode(self, text):
+        self.encoded += 1
+
+    def answer(self, text):
+        return self.reply
+
+
+class ArmTests(unittest.TestCase):
+    def test_symbolic_arm_solves_every_criterion(self):
+        for seed in SEEDS:
+            for overlap in ("high", "low"):
+                result = run_world(SymbolicMemory(), seed, overlap)
+                self.assertEqual(result["episodes_presented"], result["episodes_in_world"])
+                wrong = [r for r in result["rows"] if not r["correct"]]
+                self.assertEqual(wrong, [], (seed, overlap))
+
+    def test_trivial_baselines(self):
+        none = run_world(_Constant("none"), "base")
+        self.assertEqual(none["final"]["E5"]["accuracy"], 1.0)
+        self.assertEqual(none["final"]["E2"]["accuracy"], 0.0)
+        self.assertEqual(none["final"]["E5"]["false_recall"], 0.0)
+        w = generate_world("base")
+        person = w["early_pool"]["people"][0]
+        guess = run_world(_Constant(person), "base")
+        self.assertEqual(guess["final"]["E5"]["accuracy"], 0.0)
+        self.assertLess(guess["final"]["E2"]["accuracy"], 0.5)
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_lab.py---
+
+---BEGIN FILE bench/m0/measure.py---
+"""Milestone 0: feasibility measurement on the GitHub runner (protocol section 9).
+
+For one model: download, load time, memory, prefill and generation speed, and the time
+of LoRA update steps on one episode-sized text. Every outcome, including a failure with
+its traceback, is written to the result JSON, so the run itself is the evidence.
+No evaluation data is involved.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import platform
+import resource
+import time
+import traceback
+
+EPISODE = ("On day 7, Varo Tellin repaired the copper lantern at Mossgate Mill together "
+           "with Odile Quist. ") * 4  # about 100 tokens, the size of one episode
+PROMPT = EPISODE * 2 + "Question: Who repaired the copper lantern? Answer:"
+
+
+def peak_rss_mb() -> float:
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
+
+
+def measure(model_id: str, threads: int, lora_steps: int) -> dict:
+    import torch
+    from huggingface_hub import model_info, snapshot_download
+    from peft import LoraConfig, get_peft_model
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    torch.set_num_threads(threads)
+    torch.manual_seed(0)
+    out: dict = {"model_id": model_id, "torch_threads": threads}
+
+    t0 = time.perf_counter()
+    info = model_info(model_id)
+    out["resolved_revision"] = info.sha
+    path = snapshot_download(model_id, revision=info.sha,
+                             allow_patterns=["*.json", "*.safetensors", "*.txt", "*.model",
+                                             "*.jinja"])
+    out["download_s"] = round(time.perf_counter() - t0, 2)
+    out["files_mb"] = round(sum(os.path.getsize(os.path.join(dp, f))
+                                for dp, _, fs in os.walk(path) for f in fs) / 2**20, 1)
+
+    t0 = time.perf_counter()
+    tok = AutoTokenizer.from_pretrained(path)
+    model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.float32)
+    model.eval()
+    out["load_s"] = round(time.perf_counter() - t0, 2)
+    out["parameters_m"] = round(sum(p.numel() for p in model.parameters()) / 1e6, 1)
+    out["rss_after_load_mb"] = round(peak_rss_mb(), 1)
+
+    ids = tok(PROMPT, return_tensors="pt")
+    out["prompt_tokens"] = int(ids["input_ids"].shape[1])
+    with torch.no_grad():
+        model(**ids)  # warm-up
+        t0 = time.perf_counter()
+        for _ in range(3):
+            model(**ids)
+        prefill = (time.perf_counter() - t0) / 3
+    out["prefill_tokens_per_s"] = round(out["prompt_tokens"] / prefill, 1)
+
+    new_tokens = 32
+    with torch.no_grad():
+        t0 = time.perf_counter()
+        gen = model.generate(**ids, max_new_tokens=new_tokens, min_new_tokens=new_tokens,
+                             do_sample=False, pad_token_id=tok.eos_token_id)
+        gen_s = time.perf_counter() - t0
+    produced = int(gen.shape[1] - ids["input_ids"].shape[1])
+    out["generate_tokens_per_s"] = round(produced / gen_s, 2)
+    out["generate_sample"] = tok.decode(gen[0, ids["input_ids"].shape[1]:],
+                                        skip_special_tokens=True)[:200]
+
+    # LoRA update steps on one episode (protocol P1): attention projections only.
+    names = {n.split(".")[-1] for n, _ in model.named_modules()}
+    targets = [t for t in ("q_proj", "v_proj") if t in names]
+    out["lora_targets"] = targets
+    lora = get_peft_model(model, LoraConfig(r=8, lora_alpha=16, lora_dropout=0.0,
+                                            target_modules=targets, task_type="CAUSAL_LM"))
+    lora.train()
+    out["lora_trainable"] = sum(p.numel() for p in lora.parameters() if p.requires_grad)
+    batch = tok(EPISODE, return_tensors="pt")
+    out["episode_tokens"] = int(batch["input_ids"].shape[1])
+    optim = torch.optim.AdamW([p for p in lora.parameters() if p.requires_grad], lr=1e-3)
+    times, losses = [], []
+    for _ in range(lora_steps):
+        t0 = time.perf_counter()
+        loss = lora(**batch, labels=batch["input_ids"]).loss
+        loss.backward()
+        optim.step()
+        optim.zero_grad()
+        times.append(time.perf_counter() - t0)
+        losses.append(round(float(loss), 4))
+    out["lora_step_s"] = [round(t, 3) for t in times]
+    out["lora_step_s_median"] = round(sorted(times)[len(times) // 2], 3)
+    out["lora_losses"] = losses
+    out["peak_rss_mb"] = round(peak_rss_mb(), 1)
+    return out
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--threads", type=int, default=os.cpu_count() or 1)
+    parser.add_argument("--lora-steps", type=int, default=6)
+    args = parser.parse_args()
+    result = {"schema": "episodic_lab.m0.v1", "python": platform.python_version(),
+              "cpu_count": os.cpu_count(), "machine": platform.machine()}
+    t0 = time.perf_counter()
+    try:
+        result.update(measure(args.model, args.threads, args.lora_steps))
+        result["status"] = "OK"
+    except Exception:
+        result["status"] = "ERROR"
+        result["model_id"] = args.model
+        result["traceback"] = traceback.format_exc()[-4000:]
+    result["total_s"] = round(time.perf_counter() - t0, 2)
+    try:
+        import torch, transformers, peft
+        result["versions"] = {"torch": torch.__version__,
+                              "transformers": transformers.__version__,
+                              "peft": peft.__version__}
+    except Exception:
+        pass
+    with open(args.out, "w", encoding="utf-8") as stream:
+        json.dump(result, stream, indent=2, sort_keys=True)
+        stream.write("\n")
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/m0/measure.py---
+
+---BEGIN FILE .github/workflows/m0-feasibility.yml---
+name: m0-feasibility
+# Milestone 0 (protocol section 9): measure model loading, inference speed and LoRA
+# step time on the standard runner. Runs only on pushes to main that touch the
+# benchmark, or when started manually. No secrets, no evaluation data.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "bench/m0/**"
+      - ".github/workflows/m0-feasibility.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m0-feasibility
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - model: HuggingFaceTB/SmolLM2-135M-Instruct
+            slug: smollm2-135m
+          - model: HuggingFaceTB/SmolLM2-360M-Instruct
+            slug: smollm2-360m
+          - model: Qwen/Qwen2.5-0.5B-Instruct
+            slug: qwen2.5-0.5b
+          - model: Qwen/Qwen3-0.6B
+            slug: qwen3-0.6b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Runner facts
+        run: |
+          mkdir -p out
+          { nproc; lscpu; free -m; df -h /; python --version; } > "out/m0_${{ matrix.slug }}_runner.log" 2>&1
+      - name: Install pinned packages
+        run: |
+          set -o pipefail
+          { python -m pip install --upgrade pip==24.3.1 &&
+            pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu &&
+            pip install -r bench/m0/requirements.txt; } 2>&1 | tail -n 40 > "out/m0_${{ matrix.slug }}_install.log"
+      - name: Measure
+        run: |
+          python bench/m0/measure.py --model "${{ matrix.model }}" --out "out/m0_${{ matrix.slug }}.json"
+      - name: Keep outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-${{ matrix.slug }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: measure
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: m0-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin results 2>/dev/null; then
+            git checkout -B results FETCH_HEAD
+          else
+            git checkout --orphan results
+            git rm -rf --quiet .
+          fi
+          dest="m0/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp -r incoming/. "$dest/" 2>/dev/null || true
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} measure-result ${{ needs.measure.result }}" > "$dest/RUN.txt"
+          git add m0
+          git commit --quiet -m "M0 feasibility results, run ${GITHUB_RUN_ID}"
+          git push origin results
+---END FILE .github/workflows/m0-feasibility.yml---
+
+---BEGIN FILE .github/workflows/tests.yml---
+name: tests
+# Unit tests of generator, questions, evaluator, statistics and the symbolic arm.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest -v tests/test_lab.py
+---END FILE .github/workflows/tests.yml---
+
+=== END OF LAB M1 REVIEW PART 2 ===

@@ -1,0 +1,549 @@
+MIRA EPISODIC LAB - REVIEW M1.1, PART 3 OF 3 (tests, measurement, workflow; lab commit 3ecc1a2)
+
+Review request, second round (Gemini and Astra review separately and blind; Claude is lead reviewer). Please check whether the corrections listed in the summary resolve the first-round findings, and look again for: ways to score without episodic memory, wrong or ambiguous gold answers, unfair answer parsing, statistical errors, and protocol violations. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part you received. This file ends with the line "=== END OF LAB M1.1 REVIEW PART 3 ===".
+
+
+---BEGIN FILE tests/test_lab.py---
+"""Tests: generator, questions, evaluator, statistics, runner and the symbolic arm."""
+from __future__ import annotations
+
+import json
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from episodic_lab import score  # noqa: E402
+from episodic_lab.questions import (MINIMUM, answer_for, make_world,  # noqa: E402
+                                    matching)
+from episodic_lab.runner import StateChangedWhileAnswering, retention, run_world  # noqa: E402
+from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
+from episodic_lab.world import Episode, episodes_of, vocabulary  # noqa: E402
+
+PAIRS = [make_world("test", i)[1] for i in range(10)]
+
+
+def ep(day, actor, place, action, obj, partner=None):
+    return Episode(f"id{day}", day, actor, partner, place, action, obj, "early", day - 1,
+                   False, "")
+
+
+# A hand-made world; the expected answers below were written by hand, not computed.
+HAND = [ep(1, "Ann Lee", "Mill", "sold", "map"),
+        ep(2, "Bob Ray", "Mill", "hid", "map", partner="Ann Lee"),
+        ep(3, "Ann Lee", "Forge", "sold", "clock"),
+        ep(4, "Bob Ray", "Forge", "cleaned", "clock"),
+        ep(5, "Ann Lee", "Garden", "cleaned", "lamp")]
+
+
+class HandWorldTests(unittest.TestCase):
+    def test_answers_written_by_hand(self):
+        cases = [("object", dict(person="Ann Lee", action="sold", place="Forge"), ["clock"]),
+                 ("place", dict(person="Bob Ray", action="hid", obj="map"), ["Mill"]),
+                 ("person", dict(action="hid", place="Mill", obj="map"), ["Bob Ray", "Ann Lee"]),
+                 ("object", dict(person="Bob Ray", action="sold", place="Mill"), ["none"]),
+                 ("day", dict(person="Ann Lee", action="cleaned", obj="lamp"), ["5"]),
+                 ("order", {"a": dict(person="Bob Ray", action="cleaned", obj="clock"),
+                            "b": dict(person="Ann Lee", action="sold", obj="map")}, ["B"]),
+                 ("latest", dict(person="Bob Ray"), ["Forge"]),
+                 ("latest", dict(person="Ann Lee"), ["Garden"]),
+                 ("at_day", dict(person="Ann Lee", day=2), ["Mill"]),
+                 ("at_day", dict(person="Bob Ray", day=1), ["none"]),
+                 ("act", dict(obj="clock"), ["Forge"]),
+                 ("find", dict(action="sold", place="Forge", obj="clock"), ["Garden"])]
+        for qtype, cue, expected in cases:
+            self.assertEqual(answer_for(HAND, qtype, cue), expected, (qtype, cue))
+
+    def test_ill_defined_items_are_refused(self):
+        with self.assertRaises(ValueError):
+            answer_for(HAND, "object", dict(person="Ann Lee", action="sold"))  # two events
+        with self.assertRaises(ValueError):
+            answer_for(HAND, "act", dict(obj="map"))  # last handling had two people
+
+
+class WorldTests(unittest.TestCase):
+    def test_deterministic(self):
+        a = json.dumps(make_world("x", 0)[1]["high"], sort_keys=True)
+        self.assertEqual(a, json.dumps(make_world("x", 0)[1]["high"], sort_keys=True))
+        self.assertNotEqual(a, json.dumps(make_world("x", 1)[1]["high"], sort_keys=True))
+
+    def test_structure_and_conditions(self):
+        for pair in PAIRS:
+            high, low = (episodes_of(pair[c][0]) for c in ("high", "low"))
+            self.assertEqual([e for e in high if e.block == "early"],
+                             [e for e in low if e.block == "early"])
+            for eps in (high, low):
+                self.assertEqual(sorted(e.day for e in eps), list(range(1, len(eps) + 1)))
+                self.assertEqual(len({e.episode_id for e in eps}), len(eps))
+                self.assertTrue(any(e.out_of_order for e in eps))
+                for e in eps:
+                    self.assertIn(f"day {e.day}", e.text.lower())
+                    self.assertNotIn(e.episode_id, e.text)
+                    self.assertTrue(all(p in e.text for p in e.participants))
+                    self.assertNotEqual(e.actor, e.partner)
+            early = [e for e in low if e.block == "early"]
+            late = [e for e in low if e.block == "followup"]
+            self.assertFalse({p for e in early for p in e.participants}
+                             & {p for e in late for p in e.participants})
+            for field in ("place", "action", "object"):
+                self.assertFalse({getattr(e, field) for e in early}
+                                 & {getattr(e, field) for e in late}, field)
+
+    def test_every_world_has_out_of_order_narration(self):
+        from episodic_lab.world import generate_world
+        for i in range(600):
+            eps = episodes_of(generate_world(f"order-{i}", early=8, followup=0))
+            self.assertTrue(any(e.out_of_order for e in eps), i)
+
+    def test_vocabulary_lists_every_detail(self):
+        world = PAIRS[0]["low"][0]
+        vocab = vocabulary(world)
+        for e in episodes_of(world):
+            self.assertIn(e.place, vocab["places"])
+            self.assertIn(e.action, vocab["actions"])
+
+
+class QuestionTests(unittest.TestCase):
+    def test_gold_matches_the_rule_and_minimums(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                eps = episodes_of(world)
+                for g in q["gold"].values():
+                    self.assertEqual(answer_for(eps, g["qtype"], g["cue"]), g["gold"])
+                for criterion, minimum in MINIMUM.items():
+                    self.assertGreaterEqual(q["counts"][criterion], minimum)
+
+    def test_phase1_items_identical_in_both_conditions(self):
+        for pair in PAIRS:
+            (wh, qh), (wl, ql) = pair["high"], pair["low"]
+            ph = {k: v for k, v in qh["gold"].items() if v["phase1"]}
+            pl = {k: v for k, v in ql["gold"].items() if v["phase1"]}
+            self.assertEqual(ph, pl)
+            early = [e for e in episodes_of(wh) if e.block == "early"]
+            for g in ph.values():
+                self.assertEqual(answer_for(early, g["qtype"], g["cue"]), g["gold"])
+
+    def test_binding_is_needed_for_recall_items(self):
+        for pair in PAIRS:
+            world, q = pair["high"]
+            early = [e for e in episodes_of(world) if e.block == "early"]
+            for g in q["gold"].values():
+                if g["criterion"] == "E2":
+                    for drop in g["cue"]:
+                        rest = {k: v for k, v in g["cue"].items() if k != drop}
+                        self.assertGreater(len(matching(early, **rest)), 1, (g["cue"], drop))
+
+    def test_lures_are_binding_lures_already_at_phase1(self):
+        for pair in PAIRS:
+            world, q = pair["low"]
+            early = [e for e in episodes_of(world) if e.block == "early"]
+            for g in q["gold"].values():
+                if g["criterion"] != "E5":
+                    continue
+                self.assertTrue(g["phase1"])
+                cue = g["cue"]
+                for w, _ in pair.values():
+                    self.assertEqual(matching(episodes_of(w), **cue), [])
+                keys = list(cue)
+                for i, x in enumerate(keys):
+                    for y in keys[i + 1:]:
+                        self.assertTrue(matching(early, **{x: cue[x], y: cue[y]}), (cue, x, y))
+
+    def test_decision_items_need_two_episodes(self):
+        for pair in PAIRS:
+            world, q = pair["high"]
+            eps = {e.episode_id: e for e in episodes_of(world)}
+            for g in q["gold"].values():
+                if g["criterion"] == "E7":
+                    first, second = (eps[t] for t in g["targets"])
+                    self.assertIsNone(first.partner)
+                    self.assertNotEqual(first.place, g["gold"][0])
+                    self.assertEqual(second.place, g["gold"][0])
+                    self.assertGreater(second.day, first.day)
+
+    def test_public_files_hold_no_answers(self):
+        world, q = PAIRS[0]["high"]
+        for phase in ("phase1", "final"):
+            for record in q["public"][phase]:
+                self.assertEqual(set(record), {"qid", "text", "answer_type"})
+        dump = json.dumps(q["public"])
+        for e in episodes_of(world):
+            self.assertNotIn(e.episode_id, dump)
+
+    def test_order_items_include_out_of_order_pairs(self):
+        mixed = 0
+        for pair in PAIRS:
+            world, q = pair["high"]
+            eps = {e.episode_id: e for e in episodes_of(world)}
+            for g in q["gold"].values():
+                if g["criterion"] == "E3a":
+                    a, b = (eps[t] for t in g["targets"])
+                    mixed += (a.position < b.position) != (a.day < b.day)
+        self.assertGreater(mixed, 0)
+
+
+class ScorerTests(unittest.TestCase):
+    cands = {"person": ["Varo Tellin", "Odile Quist"], "place": ["Mossgate Mill", "Carrow Forge"],
+             "object": ["copper lantern", "blue map"]}
+
+    def test_grammar(self):
+        p = score.parse
+        accepted = [("Varo Tellin.", "person", "Varo Tellin"), ("It was Varo", "person", "Varo Tellin"),
+                    ("the lantern", "object", "copper lantern"), ("At Mossgate.", "place", "Mossgate Mill"),
+                    ("The answer is Carrow Forge", "place", "Carrow Forge"), ("Day 7", "day", "7"),
+                    ("7", "day", "7"), ("B", "choice", "B"), ("Option A", "choice", "A"),
+                    ("Mossgate Mill\nbecause Carrow Forge", "place", "Mossgate Mill")]
+        for answer, kind, value in accepted:
+            self.assertEqual(p(answer, kind, self.cands), ("value", value), answer)
+        refused = [("Not Mossgate Mill.", "place"), ("Mossgate Mill or Paris.", "place"),
+                   ("red lantern", "object"), ("Paris", "place"), ("Varo or Odile", "person"),
+                   ("Tellin", "person"), ("day 7 or 8", "day"), ("A and B", "choice"),
+                   ("", "place"), ("Mossgate Mill and Carrow Forge", "place")]
+        for answer, kind in refused:
+            self.assertEqual(p(answer, kind, self.cands), ("other", None), answer)
+        self.assertEqual(p("Nobody.", "person", self.cands), ("none", "none"))
+        self.assertEqual(p("I don't know", "place", self.cands), ("uncertain", None))
+
+    def test_categories_and_false_recall(self):
+        g = {"criterion": "E5", "qtype": "place", "answer_type": "place", "gold": ["none"],
+             "targets": [], "phase1": True, "cue": {}}
+        gold = {f"q{i}": dict(g) for i in range(5)}
+        answers = {"q0": "none", "q1": "Carrow", "q2": "Paris", "q3": "I don't know",
+                   "q4": "Mossgate or Carrow"}
+        rows = {r["qid"]: r for r in score.score_world(gold, self.cands, answers, "final")}
+        self.assertEqual([rows[f"q{i}"]["category"] for i in range(5)],
+                         ["correct", "wrong_value", "other", "uncertain", "other"])
+        self.assertEqual([rows[f"q{i}"]["false_recall"] for i in range(5)],
+                         [False, True, False, False, False])
+        self.assertEqual(rows["q2"]["raw"], "Paris")
+        summary = score.summarise(list(rows.values()))["E5"]
+        self.assertAlmostEqual(summary["accuracy"], 0.2)
+        self.assertAlmostEqual(summary["false_recall"], 0.2)
+        self.assertAlmostEqual(summary["categories"]["other"], 0.4)
+
+    def test_statistics(self):
+        self.assertAlmostEqual(score.upper_bound(0, 100), 1 - 0.05 ** (1 / 100), places=6)
+        self.assertAlmostEqual(score.upper_bound(1, 100), 0.0466, places=3)
+        self.assertAlmostEqual(score.lower_bound(18, 20), 0.7174, places=3)
+        lo, hi = score.world_rate_bounds({i: False for i in range(20)})
+        self.assertEqual(lo, 0.0)
+        self.assertAlmostEqual(hi, 1 - 0.05 ** (1 / 20), places=6)
+        mean, lo, hi = score.mean_interval([0.5, 0.6, 0.7, 0.8])
+        self.assertAlmostEqual(hi - mean, 3.182 * 0.12909944 / 2, places=4)
+        self.assertEqual(score.t975(22), 2.086)
+        d = score.paired_difference({"w1": 0.9, "w2": 0.8, "w3": 0.85},
+                                    {"w3": 0.6, "w1": 0.5, "w2": 0.45})
+        self.assertAlmostEqual(d[0], (0.4 + 0.35 + 0.25) / 3)
+        with self.assertRaises(ValueError):
+            score.paired_difference({"w1": 1.0}, {"w2": 1.0})
+
+
+class _Constant:
+    def __init__(self, reply):
+        self.reply = reply
+
+    def encode(self, text):
+        pass
+
+    def answer(self, text):
+        return self.reply
+
+    def state_digest(self):
+        return "constant"
+
+
+class _Cheat(SymbolicMemory):
+    """Stores every question it sees: must be rejected by the runner."""
+
+    def answer(self, text):
+        self.events.append({"question": text})
+        return "none"
+
+
+class RunnerTests(unittest.TestCase):
+    def test_symbolic_arm_solves_every_item(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                result = run_world(SymbolicMemory(), world, q)
+                self.assertEqual(result["episodes_presented"], result["episodes_in_world"])
+                self.assertEqual([r for r in result["rows"] if not r["correct"]], [])
+                self.assertEqual(retention(result), {"phase1": 1.0, "final": 1.0})
+
+    def test_retention_uses_only_recall_and_source_items(self):
+        rows = [{"criterion": "E2", "phase": "phase1", "correct": False},
+                {"criterion": "E4", "phase": "phase1", "correct": True},
+                {"criterion": "E3b", "phase": "phase1", "correct": True},
+                {"criterion": "E5", "phase": "phase1", "correct": True},
+                {"criterion": "E2", "phase": "final", "correct": False},
+                {"criterion": "E3b", "phase": "final", "correct": True}]
+        self.assertEqual(retention({"rows": rows}), {"phase1": 0.5, "final": 0.0})
+
+    def test_questions_cannot_become_memory(self):
+        world, q = PAIRS[0]["high"]
+        with self.assertRaises(StateChangedWhileAnswering):
+            run_world(_Cheat(), world, q)
+
+    def test_trivial_baselines(self):
+        world, q = PAIRS[0]["high"]
+        none = run_world(_Constant("none"), world, q)
+        self.assertEqual(none["final"]["E5"]["accuracy"], 1.0)
+        self.assertEqual(none["final"]["E2"]["accuracy"], 0.0)
+        person = world["early_pool"]["people"][0]
+        guess = run_world(_Constant(person), world, q)
+        self.assertEqual(guess["final"]["E5"]["accuracy"], 0.0)
+        self.assertLess(guess["final"]["E2"]["accuracy"], 0.5)
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_lab.py---
+
+---BEGIN FILE bench/m0/measure.py---
+"""Milestone 0: feasibility measurement on the GitHub runner (protocol section 9).
+
+For one model: download, load time, memory, prefill and generation speed, and the time
+of LoRA update steps on one episode-sized text. Every outcome, including a failure with
+its traceback, is written to the result JSON, so the run itself is the evidence.
+No evaluation data is involved.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import platform
+import resource
+import time
+import traceback
+
+EPISODE = ("On day 7, Varo Tellin repaired the copper lantern at Mossgate Mill together "
+           "with Odile Quist. ") * 4  # about 100 tokens, the size of one episode
+PROMPT = EPISODE * 2 + "Question: Who repaired the copper lantern? Answer:"
+
+
+def peak_rss_mb() -> float:
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
+
+
+def measure(model_id: str, threads: int, lora_steps: int, out: dict) -> dict:
+    """Fill `out` step by step, so a failure keeps everything measured before it."""
+    import torch
+    from huggingface_hub import model_info, snapshot_download
+    from peft import LoraConfig, get_peft_model
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    torch.set_num_threads(threads)
+    torch.manual_seed(0)
+    out.update({"model_id": model_id, "torch_threads": threads})
+
+    t0 = time.perf_counter()
+    info = model_info(model_id)
+    out["resolved_revision"] = info.sha
+    path = snapshot_download(model_id, revision=info.sha,
+                             allow_patterns=["*.json", "*.safetensors", "*.txt", "*.model",
+                                             "*.jinja"])
+    out["download_s"] = round(time.perf_counter() - t0, 2)
+    out["files_mb"] = round(sum(os.path.getsize(os.path.join(dp, f))
+                                for dp, _, fs in os.walk(path) for f in fs) / 2**20, 1)
+
+    t0 = time.perf_counter()
+    tok = AutoTokenizer.from_pretrained(path)
+    model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.float32)
+    model.eval()
+    out["load_s"] = round(time.perf_counter() - t0, 2)
+    out["parameters_m"] = round(sum(p.numel() for p in model.parameters()) / 1e6, 1)
+    out["rss_after_load_mb"] = round(peak_rss_mb(), 1)
+
+    ids = tok(PROMPT, return_tensors="pt")
+    out["prompt_tokens"] = int(ids["input_ids"].shape[1])
+    with torch.no_grad():
+        model(**ids)  # warm-up
+        t0 = time.perf_counter()
+        for _ in range(3):
+            model(**ids)
+        prefill = (time.perf_counter() - t0) / 3
+    out["prefill_tokens_per_s"] = round(out["prompt_tokens"] / prefill, 1)
+
+    new_tokens = 32
+    # "generate" includes the prefill of the prompt; see prefill_tokens_per_s for that part.
+    with torch.no_grad():
+        t0 = time.perf_counter()
+        gen = model.generate(**ids, max_new_tokens=new_tokens, min_new_tokens=new_tokens,
+                             do_sample=False, pad_token_id=tok.eos_token_id)
+        gen_s = time.perf_counter() - t0
+    produced = int(gen.shape[1] - ids["input_ids"].shape[1])
+    out["generate_tokens_per_s_incl_prefill"] = round(produced / gen_s, 2)
+    out["decode_tokens_per_s_estimate"] = round(produced / max(gen_s - prefill, 1e-9), 2)
+    out["generate_sample"] = tok.decode(gen[0, ids["input_ids"].shape[1]:],
+                                        skip_special_tokens=True)[:200]
+
+    # LoRA update steps on one episode (protocol P1): attention projections only.
+    names = {n.split(".")[-1] for n, _ in model.named_modules()}
+    targets = [t for t in ("q_proj", "v_proj") if t in names]
+    out["lora_targets"] = targets
+    lora = get_peft_model(model, LoraConfig(r=8, lora_alpha=16, lora_dropout=0.0,
+                                            target_modules=targets, task_type="CAUSAL_LM"))
+    lora.train()
+    out["lora_trainable"] = sum(p.numel() for p in lora.parameters() if p.requires_grad)
+    batch = tok(EPISODE, return_tensors="pt")
+    out["episode_tokens"] = int(batch["input_ids"].shape[1])
+    optim = torch.optim.AdamW([p for p in lora.parameters() if p.requires_grad], lr=1e-3)
+    times, losses = [], []
+    for _ in range(lora_steps):
+        t0 = time.perf_counter()
+        loss = lora(**batch, labels=batch["input_ids"]).loss
+        loss.backward()
+        optim.step()
+        optim.zero_grad()
+        times.append(time.perf_counter() - t0)
+        losses.append(round(float(loss), 4))
+    out["lora_step_s"] = [round(t, 3) for t in times]
+    out["lora_step_s_median"] = round(sorted(times)[len(times) // 2], 3)
+    out["lora_losses"] = losses
+    out["peak_rss_mb"] = round(peak_rss_mb(), 1)
+    return out
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--threads", type=int, default=os.cpu_count() or 1)
+    parser.add_argument("--lora-steps", type=int, default=6)
+    args = parser.parse_args()
+    result = {"schema": "episodic_lab.m0.v1", "python": platform.python_version(),
+              "cpu_count": os.cpu_count(), "machine": platform.machine()}
+    t0 = time.perf_counter()
+    result["model_id"] = args.model
+    try:
+        measure(args.model, args.threads, args.lora_steps, result)
+        result["status"] = "OK"
+    except Exception:
+        result["status"] = "ERROR"
+        result["traceback"] = traceback.format_exc()[-4000:]
+    result["total_s"] = round(time.perf_counter() - t0, 2)
+    try:
+        import torch, transformers, peft
+        result["versions"] = {"torch": torch.__version__,
+                              "transformers": transformers.__version__,
+                              "peft": peft.__version__}
+    except Exception:
+        pass
+    with open(args.out, "w", encoding="utf-8") as stream:
+        json.dump(result, stream, indent=2, sort_keys=True)
+        stream.write("\n")
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if result["status"] == "OK" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/m0/measure.py---
+
+---BEGIN FILE .github/workflows/m0-feasibility.yml---
+name: m0-feasibility
+# Milestone 0 (protocol section 9): measure model loading, inference speed and LoRA
+# step time on the standard runner. Runs only on pushes to main that touch the
+# benchmark, or when started manually. No secrets, no evaluation data.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "bench/m0/**"
+      - ".github/workflows/m0-feasibility.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m0-feasibility
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - model: HuggingFaceTB/SmolLM2-135M-Instruct
+            slug: smollm2-135m
+          - model: HuggingFaceTB/SmolLM2-360M-Instruct
+            slug: smollm2-360m
+          - model: Qwen/Qwen2.5-0.5B-Instruct
+            slug: qwen2.5-0.5b
+          - model: Qwen/Qwen3-0.6B
+            slug: qwen3-0.6b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Runner facts
+        run: |
+          mkdir -p out
+          { nproc; lscpu; free -m; df -h /; python --version; } > "out/m0_${{ matrix.slug }}_runner.log" 2>&1
+      - name: Install pinned packages
+        run: |
+          set -o pipefail
+          { python -m pip install --upgrade pip==24.3.1 &&
+            pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu &&
+            pip install -r bench/m0/requirements.txt; } 2>&1 | tail -n 40 > "out/m0_${{ matrix.slug }}_install.log"
+      - name: Measure
+        run: |
+          python bench/m0/measure.py --model "${{ matrix.model }}" --out "out/m0_${{ matrix.slug }}.json"
+      - name: Keep outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-${{ matrix.slug }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: measure
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: m0-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin results 2>/dev/null; then
+            git checkout -B results FETCH_HEAD
+          else
+            git checkout --orphan results
+            git rm -rf --quiet .
+          fi
+          dest="m0/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+          # Completeness: one result per expected model, each with status OK.
+          verdict=COMPLETE
+          for slug in smollm2-135m smollm2-360m qwen2.5-0.5b qwen3-0.6b; do
+            f="$dest/m0_${slug}.json"
+            if [ ! -f "$f" ]; then echo "MISSING $slug" >> "$dest/CHECK.txt"; verdict=INCOMPLETE;
+            elif ! grep -q '"status": "OK"' "$f"; then echo "FAILED $slug" >> "$dest/CHECK.txt"; verdict=INCOMPLETE;
+            else echo "OK $slug" >> "$dest/CHECK.txt"; fi
+          done
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} measure-result ${{ needs.measure.result }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add m0
+          git commit --quiet -m "M0 feasibility results, run ${GITHUB_RUN_ID}, ${verdict}"
+          git push origin results
+          [ "$verdict" = COMPLETE ]
+---END FILE .github/workflows/m0-feasibility.yml---
+
+=== END OF LAB M1.1 REVIEW PART 3 ===

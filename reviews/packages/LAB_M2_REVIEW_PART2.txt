@@ -1,0 +1,503 @@
+MIRA EPISODIC LAB - REVIEW M2, PART 2 OF 2 (pilot driver, collector, workflow, tests)
+
+Review request (Astra; Claude is lead reviewer). Please review milestone 2 before the first pilot run. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB M2 REVIEW PART 2 ===".
+
+
+---BEGIN FILE bench/pilot/run_pilot.py---
+"""Pilot cell: one model, one arm, one world (both overlap conditions).
+
+Writes a JSON result with every raw answer, the scored rows, summaries, E6 inputs,
+timing and token telemetry, plus the symbolic arm's result on the same world as a
+reference. On any failure the result keeps what was done and status ERROR; the exit
+code is then non-zero.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+import traceback
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from episodic_lab.arms import ARMS  # noqa: E402
+from episodic_lab.questions import make_world  # noqa: E402
+from episodic_lab.runner import retention, run_world  # noqa: E402
+from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
+
+
+def run_cell(model, arm: str, series: str, index: int, out: dict) -> None:
+    attempt, pair = make_world(series, index)
+    out.update({"series": series, "index": index, "attempt": attempt, "conditions": {}})
+    for overlap, (world, questions) in pair.items():
+        t0 = time.perf_counter()
+        before = dict(model.stats)
+        result = run_world(ARMS[arm](model), world, questions)
+        reference = run_world(SymbolicMemory(), world, questions)
+        out["conditions"][overlap] = {
+            "seed": world["seed"], "seconds": round(time.perf_counter() - t0, 1),
+            "telemetry": {k: model.stats[k] - before[k] for k in model.stats},
+            "phase1": result["phase1"], "final": result["final"],
+            "retention": retention(result), "rows": result["rows"],
+            "episodes_presented": result["episodes_presented"],
+            "symbolic_all_correct": all(r["correct"] for r in reference["rows"])}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--arm", required=True, choices=sorted(ARMS))
+    parser.add_argument("--series", required=True)
+    parser.add_argument("--index", type=int, required=True)
+    parser.add_argument("--pins", default="config/model_pins.json")
+    parser.add_argument("--out", required=True)
+    args = parser.parse_args()
+    out = {"schema": "episodic_lab.pilot_cell.v1", "model": args.model, "arm": args.arm,
+           "status": "ERROR"}
+    t0 = time.perf_counter()
+    try:
+        from episodic_lab.models import PinnedModel
+        model = PinnedModel(args.model, args.pins)
+        out.update({"repo": model.repo, "revision": model.revision,
+                    "weights_digest": model.weights_digest()})
+        run_cell(model, args.arm, args.series, args.index, out)
+        out["status"] = "OK"
+    except Exception:
+        out["traceback"] = traceback.format_exc()[-4000:]
+    out["total_seconds"] = round(time.perf_counter() - t0, 1)
+    Path(args.out).write_text(json.dumps(out, indent=1, sort_keys=True) + "\n")
+    print(json.dumps({k: v for k, v in out.items() if k != "conditions"}, sort_keys=True))
+    return 0 if out["status"] == "OK" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/pilot/run_pilot.py---
+
+---BEGIN FILE bench/pilot/plan.py---
+"""Turn config/pilot.json into the workflow matrix (one cell per model, arm, world)."""
+import json
+import os
+import sys
+
+request = json.load(open(sys.argv[1]))
+cells = [{"model": m, "arm": a, "index": i}
+         for m in request["models"] for a in request["arms"] for i in request["indices"]]
+with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+    out.write(f"enabled={'true' if request.get('enabled') is True else 'false'}\n")
+    out.write(f"series={request['series']}\n")
+    out.write(f"matrix={json.dumps({'include': cells})}\n")
+print(len(cells), "cells, enabled:", request.get("enabled"))
+---END FILE bench/pilot/plan.py---
+
+---BEGIN FILE bench/pilot/collect.py---
+"""Completeness check and summary of a pilot run (used by the workflow's collector).
+
+Never raises for a bad cell: every expected cell is listed in CHECK.txt as OK or FAILED
+with reasons, VERDICT is COMPLETE only if all are OK, and SUMMARY.md gives per model and
+arm the mean over worlds of the final-test accuracy per criterion (both overlap
+conditions), the E5 answer categories and the E6 inputs. Exploratory pilot numbers.
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+
+def load(path: Path):
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeError) as exc:
+        return None, [f"unreadable:{type(exc).__name__}"]
+    if not isinstance(data, dict):
+        return None, ["not_an_object"]
+    problems = []
+    if data.get("status") != "OK":
+        problems.append("status")
+    conds = data.get("conditions")
+    if not isinstance(conds, dict) or set(conds) != {"high", "low"}:
+        problems.append("conditions")
+    else:
+        for name, c in conds.items():
+            if not isinstance(c, dict) or not c.get("rows"):
+                problems.append(f"rows:{name}")
+            elif c.get("symbolic_all_correct") is not True:
+                problems.append(f"reference:{name}")
+    return data, problems
+
+
+def mean(values):
+    return sum(values) / len(values) if values else float("nan")
+
+
+def summarise(cells: dict) -> str:
+    lines = ["# Pilot summary (exploratory)", "",
+             "Mean over worlds and both overlap conditions, final test. E5 = correct rejections.",
+             ""]
+    groups = {}
+    for (model, arm, index), data in cells.items():
+        groups.setdefault((model, arm), []).append(data)
+    criteria = ["E2", "E3a", "E3b", "E4", "E5", "E7"]
+    lines.append("| model | arm | worlds | " + " | ".join(criteria)
+                 + " | E5 false recall | E5 other | E6 phase1 | E6 final high | E6 final low |")
+    lines.append("|" + "---|" * (len(criteria) + 8))
+    for (model, arm), datas in sorted(groups.items()):
+        row = [model, arm, str(len(datas))]
+        for c in criteria:
+            row.append(f"{mean([d['conditions'][o]['final'][c]['accuracy'] for d in datas for o in ('high', 'low') if c in d['conditions'][o]['final']]):.2f}")
+        e5 = [d["conditions"][o]["final"]["E5"] for d in datas for o in ("high", "low") if "E5" in d["conditions"][o]["final"]]
+        row.append(f"{mean([x['false_recall'] for x in e5]):.2f}")
+        row.append(f"{mean([x['categories']['other'] for x in e5]):.2f}")
+        row.append(f"{mean([d['conditions'][o]['retention']['phase1'] for d in datas for o in ('high', 'low')]):.2f}")
+        row.append(f"{mean([d['conditions']['high']['retention']['final'] for d in datas]):.2f}")
+        row.append(f"{mean([d['conditions']['low']['retention']['final'] for d in datas]):.2f}")
+        lines.append("| " + " | ".join(row) + " |")
+    return "\n".join(lines) + "\n"
+
+
+def main(request_path: str, dest: str) -> int:
+    request = json.loads(Path(request_path).read_text())
+    dest_path = Path(dest)
+    lines, ok, cells = [], True, {}
+    for m in request["models"]:
+        for a in request["arms"]:
+            for i in request["indices"]:
+                name = f"pilot_{m}_{a}_{i}.json"
+                try:
+                    data, problems = load(dest_path / name)
+                except Exception as exc:  # never let the registration fail
+                    data, problems = None, [f"check_error:{type(exc).__name__}"]
+                if not problems:
+                    cells[(m, a, i)] = data
+                ok = ok and not problems
+                lines.append(f"{'OK' if not problems else 'FAILED'} {name} {' '.join(problems)}".rstrip())
+    (dest_path / "CHECK.txt").write_text("\n".join(lines) + "\n")
+    (dest_path / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
+    try:
+        (dest_path / "SUMMARY.md").write_text(summarise(cells))
+    except Exception as exc:
+        (dest_path / "SUMMARY.md").write_text(f"summary failed: {type(exc).__name__}: {exc}\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1], sys.argv[2]))
+---END FILE bench/pilot/collect.py---
+
+---BEGIN FILE .github/workflows/pilot.yml---
+name: pilot
+# Milestone 2 pilot (exploratory): one job per model, arm and world, as listed in
+# config/pilot.json. Runs only if that file says "enabled": true. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/pilot.json"
+permissions:
+  contents: read
+concurrency:
+  group: pilot
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      enabled: ${{ steps.plan.outputs.enabled }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      series: ${{ steps.plan.outputs.series }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: python3 bench/pilot/plan.py config/pilot.json
+
+  cell:
+    needs: plan
+    if: needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned packages
+        run: |
+          set -o pipefail
+          mkdir -p out
+          { python -m pip install --upgrade pip==24.3.1 &&
+            pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu &&
+            pip install -r bench/m0/requirements.txt; } 2>&1 | tail -n 40 > "out/install_${{ matrix.model }}_${{ matrix.arm }}_${{ matrix.index }}.log"
+      - name: Run cell
+        run: |
+          python bench/pilot/run_pilot.py --model "${{ matrix.model }}" --arm "${{ matrix.arm }}" \
+            --series "${{ needs.plan.outputs.series }}" --index "${{ matrix.index }}" \
+            --out "out/pilot_${{ matrix.model }}_${{ matrix.arm }}_${{ matrix.index }}.json"
+      - name: Keep outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pilot-${{ matrix.model }}-${{ matrix.arm }}-${{ matrix.index }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: [plan, cell]
+    if: always() && needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch cell outputs
+        id: fetch
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: pilot-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp bench/pilot/collect.py "$RUNNER_TEMP/collect.py"
+          cp config/pilot.json "$RUNNER_TEMP/pilot.json"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="pilot/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+          cp "$RUNNER_TEMP/pilot.json" "$dest/pilot_request.json"
+          python3 "$RUNNER_TEMP/collect.py" "$RUNNER_TEMP/pilot.json" "$dest" || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} cells ${{ needs.cell.result }} fetch-outcome ${{ steps.fetch.outcome }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add pilot
+          git commit --quiet -m "Pilot results, run ${GITHUB_RUN_ID}, ${verdict}"
+          git push origin results
+          [ "$verdict" = COMPLETE ]
+---END FILE .github/workflows/pilot.yml---
+
+---BEGIN FILE config/pilot.json---
+{
+  "schema": "episodic_lab.pilot_request.v1",
+  "enabled": false,
+  "note": "Milestone 2 pilot (exploratory): arms A0, A1, O1 on the four pinned models and five worlds of the series 'pilot-m2'. Results are exploratory and never count as confirmation.",
+  "series": "pilot-m2",
+  "models": [
+    "smollm2-135m",
+    "smollm2-360m",
+    "qwen2.5-0.5b",
+    "qwen3-0.6b"
+  ],
+  "arms": [
+    "A0",
+    "A1",
+    "O1"
+  ],
+  "indices": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ]
+}
+---END FILE config/pilot.json---
+
+---BEGIN FILE tests/test_arms.py---
+"""Milestone 2 tests without PyTorch: prompts, arms, oracle evidence, pin check, pilot collector."""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "bench" / "pilot"))
+
+from episodic_lab.arms import ARMS, FORMAT, NO_NOTES, build_messages, instruction  # noqa: E402
+from episodic_lab.models import PinError, verify_snapshot  # noqa: E402
+from episodic_lab.questions import make_world  # noqa: E402
+from episodic_lab.runner import StateChangedWhileAnswering, run_world  # noqa: E402
+from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
+import collect  # noqa: E402
+
+PAIRS = [make_world("arms-test", i)[1] for i in range(4)]
+
+
+class FakeModel:
+    """Answers each chat by reading ONLY the prompt: rule-based memory of the notes in it."""
+
+    def __init__(self):
+        self.seen = []
+        self.stats = {"calls": 0}
+
+    def weights_digest(self, recompute=False):
+        return "fake-weights"
+
+    def generate(self, messages):
+        self.seen.append(messages)
+        user = messages[1]["content"]
+        notes, question = user[len("Story notes:\n"):].split("\n\nQuestion: ")
+        memory = SymbolicMemory()
+        if notes != NO_NOTES:
+            for line in notes.split("\n"):
+                memory.encode(line)
+        return memory.answer(question, None)
+
+
+class ArmTests(unittest.TestCase):
+    def test_instruction_names_only_the_asked_answer_type(self):
+        for answer_type, (form, example) in FORMAT.items():
+            text = instruction(answer_type)
+            self.assertIn(form, text)
+            self.assertIn(example, text)
+            for other, (other_form, _) in FORMAT.items():
+                if other != answer_type:
+                    self.assertNotIn(other_form, text)
+            self.assertEqual("none" in text, answer_type != "choice")
+
+    def test_examples_never_name_world_vocabulary(self):
+        from episodic_lab.world import FIRST, LAST, OBJ_ADJ, OBJ_NOUN, PLACE_KIND, PLACE_STEM
+        words = set(FIRST + LAST + OBJ_ADJ + OBJ_NOUN + PLACE_KIND + PLACE_STEM)
+        for _, example in FORMAT.values():
+            self.assertFalse(set(example.split()) & words, example)
+
+    def test_prompts_differ_only_in_notes(self):
+        a = build_messages("Who?", [], "person")
+        b = build_messages("Who?", ["Day 1: x."], "person")
+        self.assertEqual(a[0], {"role": "system", "content": instruction("person")})
+        self.assertEqual(a[0], b[0])
+        self.assertEqual(a[1]["content"], f"Story notes:\n{NO_NOTES}\n\nQuestion: Who?")
+        self.assertEqual(b[1]["content"], "Story notes:\nDay 1: x.\n\nQuestion: Who?")
+
+    def test_all_in_prompt_and_oracle_carry_enough_information(self):
+        for pair in PAIRS:
+            for world, q in pair.values():
+                for arm in ("A1", "O1"):
+                    result = run_world(ARMS[arm](FakeModel()), world, q)
+                    wrong = [r for r in result["rows"] if not r["correct"]]
+                    self.assertEqual(wrong, [], (arm, world["overlap"], wrong[:1]))
+
+    def test_no_memory_sees_no_story(self):
+        world, q = PAIRS[0]["high"]
+        model = FakeModel()
+        result = run_world(ARMS["A0"](model), world, q)
+        self.assertTrue(all(m[1]["content"].startswith(f"Story notes:\n{NO_NOTES}") for m in model.seen))
+        self.assertEqual(result["final"]["E5"]["accuracy"], 1.0)
+        self.assertEqual(result["final"]["E2"]["accuracy"], 0.0)
+
+    def test_every_answer_is_a_fresh_two_message_chat(self):
+        world, q = PAIRS[1]["low"]
+        model = FakeModel()
+        run_world(ARMS["A1"](model), world, q)
+        self.assertEqual(len(model.seen), len(q["public"]["phase1"]) + len(q["public"]["final"]))
+        self.assertTrue(all(len(m) == 2 for m in model.seen))
+
+    def test_oracle_gets_target_episodes_only_and_nothing_for_lures(self):
+        world, q = PAIRS[2]["high"]
+        model = FakeModel()
+        run_world(ARMS["O1"](model), world, q)
+        texts = {r["text"]: r["qid"] for r in q["public"]["final"]}
+        for messages in model.seen:
+            user = messages[1]["content"]
+            notes, question = user[len("Story notes:\n"):].split("\n\nQuestion: ")
+            gold = q["gold"][texts[question]]
+            expected = len(gold["targets"])
+            self.assertEqual(0 if notes == NO_NOTES else len(notes.split("\n")), expected)
+
+    def test_changed_weights_are_detected(self):
+        class Drifting(FakeModel):
+            def __init__(self):
+                super().__init__()
+                self.n = 0
+
+            def weights_digest(self, recompute=False):
+                if recompute:
+                    self.n += 1
+                    return f"w{self.n}"
+                return "w"
+        world, q = PAIRS[0]["high"]
+        with self.assertRaises(StateChangedWhileAnswering):
+            run_world(ARMS["A1"](Drifting()), world, q)
+
+
+class PinTests(unittest.TestCase):
+    def test_snapshot_must_match_pins_exactly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "model.safetensors").write_bytes(b"weights")
+            (root / "config.json").write_text("{}")
+            spec = {"files": {name: {"size": (root / name).stat().st_size,
+                                     "sha256": hashlib.sha256((root / name).read_bytes()).hexdigest()}
+                              for name in ("model.safetensors", "config.json")}}
+            verify_snapshot(root, spec)
+            (root / "model.safetensors").write_bytes(b"weightz")
+            with self.assertRaises(PinError):
+                verify_snapshot(root, spec)
+            (root / "model.safetensors").write_bytes(b"weights")
+            (root / "extra.json").write_text("{}")
+            with self.assertRaises(PinError):
+                verify_snapshot(root, spec)
+
+    def test_pin_file_is_complete(self):
+        pins = json.loads((ROOT / "config" / "model_pins.json").read_text())
+        request = json.loads((ROOT / "config" / "pin_request.json").read_text())
+        self.assertEqual(pins["errors"], {})
+        for slug, spec in request["models"].items():
+            self.assertEqual(pins["models"][slug]["revision"], spec["revision"])
+            self.assertEqual(pins["models"][slug]["license"], "apache-2.0")
+            self.assertTrue(any(f.endswith(".safetensors") for f in pins["models"][slug]["files"]))
+
+
+class CollectorTests(unittest.TestCase):
+    def test_incomplete_cells_are_registered(self):
+        request = {"models": ["m"], "arms": ["A0", "A1"], "indices": [0]}
+        world, q = PAIRS[0]["high"]
+        good = run_world(ARMS["A1"](FakeModel()), world, q)
+        cond = {"rows": good["rows"], "final": good["final"], "phase1": good["phase1"],
+                "retention": {"phase1": 1.0, "final": 1.0}, "symbolic_all_correct": True}
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp)
+            (dest / "req.json").write_text(json.dumps(request))
+            (dest / "pilot_m_A1_0.json").write_text(json.dumps(
+                {"status": "OK", "conditions": {"high": cond, "low": cond}}))
+            (dest / "pilot_m_A0_0.json").write_text("null")
+            collect.main(str(dest / "req.json"), str(dest))
+            self.assertEqual((dest / "VERDICT").read_text().strip(), "INCOMPLETE")
+            check = (dest / "CHECK.txt").read_text()
+            self.assertIn("FAILED pilot_m_A0_0.json not_an_object", check)
+            self.assertIn("OK pilot_m_A1_0.json", check)
+            self.assertIn("| m | A1 | 1 |", (dest / "SUMMARY.md").read_text())
+            (dest / "pilot_m_A0_0.json").write_text(json.dumps(
+                {"status": "OK", "conditions": {"high": cond, "low": cond}}))
+            collect.main(str(dest / "req.json"), str(dest))
+            self.assertEqual((dest / "VERDICT").read_text().strip(), "COMPLETE")
+            for bad, reason in (({"status": "ERROR", "conditions": {"high": cond, "low": cond}}, "status"),
+                                ({"status": "OK", "conditions": {"high": cond, "low": dict(cond, symbolic_all_correct=False)}}, "reference:low")):
+                (dest / "pilot_m_A0_0.json").write_text(json.dumps(bad))
+                collect.main(str(dest / "req.json"), str(dest))
+                self.assertEqual((dest / "VERDICT").read_text().strip(), "INCOMPLETE")
+                self.assertIn(reason, (dest / "CHECK.txt").read_text())
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_arms.py---
+
+=== END OF LAB M2 REVIEW PART 2 ===

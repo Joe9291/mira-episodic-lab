@@ -1,0 +1,302 @@
+MIRA EPISODIC LAB - REVIEW M2, PART 1 OF 2 (summary, arms, models, runner)
+
+Review request (Astra; Claude is lead reviewer). Please review milestone 2 before the first pilot run. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB M2 REVIEW PART 1 ===".
+
+MILESTONE 2 CODE REVIEW, before the first pilot run (lab main = 114b754; the pilot is still disabled: config/pilot.json has "enabled": false). Reviewers: Astra (independent) and Claude (author, lead).
+
+WHAT MILESTONE 2 ADDS
+1. Model pinning (protocol section 5): pin run 38933446721 downloaded the four models at the revisions recorded by milestone 0 and stored licence (all four apache-2.0), revision, size and SHA-256 of every file; committed as config/model_pins.json. episodic_lab/models.py refuses any snapshot whose file set or bytes differ (verify_snapshot), loads float32 locally only, greedy generation, one fresh chat per call (model chat template; Qwen3 with enable_thinking=False), max 16 new tokens. A weights hash over all tensors is computed at load; the runner recomputes it at the start and after every test phase (deep_digest) and rejects any change.
+2. Arms (episodic_lab/arms.py): A0 no notes, A1 every episode presented so far in presentation order, O1 (diagnostic only) the evaluator's target episodes of the question in presentation order, nothing for lures; O1's evidence comes from the runner and is never stored. All three share one system instruction that names only the question's public answer type with a neutral example ("Tom Hill", "Elm Court", "red door", "Day 3", "A"; a test checks that no example word occurs in the world vocabulary), and the same user message format "Story notes: ... Question: ...". The "none" option is offered except for A/B questions.
+3. Runner (episodic_lab/runner.py): passes the public answer type; oracle evidence for O1; deep weights check per phase; the per-answer fingerprint of all non-model attributes stays.
+4. Pilot (bench/pilot/run_pilot.py, plan.py, collect.py, .github/workflows/pilot.yml): one job per model, arm and world index (series "pilot-m2", worlds 0-4, both overlap conditions per job, fresh arm per condition, the symbolic arm run on the same world as a reference). Each cell stores every raw answer with its scored row, summaries, E6 inputs, seconds and token telemetry; exit code non-zero on error. The collector registers every expected cell (field checks incl. status, both conditions, rows, reference all correct), writes CHECK, VERDICT and SUMMARY.md (means over worlds and conditions, final test, per criterion, E5 false recall and "other", E6 inputs) and fails visibly if incomplete. 4 models x 3 arms x 5 worlds = 60 jobs, at most 20 in parallel.
+5. Smoke test (bench/pilot/smoke.py, not a measurement): a hand-written two-line story outside any world. First version: the instruction listed every answer form and small models answered "A" to person questions; changed to the type-specific instruction. Second smoke run (de4eaa0): Qwen2.5 and Qwen3 and SmolLM2-360M answer in the requested format; SmolLM2-135M still answers in full sentences (will be "other" under the strict grammar); with notes Qwen2.5 answered the person, day and order questions correctly and gave a concrete object for the lure; Qwen3 rejected the lure but chose the wrong order letter. Load 6-12 s, weights hash 0.4-2.1 s, about 1 s per short answer.
+
+TESTS: 37 unit tests (green on GitHub). tests/test_arms.py uses a fake model that answers ONLY from the prompt it receives (rule-based memory of the notes in it): with A1 and O1 it answers every item of the test worlds correctly (so the prompts carry all needed information), with A0 it sees no story; every answer is one fresh two-message chat; O1 receives exactly the target episodes and nothing for lures; a drifting weights hash is rejected; pin verification refuses changed bytes and extra files; the pin file is complete; the collector registers bad cells. Mutation test of the new checks: 8 of 8 detected (two after the collector tests were extended).
+
+QUESTIONS TO THE REVIEWER: Is anything in the prompts unfair to some arm or leaking evaluator knowledge? Is O1 a sound diagnostic? Is anything missing before the first real model answers are collected (the pilot is exploratory; protocol v0.5 section 7 governs what follows from it)?
+
+---BEGIN FILE episodic_lab/arms.py---
+"""Model arms of milestone 2 (protocol section 4): A0, A1 and the diagnostic O1.
+
+Every answer is built from scratch: one fresh chat (system instruction + user message)
+per question, no history, no cache across questions. The model is any object with
+`generate(messages) -> str` and `weights_digest() -> str` (see models.py); tests use a
+fake model, so the prompt logic is checked without PyTorch.
+
+The three arms see exactly the same instruction (which names the public answer type of
+the question) and question wording; they differ only in the story notes:
+- A0 (no memory): no notes;
+- A1 (all episodes in the prompt): every episode presented so far, in presentation order;
+- O1 (oracle evidence, diagnostic only): the evaluator's target episodes of the question
+  (none for lures). O1 is not a memory system; it measures whether the model can use the
+  right evidence at all, and its evidence is passed by the runner, never stored.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+
+# The answer type is public (it is part of every question record), so naming the
+# expected form is fair; examples use names that never occur in any world.
+FORMAT = {
+    "person": ("a person's full name", "Tom Hill"),
+    "place": ("a place name", "Elm Court"),
+    "object": ("an object name", "red door"),
+    "day": ("a day number", "Day 3"),
+    "choice": ("the letter A or the letter B", "A"),
+}
+NO_NOTES = "(no notes)"
+
+
+def instruction(answer_type: str) -> str:
+    form, example = FORMAT[answer_type]
+    text = (f"You read story notes and answer one question about them. Answer with only "
+            f"{form} (for example: {example}), nothing else.")
+    if answer_type != "choice":
+        text += (" If the notes do not contain the event the question asks about, answer "
+                 "with the single word: none.")
+    return text
+
+
+def build_messages(question: str, notes: list[str], answer_type: str) -> list[dict]:
+    body = "\n".join(notes) if notes else NO_NOTES
+    return [{"role": "system", "content": instruction(answer_type)},
+            {"role": "user", "content": f"Story notes:\n{body}\n\nQuestion: {question}"}]
+
+
+class _ModelArm:
+    DIGEST_COVERS = ("model",)
+
+    def __init__(self, model):
+        self.model = model
+        self.notes: list[str] = []
+
+    def state_digest(self) -> str:
+        return hashlib.sha256((self.model.weights_digest() + json.dumps(self.notes)).encode()).hexdigest()
+
+    def deep_digest(self) -> str:
+        """Recomputes the weights hash from the tensors (slow; checked once per phase)."""
+        return self.model.weights_digest(recompute=True)
+
+
+class NoMemory(_ModelArm):
+    ARM = "A0"
+
+    def encode(self, text: str) -> None:
+        pass
+
+    def answer(self, text: str, answer_type: str) -> str:
+        return self.model.generate(build_messages(text, [], answer_type))
+
+
+class AllInPrompt(_ModelArm):
+    ARM = "A1"
+
+    def encode(self, text: str) -> None:
+        self.notes.append(text)
+
+    def answer(self, text: str, answer_type: str) -> str:
+        return self.model.generate(build_messages(text, list(self.notes), answer_type))
+
+
+class OracleEvidence(_ModelArm):
+    ARM = "O1"
+
+    def encode(self, text: str) -> None:
+        pass
+
+    def answer(self, text: str, answer_type: str) -> str:  # pragma: no cover
+        raise RuntimeError("O1 answers only with evidence")
+
+    def answer_with(self, text: str, evidence: list[str], answer_type: str) -> str:
+        return self.model.generate(build_messages(text, list(evidence), answer_type))
+
+
+ARMS = {"A0": NoMemory, "A1": AllInPrompt, "O1": OracleEvidence}
+---END FILE episodic_lab/arms.py---
+
+---BEGIN FILE episodic_lab/models.py---
+"""Pinned model loading and greedy generation (protocol section 5). Needs PyTorch.
+
+Loading refuses any byte that differs from config/model_pins.json: the downloaded file
+set must equal the pinned set and every file must have its pinned size and SHA-256.
+Generation is greedy, one fresh chat per call (chat template of the model; Qwen3 with
+thinking switched off), no cache kept between calls.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+
+PATTERNS = ["*.json", "*.safetensors", "*.txt", "*.model", "*.jinja"]
+
+
+class PinError(RuntimeError):
+    pass
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def verify_snapshot(path: Path, spec: dict) -> None:
+    found = {p.relative_to(path).as_posix(): p for p in path.rglob("*") if p.is_file()}
+    if set(found) != set(spec["files"]):
+        raise PinError(f"file set differs: {sorted(set(found) ^ set(spec['files']))}")
+    for rel, meta in spec["files"].items():
+        if found[rel].stat().st_size != meta["size"] or _sha256_file(found[rel]) != meta["sha256"]:
+            raise PinError(f"pinned bytes differ: {rel}")
+
+
+class PinnedModel:
+    def __init__(self, slug: str, pins_path: str, max_new_tokens: int = 16, threads: int | None = None):
+        import torch
+        from huggingface_hub import snapshot_download
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        spec = json.loads(Path(pins_path).read_text())["models"][slug]
+        path = Path(snapshot_download(spec["repo"], revision=spec["revision"], allow_patterns=PATTERNS))
+        verify_snapshot(path, spec)
+        torch.set_num_threads(threads or os.cpu_count() or 1)
+        torch.manual_seed(0)
+        self._torch = torch
+        self.slug, self.repo, self.revision = slug, spec["repo"], spec["revision"]
+        self.tokenizer = AutoTokenizer.from_pretrained(path, local_files_only=True)
+        self.model = AutoModelForCausalLM.from_pretrained(path, torch_dtype=torch.float32,
+                                                          local_files_only=True)
+        self.model.eval()
+        self.model.requires_grad_(False)
+        self.max_new_tokens = max_new_tokens
+        self.template_kwargs = {"enable_thinking": False} if slug.startswith("qwen3") else {}
+        self.stats = {"calls": 0, "prompt_tokens": 0, "new_tokens": 0}  # telemetry, not memory
+        self._digest = self._weights_hash()
+
+    def _weights_hash(self) -> str:
+        h = hashlib.sha256()
+        for name, tensor in sorted(self.model.state_dict().items()):
+            h.update(name.encode())
+            h.update(tensor.detach().cpu().contiguous().numpy().tobytes())
+        return h.hexdigest()
+
+    def weights_digest(self, recompute: bool = False) -> str:
+        return self._weights_hash() if recompute else self._digest
+
+    def generate(self, messages: list[dict]) -> str:
+        torch = self._torch
+        ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
+                                                 return_tensors="pt", **self.template_kwargs)
+        with torch.no_grad():
+            out = self.model.generate(ids, attention_mask=torch.ones_like(ids),
+                                      max_new_tokens=self.max_new_tokens, do_sample=False,
+                                      pad_token_id=self.tokenizer.eos_token_id)
+        new = out[0, ids.shape[1]:]
+        self.stats["calls"] += 1
+        self.stats["prompt_tokens"] += int(ids.shape[1])
+        self.stats["new_tokens"] += int(new.shape[0])
+        return self.tokenizer.decode(new, skip_special_tokens=True).strip()
+---END FILE episodic_lab/models.py---
+
+---BEGIN FILE episodic_lab/runner.py---
+"""Run one system on one world pair under the protocol's encoding and test schedule.
+
+Schedule: present the early episodes once each in presentation order, test with the
+phase1 questions, present the follow-up episodes once each, test with the final
+questions. The system sees only episode texts and question texts (E1a); the evaluator
+alone holds the gold answers.
+
+Frozen memory during tests: every answer must come from a fresh context (the adapter
+builds each prompt from scratch). The runner checks this as far as it can see: before
+and after every answer it compares the system's own digest of its memory (for large
+state such as weights, attributes listed in DIGEST_COVERS) AND a fingerprint of every
+other attribute of the system object. A system that changes either while answering is
+rejected. State kept outside the system object (module globals, files) is not covered;
+model adapters must not keep any (protocol section 3, code audit). Systems with large
+state (model weights) also offer `deep_digest()`, recomputed from the data itself at the
+start and after every test phase.
+
+Diagnostic oracle arms (O1) offer `answer_with(question, evidence)`; the runner passes
+the texts of the question's target episodes (evaluator knowledge, never stored by the
+arm) in presentation order, and nothing for lures.
+"""
+from __future__ import annotations
+
+import hashlib
+import pickle
+from typing import Protocol
+
+from .score import score_world, summarise
+from .world import episodes_of
+
+
+class System(Protocol):
+    def encode(self, text: str) -> None: ...
+    def answer(self, text: str, answer_type: str) -> str: ...
+    def state_digest(self) -> str: ...
+
+
+class StateChangedWhileAnswering(RuntimeError):
+    pass
+
+
+def fingerprint(system) -> str:
+    """Digest of the system's own memory digest plus every attribute it does not cover."""
+    covered = set(getattr(system, "DIGEST_COVERS", ()))
+    rest = {k: v for k, v in sorted(vars(system).items()) if k not in covered}
+    return hashlib.sha256(system.state_digest().encode() + pickle.dumps(rest, protocol=4)).hexdigest()
+
+
+def run_world(system: System, world: dict, questions: dict) -> dict:
+    episodes = episodes_of(world)
+    texts = {e.episode_id: e.text for e in episodes}
+    order = {e.episode_id: e.position for e in episodes}
+    oracle = hasattr(system, "answer_with")
+    deep = getattr(system, "deep_digest", None)
+    deep_start = deep() if deep else None
+    presented = 0
+    answers = {}
+    for block, phase in (("early", "phase1"), ("followup", "final")):
+        for e in episodes:
+            if e.block == block:
+                system.encode(e.text)
+                presented += 1
+        answers[phase] = {}
+        for q in questions["public"][phase]:
+            before = fingerprint(system)
+            if oracle:
+                targets = sorted(questions["gold"][q["qid"]]["targets"], key=order.get)
+                reply = system.answer_with(q["text"], [texts[t] for t in targets],
+                                           q["answer_type"])
+            else:
+                reply = system.answer(q["text"], q["answer_type"])
+            answers[phase][q["qid"]] = reply
+            if fingerprint(system) != before:
+                raise StateChangedWhileAnswering(q["qid"])
+        if deep and deep() != deep_start:
+            raise StateChangedWhileAnswering(f"weights changed during {phase}")
+    gold, cands = questions["gold"], questions["candidates"]
+    rows = (score_world(gold, cands, answers["phase1"], "phase1")
+            + score_world(gold, cands, answers["final"], "final"))
+    return {"seed": world["seed"], "overlap": world["overlap"], "episodes_presented": presented,
+            "oracle": oracle,
+            "episodes_in_world": len(episodes), "rows": rows,
+            "phase1": summarise([r for r in rows if r["phase"] == "phase1"]),
+            "final": summarise([r for r in rows if r["phase"] == "final"])}
+
+
+def retention(result: dict) -> dict:
+    """E6 inputs: accuracy on the early-target items at phase1 and at final."""
+    early = [r for r in result["rows"] if r["criterion"] in ("E2", "E4")]
+    out = {}
+    for phase in ("phase1", "final"):
+        sub = [r for r in early if r["phase"] == phase]
+        out[phase] = sum(r["correct"] for r in sub) / len(sub) if sub else float("nan")
+    return out
+---END FILE episodic_lab/runner.py---
+
+=== END OF LAB M2 REVIEW PART 1 ===

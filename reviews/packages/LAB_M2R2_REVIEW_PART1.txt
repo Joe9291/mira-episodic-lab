@@ -1,0 +1,529 @@
+MIRA EPISODIC LAB - REVIEW M2 ROUND 2, PART 1 OF 2 (summary, arms, runner, pilot cell, models/score/protocol diff)
+
+Review request (Astra; Claude is lead reviewer). Please re-review milestone 2 after your REQUEST CHANGES of round 1 (archived verbatim as reviews/2026-10-16_m2_astra.txt). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB M2 ROUND 2 PART 1 ===".
+
+STATE: lab main = 502d1e3 (round 1 was 114b754). The pilot is still disabled (config/pilot.json "enabled": false, unchanged).
+
+RESPONSE TO THE FOUR REQUIRED CHANGES
+1. O1 and lures. (a) Lures no longer get an empty context: for every pair of the lure's cue details (3 details -> 3 pairs) the runner passes the first early episode in presentation order that contains that pair, deduplicated, in presentation order (runner.oracle_evidence). By construction of the lures (every pair co-occurs early, the full combination occurs in no condition) none of these notes answers the lure; rejecting needs the binding. A test checks for every lure of four worlds: never "(no notes)", only early episodes, every pair shown, no note matches the full cue, at most 3 notes. (b) Model-selection criterion fixed in advance (protocol 0.6 section 5, collector `selection`): O1 accuracy on positive final-test items only (E2, E3a, E3b, E4, E7; E5 excluded), per world pooled over both overlap conditions, then the mean over the pilot worlds; the lowest world is reported alongside; threshold 0.8. A test sets every O1 lure row to wrong and shows the criterion unchanged. (c) O1 is labelled diagnostic in protocol section 4, the arms docstring and SUMMARY.md, including that its E5 and E6 are no memory results.
+2. Collector. collect.validate checks per cell: schema v2; identity model/arm/series/index equal to the matrix entry; status OK; no leftover partial results; provenance present, request SHA-256 equal to the request file the collector holds, pins SHA-256 equal to the pins manifest it holds; revision 40-hex and equal to the pin (and repo); weights digest 64-hex; both conditions; per condition world/question hashes, seed, finite seconds, telemetry counts, the row structure (qid, criterion, phase, qtype, raw str, category, correct bool consistent with category, false_recall bool, truncated bool, token counts; no duplicate rows), telemetry calls == rows and truncated == flagged rows, phase1/final summaries with exactly the expected criteria, n equal to the row count, accuracy in [0,1] and equal to the rows, categories complete in [0,1] summing to 1, E5 false recall, E3b subtypes, retention in [0,1], E1b processing (exposure matching the arm, every episode encoded exactly once, A0 never shows an episode), symbolic reference all correct, identical phase1 items in both conditions. Across cells: one code commit; one world and question set per index and condition across all models and arms. VERDICT is written last and is COMPLETE only if every cell AND the summary succeeded. Tests build realistic cells with run_pilot.run_cell itself (fake model) and check 30 kinds of damage, each reported with its reason, plus unreadable/missing files and a failing summary.
+3. Provenance and E1b. Each cell records: code commit (GITHUB_SHA), SHA-256 of the pilot request and of the pins manifest, repo, revision, weights digest, max_new_tokens; per condition SHA-256 of the world and of the question set (canonical JSON). E1b per episode: encoding reads, prompt inclusions (counted by the runner for every question from the arm's declared EXPOSURE, which is a class attribute and not memory state), tokens per episode (model tokenizer), tokens in prompts per episode, and the arm's declared replays/optimizer steps/store writes (A1: one note per episode). Not repeated per answer row; per row only prompt length, answer length and truncation.
+4. Summaries. score.summarise reports E3b by qtype (at_day, latest); SUMMARY.md has separate E3b at_day / latest columns and E5 uncertain next to false recall and other.
+
+IDEAS ADOPTED: A0 named as missing-evidence control with requested abstention (protocol, SUMMARY). Truncation flag per answer (new tokens == limit and last token not EOS), aligned to rows by the runner's question order with a length check. Partial results: raw answers of finished test phases are kept under "partial" if a later phase fails (finished conditions are not repeated); the collector rejects a cell that still has them. P1/P2/C1 weight check against the state after each encoding block noted for milestone 4 (protocol section 8).
+
+ADDITIONAL: dry-run workflow (.github/workflows/dryrun.yml, config/dryrun.json): the real end-to-end path (pinned bytes, run_pilot, collector) for smollm2-135m, arms A0/A1/O1, one world of a SEPARATE series "dryrun-m2" that is never used for the pilot or any decision.
+DRY-RUN RESULT: run 38939102461 on commit 502d1e3: all three cells OK, collector VERDICT COMPLETE (results branch, dryrun/run_38939102461_1). Purely technical; numbers of one world of a separate series and the smallest model only. smollm2-135m mostly answers in full sentences, so most answers are "other" under the strict grammar (O1 positive-items criterion 0.149, far below 0.8; E3b at_day 0.50 where it answered "At <place>"); 31-67% of answers hit the 16-token limit (all were long sentences). Observations worth your view: the model sometimes repeats the instruction's format example "Tom Hill" (out of world, scored "other", never correct), and it writes full-sentence abstentions ("The story notes do not contain the event ...") that the strict grammar counts as "other", not "none". Runtime per cell 3-9 min (A1 115k prompt tokens per condition); projected from M0 prefill rates, Qwen3-0.6B A1 needs roughly 15-20 min per condition, far inside the 330 min limit. No change was made because of the dry run; the format behaviour is what the pilot is meant to measure (protocol section 5: if no model reaches 0.8, the answer format is simplified first, counted against the variant budget).
+
+TESTS: 43 unit tests, green locally and on GitHub. Mutation test of the round-2 checks: 14 of 14 detected (two survived at first: lures in the selection criterion and leftover partial results of finished conditions; tests were added for both).
+
+QUESTIONS TO THE REVIEWER: Are the four findings resolved? Is the confusable lure evidence sound (it uses evaluator knowledge, which is legitimate for a diagnostic arm)? Anything else before the first pilot run?
+
+
+---BEGIN FILE episodic_lab/arms.py---
+"""Model arms of milestone 2 (protocol section 4): A0, A1 and the diagnostic O1.
+
+Every answer is built from scratch: one fresh chat (system instruction + user message)
+per question, no history, no cache across questions. The model is any object with
+`generate(messages) -> str` and `weights_digest() -> str` (see models.py); tests use a
+fake model, so the prompt logic is checked without PyTorch.
+
+The three arms see exactly the same instruction (which names the public answer type of
+the question) and question wording; they differ only in the story notes:
+- A0 (no memory): no notes;
+- A1 (all episodes in the prompt): every episode presented so far, in presentation order;
+- O1 (oracle evidence, diagnostic only): the evaluator's target episodes of the question;
+  for lures, confusable early episodes that each contain one pair of the lure's details
+  (so the rejection needs binding, not just an empty context). O1 is not a memory
+  system; it measures whether the model can use given evidence, its evidence is passed by
+  the runner and never stored, and its E6 values say nothing about retention.
+A0 is, strictly, a missing-evidence control with requested abstention.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+
+# The answer type is public (it is part of every question record), so naming the
+# expected form is fair; examples use names that never occur in any world.
+FORMAT = {
+    "person": ("a person's full name", "Tom Hill"),
+    "place": ("a place name", "Elm Court"),
+    "object": ("an object name", "red door"),
+    "day": ("a day number", "Day 3"),
+    "choice": ("the letter A or the letter B", "A"),
+}
+NO_NOTES = "(no notes)"
+
+
+def instruction(answer_type: str) -> str:
+    form, example = FORMAT[answer_type]
+    text = (f"You read story notes and answer one question about them. Answer with only "
+            f"{form} (for example: {example}), nothing else.")
+    if answer_type != "choice":
+        text += (" If the notes do not contain the event the question asks about, answer "
+                 "with the single word: none.")
+    return text
+
+
+def build_messages(question: str, notes: list[str], answer_type: str) -> list[dict]:
+    body = "\n".join(notes) if notes else NO_NOTES
+    return [{"role": "system", "content": instruction(answer_type)},
+            {"role": "user", "content": f"Story notes:\n{body}\n\nQuestion: {question}"}]
+
+
+class _ModelArm:
+    DIGEST_COVERS = ("model",)
+    # E1b declaration per encoded episode (class attributes, not memory state)
+    E1B = {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0}
+
+    def __init__(self, model):
+        self.model = model
+        self.notes: list[str] = []
+
+    def state_digest(self) -> str:
+        return hashlib.sha256((self.model.weights_digest() + json.dumps(self.notes)).encode()).hexdigest()
+
+    def deep_digest(self) -> str:
+        """Recomputes the weights hash from the tensors (slow; checked once per phase)."""
+        return self.model.weights_digest(recompute=True)
+
+
+class NoMemory(_ModelArm):
+    ARM = "A0"
+    EXPOSURE = "none"  # E1b: no episode is ever placed in a prompt
+
+    def encode(self, text: str) -> None:
+        pass
+
+    def answer(self, text: str, answer_type: str) -> str:
+        return self.model.generate(build_messages(text, [], answer_type))
+
+
+class AllInPrompt(_ModelArm):
+    ARM = "A1"
+    EXPOSURE = "all_presented"  # E1b: every presented episode is in every later prompt
+    E1B = {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 1}  # one note each
+
+    def encode(self, text: str) -> None:
+        self.notes.append(text)
+
+    def answer(self, text: str, answer_type: str) -> str:
+        return self.model.generate(build_messages(text, list(self.notes), answer_type))
+
+
+class OracleEvidence(_ModelArm):
+    ARM = "O1"
+    EXPOSURE = "evidence"  # E1b: exactly the evidence passed with each question
+
+    def encode(self, text: str) -> None:
+        pass
+
+    def answer(self, text: str, answer_type: str) -> str:  # pragma: no cover
+        raise RuntimeError("O1 answers only with evidence")
+
+    def answer_with(self, text: str, evidence: list[str], answer_type: str) -> str:
+        return self.model.generate(build_messages(text, list(evidence), answer_type))
+
+
+ARMS = {"A0": NoMemory, "A1": AllInPrompt, "O1": OracleEvidence}
+---END FILE episodic_lab/arms.py---
+
+---BEGIN FILE episodic_lab/runner.py---
+"""Run one system on one world pair under the protocol's encoding and test schedule.
+
+Schedule: present the early episodes once each in presentation order, test with the
+phase1 questions, present the follow-up episodes once each, test with the final
+questions. The system sees only episode texts and question texts (E1a); the evaluator
+alone holds the gold answers.
+
+Frozen memory during tests: every answer must come from a fresh context (the adapter
+builds each prompt from scratch). The runner checks this as far as it can see: before
+and after every answer it compares the system's own digest of its memory (for large
+state such as weights, attributes listed in DIGEST_COVERS) AND a fingerprint of every
+other attribute of the system object. A system that changes either while answering is
+rejected. State kept outside the system object (module globals, files) is not covered;
+model adapters must not keep any (protocol section 3, code audit). Systems with large
+state (model weights) also offer `deep_digest()`, recomputed from the data itself at the
+start and after every test phase.
+
+Diagnostic oracle arms (O1) offer `answer_with(question, evidence)`; the runner passes
+evaluator knowledge that the arm never stores: for positive items the texts of the
+question's target episodes, for E5 lures confusable early episodes (for every pair of
+the lure's cue details, the first early episode in presentation order that contains that
+pair; deduplicated, in presentation order). A lure is therefore never answered from an
+empty context; rejecting it needs the binding of the details.
+
+E1b (processing per episode): every encoded episode is read once by `encode`. How often
+an episode is placed in an answering prompt follows from the arm's declared EXPOSURE
+("none", "all_presented", "evidence") and is counted here by the runner for every
+question, so the count is part of the result and not of the arm's state.
+
+`on_phase(phase, answers)` (optional) is called after each test phase with the raw
+answers so far, so a caller can keep partial results if a later phase fails.
+"""
+from __future__ import annotations
+
+import hashlib
+import pickle
+from typing import Protocol
+
+from .questions import matching
+from .score import score_world, summarise
+from .world import episodes_of
+
+
+class System(Protocol):
+    def encode(self, text: str) -> None: ...
+    def answer(self, text: str, answer_type: str) -> str: ...
+    def state_digest(self) -> str: ...
+
+
+class StateChangedWhileAnswering(RuntimeError):
+    pass
+
+
+def fingerprint(system) -> str:
+    """Digest of the system's own memory digest plus every attribute it does not cover."""
+    covered = set(getattr(system, "DIGEST_COVERS", ()))
+    rest = {k: v for k, v in sorted(vars(system).items()) if k not in covered}
+    return hashlib.sha256(system.state_digest().encode() + pickle.dumps(rest, protocol=4)).hexdigest()
+
+
+def oracle_evidence(item: dict, episodes: list) -> list[str]:
+    """Episode ids passed to O1: targets for positive items, confusable ones for lures."""
+    order = {e.episode_id: e.position for e in episodes}
+    if item["criterion"] != "E5":
+        return sorted(item["targets"], key=order.get)
+    early = sorted((e for e in episodes if e.block == "early"), key=lambda e: e.position)
+    keys = sorted(item["cue"])
+    chosen = []
+    for i, a in enumerate(keys):
+        for b in keys[i + 1:]:
+            hits = matching(early, **{a: item["cue"][a], b: item["cue"][b]})
+            if not hits:
+                raise ValueError(f"lure pair {a},{b} has no early episode")
+            if hits[0].episode_id not in chosen:
+                chosen.append(hits[0].episode_id)
+    return sorted(chosen, key=order.get)
+
+
+EXPOSURES = ("none", "all_presented", "evidence")
+
+
+def run_world(system: System, world: dict, questions: dict, on_phase=None) -> dict:
+    episodes = episodes_of(world)
+    texts = {e.episode_id: e.text for e in episodes}
+    oracle = hasattr(system, "answer_with")
+    exposure = getattr(system, "EXPOSURE", None)
+    if exposure is not None and exposure not in EXPOSURES:
+        raise ValueError(f"unknown EXPOSURE {exposure!r}")
+    if oracle and exposure != "evidence":
+        raise ValueError("oracle arms must declare EXPOSURE = 'evidence'")
+    deep = getattr(system, "deep_digest", None)
+    deep_start = deep() if deep else None
+    presented = []
+    in_prompt = {e.episode_id: 0 for e in episodes}
+    encoded = {e.episode_id: 0 for e in episodes}
+    asked = []
+    answers = {}
+    for block, phase in (("early", "phase1"), ("followup", "final")):
+        for e in episodes:
+            if e.block == block:
+                system.encode(e.text)
+                presented.append(e.episode_id)
+                encoded[e.episode_id] += 1
+        answers[phase] = {}
+        for q in questions["public"][phase]:
+            before = fingerprint(system)
+            if oracle:
+                evidence = oracle_evidence(questions["gold"][q["qid"]], episodes)
+                reply = system.answer_with(q["text"], [texts[t] for t in evidence],
+                                           q["answer_type"])
+                shown = evidence
+            else:
+                reply = system.answer(q["text"], q["answer_type"])
+                shown = presented if exposure == "all_presented" else []
+            for t in shown:
+                in_prompt[t] += 1
+            answers[phase][q["qid"]] = reply
+            asked.append([phase, q["qid"]])
+            if fingerprint(system) != before:
+                raise StateChangedWhileAnswering(q["qid"])
+        if deep and deep() != deep_start:
+            raise StateChangedWhileAnswering(f"weights changed during {phase}")
+        if on_phase:
+            on_phase(phase, dict(answers[phase]))
+    gold, cands = questions["gold"], questions["candidates"]
+    rows = (score_world(gold, cands, answers["phase1"], "phase1")
+            + score_world(gold, cands, answers["final"], "final"))
+    return {"seed": world["seed"], "overlap": world["overlap"],
+            "episodes_presented": len(presented), "oracle": oracle,
+            "episodes_in_world": len(episodes), "rows": rows, "asked": asked,
+            "processing": {"exposure": exposure, "encode_reads": encoded,
+                           "declared_per_episode": getattr(system, "E1B", None),
+                           "prompt_inclusions": in_prompt if exposure else None},
+            "phase1": summarise([r for r in rows if r["phase"] == "phase1"]),
+            "final": summarise([r for r in rows if r["phase"] == "final"])}
+
+
+def retention(result: dict) -> dict:
+    """E6 inputs: accuracy on the early-target items at phase1 and at final."""
+    early = [r for r in result["rows"] if r["criterion"] in ("E2", "E4")]
+    out = {}
+    for phase in ("phase1", "final"):
+        sub = [r for r in early if r["phase"] == phase]
+        out[phase] = sum(r["correct"] for r in sub) / len(sub) if sub else float("nan")
+    return out
+---END FILE episodic_lab/runner.py---
+
+---BEGIN FILE bench/pilot/run_pilot.py---
+"""Pilot cell: one model, one arm, one world (both overlap conditions).
+
+Writes a JSON result with every raw answer, the scored rows (each with its prompt length,
+answer length and a truncation flag), summaries, E6 inputs, timing and token telemetry,
+E1b processing counts per episode, provenance (code commit, SHA-256 of the pilot request
+and of the pins manifest, SHA-256 of every world and question set), plus whether the
+symbolic arm solves the same world (reference). On any failure the result keeps what was
+done (finished conditions, raw answers of finished test phases under "partial") and
+status ERROR; the exit code is then non-zero.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import sys
+import time
+import traceback
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from episodic_lab.arms import ARMS  # noqa: E402
+from episodic_lab.questions import make_world  # noqa: E402
+from episodic_lab.runner import retention, run_world  # noqa: E402
+from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
+
+SCHEMA = "episodic_lab.pilot_cell.v2"
+
+
+def canonical_sha256(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def file_sha256(path: str) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def inclusion_summary(counts: dict) -> dict:
+    values = list(counts.values())
+    return {"episodes": len(values), "total": sum(values), "min": min(values),
+            "max": max(values), "mean": sum(values) / len(values)}
+
+
+def run_cell(model, arm: str, series: str, index: int, out: dict) -> None:
+    attempt, pair = make_world(series, index)
+    out.update({"series": series, "index": index, "attempt": attempt, "conditions": {},
+                "partial": {}})
+    for overlap, (world, questions) in pair.items():
+        t0 = time.perf_counter()
+        before = dict(model.stats)
+        first_call = len(model.call_log)
+        out["partial"][overlap] = {}
+        result = run_world(ARMS[arm](model), world, questions,
+                           on_phase=lambda phase, answers: out["partial"][overlap].update({phase: answers}))
+        calls = model.call_log[first_call:]
+        if len(calls) != len(result["asked"]):
+            raise RuntimeError(f"{len(calls)} model calls for {len(result['asked'])} questions")
+        per_answer = {tuple(k): c for k, c in zip(map(tuple, result["asked"]), calls)}
+        for row in result["rows"]:
+            row.update(per_answer[(row["phase"], row["qid"])])
+        reference = run_world(SymbolicMemory(), world, questions)
+        processing = result["processing"]
+        tokens = {e["episode_id"]: model.count_tokens(e["text"]) for e in world["episodes"]}
+        processing["episode_tokens"] = tokens
+        processing["prompt_tokens_per_episode"] = {
+            k: n * tokens[k] for k, n in processing["prompt_inclusions"].items()}
+        out["conditions"][overlap] = {
+            "seed": world["seed"], "seconds": round(time.perf_counter() - t0, 1),
+            "world_sha256": canonical_sha256(world),
+            "questions_sha256": canonical_sha256(questions),
+            "telemetry": {k: model.stats[k] - before[k] for k in model.stats},
+            "phase1": result["phase1"], "final": result["final"],
+            "retention": retention(result), "rows": result["rows"],
+            "episodes_presented": result["episodes_presented"],
+            "processing": dict(processing,
+                               prompt_inclusion_summary=inclusion_summary(processing["prompt_inclusions"])),
+            "symbolic_all_correct": all(r["correct"] for r in reference["rows"])}
+        del out["partial"][overlap]
+    del out["partial"]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", required=True)
+    parser.add_argument("--arm", required=True, choices=sorted(ARMS))
+    parser.add_argument("--series", required=True)
+    parser.add_argument("--index", type=int, required=True)
+    parser.add_argument("--pins", default="config/model_pins.json")
+    parser.add_argument("--request", default="config/pilot.json")
+    parser.add_argument("--out", required=True)
+    args = parser.parse_args()
+    out = {"schema": SCHEMA, "model": args.model, "arm": args.arm, "series": args.series,
+           "index": args.index, "status": "ERROR",
+           "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
+                          "request_sha256": file_sha256(args.request),
+                          "pins_sha256": file_sha256(args.pins)}}
+    t0 = time.perf_counter()
+    try:
+        from episodic_lab.models import PinnedModel
+        model = PinnedModel(args.model, args.pins)
+        out.update({"repo": model.repo, "revision": model.revision,
+                    "max_new_tokens": model.max_new_tokens,
+                    "weights_digest": model.weights_digest()})
+        run_cell(model, args.arm, args.series, args.index, out)
+        out["status"] = "OK"
+    except Exception:
+        out["traceback"] = traceback.format_exc()[-4000:]
+    out["total_seconds"] = round(time.perf_counter() - t0, 1)
+    Path(args.out).write_text(json.dumps(out, indent=1, sort_keys=True) + "\n")
+    print(json.dumps({k: v for k, v in out.items() if k not in ("conditions", "partial")},
+                     sort_keys=True))
+    return 0 if out["status"] == "OK" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/pilot/run_pilot.py---
+
+---BEGIN DIFF 114b754..502d1e3 (models.py, score.py, PROTOCOL.md)---
+diff --git a/docs/PROTOCOL.md b/docs/PROTOCOL.md
+index e8da53f..6b974a6 100644
+--- a/docs/PROTOCOL.md
++++ b/docs/PROTOCOL.md
+@@ -1,6 +1,6 @@
+ # Mira Episodic Lab - Research Protocol
+ 
+-Version 0.5 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
++Version 0.6 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+ confirmatory preregistration: thresholds, sample size and the final arm list are fixed
+ in version 1.0, which needs the reviews of section 10 and the experiment lead's
+ signature. Version 0.2 integrated the reviews of 0.1; 0.3 integrated Astra's review of
+@@ -9,7 +9,10 @@ frozen memory during tests, world-level statistics); 0.4 integrates Astra's revi
+ milestone 1.1 (binding by answer ambiguity, E4 on repeated content, model pinning,
+ result registration, narrower claims about frozen memory, two-level thresholds, seed
+ procedure); 0.5 integrates Astra's review of milestone 1.2 (balanced E3a quota, robust
+-result check, signature details). Reviews: `reviews/`.
++result check, signature details); 0.6 integrates Astra's review of milestone 2 (O1
++confusable evidence for lures and a positive-items selection criterion, strict cell
++schema check, per-cell provenance and E1b counts, E3b subtypes and E5 uncertainty in the
++summary). Reviews: `reviews/`.
+ 
+ ## 1. Question and scope
+ 
+@@ -91,8 +94,8 @@ presented to the system".
+ | Arm | Description | Role |
+ |---|---|---|
+ | S0 | Symbolic event manager: rule-based parser and database over the same texts | How far plain data handling solves the task |
+-| O1 | Oracle evidence: the correct episode(s) placed in the prompt | Can the model use the evidence at all |
+-| A0 | Model, no memory | Guessing and confabulation floor |
++| O1 | Oracle evidence (diagnostic): the target episode(s) of each question placed in the prompt; for E5 lures, confusable early episodes, one per pair of the lure's details (first in presentation order, deduplicated), so that no lure is answered from an empty context | Can the model use given evidence at all. Not a memory system: the evaluator supplies the evidence at every question, so its E5 and E6 values are no memory results |
++| A0 | Model, no memory: empty notes and the instruction to answer "none" when the notes lack the event | Missing-evidence control with requested abstention; guessing and confabulation floor |
+ | A1 | All episodes in the prompt (if they fit) | In-context reference, not episodic memory |
+ | A2 | Simple retrieval: lexical search, top-k episodes into the prompt | Standard external memory |
+ | A3 | Mira memory: structured event store (time, place, people, provenance), state tracking, retrieval | Mira's architecture |
+@@ -129,7 +132,10 @@ Controls:
+   and the suitability of this setting is checked in the pilot; otherwise the model is
+   not used with greedy decoding.
+ - Selection rule: the smallest candidate whose O1 accuracy in the pilot is at least
+-  0.8. If none reaches it, the answer format is simplified first, then the next larger
++  0.8. O1 accuracy here is computed on positive items only (final test, criteria E2,
++  E3a, E3b, E4, E7; E5 lures excluded): per world the share of correct answers over these
++  items of both overlap conditions, then the mean over the pilot worlds (the lowest world
++  is reported alongside). If none reaches it, the answer format is simplified first, then the next larger
+   candidate is tried (this counts against the variant budget of section 7).
+ 
+ ## 6. Measurement and statistics
+@@ -182,6 +188,9 @@ Controls:
+   wordings.
+ - Weight-based arms also report general abilities (simple language and reasoning
+   checks) before and after encoding.
++- Weight-based arms (P1, P2, C1) change weights while encoding, so their frozen-weights
++  check compares against the state after each encoding block, not against the weights
++  before the world (planned for milestone 4).
+ 
+ ## 9. Compute plan
+ 
+@@ -206,7 +215,14 @@ Controls:
+ - Workflows run only on pushes to `main` and on manual start, never on pull requests
+   from forks, and use no secrets.
+ - Every run writes a receipt: commit, configuration hash, model pins, seeds, world
+-  hashes, E1b processing counts, metrics, runtime. Results go to a separate `results`
++  hashes, E1b processing counts, metrics, runtime. In the pilot every cell records the
++  code commit, the SHA-256 of the pilot request and of the pins manifest, the model
++  revision and weights digest, the SHA-256 of each world and question set, and per
++  episode: encoding reads, prompt inclusions, tokens in prompts and the arm's declared
++  replays, optimizer steps and store writes; every answer row records its prompt length,
++  answer length and whether the token limit cut it off. The collector validates the
++  full cell schema and identity, requires one code commit and identical worlds across
++  arms and models, and marks the run INCOMPLETE if any cell or the summary fails. Results go to a separate `results`
+   branch; every run, including failed ones, is listed.
+ - Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
+   signs one experiment-series authorization (protocol hash, model pins, maximum number
+diff --git a/episodic_lab/models.py b/episodic_lab/models.py
+index 500f23a..93dbd73 100644
+--- a/episodic_lab/models.py
++++ b/episodic_lab/models.py
+@@ -56,7 +56,10 @@ class PinnedModel:
+         self.model.requires_grad_(False)
+         self.max_new_tokens = max_new_tokens
+         self.template_kwargs = {"enable_thinking": False} if slug.startswith("qwen3") else {}
+-        self.stats = {"calls": 0, "prompt_tokens": 0, "new_tokens": 0}  # telemetry, not memory
++        # telemetry, not memory: totals plus one entry per call (prompt length, answer
++        # length, and whether the answer was cut off by the token limit)
++        self.stats = {"calls": 0, "prompt_tokens": 0, "new_tokens": 0, "truncated": 0}
++        self.call_log: list[dict] = []
+         self._digest = self._weights_hash()
+ 
+     def _weights_hash(self) -> str:
+@@ -69,6 +72,10 @@ class PinnedModel:
+     def weights_digest(self, recompute: bool = False) -> str:
+         return self._weights_hash() if recompute else self._digest
+ 
++    def count_tokens(self, text: str) -> int:
++        """Tokens of a text on its own (E1b: tokens processed per episode)."""
++        return len(self.tokenizer(text, add_special_tokens=False)["input_ids"])
++
+     def generate(self, messages: list[dict]) -> str:
+         torch = self._torch
+         ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
+@@ -81,4 +88,8 @@ class PinnedModel:
+         self.stats["calls"] += 1
+         self.stats["prompt_tokens"] += int(ids.shape[1])
+         self.stats["new_tokens"] += int(new.shape[0])
++        cut = int(new.shape[0]) >= self.max_new_tokens and int(new[-1]) != self.tokenizer.eos_token_id
++        self.stats["truncated"] += int(cut)
++        self.call_log.append({"prompt_tokens": int(ids.shape[1]), "new_tokens": int(new.shape[0]),
++                              "truncated": bool(cut)})
+         return self.tokenizer.decode(new, skip_special_tokens=True).strip()
+diff --git a/episodic_lab/score.py b/episodic_lab/score.py
+index b758aa3..c773aaa 100644
+--- a/episodic_lab/score.py
++++ b/episodic_lab/score.py
+@@ -116,6 +116,11 @@ def summarise(rows: list[dict]) -> dict:
+                                                    "uncertain", "other")}}
+         if criterion == "E5":
+             out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / n
++        if criterion == "E3b":  # the two subtypes are reported separately (protocol E3b)
++            out[criterion]["by_qtype"] = {
++                q: {"n": len(s), "accuracy": sum(r["correct"] for r in s) / len(s)}
++                for q in sorted({r["qtype"] for r in sub})
++                for s in [[r for r in sub if r["qtype"] == q]]}
+     return out
+ 
+ 
+---END DIFF---
+
+=== END OF LAB M2 ROUND 2 PART 1 ===

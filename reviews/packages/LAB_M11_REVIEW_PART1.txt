@@ -1,0 +1,480 @@
+MIRA EPISODIC LAB - REVIEW M1.1, PART 1 OF 3 (summary, generator, questions; lab commit 3ecc1a2)
+
+Review request, second round (Gemini and Astra review separately and blind; Claude is lead reviewer). Please check whether the corrections listed in the summary resolve the first-round findings, and look again for: ways to score without episodic memory, wrong or ambiguous gold answers, unfair answer parsing, statistical errors, and protocol violations. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part you received. This file ends with the line "=== END OF LAB M1.1 REVIEW PART 1 ===".
+
+SECOND ROUND: milestone 1.1 of the Mira episodic lab (public repo Joe9291/mira-episodic-lab, main = 3ecc1a2), the corrections after the first review of milestones 0/1 (commit 1fecf01). Protocol v0.3 (docs/PROTOCOL.md) records the changes.
+
+FIRST-ROUND OUTCOME: Astra REQUEST CHANGES with eight points, all taken over below. Gemini's completeness quotes did not match the ends of the parts (it quoted the end of the first file of part 1 and of the second-to-last file of part 2), so its APPROVE was not counted. Both reviews are archived verbatim under reviews/.
+
+CHANGES (point numbers of the first review)
+1. E5 categories: every answer is one of correct, wrong_value (an allowed in-world value, but wrong), none_answer, uncertain, other (format errors, negations, several names, unknown names such as "Paris"). E5 reports the correct-rejection rate (accuracy), in-world false recall, uncertain and other separately; the protocol requires a high correct-rejection rate AND a bounded false recall.
+2. Strict answer grammar (parser v2): first line, normalised, fixed leading fillers removed, then the rest must be exactly one allowed form (full name or unique short form, "day n", "a"/"b", a rejection or uncertainty form). "Not Mossgate Mill.", "Mossgate Mill or Paris.", "red lantern" are now "other". Raw answers and the parser version are stored with every row.
+3. E7 semantics: "last person who handled object X" (the actor of the latest episode with X; items are only built when that episode has a single person) and a second decision form "meet the person who did Y" (one-person episode identified by action, object and place). Both need that person's latest episode at another place. Called decision items; executing the choice is a later extension.
+4. High/low isolation: the early block now has its own seed-only random stream; follow-ups have their own stream per condition. Early items are chosen with a seed-only stream and checked against the full worlds of BOTH conditions, so both conditions share identical early episodes, identical early items and identical answers (tested). Item ids are content hashes.
+5. Lures at phase 1 and question leakage: lure details and every pair of them co-occur in the EARLY block; the full combination occurs in neither condition. The runner records a memory-state digest before and after every answer and rejects a system whose state changes while answering (tested with a cheating system that stores questions). Every answer must come from a fresh context (protocol).
+6. Statistics: confirmatory decisions are defined on independent worlds (probability that a new world meets a threshold; for E5 that a new world has at least one in-world false recall) with exact one-sided Clopper-Pearson bounds over world indicators. The t-interval over worlds and the pooled E5 bound with a design effect are marked as descriptive and approximate. paired_difference takes dicts keyed by world id and refuses different world sets.
+7. Tests: a hand-made reference world with hand-written answers for all question types (including refusal of ill-defined items); every gold answer re-derived by the rule; minimum items per world (E2 8, E3a 4, E3b 4, E4 4, E5 6, E7 3) enforced by the generator, worlds that miss them are skipped by a fixed resampling rule (seed "<series>-<k>-<attempt>") that depends only on the generator; every E2 item needs ALL its cue details (dropping any one leaves more than one early episode); out-of-order narration guaranteed for every world (tested on 600 seeds). To make binding feasible the default world is denser: 20 early + 10 follow-up episodes, 4 people, 3 places, 4 objects, 4 actions per world; low overlap uses disjoint names, places, objects AND actions. Per world on average: E2 12.9, E3a 8, E3b 8, E4 8, E5 15.7, E7 5.1 items; 73% of worlds valid at the first attempt.
+8. M0: measure.py fills the result step by step (partial data survives a failure) and exits non-zero on error; the collector checks that all four models delivered status OK, writes CHECK.txt and a verdict, and fails the job if incomplete. Generation speed is now labelled as including prefill, with a decode estimate. The rerun on 3ecc1a2 reported verdict COMPLETE.
+
+VERIFICATION: 20 unit tests (also green on GitHub); the symbolic arm S0 answers every item of all test worlds correctly in both conditions. Mutation test of the new checks: 17 of 18 mutants detected after two tests were added; the remaining one (follow-ups drawn from the early random stream) is equivalent because the early block stays identical.
+
+NOT CHANGED, WITH REASON: the M0 training string repeats one event four times; M0 measures only time and memory, the pilot measures recall on real generator episodes with chat templates and long prompts.
+
+---BEGIN FILE episodic_lab/world.py---
+"""Synthetic episodic worlds (protocol section 3).
+
+Invented people, places, objects and actions with deliberate feature overlap: the same
+people, places and objects recur, so only a combination identifies an episode (binding).
+One event per day. An early block is followed by K follow-up episodes that either
+overlap strongly with it (competing) or use disjoint names (low overlap), for E6.
+
+The early block depends on the seed only (its own random stream), so the "high" and
+"low" conditions of one seed share exactly the same early episodes; only the follow-ups
+differ. At least one early episode is narrated out of chronological order (E3a).
+Episode identifiers are random tokens and reveal no order (E4).
+
+Every fact a question can ask about is generated here, never by a model.
+"""
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+
+from .rng import HashRng
+
+WORLD_SCHEMA = "episodic_lab.world.v3"
+
+FIRST = ("Varo", "Ilsen", "Tamric", "Odile", "Brenna", "Casimo", "Yelda", "Fenwick",
+         "Marit", "Quillon", "Sabeth", "Dorran", "Elvie", "Gorvin", "Halsey", "Juno")
+LAST = ("Tellin", "Marrow", "Quist", "Ambery", "Corland", "Vesk", "Pellow", "Drummet",
+        "Haverl", "Ostrin", "Lunsey", "Brack")
+PLACE_STEM = ("Brannick", "Mossgate", "Wyndle", "Carrow", "Ellsmere", "Thornby",
+              "Quarrel", "Fenhollow", "Ashgrove", "Lindmere", "Pellan", "Sorrow")
+PLACE_KIND = ("Mill", "Harbour", "Library", "Market", "Bridge", "Orchard", "Forge",
+              "Chapel", "Station", "Garden")
+OBJ_ADJ = ("copper", "blue", "cracked", "heavy", "tiny", "silver", "wooden", "striped")
+OBJ_NOUN = ("lantern", "ledger", "kettle", "compass", "violin", "map", "basket",
+            "telescope", "clock", "umbrella", "ladder", "mirror")
+ACTIONS = ("repaired", "painted", "sold", "hid", "found", "measured", "cleaned", "carried")
+PARTICIPLE = {"hid": "hidden"}
+
+IN_ORDER = (
+    "On day {day}, {actor} {action} the {object} at {place}{partner}.",
+    "Day {day}: at {place}, {actor}{partner} {action} the {object}.",
+    "{actor} was at {place} on day {day} and {action} the {object}{partner}.",
+)
+OUT_OF_ORDER = (
+    "Looking back to day {day}: {actor} {action} the {object} at {place}{partner}.",
+    "Earlier, on day {day}, {actor}{partner} had {participle} the {object} at {place}.",
+)
+
+
+@dataclass(frozen=True)
+class Episode:
+    episode_id: str
+    day: int
+    actor: str
+    partner: str | None
+    place: str
+    action: str
+    object: str
+    block: str            # "early" or "followup"
+    position: int         # presentation position (0-based)
+    out_of_order: bool
+    text: str
+
+    @property
+    def participants(self) -> tuple[str, ...]:
+        return (self.actor,) if self.partner is None else (self.actor, self.partner)
+
+
+def _pool(rng: HashRng, people: int, places: int, objects: int, actions: int,
+          used: dict) -> dict:
+    """Draw pools that reuse no first name, place stem, object noun or action in `used`."""
+    firsts = rng.sample([f for f in FIRST if f not in used["first"]], people)
+    stems = rng.sample([s for s in PLACE_STEM if s not in used["stem"]], places)
+    nouns = rng.sample([n for n in OBJ_NOUN if n not in used["noun"]], objects)
+    verbs = rng.sample([a for a in ACTIONS if a not in used["action"]], actions)
+    used["first"].update(firsts)
+    used["stem"].update(stems)
+    used["noun"].update(nouns)
+    used["action"].update(verbs)
+    return {"people": [f"{first} {rng.choice(LAST)}" for first in firsts],
+            "places": [f"{stem} {rng.choice(PLACE_KIND)}" for stem in stems],
+            "objects": [f"{rng.choice(OBJ_ADJ)} {noun}" for noun in nouns],
+            "actions": verbs}
+
+
+def _event(rng: HashRng, pool: dict, day: int, block: str) -> dict:
+    actor = rng.choice(pool["people"])
+    partner = rng.choice([p for p in pool["people"] if p != actor]) if rng.below(3) == 0 else None
+    return {"day": day, "actor": actor, "partner": partner, "place": rng.choice(pool["places"]),
+            "action": rng.choice(pool["actions"]), "object": rng.choice(pool["objects"]),
+            "block": block}
+
+
+def _render(rng: HashRng, event: dict, late: bool) -> str:
+    partner = f" together with {event['partner']}" if event["partner"] else ""
+    return rng.choice(OUT_OF_ORDER if late else IN_ORDER).format(
+        day=event["day"], actor=event["actor"], action=event["action"],
+        participle=PARTICIPLE.get(event["action"], event["action"]), object=event["object"],
+        place=event["place"], partner=partner)
+
+
+def _token(rng: HashRng, taken: set) -> str:
+    while True:
+        token = "ep-" + "".join(rng.choice("abcdefghjkmnpqrstuvwxyz23456789") for _ in range(6))
+        if token not in taken:
+            taken.add(token)
+            return token
+
+
+def generate_world(seed: str, early: int = 20, followup: int = 10, overlap: str = "high",
+                   people: int = 4, places: int = 3, objects: int = 4, actions: int = 4) -> dict:
+    """Return a world; `overlap` is "high" (follow-ups reuse the early pools) or "low"."""
+    if overlap not in ("high", "low"):
+        raise ValueError("overlap must be 'high' or 'low'")
+    if not (4 <= early <= 200 and 0 <= followup <= 200 and 3 <= people <= 8
+            and 2 <= places <= 6 and 2 <= objects <= 6 and 2 <= actions <= 4):
+        raise ValueError("world size out of range")
+    params = {"early": early, "followup": followup, "people": people, "places": places,
+              "objects": objects, "actions": actions}
+
+    # Early block: seed-only stream, identical for both overlap conditions.
+    rng_e = HashRng(f"world:{seed}:early")
+    used = {"first": set(), "stem": set(), "noun": set(), "action": set()}
+    early_pool = _pool(rng_e, people, places, objects, actions, used)
+    early_events = [_event(rng_e, early_pool, day, "early") for day in range(1, early + 1)]
+    order = list(range(early))
+    for _ in range(max(1, early // 4)):
+        index = rng_e.below(early - 1)
+        item = order.pop(index)
+        order.insert(index + 1 + rng_e.below(early - index - 1), item)
+    if order == sorted(order):  # guarantee at least one out-of-order narration
+        order[0], order[1] = order[1], order[0]
+    taken: set[str] = set()
+    rendered = []
+    for position, index in enumerate(order):
+        event = early_events[index]
+        late = any(early_events[j]["day"] > event["day"] for j in order[:position])
+        rendered.append((event, position, late, _render(rng_e, event, late), _token(rng_e, taken)))
+
+    # Follow-up block: its own stream per condition.
+    rng_f = HashRng(f"world:{seed}:followup:{overlap}")
+    follow_pool = (early_pool if overlap == "high"
+                   else _pool(rng_f, people, places, objects, actions, used))
+    for k in range(followup):
+        event = _event(rng_f, follow_pool, early + 1 + k, "followup")
+        rendered.append((event, early + k, False, _render(rng_f, event, False), _token(rng_f, taken)))
+
+    episodes = [Episode(token, ev["day"], ev["actor"], ev["partner"], ev["place"], ev["action"],
+                        ev["object"], ev["block"], pos, late, text)
+                for ev, pos, late, text, token in rendered]
+    return {"schema": WORLD_SCHEMA, "seed": seed, "overlap": overlap, "params": params,
+            "early_pool": early_pool, "followup_pool": follow_pool,
+            "episodes": [asdict(e) for e in episodes]}
+
+
+def episodes_of(world: dict) -> list[Episode]:
+    return [Episode(**e) for e in world["episodes"]]
+
+
+def vocabulary(world: dict) -> dict:
+    """All people, places and objects that occur anywhere in the world."""
+    result = {"people": set(), "places": set(), "objects": set(), "actions": set()}
+    for pool in (world["early_pool"], world["followup_pool"]):
+        for key in result:
+            result[key].update(pool[key])
+    return {k: sorted(v) for k, v in result.items()}
+---END FILE episodic_lab/world.py---
+
+---BEGIN FILE episodic_lab/questions.py---
+"""Question sets with ground truth for a world (protocol sections 2 and 3).
+
+Two test points: `phase1` right after the early block and `final` after all episodes.
+
+Early-target items (E2, E3a, E3b on a day, E4, E5) are chosen from the early block with
+a seed-only random stream and are checked against the full worlds of BOTH overlap
+conditions, so the high- and low-overlap versions of a seed test exactly the same early
+items with the same answers (E6). Lures are built from details that co-occur in the
+early block, so they are lures already at phase 1. Final-only items (latest state, E7)
+may differ between conditions.
+
+The public question files carry no answers; the gold file is for the evaluator only.
+Gold answers come from `answer_for`, a direct rule over episodes that tests also check
+on hand-made worlds.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+
+from .rng import HashRng
+from .world import Episode, episodes_of, generate_world
+
+QUESTION_SCHEMA = "episodic_lab.questions.v2"
+MINIMUM = {"E2": 8, "E3a": 4, "E3b": 4, "E4": 4, "E5": 6, "E7": 3}
+
+PARA = {
+    "object": ("What did {person} {action} at {place}?",
+               "At {place}, which thing did {person} {action}?",
+               "Name the object that {person} {past} at {place}."),
+    "place": ("Where did {person} {action} the {object}?",
+              "At which place did {person} {action} the {object}?",
+              "Name the place where {person} {past} the {object}."),
+    "person": ("Who {past} the {object} at {place}?",
+               "Which person {past} the {object} at {place}?",
+               "Name someone who {past} the {object} at {place}."),
+    "day": ("On which day did {person} {action} the {object}?",
+            "Which day was it when {person} {past} the {object}?"),
+    "order": ("Which happened first? (A) {a} (B) {b} Answer A or B.",
+              "Two events: (A) {a} (B) {b} Which one was earlier? Answer A or B."),
+    "latest": ("Where was {person} most recently?",
+               "At which place was {person} seen last?"),
+    "at_day": ("Where was {person} on day {day}?",
+               "At which place was {person} on day {day}?"),
+    "act": ("You need to talk to the last person who handled the {object}. To which place "
+            "do you go, where that person was seen most recently?",
+            "Decide where to go: you are looking for whoever last handled the {object}, at "
+            "the place where that person was last seen."),
+    "find": ("You want to meet the person who {past} the {object} at {place}. Where do you go "
+             "to find that person now?",
+             "Decide where to go to meet whoever {past} the {object} at {place}, at the place "
+             "where that person was seen most recently."),
+}
+BASE = {"repaired": "repair", "painted": "paint", "sold": "sell", "hid": "hide",
+        "found": "find", "measured": "measure", "cleaned": "clean", "carried": "carry"}
+
+
+def matching(episodes, person=None, action=None, place=None, obj=None):
+    return [e for e in episodes
+            if (person is None or person in e.participants)
+            and (action is None or e.action == action)
+            and (place is None or e.place == place)
+            and (obj is None or e.object == obj)]
+
+
+def answer_for(episodes: list[Episode], qtype: str, cue: dict) -> list[str]:
+    """The gold answer(s) by direct rule; ["none"] if no episode matches.
+
+    Raises ValueError if an item is ill-defined (ambiguous cue, equal days, two handlers).
+    """
+    if qtype in ("object", "place", "person", "day"):
+        hits = matching(episodes, **cue)
+        if not hits:
+            return ["none"]
+        if len(hits) > 1:
+            raise ValueError("ambiguous cue")
+        e = hits[0]
+        return {"object": [e.object], "place": [e.place], "person": list(e.participants),
+                "day": [str(e.day)]}[qtype]
+    if qtype == "order":
+        a = matching(episodes, **cue["a"])
+        b = matching(episodes, **cue["b"])
+        if len(a) != 1 or len(b) != 1 or a[0].day == b[0].day:
+            raise ValueError("order items need two unique events on different days")
+        return ["A" if a[0].day < b[0].day else "B"]
+    if qtype == "latest":
+        hits = matching(episodes, person=cue["person"])
+        return [max(hits, key=lambda e: e.day).place] if hits else ["none"]
+    if qtype == "at_day":
+        hits = [e for e in matching(episodes, person=cue["person"]) if e.day == cue["day"]]
+        return [hits[0].place] if hits else ["none"]
+    if qtype == "act":
+        with_obj = matching(episodes, obj=cue["obj"])
+        if not with_obj:
+            return ["none"]
+        last = max(with_obj, key=lambda e: e.day)
+        if last.partner is not None:
+            raise ValueError("last handling has two people")
+        return [max(matching(episodes, person=last.actor), key=lambda e: e.day).place]
+    if qtype == "find":
+        hits = matching(episodes, **cue)
+        if len(hits) != 1 or hits[0].partner is not None:
+            raise ValueError("find items need one event with one person")
+        return [max(matching(episodes, person=hits[0].actor), key=lambda e: e.day).place]
+    raise ValueError(qtype)
+
+
+def _unique_everywhere(worlds, **cue) -> bool:
+    return all(len(matching(w, **cue)) == 1 for w in worlds)
+
+
+def _binding_needed(early, cue) -> bool:
+    """Dropping any single cue detail leaves more than one early episode."""
+    return all(len(matching(early, **{k: v for k, v in cue.items() if k != drop})) > 1
+               for drop in cue)
+
+
+def build_questions(world: dict, per_type: int = 8) -> dict:
+    """Return {"public": {"phase1": [...], "final": [...]}, "gold": {...}, ...}."""
+    seed, params = world["seed"], world["params"]
+    eps = episodes_of(world)
+    early = [e for e in eps if e.block == "early"]
+    both = [episodes_of(generate_world(seed, overlap=o, **params)) for o in ("high", "low")]
+    rng = HashRng(f"questions:{seed}:early")
+    items: list[dict] = []
+
+    def add(criterion, qtype, text, answer_type, cue, targets, phase1):
+        gold = answer_for(eps, qtype, cue)
+        if phase1:  # identical answer in both conditions and at both test points
+            if not (all(answer_for(w, qtype, cue) == gold for w in both)
+                    and answer_for(early, qtype, cue) == gold):
+                raise AssertionError(f"unstable early item {qtype} {cue}")
+        items.append({"criterion": criterion, "qtype": qtype, "text": text,
+                      "answer_type": answer_type, "gold": gold, "targets": targets,
+                      "phase1": phase1, "cue": cue})
+
+    def pick(candidates, n):
+        return rng.sample(candidates, min(n, len(candidates)))
+
+    def words(past, **extra):
+        return {"action": BASE[past], "past": past, **extra}
+
+    # E2 binding recall: unique in every condition, and every cue detail is needed.
+    seen, e2 = set(), []
+    for e in early:
+        for person in e.participants:
+            for qtype, cue in (("object", dict(person=person, action=e.action, place=e.place)),
+                               ("place", dict(person=person, action=e.action, obj=e.object)),
+                               ("person", dict(action=e.action, place=e.place, obj=e.object))):
+                key = (qtype, tuple(sorted(cue.items())))
+                if (key in seen or not _unique_everywhere(both, **cue)
+                        or not _binding_needed(early, cue)):
+                    continue
+                seen.add(key)
+                e2.append((qtype, cue, e))
+    for qtype, cue, e in pick(e2, 3 * per_type):
+        text = rng.choice(PARA[qtype]).format(**words(e.action, person=cue.get("person"),
+                                                      place=e.place, object=e.object))
+        add("E2", qtype, text, qtype, cue, [e.episode_id], True)
+
+    # E5 binding lures: every pair of cue details co-occurs in the EARLY block; the full
+    # combination occurs in no condition at all.
+    people = sorted({p for e in early for p in e.participants})
+    places = sorted({e.place for e in early})
+    objects = sorted({e.object for e in early})
+    actions = sorted({e.action for e in early})
+    lures = []
+    for _ in range(4000):
+        qtype = rng.choice(("object", "place", "person"))
+        person, action, place, obj = (rng.choice(people), rng.choice(actions),
+                                      rng.choice(places), rng.choice(objects))
+        cue = {"object": dict(person=person, action=action, place=place),
+               "place": dict(person=person, action=action, obj=obj),
+               "person": dict(action=action, place=place, obj=obj)}[qtype]
+        key = (qtype, tuple(sorted(cue.items())))
+        if key in seen or any(matching(w, **cue) for w in both):
+            continue
+        keys = list(cue)
+        if not all(matching(early, **{a: cue[a], b: cue[b]})
+                   for i, a in enumerate(keys) for b in keys[i + 1:]):
+            continue
+        seen.add(key)
+        lures.append((qtype, cue))
+        if len(lures) >= 2 * per_type:
+            break
+    for qtype, cue in lures:
+        text = rng.choice(PARA[qtype]).format(**words(cue["action"], person=cue.get("person"),
+                                                      place=cue.get("place"),
+                                                      object=cue.get("obj")))
+        add("E5", qtype, text, qtype, cue, [], True)
+
+    # E4 source: content (person, action, object) unique in every condition.
+    e4 = [(person, e) for e in early for person in e.participants
+          if _unique_everywhere(both, person=person, action=e.action, obj=e.object)]
+    for person, e in pick(e4, per_type):
+        cue = dict(person=person, action=e.action, obj=e.object)
+        text = rng.choice(PARA["day"]).format(**words(e.action, person=person, object=e.object))
+        add("E4", "day", text, "day", cue, [e.episode_id], True)
+
+    # E3a order: two such events; pairs whose presentation order differs from day order first.
+    pairs = [((pa, a), (pb, b)) for i, (pa, a) in enumerate(e4) for pb, b in e4[i + 1:]
+             if a.day != b.day]
+    mixed = [p for p in pairs if (p[0][1].position < p[1][1].position) != (p[0][1].day < p[1][1].day)]
+    pairs = mixed + [p for p in pairs if p not in mixed]
+    for (pa, a), (pb, b) in pairs[:per_type]:
+        if rng.below(2):
+            (pa, a), (pb, b) = (pb, b), (pa, a)
+        cue = {"a": dict(person=pa, action=a.action, obj=a.object),
+               "b": dict(person=pb, action=b.action, obj=b.object)}
+        text = rng.choice(PARA["order"]).format(a=f"{pa} {a.action} the {a.object}.",
+                                                b=f"{pb} {b.action} the {b.object}.")
+        add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True)
+
+    # E3b place on a given early day.
+    for person, e in pick([(p, e) for e in early for p in e.participants], per_type // 2):
+        add("E3b", "at_day", rng.choice(PARA["at_day"]).format(person=person, day=e.day),
+            "place", dict(person=person, day=e.day), [e.episode_id], True)
+
+    # Final-only items, own stream per condition: latest place and E7 decisions.
+    rng = HashRng(f"questions:{seed}:final:{world['overlap']}")
+    for person in pick(sorted({p for e in eps for p in e.participants}), per_type // 2):
+        last = max(matching(eps, person=person), key=lambda x: x.day)
+        add("E3b", "latest", rng.choice(PARA["latest"]).format(person=person), "place",
+            dict(person=person), [last.episode_id], False)
+    for obj in sorted({e.object for e in eps}):
+        last = max(matching(eps, obj=obj), key=lambda x: x.day)
+        if last.partner is not None:
+            continue
+        seen_at = max(matching(eps, person=last.actor), key=lambda x: x.day)
+        if seen_at.episode_id == last.episode_id or seen_at.place == last.place:
+            continue  # the decision must need two episodes
+        add("E7", "act", rng.choice(PARA["act"]).format(object=obj), "place", dict(obj=obj),
+            [last.episode_id, seen_at.episode_id], False)
+    finds = []
+    for e in early:
+        cue = dict(action=e.action, place=e.place, obj=e.object)
+        if e.partner is not None or len(matching(eps, **cue)) != 1:
+            continue
+        seen_at = max(matching(eps, person=e.actor), key=lambda x: x.day)
+        if seen_at.episode_id != e.episode_id and seen_at.place != e.place:
+            finds.append((e, cue, seen_at))
+    for e, cue, seen_at in pick(finds, per_type // 2):
+        text = rng.choice(PARA["find"]).format(past=e.action, object=e.object, place=e.place)
+        add("E7", "find", text, "place", cue, [e.episode_id, seen_at.episode_id], False)
+
+    counts = {c: sum(i["criterion"] == c for i in items) for c in MINIMUM}
+    short = {c: n for c, n in counts.items() if n < MINIMUM[c]}
+    if short:
+        raise ValueError(f"WORLD_TOO_SMALL:{short}")
+
+    items = rng.shuffled(items)
+    public = {"phase1": [], "final": []}
+    gold = {}
+    for item in items:
+        # Content-derived id: the same early item has the same id in both conditions.
+        qid = "q" + hashlib.sha256(json.dumps([item["criterion"], item["qtype"], item["cue"]],
+                                              sort_keys=True).encode()).hexdigest()[:10]
+        if qid in gold:
+            raise AssertionError("duplicate item")
+        record = {"qid": qid, "text": item["text"], "answer_type": item["answer_type"]}
+        public["final"].append(record)
+        if item["phase1"]:
+            public["phase1"].append(record)
+        gold[qid] = {k: item[k] for k in ("criterion", "qtype", "answer_type", "gold",
+                                          "targets", "phase1", "cue")}
+    return {"schema": QUESTION_SCHEMA, "public": public, "gold": gold, "counts": counts,
+            "candidates": {"person": sorted({p for e in eps for p in e.participants}),
+                           "place": sorted({e.place for e in eps}),
+                           "object": sorted({e.object for e in eps})}}
+
+
+def make_world(base_seed: str, index: int, max_attempts: int = 50) -> tuple[int, dict]:
+    """World `index` of a series: the first attempt whose seed yields valid question sets
+    in BOTH overlap conditions (protocol section 3). The rule depends only on the
+    generator, never on any system's answers. Returns (attempt, {overlap: (world, qs)})."""
+    for attempt in range(max_attempts):
+        seed = f"{base_seed}-{index}-{attempt}"
+        try:
+            pair = {}
+            for overlap in ("high", "low"):
+                world = generate_world(seed, overlap=overlap)
+                pair[overlap] = (world, build_questions(world))
+            return attempt, pair
+        except ValueError as exc:
+            if not str(exc).startswith("WORLD_TOO_SMALL"):
+                raise
+    raise RuntimeError("no valid world within the attempt limit")
+---END FILE episodic_lab/questions.py---
+
+=== END OF LAB M1.1 REVIEW PART 1 ===

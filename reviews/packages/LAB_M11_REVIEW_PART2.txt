@@ -1,0 +1,643 @@
+MIRA EPISODIC LAB - REVIEW M1.1, PART 2 OF 3 (evaluator, runner, symbolic arm, protocol; lab commit 3ecc1a2)
+
+Review request, second round (Gemini and Astra review separately and blind; Claude is lead reviewer). Please check whether the corrections listed in the summary resolve the first-round findings, and look again for: ways to score without episodic memory, wrong or ambiguous gold answers, unfair answer parsing, statistical errors, and protocol violations. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part you received. This file ends with the line "=== END OF LAB M1.1 REVIEW PART 2 ===".
+
+
+---BEGIN FILE episodic_lab/score.py---
+"""Evaluator: answer parsing, scoring and world-level statistics (protocol section 6).
+
+Answer grammar (PARSER_VERSION, fixed before use). Only the first line counts. After
+normalisation (case, punctuation) and removal of a fixed list of leading filler phrases,
+the rest must be EXACTLY one allowed form:
+- person: full name or first name; place: full name or name stem; object: full name or
+  noun (an optional leading "the" is allowed); each short form is unique in a world;
+- day: "<n>" or "day <n>"; choice: "a" or "b" (also "option a");
+- rejection: one of NONE_FORMS; uncertainty: one of UNCERTAIN_FORMS.
+Anything else (several names, negations, extra or contradicting words, unknown names)
+is category "other" and counts as wrong. Categories per answer:
+correct, wrong_value (an allowed in-world value, but wrong), none_answer (rejection
+although an event exists), uncertain, other.
+"""
+from __future__ import annotations
+
+import math
+import re
+
+PARSER_VERSION = "episodic_lab.parser.v2"
+NONE_FORMS = ("none", "nobody", "no one", "nothing", "nowhere", "never",
+              "no such event", "it did not happen", "that did not happen")
+UNCERTAIN_FORMS = ("unknown", "i don't know", "i do not know", "not sure", "i am not sure",
+                   "i'm not sure", "cannot tell", "can't tell")
+FILLERS = ("the answer is", "answer is", "answer", "it was", "it is", "they were", "at", "in",
+           "on")
+
+
+def normalise(text: str) -> str:
+    text = text.lower().replace("\u2019", "'")
+    text = re.sub(r"[^a-z0-9' ]+", " ", text)
+    return " ".join(text.split())
+
+
+def _strip_fillers(norm: str) -> str:
+    changed = True
+    while changed:
+        changed = False
+        for filler in FILLERS:
+            if norm.startswith(filler + " "):
+                norm = norm[len(filler) + 1:]
+                changed = True
+    return norm
+
+
+def _forms(name: str, answer_type: str) -> set[str]:
+    full = normalise(name)
+    short = {"person": full.split()[0], "place": full.split()[0], "object": full.split()[-1]}
+    forms = {full, short[answer_type]}
+    if answer_type in ("place", "object"):
+        forms |= {"the " + f for f in forms}
+    return forms
+
+
+def parse(answer: str, answer_type: str, candidates: dict) -> tuple[str, str | None]:
+    """Return (kind, value): kind is "value", "none", "uncertain" or "other"."""
+    if not isinstance(answer, str) or not answer.strip():
+        return "other", None
+    norm = _strip_fillers(normalise(answer.strip().split("\n", 1)[0]))
+    if norm in NONE_FORMS:
+        return "none", "none"
+    if norm in UNCERTAIN_FORMS:
+        return "uncertain", None
+    if answer_type == "choice":
+        m = re.fullmatch(r"(?:option )?([ab])", norm)
+        return ("value", m.group(1).upper()) if m else ("other", None)
+    if answer_type == "day":
+        m = re.fullmatch(r"(?:day )?(\d+)", norm)
+        return ("value", str(int(m.group(1)))) if m else ("other", None)
+    hits = [name for name in candidates[answer_type] if norm in _forms(name, answer_type)]
+    return ("value", hits[0]) if len(hits) == 1 else ("other", None)
+
+
+def extract(answer: str, answer_type: str, candidates: dict) -> str | None:
+    """Canonical value, "none", or None (uncertain or other)."""
+    kind, value = parse(answer, answer_type, candidates)
+    return value if kind in ("value", "none") else None
+
+
+def score_world(gold: dict, candidates: dict, answers: dict, phase: str) -> list[dict]:
+    """One record per question of the phase; `answers` maps qid -> raw answer text."""
+    rows = []
+    for qid, g in sorted(gold.items()):
+        if phase == "phase1" and not g["phase1"]:
+            continue
+        raw = answers.get(qid)
+        kind, value = parse(raw, g["answer_type"], candidates)
+        correct = kind in ("value", "none") and value in g["gold"]
+        if correct:
+            category = "correct"
+        elif kind == "value":
+            category = "wrong_value"
+        elif kind == "none":
+            category = "none_answer"
+        else:
+            category = kind
+        rows.append({"qid": qid, "criterion": g["criterion"], "qtype": g["qtype"],
+                     "phase": phase, "raw": raw, "parser": PARSER_VERSION,
+                     "extracted": value, "category": category, "correct": correct,
+                     "false_recall": g["gold"] == ["none"] and kind == "value",
+                     "targets": g["targets"]})
+    return rows
+
+
+def summarise(rows: list[dict]) -> dict:
+    """Per criterion: accuracy and the share of every answer category. For E5,
+    accuracy is the correct-rejection rate and false_recall the share of in-world claims;
+    uncertain and other answers are reported separately and are not rejections."""
+    out = {}
+    for criterion in sorted({r["criterion"] for r in rows}):
+        sub = [r for r in rows if r["criterion"] == criterion]
+        n = len(sub)
+        out[criterion] = {"n": n, "accuracy": sum(r["correct"] for r in sub) / n,
+                          "categories": {c: sum(r["category"] == c for r in sub) / n
+                                         for c in ("correct", "wrong_value", "none_answer",
+                                                   "uncertain", "other")}}
+        if criterion == "E5":
+            out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / n
+    return out
+
+
+# ---------------------------------------------------------------- statistics over worlds
+_T975 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306,
+         9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131,
+         16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086, 25: 2.060, 30: 2.042,
+         40: 2.021, 60: 2.000, 120: 1.980}
+
+
+def t975(df: int) -> float:
+    if df < 1:
+        raise ValueError("need at least two worlds")
+    if df > 120:
+        return 1.980  # conservative: value for df = 120
+    # conservative: the largest tabulated df not above the actual df (larger quantile)
+    return _T975[max(k for k in _T975 if k <= df)]
+
+
+def mean_interval(values: list[float]) -> tuple[float, float, float]:
+    """Mean over worlds with a two-sided 95% t-interval (worlds are the units).
+
+    Descriptive: it assumes approximately normal world means and has zero width when all
+    worlds score the same, which is no certainty about new worlds. Confirmatory decisions
+    use `world_rate_bounds` on independent world-level indicators instead."""
+    n = len(values)
+    mean = sum(values) / n
+    if n < 2:
+        return mean, float("nan"), float("nan")
+    sd = math.sqrt(sum((v - mean) ** 2 for v in values) / (n - 1))
+    half = t975(n - 1) * sd / math.sqrt(n)
+    return mean, mean - half, mean + half
+
+
+def paired_difference(a: dict, b: dict) -> tuple[float, float, float]:
+    """Paired per-world difference a - b; a and b map world id -> score."""
+    if set(a) != set(b):
+        raise ValueError("paired comparison needs exactly the same worlds")
+    return mean_interval([a[w] - b[w] for w in sorted(a)])
+
+
+def _betacf(a: float, b: float, x: float) -> float:
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c, d = 1.0, 1.0 - qab * x / qap
+    d = 1.0 / (d if abs(d) > 1e-300 else 1e-300)
+    h = d
+    for m in range(1, 300):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > 1e-300 else 1e-300)
+        c = 1.0 + aa / c if abs(1.0 + aa / c) > 1e-300 else 1e-300
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > 1e-300 else 1e-300)
+        c = 1.0 + aa / c if abs(1.0 + aa / c) > 1e-300 else 1e-300
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < 1e-12:
+            break
+    return h
+
+
+def betainc(a: float, b: float, x: float) -> float:
+    """Regularised incomplete beta I_x(a, b)."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lbeta = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+    front = math.exp(lbeta + a * math.log(x) + b * math.log1p(-x))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * _betacf(a, b, x) / a
+    return 1.0 - front * _betacf(b, a, 1.0 - x) / b
+
+
+def upper_bound(errors: float, n: float, confidence: float = 0.95) -> float:
+    """One-sided Clopper-Pearson upper bound. Exact only for integer counts of
+    independent trials; with fractional (effective) counts it is an approximation."""
+    if n <= 0:
+        return 1.0
+    errors = min(errors, n)
+    if errors >= n:
+        return 1.0
+    lo, hi = errors / n, 1.0
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        # P(X <= errors | p = mid) = 1 - I_mid(errors + 1, n - errors)
+        if 1.0 - betainc(errors + 1.0, n - errors, mid) > 1.0 - confidence:
+            lo = mid
+        else:
+            hi = mid
+    return hi
+
+
+def lower_bound(successes: float, n: float, confidence: float = 0.95) -> float:
+    """One-sided Clopper-Pearson lower bound (mirror of `upper_bound`)."""
+    return 1.0 - upper_bound(n - successes, n, confidence)
+
+
+def world_rate_bounds(indicators: dict, confidence: float = 0.95) -> tuple[float, float]:
+    """Exact one-sided bounds for the probability that a new world has the property,
+    from one independent 0/1 indicator per world (world id -> bool). Used for
+    confirmatory decisions, e.g. "the world meets the E2 threshold" (lower bound) or
+    "the world has at least one in-world false recall" (upper bound)."""
+    n = len(indicators)
+    k = sum(bool(v) for v in indicators.values())
+    return lower_bound(k, n, confidence), upper_bound(k, n, confidence)
+
+
+def false_recall_bound(errors_per_world: list[int], questions_per_world: list[int],
+                       design_effect: float = 1.0) -> float:
+    """Descriptive E5 bound on the pooled count with an effective sample size
+    n / design effect; it treats questions as independent when design_effect is 1 and
+    is no confirmatory guarantee (see `world_rate_bounds`)."""
+    errors = sum(errors_per_world)
+    n = sum(questions_per_world)
+    deff = max(1.0, design_effect)
+    return upper_bound(errors / deff, n / deff)
+---END FILE episodic_lab/score.py---
+
+---BEGIN FILE episodic_lab/runner.py---
+"""Run one system on one world pair under the protocol's encoding and test schedule.
+
+Schedule: present the early episodes once each in presentation order, test with the
+phase1 questions, present the follow-up episodes once each, test with the final
+questions. The system sees only episode texts and question texts (E1a); the evaluator
+alone holds the gold answers.
+
+Frozen memory during tests: every answer is given from a fresh context, and the system's
+memory state digest must be identical before and after each answer, so questions can
+never become memory input (protocol section 3). A system that changes its state while
+answering is rejected.
+"""
+from __future__ import annotations
+
+from typing import Protocol
+
+from .score import score_world, summarise
+from .world import episodes_of
+
+
+class System(Protocol):
+    def encode(self, text: str) -> None: ...
+    def answer(self, text: str) -> str: ...
+    def state_digest(self) -> str: ...
+
+
+class StateChangedWhileAnswering(RuntimeError):
+    pass
+
+
+def run_world(system: System, world: dict, questions: dict) -> dict:
+    episodes = episodes_of(world)
+    presented = 0
+    answers = {}
+    for block, phase in (("early", "phase1"), ("followup", "final")):
+        for e in episodes:
+            if e.block == block:
+                system.encode(e.text)
+                presented += 1
+        answers[phase] = {}
+        for q in questions["public"][phase]:
+            before = system.state_digest()
+            answers[phase][q["qid"]] = system.answer(q["text"])
+            if system.state_digest() != before:
+                raise StateChangedWhileAnswering(q["qid"])
+    gold, cands = questions["gold"], questions["candidates"]
+    rows = (score_world(gold, cands, answers["phase1"], "phase1")
+            + score_world(gold, cands, answers["final"], "final"))
+    return {"seed": world["seed"], "overlap": world["overlap"], "episodes_presented": presented,
+            "episodes_in_world": len(episodes), "rows": rows,
+            "phase1": summarise([r for r in rows if r["phase"] == "phase1"]),
+            "final": summarise([r for r in rows if r["phase"] == "final"])}
+
+
+def retention(result: dict) -> dict:
+    """E6 inputs: accuracy on the early-target items at phase1 and at final."""
+    early = [r for r in result["rows"] if r["criterion"] in ("E2", "E4")]
+    out = {}
+    for phase in ("phase1", "final"):
+        sub = [r for r in early if r["phase"] == phase]
+        out[phase] = sum(r["correct"] for r in sub) / len(sub) if sub else float("nan")
+    return out
+---END FILE episodic_lab/runner.py---
+
+---BEGIN FILE episodic_lab/symbolic.py---
+"""Arm S0: a rule-based event manager (protocol section 4).
+
+It reads the same episode texts the models see, once each and in presentation order,
+stores parsed events in a table and answers the same questions by rules. It shows how
+far the benchmark is solved by plain data handling, without any language model.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+
+from .questions import BASE, PARA
+
+PAST = {base: past for past, base in BASE.items()}
+_NAME = r"[A-Z][a-z]+ [A-Z][a-z]+"
+_PLACE = r"[A-Z][a-z]+ [A-Z][a-z]+"
+_OBJ = r"[a-z]+ [a-z]+"
+_ACT = "|".join(BASE)
+_PART = r"(?: together with (?P<partner>" + _NAME + r"))?"
+EPISODE_PATTERNS = [
+    rf"On day (?P<day>\d+), (?P<actor>{_NAME}) (?P<action>{_ACT}) the (?P<object>{_OBJ}) at (?P<place>{_PLACE}){_PART}\.",
+    rf"Day (?P<day>\d+): at (?P<place>{_PLACE}), (?P<actor>{_NAME}){_PART} (?P<action>{_ACT}) the (?P<object>{_OBJ})\.",
+    rf"(?P<actor>{_NAME}) was at (?P<place>{_PLACE}) on day (?P<day>\d+) and (?P<action>{_ACT}) the (?P<object>{_OBJ}){_PART}\.",
+    rf"Looking back to day (?P<day>\d+): (?P<actor>{_NAME}) (?P<action>{_ACT}) the (?P<object>{_OBJ}) at (?P<place>{_PLACE}){_PART}\.",
+    rf"Earlier, on day (?P<day>\d+), (?P<actor>{_NAME}){_PART} had (?P<action>{_ACT}|hidden) the (?P<object>{_OBJ}) at (?P<place>{_PLACE})\.",
+]
+
+
+class SymbolicMemory:
+    def __init__(self):
+        self.events: list[dict] = []
+
+    def encode(self, text: str) -> None:
+        for pattern in EPISODE_PATTERNS:
+            m = re.fullmatch(pattern, text)
+            if m:
+                event = m.groupdict()
+                event["day"] = int(event["day"])
+                if event["action"] == "hidden":
+                    event["action"] = "hid"
+                self.events.append(event)
+                return
+        raise ValueError(f"unparsed episode: {text}")
+
+    def state_digest(self) -> str:
+        return hashlib.sha256(json.dumps(self.events, sort_keys=True).encode()).hexdigest()
+
+    def _match(self, person=None, action=None, place=None, obj=None):
+        return [e for e in self.events
+                if (person is None or person in (e["actor"], e["partner"]))
+                and (action is None or e["action"] == action)
+                and (place is None or e["place"] == place)
+                and (obj is None or e["object"] == obj)]
+
+    def answer(self, text: str) -> str:
+        for qtype, templates in PARA.items():
+            for template in templates:
+                m = re.fullmatch(_template_regex(template), text)
+                if m:
+                    return self._answer(qtype, m.groupdict())
+        return "unparsed"
+
+    def _answer(self, qtype: str, g: dict) -> str:
+        action = PAST.get(g.get("action"), g.get("past"))
+        if qtype in ("object", "place", "person", "day"):
+            cue = {"person": g.get("person"), "action": action, "place": g.get("place"),
+                   "obj": g.get("object")}
+            hits = self._match(**{k: v for k, v in cue.items() if v is not None})
+            if len(hits) != 1:
+                return "none"
+            e = hits[0]
+            return {"object": e["object"], "place": e["place"], "person": e["actor"],
+                    "day": str(e["day"])}[qtype]
+        if qtype == "order":
+            days = []
+            for side in ("a", "b"):
+                m = re.fullmatch(rf"({_NAME}) ({_ACT}) the ({_OBJ})\.", g[side])
+                hits = self._match(person=m.group(1), action=m.group(2), obj=m.group(3)) if m else []
+                days.append(hits[0]["day"] if len(hits) == 1 else None)
+            if None in days:
+                return "unknown"
+            return "A" if days[0] < days[1] else "B"
+        if qtype == "latest":
+            hits = self._match(person=g["person"])
+            return max(hits, key=lambda e: e["day"])["place"] if hits else "none"
+        if qtype == "at_day":
+            hits = [e for e in self._match(person=g["person"]) if e["day"] == int(g["day"])]
+            return hits[0]["place"] if hits else "none"
+        if qtype == "act":
+            with_obj = self._match(obj=g["object"])
+            if not with_obj:
+                return "none"
+            holder = max(with_obj, key=lambda e: e["day"])["actor"]
+            return max(self._match(person=holder), key=lambda e: e["day"])["place"]
+        if qtype == "find":
+            hits = self._match(action=g["past"], place=g["place"], obj=g["object"])
+            if len(hits) != 1:
+                return "none"
+            return max(self._match(person=hits[0]["actor"]), key=lambda e: e["day"])["place"]
+        return "unparsed"
+
+
+def _template_regex(template: str) -> str:
+    parts = re.split(r"(\{[a-z]+\})", template)
+    groups = {"{person}": rf"(?P<person>{_NAME})", "{place}": rf"(?P<place>{_PLACE})",
+              "{object}": rf"(?P<object>{_OBJ})", "{action}": rf"(?P<action>{'|'.join(PAST)})",
+              "{past}": rf"(?P<past>{_ACT})", "{day}": r"(?P<day>\d+)",
+              "{a}": r"(?P<a>.+?)", "{b}": r"(?P<b>.+?)"}
+    return "".join(groups.get(p, re.escape(p)) for p in parts)
+---END FILE episodic_lab/symbolic.py---
+
+---BEGIN FILE docs/PROTOCOL.md---
+# Mira Episodic Lab - Research Protocol
+
+Version 0.3 - DRAFT. Governs the exploratory pilot (milestones 0-5). It is not the
+confirmatory preregistration: thresholds, sample size and the final arm list are fixed
+in version 1.0, which needs a three-way review and the experiment lead's signature
+(section 10). Version 0.2 integrated the reviews of 0.1; version 0.3 integrates Astra's
+review of milestones 0/1 (answer grammar, E5 categories, E7 semantics, identical early
+blocks, frozen memory during tests, world-level statistics). Reviews: `reviews/`.
+
+## 1. Question and scope
+
+**Research question.** Can language-model agents, using only free CPU compute, build and
+operate a system that gives a small open-weight language model *functional episodic
+memory*?
+
+- Builders and operators: language-model agents (Claude writes and controls, Astra
+  executes in the private repository, Gemini and Astra review). The experiment lead
+  decides and signs; he runs nothing on his own computer.
+- Compute: GitHub-hosted standard runners of this public repository only (4 vCPU,
+  16 GB RAM, 14 GB SSD, at most 6 hours per job, at most 20 parallel jobs, no GPU).
+  No paid service, no secret, no external API.
+- Scope: behavioural, measurable memory functions of the *whole system* (model plus
+  any memory mechanism). No claim about subjective experience, consciousness or
+  "singularity". A positive result for an external-store arm shows a memory function of
+  the system; a claim that Mira's architecture adds something needs the comparison with
+  the simple-retrieval arm and the ablations (section 4).
+
+## 2. Operational definition: criteria E1-E7
+
+The closed-world assumption holds throughout: "none" means "not in the episodes
+presented to the system".
+
+| Id | Criterion | Test |
+|---|---|---|
+| E1a | Single external presentation | The environment presents each episode exactly once. Afterwards its raw text is available to the system only through the memory mechanism under test. Verified by code audit and run receipt. |
+| E1b | Declared internal processing | Every arm reports, per episode: internal replays, tokens processed, optimizer steps (weight-based arms), store writes (store-based arms). These are reported, not hidden; arm comparisons state them. |
+| E2 | Cue-based recall with binding | Questions cue an event by a combination of time, place, people, object or action and ask for a missing detail. People, places and objects recur across many episodes, so only the *combination* identifies an episode (binding test). Question wording is drawn from paraphrase sets never used in encoding text. |
+| E3a | Temporal order | Which of two events happened first. Event time and presentation order partly differ (some episodes are told out of order), so presentation order alone does not answer it. |
+| E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. |
+| E4 | Source memory | On which day an event happened. The same content (same person, action, object) occurs in several episodes; episode identifiers are random tokens and reveal no order. |
+| E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2); every pair of their details co-occurs in the early block. Reported per answer category: correct rejection, in-world false recall, uncertainty, other (format errors and out-of-world claims). Success needs a high correct-rejection rate AND a bounded in-world false-recall rate; false recall alone is never read as the full confabulation rate. |
+| E6 | Retention under interference | Recall of early episodes after K further episodes, in two conditions with equal length: high-overlap (competing) and low-overlap follow-up episodes. Reported: immediate accuracy, delayed accuracy (absolute) and their ratio. |
+| E7 | Use of memory for a decision | Decision items: "where do you go to meet the last person who handled object X" and "where do you go to meet the person who did Y" - each needs the episode that identifies the person AND that person's latest episode at another place. Executing the choice in a small environment is a later extension. |
+
+## 3. Benchmark: synthetic episodic worlds
+
+- A deterministic generator (own SHA-256 based generator, independent of Python
+  versions) creates fictional worlds: invented people, places, objects, days and
+  actions with deliberate feature overlap. Each episode is a short narrative of one
+  event; some are told out of chronological order.
+- Ground truth is computed from the world state, never by a model. Every question has a
+  structured answer type (person, place, object, day, choice label, or `none`), and the
+  generator checks that each question has exactly one correct answer.
+- Answer grammar, fixed before use (parser version recorded with every answer): only the
+  first line; after normalisation and removal of fixed leading filler phrases the rest
+  must be exactly one allowed form (full name or its unique short form, "day n", "a"/"b",
+  a rejection form, or an uncertainty form). Negations, several names, extra or
+  contradicting attributes and unknown names are "other" and count as wrong. Raw answers
+  are kept. Questions weigh equally within a world and worlds weigh equally.
+- Default world: an early block of 20 episodes and 10 follow-up episodes; per world 4
+  people, 3 places, 4 objects and 4 actions, so that pairs of details recur and recall
+  items need the full combination of their cues (verified per item). The early block
+  depends on the seed only; the high- and low-overlap versions of a world share it, and
+  their early test items are identical. Larger worlds form a separate stress level.
+- Minimum items per world (E2 8, E3a 4, E3b 4, E4 4, E5 6, E7 3). World k of a series
+  uses the first seed attempt `<series>-<k>-<attempt>` that meets them in both
+  conditions; the rule depends only on the generator, never on any system's answers.
+- Separation: the system receives episodes (encoding) and questions (testing) only. A
+  separate evaluator step holds the ground truth. No language model judges answers.
+- Clean state: every world starts with fresh model, adapter, optimizer and store state.
+  Every answer is given from a fresh context (no chat history, key-value cache or other
+  auxiliary store), and the runner rejects a system whose memory state digest changes
+  while it answers, so test questions can never become memory input.
+- Training targets of weight-based arms are derived only from the presented episode
+  texts, never from the evaluator's ground truth.
+
+## 4. Systems under test (arms) and controls
+
+| Arm | Description | Role |
+|---|---|---|
+| S0 | Symbolic event manager: rule-based parser and database over the same texts | How far plain data handling solves the task |
+| O1 | Oracle evidence: the correct episode(s) placed in the prompt | Can the model use the evidence at all |
+| A0 | Model, no memory | Guessing and confabulation floor |
+| A1 | All episodes in the prompt (if they fit) | In-context reference, not episodic memory |
+| A2 | Simple retrieval: lexical search, top-k episodes into the prompt | Standard external memory |
+| A3 | Mira memory: structured event store (time, place, people, provenance), state tracking, retrieval | Mira's architecture |
+| P1 | Fast weights: one small LoRA update per episode at encoding, answers without episodes in context | Parametric single-presentation memory |
+| P2 | Rank-one weight edits | Conditional, only if milestone 0 shows it feasible |
+| C1 | A3 store plus periodic consolidation into LoRA weights by replay | Consolidation |
+
+Controls:
+- **Random retrieval** (A2/A3): the same number of random episodes from the same world.
+- **Misbound memory** (A2/A3/C1): a store with the same vocabulary and fact
+  distribution but swapped bindings (who/where/when exchanged across episodes).
+- **A3 ablations**: without time information, without provenance, without state-update
+  logic; context and retrieval budgets equal to A3.
+- **Sham training** (P1/P2/C1): the same number of steps and tokens on unrelated text.
+- **C1 decomposition**: store without consolidation, consolidated weights without
+  store, both; store corruption identical for A3 and C1; extra replay compute reported
+  and matched where possible.
+- **Interference control** (E6): low-overlap follow-up episodes of equal length.
+
+## 5. Models
+
+- Small open-weight instruction models with permissive licences, CPU-feasible. Pilot
+  candidates: SmolLM2-135M/360M-Instruct, Qwen2.5-0.5B-Instruct, Qwen3-0.6B. Licence,
+  exact revision and SHA-256 of every model file are verified and pinned before first use.
+- Greedy decoding. For Qwen3 the thinking mode is switched off (`enable_thinking=False`)
+  and the suitability of this setting is checked in the pilot; otherwise the model is
+  not used with greedy decoding.
+- Selection rule: the smallest candidate whose O1 accuracy in the pilot is at least
+  0.8. If none reaches it, the answer format is simplified first, then the next larger
+  candidate is tried (this counts against the variant budget of section 7).
+
+## 6. Measurement and statistics
+
+- Unit of replication: the world. All arms run on the same worlds; arm differences are
+  analysed as paired per-world differences.
+- Target parameters for confirmatory decisions are defined on independent worlds: the
+  probability that a new world meets a criterion's threshold, and for E5 the probability
+  that a new world contains at least one in-world false recall. They are decided with
+  exact one-sided Clopper-Pearson bounds over the world indicators.
+- Descriptive estimates: the mean over worlds of per-world accuracy with a t-interval
+  (approximate; zero width when all worlds score alike, which is no certainty) and a
+  pooled E5 bound with a design-effect-reduced sample size (approximate). Paired arm
+  differences are computed by world id.
+- E6: accuracy on the same early items (E2, E4) at phase 1 and at the final test, in
+  the high- and the low-overlap condition; success needs a minimum absolute delayed
+  accuracy in addition to the ratio; a ratio is not reported when immediate accuracy is
+  below the minimum.
+- Thresholds are justified per question type from its chance level and a stated
+  minimum practically relevant margin. Superiority claims (for example A3 over A2, P1
+  over sham) are tested on paired differences with Holm correction across the
+  preregistered claims. Overall success (all criteria jointly) needs no extra
+  correction.
+- Sample size: fixed in version 1.0 from the pilot's per-world variance and the
+  preregistered minimum effects, with the probability of detecting them stated.
+- Pilot (exploratory) and confirmatory data are strictly separated.
+
+## 7. Decision and pivot rules (pilot)
+
+- **Pilot gate.** An arm advances if its paired gain over A0 on E2 is at least a margin
+  stated with its reason before the pilot (default 0.20 absolute; lowered only with
+  written justification if A0 is near ceiling), and its E5 false-recall rate stays
+  within an absolute tolerance (default 0.10).
+- **Variant budget.** Each arm has its base configuration plus at most three variants.
+  Model, answer format and hyperparameter changes share this one budget. A variant is
+  chosen after analysing why the previous one failed; it is committed as a configuration
+  file with its reason *before* it runs, and every variant is reported.
+- **Scope of a negative result.** Three failed variants are a negative result for those
+  configurations and this compute budget, not a refutation of the mechanism.
+
+## 8. Reporting
+
+- Two axes for every arm: memory functions met (E1-E7) and cost (encoding, retrieval,
+  storage, training compute).
+- Error localisation along the chain: correctly extracted, stored, retrieved, answered.
+- Stress levels: more episodes, more feature overlap, longer delays, new question
+  wordings.
+- Weight-based arms also report general abilities (simple language and reasoning
+  checks) before and after encoding.
+
+## 9. Compute plan
+
+- Milestone 0 (done, run 38915077515): on the standard runner a LoRA step on one
+  100-token episode takes 0.35 s (SmolLM2-135M) to 1.95 s (Qwen3-0.6B); prompt
+  processing runs at 120-790 tokens/s; peak memory 1.2-4.7 GB. Per-episode encoding (P1)
+  is therefore minutes per world. Long all-episode prompts, chat templates and P2's full
+  cost (activation statistics, covariance, solve, edit) are measured in the pilot.
+- Each run is one workflow job with a declared budget below 5.5 hours; worlds and arms
+  run as parallel jobs (at most 20). Parallel jobs shorten a series, not a single run.
+- Model files are downloaded by pinned revision, checked against pinned SHA-256 values
+  and cached.
+
+## 10. Integrity and governance
+
+- This repository is public. It holds only code, synthetic worlds, results and reviews.
+  Nothing from the private repository except reviewed code; no private or blind
+  material, no state documents, no secrets.
+- Workflows run only on pushes to `main` and on manual start, never on pull requests
+  from forks, and use no secrets.
+- Every run writes a receipt: commit, configuration hash, model pins, seeds, world
+  hashes, E1b processing counts, metrics, runtime. Results go to a separate `results`
+  branch; every run, including failed ones, is listed.
+- Version 1.0 fixes code, arms, thresholds and sample size. The experiment lead then
+  signs one experiment-series authorization (protocol hash, model pins, maximum number
+  of runs). The confirmatory world seed is the SHA-256 of that signature: fixed only
+  after everything else, unpredictable to the agents, reproducible by anyone.
+- Results are taken over into the private repository by hash manifest and recorded in
+  its run register.
+- Reviews are blind (no reviewer sees another's verdict first) and include a verbatim
+  quote from the end of the document as proof of complete reading. Deterministic checks
+  take precedence over model judgements.
+
+## 11. Known limits
+
+- Small models and synthetic worlds: positive results show a mechanism at this scale;
+  negative results do not rule out larger models.
+- Functional criteria only.
+- The agents build, run and evaluate; independent replication is required before any
+  strong claim.
+
+## 12. Milestones
+
+0. Feasibility measurement on the runner (section 9).
+1. Generator, question templates, scorer, symbolic arm S0 and their tests (no model).
+2. Workflow, model pinning, O1, A0 and A1 pilot.
+3. A2, A3, controls and ablations pilot.
+4. P1 pilot; P2 only if milestone 0 allows.
+5. C1 pilot.
+6. Version 1.0: confirmatory core (A0-A3 with controls, at most one preselected
+   weight-based arm; P2 and C1 as separate later series), thresholds, sample size;
+   three-way review; signed experiment-series authorization.
+7. Confirmatory series.
+8. Report, import into the private repository, external review.
+---END FILE docs/PROTOCOL.md---
+
+=== END OF LAB M1.1 REVIEW PART 2 ===

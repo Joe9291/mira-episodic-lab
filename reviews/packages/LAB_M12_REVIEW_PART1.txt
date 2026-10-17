@@ -1,0 +1,407 @@
+MIRA EPISODIC LAB - REVIEW M1.2, PART 1 OF 2 (summary, questions, runner; lab commit 5a6167e)
+
+Review request, third round (Astra; Claude is lead reviewer). Please check whether the changes resolve your findings on milestone 1.1, and look again for ways to score without episodic memory, wrong or ambiguous gold answers, unfair parsing, statistical errors and protocol violations. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB M1.2 REVIEW PART 1 ===".
+
+THIRD ROUND: milestone 1.2 of the Mira episodic lab (main = 5a6167e), the corrections after your review of milestone 1.1 (commit 3ecc1a2). Gemini has been removed as reviewer by the experiment lead (repeatedly failed the completeness proof); reviewers are Claude (author, lead) and you. Protocol v0.4.
+
+YOUR FINDINGS AND WHAT WAS DONE
+1. E2 binding: _binding_needed(early, cue, qtype) now requires, for every dropped cue detail, at least two early episodes with DIFFERENT answers (object/place) and, for person questions, that no person took part in all remaining episodes. Your hand-made counterexample is a test and is refused; a varied version is accepted; a shared-person case is refused. The world test checks answer ambiguity per item. To keep enough items the default world is denser: 30 early + 10 follow-up episodes, 4 people, 4 places, 4 objects, 4 actions (98% of worlds valid at the first attempt; per world on average E2 14.8, E3a 8, E3b 8, E4 7.8, E5 16, E7 5.4).
+2. E4: only content (person, action, object) that occurs on at least two early days is asked; the cue adds the place, which tells the occurrences apart; the item must be unique in both conditions. Test: every E4 cue has a place, its content occurs on two or more early days, and the gold day is one of them. E3a descriptions now also include the place. (Requiring full answer-ambiguity binding for E4 as well left zero items in every world; the protocol defines E4 as stated here.)
+3. Model pinning: the protocol records a narrow exception for the exploratory milestone 0 (revision resolved at run time and recorded; no answers evaluated); milestone 2 starts with a pinning step that records every file's SHA-256 at those revisions, and the pilot refuses other bytes.
+4. Result registration: the artifact download is continue-on-error with an id; the storing step runs with if: always(), records the fetch outcome, validates each model result as JSON field by field (model id, status, 40-hex revision, numeric step time and memory), writes CHECK.txt and VERDICT, pushes, and fails the job if incomplete. Tested the embedded check with a missing model locally; the GitHub rerun on 5a6167e: fetch-outcome success, verdict COMPLETE, all four OK.
+Frozen memory: the runner now fingerprints the system's own digest PLUS every attribute of the system object not listed in DIGEST_COVERS (pickled); a system that keeps questions in a separate buffer is rejected (test). The claim is narrowed in code and protocol: state outside the object (globals, files) is excluded by code audit, an acceptance criterion of milestone 2 for the model arms.
+Improvement ideas taken over: attempts and skipped seeds reported and statements restricted to accepted worlds; separate minimums for the two E3b subtypes (at_day >= 3, latest >= 3); world indicators must be real booleans ("False" as a string and 1 are refused); two-level thresholds (per-world pass and required pass probability); "at least one of several arms" claims corrected for the number of arms; seed procedure: the authorization text and its hash are committed before signing, the seed is SHA-256 of the deterministic Ed25519 signature.
+VERIFICATION: 23 unit tests, green on GitHub; symbolic arm S0 solves every item of the test worlds in both conditions; 6 of 6 mutants of the new checks detected (one after the subtype-minimum test was changed to count from the gold items instead of the reported counts).
+
+---BEGIN FILE episodic_lab/questions.py---
+"""Question sets with ground truth for a world (protocol sections 2 and 3).
+
+Two test points: `phase1` right after the early block and `final` after all episodes.
+
+Early-target items (E2, E3a, E3b on a day, E4, E5) are chosen from the early block with
+a seed-only random stream and are checked against the full worlds of BOTH overlap
+conditions, so the high- and low-overlap versions of a seed test exactly the same early
+items with the same answers (E6). Lures are built from details that co-occur in the
+early block, so they are lures already at phase 1. Final-only items (latest state, E7)
+may differ between conditions.
+
+The public question files carry no answers; the gold file is for the evaluator only.
+Gold answers come from `answer_for`, a direct rule over episodes that tests also check
+on hand-made worlds.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+
+from .rng import HashRng
+from .world import Episode, episodes_of, generate_world
+
+QUESTION_SCHEMA = "episodic_lab.questions.v2"
+MINIMUM = {"E2": 8, "E3a": 4, "E3b": 6, "E4": 4, "E5": 6, "E7": 3}
+MINIMUM_QTYPE = {"at_day": 3, "latest": 3}
+
+PARA = {
+    "object": ("What did {person} {action} at {place}?",
+               "At {place}, which thing did {person} {action}?",
+               "Name the object that {person} {past} at {place}."),
+    "place": ("Where did {person} {action} the {object}?",
+              "At which place did {person} {action} the {object}?",
+              "Name the place where {person} {past} the {object}."),
+    "person": ("Who {past} the {object} at {place}?",
+               "Which person {past} the {object} at {place}?",
+               "Name someone who {past} the {object} at {place}."),
+    "day": ("On which day did {person} {action} the {object} at {place}?",
+            "Which day was it when {person} {past} the {object} at {place}?"),
+    "order": ("Which happened first? (A) {a} (B) {b} Answer A or B.",
+              "Two events: (A) {a} (B) {b} Which one was earlier? Answer A or B."),
+    "latest": ("Where was {person} most recently?",
+               "At which place was {person} seen last?"),
+    "at_day": ("Where was {person} on day {day}?",
+               "At which place was {person} on day {day}?"),
+    "act": ("You need to talk to the last person who handled the {object}. To which place "
+            "do you go, where that person was seen most recently?",
+            "Decide where to go: you are looking for whoever last handled the {object}, at "
+            "the place where that person was last seen."),
+    "find": ("You want to meet the person who {past} the {object} at {place}. Where do you go "
+             "to find that person now?",
+             "Decide where to go to meet whoever {past} the {object} at {place}, at the place "
+             "where that person was seen most recently."),
+}
+BASE = {"repaired": "repair", "painted": "paint", "sold": "sell", "hid": "hide",
+        "found": "find", "measured": "measure", "cleaned": "clean", "carried": "carry"}
+
+
+def matching(episodes, person=None, action=None, place=None, obj=None):
+    return [e for e in episodes
+            if (person is None or person in e.participants)
+            and (action is None or e.action == action)
+            and (place is None or e.place == place)
+            and (obj is None or e.object == obj)]
+
+
+def answer_for(episodes: list[Episode], qtype: str, cue: dict) -> list[str]:
+    """The gold answer(s) by direct rule; ["none"] if no episode matches.
+
+    Raises ValueError if an item is ill-defined (ambiguous cue, equal days, two handlers).
+    """
+    if qtype in ("object", "place", "person", "day"):
+        hits = matching(episodes, **cue)
+        if not hits:
+            return ["none"]
+        if len(hits) > 1:
+            raise ValueError("ambiguous cue")
+        e = hits[0]
+        return {"object": [e.object], "place": [e.place], "person": list(e.participants),
+                "day": [str(e.day)]}[qtype]
+    if qtype == "order":
+        a = matching(episodes, **cue["a"])
+        b = matching(episodes, **cue["b"])
+        if len(a) != 1 or len(b) != 1 or a[0].day == b[0].day:
+            raise ValueError("order items need two unique events on different days")
+        return ["A" if a[0].day < b[0].day else "B"]
+    if qtype == "latest":
+        hits = matching(episodes, person=cue["person"])
+        return [max(hits, key=lambda e: e.day).place] if hits else ["none"]
+    if qtype == "at_day":
+        hits = [e for e in matching(episodes, person=cue["person"]) if e.day == cue["day"]]
+        return [hits[0].place] if hits else ["none"]
+    if qtype == "act":
+        with_obj = matching(episodes, obj=cue["obj"])
+        if not with_obj:
+            return ["none"]
+        last = max(with_obj, key=lambda e: e.day)
+        if last.partner is not None:
+            raise ValueError("last handling has two people")
+        return [max(matching(episodes, person=last.actor), key=lambda e: e.day).place]
+    if qtype == "find":
+        hits = matching(episodes, **cue)
+        if len(hits) != 1 or hits[0].partner is not None:
+            raise ValueError("find items need one event with one person")
+        return [max(matching(episodes, person=hits[0].actor), key=lambda e: e.day).place]
+    raise ValueError(qtype)
+
+
+def _unique_everywhere(worlds, **cue) -> bool:
+    return all(len(matching(w, **cue)) == 1 for w in worlds)
+
+
+def _binding_needed(early, cue, qtype) -> bool:
+    """Every cue detail is needed for the ANSWER: dropping any single detail leaves early
+    episodes with different answers (for person questions: no one person who took part
+    in all of them, so no single name answers every remaining episode)."""
+    for drop in cue:
+        hits = matching(early, **{k: v for k, v in cue.items() if k != drop})
+        if len(hits) < 2:
+            return False
+        if qtype == "person":
+            if set.intersection(*(set(e.participants) for e in hits)):
+                return False
+        else:
+            key = {"object": "object", "place": "place", "day": "day"}[qtype]
+            if len({getattr(e, key) for e in hits}) < 2:
+                return False
+    return True
+
+
+def build_questions(world: dict, per_type: int = 8) -> dict:
+    """Return {"public": {"phase1": [...], "final": [...]}, "gold": {...}, ...}."""
+    seed, params = world["seed"], world["params"]
+    eps = episodes_of(world)
+    early = [e for e in eps if e.block == "early"]
+    both = [episodes_of(generate_world(seed, overlap=o, **params)) for o in ("high", "low")]
+    rng = HashRng(f"questions:{seed}:early")
+    items: list[dict] = []
+
+    def add(criterion, qtype, text, answer_type, cue, targets, phase1):
+        gold = answer_for(eps, qtype, cue)
+        if phase1:  # identical answer in both conditions and at both test points
+            if not (all(answer_for(w, qtype, cue) == gold for w in both)
+                    and answer_for(early, qtype, cue) == gold):
+                raise AssertionError(f"unstable early item {qtype} {cue}")
+        items.append({"criterion": criterion, "qtype": qtype, "text": text,
+                      "answer_type": answer_type, "gold": gold, "targets": targets,
+                      "phase1": phase1, "cue": cue})
+
+    def pick(candidates, n):
+        return rng.sample(candidates, min(n, len(candidates)))
+
+    def words(past, **extra):
+        return {"action": BASE[past], "past": past, **extra}
+
+    # E2 binding recall: unique in every condition, and every cue detail is needed.
+    seen, e2 = set(), []
+    for e in early:
+        for person in e.participants:
+            for qtype, cue in (("object", dict(person=person, action=e.action, place=e.place)),
+                               ("place", dict(person=person, action=e.action, obj=e.object)),
+                               ("person", dict(action=e.action, place=e.place, obj=e.object))):
+                key = (qtype, tuple(sorted(cue.items())))
+                if (key in seen or not _unique_everywhere(both, **cue)
+                        or not _binding_needed(early, cue, qtype)):
+                    continue
+                seen.add(key)
+                e2.append((qtype, cue, e))
+    for qtype, cue, e in pick(e2, 3 * per_type):
+        text = rng.choice(PARA[qtype]).format(**words(e.action, person=cue.get("person"),
+                                                      place=e.place, object=e.object))
+        add("E2", qtype, text, qtype, cue, [e.episode_id], True)
+
+    # E5 binding lures: every pair of cue details co-occurs in the EARLY block; the full
+    # combination occurs in no condition at all.
+    people = sorted({p for e in early for p in e.participants})
+    places = sorted({e.place for e in early})
+    objects = sorted({e.object for e in early})
+    actions = sorted({e.action for e in early})
+    lures = []
+    for _ in range(4000):
+        qtype = rng.choice(("object", "place", "person"))
+        person, action, place, obj = (rng.choice(people), rng.choice(actions),
+                                      rng.choice(places), rng.choice(objects))
+        cue = {"object": dict(person=person, action=action, place=place),
+               "place": dict(person=person, action=action, obj=obj),
+               "person": dict(action=action, place=place, obj=obj)}[qtype]
+        key = (qtype, tuple(sorted(cue.items())))
+        if key in seen or any(matching(w, **cue) for w in both):
+            continue
+        keys = list(cue)
+        if not all(matching(early, **{a: cue[a], b: cue[b]})
+                   for i, a in enumerate(keys) for b in keys[i + 1:]):
+            continue
+        seen.add(key)
+        lures.append((qtype, cue))
+        if len(lures) >= 2 * per_type:
+            break
+    for qtype, cue in lures:
+        text = rng.choice(PARA[qtype]).format(**words(cue["action"], person=cue.get("person"),
+                                                      place=cue.get("place"),
+                                                      object=cue.get("obj")))
+        add("E5", qtype, text, qtype, cue, [], True)
+
+    # Events described uniquely by (person, action, object, place) in every condition.
+    described = [(person, e) for e in early for person in e.participants
+                 if _unique_everywhere(both, person=person, action=e.action, obj=e.object,
+                                       place=e.place)]
+
+    # E4 source: the SAME content (person, action, object) occurs on several early days;
+    # the place tells the occurrences apart, so the content alone does not give the day.
+    e4 = [(person, e) for person, e in described
+          if len({x.day for x in matching(early, person=person, action=e.action,
+                                          obj=e.object)}) >= 2]
+    for person, e in pick(e4, per_type):
+        cue = dict(person=person, action=e.action, obj=e.object, place=e.place)
+        text = rng.choice(PARA["day"]).format(**words(e.action, person=person, object=e.object,
+                                                      place=e.place))
+        add("E4", "day", text, "day", cue, [e.episode_id], True)
+
+    # E3a order: two described events; pairs whose presentation order differs from day
+    # order first.
+    pairs = [((pa, a), (pb, b)) for i, (pa, a) in enumerate(described)
+             for pb, b in described[i + 1:] if a.day != b.day]
+    mixed = [p for p in pairs if (p[0][1].position < p[1][1].position) != (p[0][1].day < p[1][1].day)]
+    pairs = mixed + [p for p in pairs if p not in mixed]
+    for (pa, a), (pb, b) in pairs[:per_type]:
+        if rng.below(2):
+            (pa, a), (pb, b) = (pb, b), (pa, a)
+        cue = {"a": dict(person=pa, action=a.action, obj=a.object, place=a.place),
+               "b": dict(person=pb, action=b.action, obj=b.object, place=b.place)}
+        text = rng.choice(PARA["order"]).format(
+            a=f"{pa} {a.action} the {a.object} at {a.place}.",
+            b=f"{pb} {b.action} the {b.object} at {b.place}.")
+        add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True)
+
+    # E3b place on a given early day.
+    for person, e in pick([(p, e) for e in early for p in e.participants], per_type // 2):
+        add("E3b", "at_day", rng.choice(PARA["at_day"]).format(person=person, day=e.day),
+            "place", dict(person=person, day=e.day), [e.episode_id], True)
+
+    # Final-only items, own stream per condition: latest place and E7 decisions.
+    rng = HashRng(f"questions:{seed}:final:{world['overlap']}")
+    for person in pick(sorted({p for e in eps for p in e.participants}), per_type // 2):
+        last = max(matching(eps, person=person), key=lambda x: x.day)
+        add("E3b", "latest", rng.choice(PARA["latest"]).format(person=person), "place",
+            dict(person=person), [last.episode_id], False)
+    for obj in sorted({e.object for e in eps}):
+        last = max(matching(eps, obj=obj), key=lambda x: x.day)
+        if last.partner is not None:
+            continue
+        seen_at = max(matching(eps, person=last.actor), key=lambda x: x.day)
+        if seen_at.episode_id == last.episode_id or seen_at.place == last.place:
+            continue  # the decision must need two episodes
+        add("E7", "act", rng.choice(PARA["act"]).format(object=obj), "place", dict(obj=obj),
+            [last.episode_id, seen_at.episode_id], False)
+    finds = []
+    for e in early:
+        cue = dict(action=e.action, place=e.place, obj=e.object)
+        if e.partner is not None or len(matching(eps, **cue)) != 1:
+            continue
+        seen_at = max(matching(eps, person=e.actor), key=lambda x: x.day)
+        if seen_at.episode_id != e.episode_id and seen_at.place != e.place:
+            finds.append((e, cue, seen_at))
+    for e, cue, seen_at in pick(finds, per_type // 2):
+        text = rng.choice(PARA["find"]).format(past=e.action, object=e.object, place=e.place)
+        add("E7", "find", text, "place", cue, [e.episode_id, seen_at.episode_id], False)
+
+    counts = {c: sum(i["criterion"] == c for i in items) for c in MINIMUM}
+    counts.update({t: sum(i["qtype"] == t for i in items) for t in MINIMUM_QTYPE})
+    short = {c: n for c, n in counts.items() if n < {**MINIMUM, **MINIMUM_QTYPE}[c]}
+    if short:
+        raise ValueError(f"WORLD_TOO_SMALL:{short}")
+
+    items = rng.shuffled(items)
+    public = {"phase1": [], "final": []}
+    gold = {}
+    for item in items:
+        # Content-derived id: the same early item has the same id in both conditions.
+        qid = "q" + hashlib.sha256(json.dumps([item["criterion"], item["qtype"], item["cue"]],
+                                              sort_keys=True).encode()).hexdigest()[:10]
+        if qid in gold:
+            raise AssertionError("duplicate item")
+        record = {"qid": qid, "text": item["text"], "answer_type": item["answer_type"]}
+        public["final"].append(record)
+        if item["phase1"]:
+            public["phase1"].append(record)
+        gold[qid] = {k: item[k] for k in ("criterion", "qtype", "answer_type", "gold",
+                                          "targets", "phase1", "cue")}
+    return {"schema": QUESTION_SCHEMA, "public": public, "gold": gold, "counts": counts,
+            "candidates": {"person": sorted({p for e in eps for p in e.participants}),
+                           "place": sorted({e.place for e in eps}),
+                           "object": sorted({e.object for e in eps})}}
+
+
+def make_world(base_seed: str, index: int, max_attempts: int = 50) -> tuple[int, dict]:
+    """World `index` of a series: the first attempt whose seed yields valid question sets
+    in BOTH overlap conditions (protocol section 3). The rule depends only on the
+    generator, never on any system's answers. Returns (attempt, {overlap: (world, qs)})."""
+    for attempt in range(max_attempts):
+        seed = f"{base_seed}-{index}-{attempt}"
+        try:
+            pair = {}
+            for overlap in ("high", "low"):
+                world = generate_world(seed, overlap=overlap)
+                pair[overlap] = (world, build_questions(world))
+            return attempt, pair
+        except ValueError as exc:
+            if not str(exc).startswith("WORLD_TOO_SMALL"):
+                raise
+    raise RuntimeError("no valid world within the attempt limit")
+---END FILE episodic_lab/questions.py---
+
+---BEGIN FILE episodic_lab/runner.py---
+"""Run one system on one world pair under the protocol's encoding and test schedule.
+
+Schedule: present the early episodes once each in presentation order, test with the
+phase1 questions, present the follow-up episodes once each, test with the final
+questions. The system sees only episode texts and question texts (E1a); the evaluator
+alone holds the gold answers.
+
+Frozen memory during tests: every answer must come from a fresh context (the adapter
+builds each prompt from scratch). The runner checks this as far as it can see: before
+and after every answer it compares the system's own digest of its memory (for large
+state such as weights, attributes listed in DIGEST_COVERS) AND a fingerprint of every
+other attribute of the system object. A system that changes either while answering is
+rejected. State kept outside the system object (module globals, files) is not covered;
+model adapters must not keep any (protocol section 3, code audit).
+"""
+from __future__ import annotations
+
+import hashlib
+import pickle
+from typing import Protocol
+
+from .score import score_world, summarise
+from .world import episodes_of
+
+
+class System(Protocol):
+    def encode(self, text: str) -> None: ...
+    def answer(self, text: str) -> str: ...
+    def state_digest(self) -> str: ...
+
+
+class StateChangedWhileAnswering(RuntimeError):
+    pass
+
+
+def fingerprint(system) -> str:
+    """Digest of the system's own memory digest plus every attribute it does not cover."""
+    covered = set(getattr(system, "DIGEST_COVERS", ()))
+    rest = {k: v for k, v in sorted(vars(system).items()) if k not in covered}
+    return hashlib.sha256(system.state_digest().encode() + pickle.dumps(rest, protocol=4)).hexdigest()
+
+
+def run_world(system: System, world: dict, questions: dict) -> dict:
+    episodes = episodes_of(world)
+    presented = 0
+    answers = {}
+    for block, phase in (("early", "phase1"), ("followup", "final")):
+        for e in episodes:
+            if e.block == block:
+                system.encode(e.text)
+                presented += 1
+        answers[phase] = {}
+        for q in questions["public"][phase]:
+            before = fingerprint(system)
+            answers[phase][q["qid"]] = system.answer(q["text"])
+            if fingerprint(system) != before:
+                raise StateChangedWhileAnswering(q["qid"])
+    gold, cands = questions["gold"], questions["candidates"]
+    rows = (score_world(gold, cands, answers["phase1"], "phase1")
+            + score_world(gold, cands, answers["final"], "final"))
+    return {"seed": world["seed"], "overlap": world["overlap"], "episodes_presented": presented,
+            "episodes_in_world": len(episodes), "rows": rows,
+            "phase1": summarise([r for r in rows if r["phase"] == "phase1"]),
+            "final": summarise([r for r in rows if r["phase"] == "final"])}
+
+
+def retention(result: dict) -> dict:
+    """E6 inputs: accuracy on the early-target items at phase1 and at final."""
+    early = [r for r in result["rows"] if r["criterion"] in ("E2", "E4")]
+    out = {}
+    for phase in ("phase1", "final"):
+        sub = [r for r in early if r["phase"] == phase]
+        out[phase] = sum(r["correct"] for r in sub) / len(sub) if sub else float("nan")
+    return out
+---END FILE episodic_lab/runner.py---
+
+=== END OF LAB M1.2 REVIEW PART 1 ===

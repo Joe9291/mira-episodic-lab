@@ -1,0 +1,424 @@
+MIRA EPISODIC LAB - REVIEW M2 ROUND 3, PART 1 OF 2 (summary, collector)
+
+Review request (Astra; Claude is lead reviewer). Please re-review milestone 2 after your REQUEST CHANGES of round 2 (archived verbatim as reviews/2026-10-16_m2r2_astra.txt). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB M2 ROUND 3 PART 1 ===".
+
+STATE: lab main = 902eae9 (round 2 was 502d1e3). The pilot is still disabled (config/pilot.json unchanged, "enabled": false). Only bench/pilot/collect.py, bench/pilot/run_pilot.py, tests/test_arms.py and docstrings/protocol text changed; part 1 carries the full collector, part 2 the run_pilot diff, the protocol/docstring diff and the full tests.
+
+RESPONSE TO THE TWO REQUIRED CHANGES
+1. Published numbers vs rows. The collector no longer checks ranges of stored numbers; it recomputes them with its own code (recompute_summary, recompute_retention, inclusion_summary) and requires exact agreement (function `same`: identical keys and types, floats to 1e-9): per phase and criterion n, accuracy, all five category shares, E5 false recall, E3b by_qtype with n and accuracy per subtype; E6 retention from the E2/E4 rows; telemetry calls, truncated, prompt_tokens and new_tokens equal the row sums. Rows are checked for allowed combinations (phase -> criterion -> qtype table QTYPES: E7 and "latest" final only, E3b phase1 at_day only, E5 object/place/person, ...) and internal consistency (correct iff category correct; false_recall iff E5 and wrong_value; new_tokens <= max_new_tokens; truncated implies new_tokens == max_new_tokens; no duplicates). If the rows themselves lack an E3b subtype, the stored-and-consistent summary is still rejected (e3b_subtypes). A test shows the collector's recomputation equals score.summarise on real cells.
+2. E1b mandatory. processing must have exactly the keys exposure, encode_reads, declared_per_episode, prompt_inclusions, episode_tokens, prompt_token_equivalents, prompt_inclusion_summary. Checks: the four per-episode maps are non-empty, have identical episode-id sets and non-negative integer values; every episode encoded exactly once and episodes_presented equals the id count; episode tokens > 0; equivalents == inclusions x tokens for every episode; inclusion summary recomputed; exposure and declared per-episode processing equal the arm's fixed declaration (A0/O1 0/0/0, A1 one store write); arm patterns: A0 all zero, A1 exactly {all questions (early episodes), final questions (follow-ups)}, O1 at least one note per question and no episode in more prompts than there are questions. Across cells the episode-id sets must be identical per index and condition (in addition to world and question hashes).
+Tests: 58 damage cases, each must give INCOMPLETE with its reason, now including formally valid but contradictory values (E3b latest accuracy 0.0 or n 1, category shares shifted but summing to 1, E5 false recall 0.5, retention 0.3, token totals +1, equivalents off, inclusion summary off, A1 inclusion off by one with consistent equivalents and summary, O1 without notes, declared store writes swapped, an episode renamed consistently inside one cell, rows edited and summaries restated consistently) and every deleted E1b field. 44 unit tests; mutation test of the round-3 checks: 21 of 21 detected (one survived at first: the cross-cell episode-id check; the renamed-episode case was added).
+
+IDEAS ADOPTED: O1 lure limit stated plainly (runner and arms docstrings, protocol section 4, SUMMARY.md): a lure always gets three notes, positive items one or two, so O1's E5 is no clean binding diagnosis; O1 stays used only for the positive-items selection. Descriptive format-compliance column in SUMMARY.md (share of answers in the answer grammar), scoring unchanged. "prompt_token_equivalents" (renamed; tokens of the isolated episode x inclusions, named as an equivalent). Resources per condition: peak RSS of the cell process and the longest prompt (checked against the rows).
+NOT ADOPTED NOW: equal note counts for positive O1 items (would make O1 a binding test and change what the selection criterion measures; documented as a limit instead).
+
+DRY RUN on 902eae9 (separate series "dryrun-m2", smollm2-135m, A0/A1/O1, one world; technical only): run 38952617049: all three cells OK under the new checks, VERDICT COMPLETE (results branch dryrun/run_38952617049_1). Every accuracy, category and selection value is identical to the round-2 dry run on 502d1e3 (greedy decoding is deterministic on the same runner image). New fields: peak RSS 1106 MB, longest prompt 1064 tokens (A1); format compliance 0.13-0.16 for this smallest model.
+
+QUESTIONS TO THE REVIEWER: Are both findings resolved? Anything else that must hold before the first pilot run?
+
+
+---BEGIN FILE bench/pilot/collect.py---
+"""Completeness check and summary of a pilot run (used by the workflow's collector).
+
+Never raises for a bad cell. Every expected cell (model x arm x world index of the
+request) is validated against the full cell schema: identity (model, arm, series, index
+must equal the matrix entry), status, provenance (code commit equal across cells, request
+and pins manifest hashes equal to the files the collector holds, revision equal to the
+pin), both overlap conditions, the row structure and its internal consistency (allowed
+phase/criterion/question-type combinations, categories, false recall, token limit), E1b
+processing fields and the symbolic reference. Every published number (summaries, E3b
+subtypes, E5 categories and false recall, E6 retention, token totals, longest prompt, E1b
+counts, inclusion summary and token equivalents) is recomputed here from the answer rows
+or the per-episode counts with collector-side code and must match exactly. Across cells,
+every model and arm must have seen the same world, question set and episode ids for a
+given index and condition. CHECK.txt lists every cell as OK or FAILED with reasons.
+
+VERDICT is COMPLETE only if every cell is OK AND the summary was written; otherwise
+INCOMPLETE. SUMMARY.md gives, per model and arm, means over worlds (both overlap
+conditions, final test) per criterion with E3b split into at_day and latest, the E5
+answer categories, the format-compliance and truncation rates and the E6 inputs, plus the model-selection
+criterion of protocol section 5 (O1 accuracy on positive items only). O1 is diagnostic:
+its evidence is supplied by the evaluator for every question, so its E5 and E6 values are
+no memory results. Exploratory pilot numbers.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import re
+import sys
+from pathlib import Path
+
+SCHEMA = "episodic_lab.pilot_cell.v2"
+CRITERIA = {"phase1": ("E2", "E3a", "E3b", "E4", "E5"),
+            "final": ("E2", "E3a", "E3b", "E4", "E5", "E7")}
+E3B_SUBTYPES = {"phase1": ("at_day",), "final": ("at_day", "latest")}
+CATEGORIES = ("correct", "wrong_value", "none_answer", "uncertain", "other")
+POSITIVE = ("E2", "E3a", "E3b", "E4", "E7")  # O1 selection criterion: no lures
+SELECTION_THRESHOLD = 0.8
+EXPOSURE = {"A0": "none", "A1": "all_presented", "O1": "evidence"}
+TELEMETRY = ("calls", "prompt_tokens", "new_tokens", "truncated")
+HEX64 = re.compile(r"[0-9a-f]{64}")
+HEX40 = re.compile(r"[0-9a-f]{40}")
+
+
+def sha256_file(path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _num(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+
+
+def _count(x) -> bool:
+    return isinstance(x, int) and not isinstance(x, bool) and x >= 0
+
+
+# Allowed (phase, criterion) -> question types; E7 and "latest" exist only in the final test.
+QTYPES = {
+    "phase1": {"E2": {"object", "place", "person"}, "E3a": {"order"}, "E3b": {"at_day"},
+               "E4": {"day"}, "E5": {"object", "place", "person"}},
+    "final": {"E2": {"object", "place", "person"}, "E3a": {"order"},
+              "E3b": {"at_day", "latest"}, "E4": {"day"}, "E5": {"object", "place", "person"},
+              "E7": {"act", "find"}},
+}
+DECLARED = {"A0": {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0},
+            "A1": {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 1},
+            "O1": {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0}}
+PROCESSING_KEYS = {"exposure", "encode_reads", "declared_per_episode", "prompt_inclusions",
+                   "episode_tokens", "prompt_token_equivalents", "prompt_inclusion_summary"}
+
+
+def recompute_summary(rows: list, phase: str) -> dict:
+    """Independent recomputation of score.summarise for one phase (collector-side code)."""
+    out = {}
+    for c in sorted({r["criterion"] for r in rows if r["phase"] == phase}):
+        sub = [r for r in rows if r["phase"] == phase and r["criterion"] == c]
+        n = len(sub)
+        s = {"n": n, "accuracy": sum(r["correct"] for r in sub) / n,
+             "categories": {k: sum(r["category"] == k for r in sub) / n for k in CATEGORIES}}
+        if c == "E5":
+            s["false_recall"] = sum(r["false_recall"] for r in sub) / n
+        if c == "E3b":
+            s["by_qtype"] = {}
+            for q in sorted({r["qtype"] for r in sub}):
+                qs = [r for r in sub if r["qtype"] == q]
+                s["by_qtype"][q] = {"n": len(qs), "accuracy": sum(r["correct"] for r in qs) / len(qs)}
+        out[c] = s
+    return out
+
+
+def recompute_retention(rows: list) -> dict:
+    early = [r for r in rows if r["criterion"] in ("E2", "E4")]
+    out = {}
+    for phase in ("phase1", "final"):
+        sub = [r for r in early if r["phase"] == phase]
+        out[phase] = sum(r["correct"] for r in sub) / len(sub) if sub else None
+    return out
+
+
+def inclusion_summary(counts: dict) -> dict:
+    values = list(counts.values())
+    return {"episodes": len(values), "total": sum(values), "min": min(values),
+            "max": max(values), "mean": sum(values) / len(values)}
+
+
+def same(a, b) -> bool:
+    """Deep equality with identical keys and types; floats to 1e-9."""
+    if isinstance(a, dict) or isinstance(b, dict):
+        return (isinstance(a, dict) and isinstance(b, dict) and set(a) == set(b)
+                and all(same(a[k], b[k]) for k in a))
+    if isinstance(a, bool) or isinstance(b, bool):
+        return a is b
+    if isinstance(a, int) and isinstance(b, int):
+        return a == b
+    if _num(a) and _num(b):
+        return abs(a - b) <= 1e-9
+    return a == b
+
+
+def _check_rows(rows, max_new: int | None, problems: list, where: str) -> bool:
+    """Structure and internal consistency of every answer row; False if unusable."""
+    if not isinstance(rows, list) or not rows:
+        problems.append(f"rows:{where}")
+        return False
+    seen = set()
+    for r in rows:
+        ok = (isinstance(r, dict) and isinstance(r.get("qid"), str)
+              and r.get("phase") in QTYPES and r.get("criterion") in QTYPES[r["phase"]]
+              and r.get("qtype") in QTYPES[r["phase"]][r["criterion"]]
+              and isinstance(r.get("raw"), str)
+              and r.get("category") in CATEGORIES and isinstance(r.get("correct"), bool)
+              and isinstance(r.get("false_recall"), bool)
+              and isinstance(r.get("truncated"), bool)
+              and _count(r.get("new_tokens")) and _count(r.get("prompt_tokens"))
+              and r["prompt_tokens"] > 0)
+        if not ok:
+            problems.append(f"row_structure:{where}")
+            return False
+        if (r["correct"] != (r["category"] == "correct")
+                or r["false_recall"] != (r["criterion"] == "E5" and r["category"] == "wrong_value")
+                or (r["criterion"] == "E5" and r["correct"] and r["category"] != "correct")):
+            problems.append(f"row_inconsistent:{where}")
+            return False
+        if max_new is not None and (r["new_tokens"] > max_new
+                                    or (r["truncated"] and r["new_tokens"] != max_new)):
+            problems.append(f"row_tokens:{where}")
+            return False
+        key = (r["phase"], r["qid"])
+        if key in seen:
+            problems.append(f"row_duplicate:{where}")
+            return False
+        seen.add(key)
+    return True
+
+
+def _check_processing(proc, arm: str, rows: list, presented, problems: list, where: str) -> None:
+    if not isinstance(proc, dict) or set(proc) != PROCESSING_KEYS:
+        problems.append(f"processing_fields:{where}")
+        return
+    if proc["exposure"] != EXPOSURE.get(arm):
+        problems.append(f"processing_exposure:{where}")
+    if proc["declared_per_episode"] != DECLARED.get(arm):
+        problems.append(f"processing_declared:{where}")
+    reads, incl, tokens, equiv = (proc["encode_reads"], proc["prompt_inclusions"],
+                                  proc["episode_tokens"], proc["prompt_token_equivalents"])
+    maps = (reads, incl, tokens, equiv)
+    if (not all(isinstance(m, dict) and m for m in maps)
+            or not all(isinstance(k, str) for k in reads)
+            or not all(set(m) == set(reads) for m in maps)
+            or not all(_count(v) for m in maps for v in m.values())):
+        problems.append(f"processing_maps:{where}")
+        return
+    if any(v != 1 for v in reads.values()) or presented != len(reads):
+        problems.append(f"processing_reads:{where}")
+    if any(v == 0 for v in tokens.values()):
+        problems.append(f"processing_tokens:{where}")
+    if any(equiv[k] != incl[k] * tokens[k] for k in reads):
+        problems.append(f"processing_equivalents:{where}")
+    if not same(proc["prompt_inclusion_summary"], inclusion_summary(incl)):
+        problems.append(f"processing_summary:{where}")
+    n_all = len(rows)
+    n_final = sum(r["phase"] == "final" for r in rows)
+    values = set(incl.values())
+    if arm == "A0" and values != {0}:
+        problems.append(f"processing_a0:{where}")
+    if arm == "A1" and values != {n_all, n_final}:  # early: every question; follow-up: final only
+        problems.append(f"processing_a1:{where}")
+    if arm == "O1" and (sum(incl.values()) < n_all or max(values) > n_all):  # >= 1 note per question
+        problems.append(f"processing_o1:{where}")
+
+
+def validate(data, expected: dict, request_sha: str, pins: dict | None, pins_sha: str | None) -> list:
+    """All problems of one cell; an empty list means the cell is usable."""
+    if not isinstance(data, dict):
+        return ["not_an_object"]
+    problems = []
+    if data.get("schema") != SCHEMA:
+        problems.append("schema")
+    for key in ("model", "arm", "series", "index"):
+        if data.get(key) != expected[key] or (key == "index" and isinstance(data.get(key), bool)):
+            problems.append(f"identity:{key}")
+    if data.get("status") != "OK":
+        problems.append("status")
+    if "partial" in data:
+        problems.append("partial_left")
+    prov = data.get("provenance")
+    if not isinstance(prov, dict) or not isinstance(prov.get("code_commit"), str):
+        problems.append("provenance")
+    else:
+        if prov.get("request_sha256") != request_sha:
+            problems.append("provenance:request")
+        if pins_sha is not None and prov.get("pins_sha256") != pins_sha:
+            problems.append("provenance:pins")
+    if not isinstance(data.get("revision"), str) or not HEX40.fullmatch(data["revision"]):
+        problems.append("revision")
+    elif pins is not None:
+        spec = pins.get("models", {}).get(expected["model"], {})
+        if data["revision"] != spec.get("revision") or data.get("repo") != spec.get("repo"):
+            problems.append("revision:pin")
+    if not isinstance(data.get("weights_digest"), str) or not HEX64.fullmatch(data["weights_digest"]):
+        problems.append("weights_digest")
+    conds = data.get("conditions")
+    if not isinstance(conds, dict) or set(conds) != {"high", "low"}:
+        return problems + ["conditions"]
+    for name in ("high", "low"):
+        c = conds[name]
+        if not isinstance(c, dict):
+            problems.append(f"condition:{name}")
+            continue
+        for key in ("world_sha256", "questions_sha256"):
+            if not isinstance(c.get(key), str) or not HEX64.fullmatch(c[key]):
+                problems.append(f"{key}:{name}")
+        if not isinstance(c.get("seed"), str):
+            problems.append(f"seed:{name}")
+        if not _num(c.get("seconds")) or c["seconds"] < 0:
+            problems.append(f"seconds:{name}")
+        tel = c.get("telemetry")
+        if not isinstance(tel, dict) or set(tel) != set(TELEMETRY) or not all(_count(tel[k]) for k in TELEMETRY):
+            problems.append(f"telemetry:{name}")
+            tel = None
+        max_new = data.get("max_new_tokens")
+        if not _count(max_new) or max_new == 0:
+            problems.append("max_new_tokens")
+            max_new = None
+        rows = c.get("rows")
+        if not _check_rows(rows, max_new, problems, name):
+            continue
+        if tel is not None and (tel["calls"] != len(rows)
+                                or tel["truncated"] != sum(r["truncated"] for r in rows)
+                                or tel["prompt_tokens"] != sum(r["prompt_tokens"] for r in rows)
+                                or tel["new_tokens"] != sum(r["new_tokens"] for r in rows)):
+            problems.append(f"telemetry_vs_rows:{name}")
+        for phase in CRITERIA:
+            stored = c.get(phase)
+            if not isinstance(stored, dict) or set(stored) != set(CRITERIA[phase]):
+                problems.append(f"criteria:{name}:{phase}")
+            elif not same(stored, recompute_summary(rows, phase)):
+                problems.append(f"summary_vs_rows:{name}:{phase}")
+            elif set(stored["E3b"]["by_qtype"]) != set(E3B_SUBTYPES[phase]):
+                problems.append(f"e3b_subtypes:{name}:{phase}")
+        if not same(c.get("retention"), recompute_retention(rows)):
+            problems.append(f"retention_vs_rows:{name}")
+        res = c.get("resources")
+        if (not isinstance(res, dict) or set(res) != {"peak_rss_mb", "max_prompt_tokens"}
+                or not _num(res["peak_rss_mb"]) or res["peak_rss_mb"] <= 0
+                or res["max_prompt_tokens"] != max(r["prompt_tokens"] for r in rows)):
+            problems.append(f"resources:{name}")
+        _check_processing(c.get("processing"), expected["arm"], rows,
+                          c.get("episodes_presented"), problems, name)
+        if c.get("symbolic_all_correct") is not True:
+            problems.append(f"reference:{name}")
+    if (isinstance(conds.get("high"), dict) and isinstance(conds.get("low"), dict)):
+        p1 = [{r.get("qid") for r in (conds[o].get("rows") or []) if isinstance(r, dict)
+               and r.get("phase") == "phase1"} for o in ("high", "low")]
+        if p1[0] != p1[1]:
+            problems.append("phase1_items_differ")
+    return problems
+
+
+def mean(values):
+    values = list(values)
+    return sum(values) / len(values) if values else float("nan")
+
+
+def _final_rows(d, overlap=None):
+    return [r for o in (("high", "low") if overlap is None else (overlap,))
+            for r in d["conditions"][o]["rows"] if r["phase"] == "final"]
+
+
+def selection(cells: dict) -> list[str]:
+    """Protocol section 5: per model, O1 accuracy over the positive final-test items of a
+    world (both conditions pooled), then the mean over worlds; lures are excluded."""
+    lines = ["", "## Model selection (protocol section 5): O1 on positive items only", "",
+             f"Per world: share correct over final-test items {', '.join(POSITIVE)} of both "
+             f"conditions (E5 lures excluded). Threshold {SELECTION_THRESHOLD}.", "",
+             "| model | worlds | mean | min world | meets threshold |", "|---|---|---|---|---|"]
+    per_model = {}
+    for (model, arm, _), d in sorted(cells.items()):
+        if arm != "O1":
+            continue
+        rows = [r for r in _final_rows(d) if r["criterion"] in POSITIVE]
+        per_model.setdefault(model, []).append(mean(r["correct"] for r in rows))
+    for model, values in sorted(per_model.items()):
+        m = mean(values)
+        lines.append(f"| {model} | {len(values)} | {m:.3f} | {min(values):.3f} | "
+                     f"{'yes' if m >= SELECTION_THRESHOLD else 'no'} |")
+    return lines
+
+
+def summarise(cells: dict) -> str:
+    lines = ["# Pilot summary (exploratory)", "",
+             "Means over worlds and both overlap conditions, final test. E5 = correct "
+             "rejections; uncertain and other answers are not rejections. Trunc = share of "
+             "answers cut off by the token limit. Format = share of all answers (both test "
+             "points) inside the answer grammar (any category but 'other'), descriptive only; "
+             "the scoring stays strict. O1 is diagnostic (evaluator-supplied evidence for "
+             "every question; for lures three confusable notes, so the note count can signal "
+             "a lure): its E5 and E6 columns are no memory results. A0 is the "
+             "missing-evidence control with requested abstention.", ""]
+    groups = {}
+    for (model, arm, index), data in cells.items():
+        groups.setdefault((model, arm), []).append(data)
+    head = ["E2", "E3a", "E3b at_day", "E3b latest", "E4", "E5", "E7", "E5 false recall",
+            "E5 uncertain", "E5 other", "format", "trunc", "E6 phase1", "E6 final high", "E6 final low"]
+    lines.append("| model | arm | worlds | " + " | ".join(head) + " |")
+    lines.append("|" + "---|" * (len(head) + 3))
+    for (model, arm), datas in sorted(groups.items()):
+        both = [d["conditions"][o] for d in datas for o in ("high", "low")]
+        row = [model, arm + (" (diagnostic)" if arm == "O1" else ""), str(len(datas))]
+        for c in ("E2", "E3a"):
+            row.append(f"{mean(x['final'][c]['accuracy'] for x in both):.2f}")
+        for q in ("at_day", "latest"):
+            row.append(f"{mean(x['final']['E3b']['by_qtype'][q]['accuracy'] for x in both):.2f}")
+        for c in ("E4", "E5", "E7"):
+            row.append(f"{mean(x['final'][c]['accuracy'] for x in both):.2f}")
+        row.append(f"{mean(x['final']['E5']['false_recall'] for x in both):.2f}")
+        row.append(f"{mean(x['final']['E5']['categories']['uncertain'] for x in both):.2f}")
+        row.append(f"{mean(x['final']['E5']['categories']['other'] for x in both):.2f}")
+        row.append(f"{mean(r['category'] != 'other' for x in both for r in x['rows']):.2f}")
+        row.append(f"{mean(r['truncated'] for x in both for r in x['rows']):.2f}")
+        row.append(f"{mean(x['retention']['phase1'] for x in both):.2f}")
+        row.append(f"{mean(d['conditions']['high']['retention']['final'] for d in datas):.2f}")
+        row.append(f"{mean(d['conditions']['low']['retention']['final'] for d in datas):.2f}")
+        lines.append("| " + " | ".join(row) + " |")
+    lines += selection(cells)
+    return "\n".join(lines) + "\n"
+
+
+def main(request_path: str, dest: str, pins_path: str | None = None) -> int:
+    request = json.loads(Path(request_path).read_text())
+    request_sha = sha256_file(request_path)
+    pins = json.loads(Path(pins_path).read_text()) if pins_path else None
+    pins_sha = sha256_file(pins_path) if pins_path else None
+    dest_path = Path(dest)
+    results, cells = {}, {}
+    for m in request["models"]:
+        for a in request["arms"]:
+            for i in request["indices"]:
+                name = f"pilot_{m}_{a}_{i}.json"
+                expected = {"model": m, "arm": a, "series": request["series"], "index": i}
+                try:
+                    data = json.loads((dest_path / name).read_text(encoding="utf-8"))
+                    problems = validate(data, expected, request_sha, pins, pins_sha)
+                except (OSError, ValueError, UnicodeError) as exc:
+                    data, problems = None, [f"unreadable:{type(exc).__name__}"]
+                except Exception as exc:  # never let the registration fail
+                    data, problems = None, [f"check_error:{type(exc).__name__}"]
+                results[name] = problems
+                if not problems:
+                    cells[(m, a, i)] = data
+    # Across cells: one code commit, and one world / question set per index and condition.
+    commits = {d["provenance"]["code_commit"] for d in cells.values()}
+    if len(commits) > 1:
+        for (m, a, i) in cells:
+            results[f"pilot_{m}_{a}_{i}.json"].append("provenance:mixed_commits")
+    for i in request["indices"]:
+        for o in ("high", "low"):
+            hashes = {(d["conditions"][o]["world_sha256"], d["conditions"][o]["questions_sha256"],
+                       tuple(sorted(d["conditions"][o]["processing"]["encode_reads"])))
+                      for (m, a, j), d in cells.items() if j == i}
+            if len(hashes) > 1:
+                for (m, a, j) in cells:
+                    if j == i:
+                        results[f"pilot_{m}_{a}_{j}.json"].append(f"world_differs:{o}")
+    lines = [f"{'OK' if not p else 'FAILED'} {n} {' '.join(p)}".rstrip() for n, p in results.items()]
+    ok = all(not p for p in results.values())
+    usable = {k: v for k, v in cells.items() if not results[f"pilot_{k[0]}_{k[1]}_{k[2]}.json"]}
+    try:
+        (dest_path / "SUMMARY.md").write_text(summarise(usable))
+    except Exception as exc:
+        ok = False
+        lines.append(f"FAILED SUMMARY.md {type(exc).__name__}: {exc}")
+        (dest_path / "SUMMARY.md").write_text(f"summary failed: {type(exc).__name__}: {exc}\n")
+    (dest_path / "CHECK.txt").write_text("\n".join(lines) + "\n")
+    (dest_path / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(*sys.argv[1:4]))
+---END FILE bench/pilot/collect.py---
+
+=== END OF LAB M2 ROUND 3 PART 1 ===

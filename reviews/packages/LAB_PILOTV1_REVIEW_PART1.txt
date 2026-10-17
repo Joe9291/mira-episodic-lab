@@ -1,0 +1,414 @@
+MIRA EPISODIC LAB - REVIEW: PILOT M2 BASE RESULTS AND VARIANT V1, PART 1 OF 2 (report, variant, generator/scorer/arms/runner diff)
+
+Review request (Astra; Claude is lead reviewer). Please review (a) the analysis of the first pilot run and (b) variant v1, before v1 runs. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB PILOT V1 PART 1 ===".
+
+STATE: lab main = 66f6484. The base pilot (v0) ran on 8e84108 after your M2 APPROVE: run 38956502610, VERDICT COMPLETE, 60/60 cells OK, 43 minutes. config/pilot.json now names variant "v1" with "enabled": false; it runs only after this review.
+
+WHAT TO REVIEW
+1. docs/PILOT_M2.md (full text below): results, the model-selection outcome (qwen2.5-0.5b, O1 positives 0.844, lowest world 0.826) and the two instruction artefacts that make the base run partly uninformative: constant "A" on A/B questions in all arms (also with the evidence in the prompt), and copied example values (up to 45% of the non-choice answers; 58 of Qwen3's 64 O1 E2 errors).
+2. Variant v1 (protocol section 7: chosen after analysing the failure, committed with its reason before it runs; variant 1 of 3 for A0, A1, O1): (a) instruction without any example value; (b) every E3a pair also asked with (A) and (B) swapped, using the same template and no further random draws, so every other item is byte-identical to v0 (a test checks this; with order_both=False the generator reproduces the base run's recorded world and question hashes for all 5 worlds x 2 conditions, checked against the stored cells); item accuracy stays, plus a pair score (both orders correct; a constant letter scores 0 pairs and exactly 0.5 item accuracy).
+3. Code: episodic_lab/variants.py (registry), arms (instruction style per arm, default v0 unchanged so the smoke test and base reproduction stay), questions (order_both), score (row field "pair", summary "pairs"), run_pilot (variant read from the request, recorded in every cell; cell schema v3), collector (variant is part of the cell identity; v0: no pair ids, v1: every E3a row and only those has a pair id and every pair has exactly two rows per phase with reversed targets; pair score recomputed from the rows; "E3a pairs" column and the variant in SUMMARY.md).
+
+TESTS: 50 unit tests green locally and on GitHub. Mutation test of the v1 code: 9 of 11 detected; the 2 survivors are equivalent mutants (removing "len(v) == 2" in the pair score, while every pair is already checked to have exactly two rows). Dry run of v1 with real model bytes (separate series dryrun-m2, smollm2-135m, run 38962624465): 3/3 cells OK, VERDICT COMPLETE; this smallest model still has a pair score of 0 and format compliance 0.09-0.24, as expected.
+
+DECISION QUESTIONS: Is the reading of the base run sound (in particular: A1 with all episodes confabulates on 99% of binding lures for qwen2.5; O1 with three confusable notes 97%)? Does v1 fix the two artefacts without changing anything else? Should the selection be re-decided on v1 (the rule is applied per run; Qwen3 was depressed by copied examples)? Anything to add before v1 runs?
+
+---BEGIN FILE docs/PILOT_M2.md---
+# Milestone 2 pilot - base run (v0) and the reason for variant v1
+
+Exploratory. Run 38956502610 on commit 8e84108, results branch
+`pilot/run_38956502610_1` (VERDICT COMPLETE, 60/60 cells, 43 min). Series `pilot-m2`,
+worlds 0-4, both overlap conditions, arms A0, A1, O1, four pinned models. Numbers are
+means over the five worlds and both conditions, final test, unless stated otherwise.
+
+## Results
+
+| model | O1 positives (selection) | A1 E2 | A0 E2 | A1-A0 E2 per world | A1 E5 false recall | O1 E5 false recall |
+|---|---|---|---|---|---|---|
+| qwen2.5-0.5b | 0.844 (min world 0.826) | 0.28 | 0.00 | 0.19 0.20 0.32 0.35 0.34 | 0.99 | 0.97 |
+| qwen3-0.6b | 0.557 | 0.23 | 0.00 | 0.38 0.15 0.29 0.12 0.24 | 0.34 | 0.68 |
+| smollm2-360m | 0.298 | 0.01 | 0.00 | 0.06 0 0 0 0 | 0.17 | 0.01 |
+| smollm2-135m | 0.109 | 0.00 | 0.00 | 0 0 0 0 0 | 0.06 | 0.06 |
+
+- Selection rule (protocol section 5): qwen2.5-0.5b is the smallest model with O1
+  accuracy on positive items >= 0.8.
+- With its evidence in the prompt (O1), qwen2.5-0.5b answers recall, state and source
+  items almost perfectly (E2 0.99, E3b at_day 1.00, latest 0.97, E4 1.00; E7 0.56).
+- With all 40 episodes in the prompt (A1) it falls to E2 0.28 and claims an in-world
+  value for 99% of the binding lures. A1 passes the E2 margin (+0.28) but fails the
+  false-recall tolerance (0.10) by far. With only three confusable notes (O1 lures) it
+  still claims a value for 97% of the lures. Reading: a small model with the episodes in
+  context does not keep their bindings apart and confabulates; this is the problem a
+  structured store (A3, milestone 3) has to solve.
+- E6 cannot be read from this run (A1 retention 0.27 at phase 1, 0.24 / 0.21 at the
+  final test in the high / low condition, at a low level).
+
+## Two measurement artefacts of the instruction (cause of variant v1)
+
+1. **E3a is uninformative.** Qwen2.5, Qwen3 and SmolLM2-360M answer "A" to 97-100% of
+   the A/B questions in ALL three arms, also with both episodes in the prompt (O1). The
+   gold letter of each pair is drawn at random, so a constant "A" scores near 0.5 (the
+   observed E3a values are 0.50-0.53) and measures nothing. Because it happens
+   with the evidence present, it is a position preference, likely reinforced by the
+   example "A" in the instruction. SmolLM2-135M answers "B" in O1 (97%).
+2. **Example values are copied.** The instruction's examples ("Tom Hill", "Elm Court",
+   "red door", "Day 3") are the whole answer in up to 45% of the non-choice answers
+   (SmolLM2-360M A0 0.45, Qwen3 O1 0.23, Qwen2.5 A0 0.20); 58 of Qwen3's 64 O1 errors on
+   E2 are a copied example ("red door" 48 times). Qwen3's O1 value is therefore
+   underestimated.
+
+## Variant v1 (committed before it runs; episodic_lab/variants.py)
+
+- Instruction without any example value (FORMAT_V1: "the person's full name as written
+  in the notes", ..., "the letter of the correct option, A or B").
+- Every E3a pair is also asked with (A) and (B) swapped (same template, no further
+  random draws: every other item is identical to v0). Item accuracy stays reported; in
+  addition E3a "pairs" = share of pairs answered correctly in both orders (a constant
+  letter scores 0, and item accuracy of a constant letter becomes exactly 0.5).
+- Everything else unchanged: same series and worlds (paired with v0), models, arms,
+  scoring grammar, collector checks. This is variant 1 of 3 for A0, A1 and O1.
+---END FILE docs/PILOT_M2.md---
+
+---BEGIN FILE episodic_lab/variants.py---
+"""Pilot variants (protocol section 7: base plus at most three, each committed before it runs).
+
+v0 (base, pilot run 38956502610): instruction with one example value per answer type;
+   E3a asked once per pair.
+v1 (reason: base pilot analysis, docs/PILOT_M2.md): models copied the instruction's
+   example values (up to 45% of answers) and answered A/B questions almost always with
+   "A" (all three arms, so it is a position preference, not missing evidence). v1 removes
+   every example value from the instruction and asks every E3a pair in both A/B orders;
+   all other items are identical to v0.
+"""
+VARIANTS = {
+    "v0": {"instruction": "v0", "order_both": False},
+    "v1": {"instruction": "v1", "order_both": True},
+}
+---END FILE episodic_lab/variants.py---
+
+---BEGIN DIFF 8e84108..66f6484 (arms, questions, score, run_pilot, PROTOCOL, configs)---
+diff --git a/bench/pilot/run_pilot.py b/bench/pilot/run_pilot.py
+index 769f641..8ba708c 100644
+--- a/bench/pilot/run_pilot.py
++++ b/bench/pilot/run_pilot.py
+@@ -27,8 +27,9 @@ from episodic_lab.arms import ARMS  # noqa: E402
+ from episodic_lab.questions import make_world  # noqa: E402
+ from episodic_lab.runner import retention, run_world  # noqa: E402
+ from episodic_lab.symbolic import SymbolicMemory  # noqa: E402
++from episodic_lab.variants import VARIANTS  # noqa: E402
+ 
+-SCHEMA = "episodic_lab.pilot_cell.v2"
++SCHEMA = "episodic_lab.pilot_cell.v3"
+ 
+ 
+ def canonical_sha256(obj) -> str:
+@@ -50,16 +51,17 @@ def inclusion_summary(counts: dict) -> dict:
+             "max": max(values), "mean": sum(values) / len(values)}
+ 
+ 
+-def run_cell(model, arm: str, series: str, index: int, out: dict) -> None:
+-    attempt, pair = make_world(series, index)
+-    out.update({"series": series, "index": index, "attempt": attempt, "conditions": {},
+-                "partial": {}})
++def run_cell(model, arm: str, series: str, index: int, out: dict, variant: str = "v0") -> None:
++    spec = VARIANTS[variant]
++    attempt, pair = make_world(series, index, order_both=spec["order_both"])
++    out.update({"series": series, "index": index, "variant": variant, "attempt": attempt,
++                "conditions": {}, "partial": {}})
+     for overlap, (world, questions) in pair.items():
+         t0 = time.perf_counter()
+         before = dict(model.stats)
+         first_call = len(model.call_log)
+         out["partial"][overlap] = {}
+-        result = run_world(ARMS[arm](model), world, questions,
++        result = run_world(ARMS[arm](model, spec["instruction"]), world, questions,
+                            on_phase=lambda phase, answers: out["partial"][overlap].update({phase: answers}))
+         calls = model.call_log[first_call:]
+         if len(calls) != len(result["asked"]):
+@@ -102,8 +104,9 @@ def main() -> int:
+     parser.add_argument("--request", default="config/pilot.json")
+     parser.add_argument("--out", required=True)
+     args = parser.parse_args()
++    variant = json.loads(Path(args.request).read_text()).get("variant", "v0")
+     out = {"schema": SCHEMA, "model": args.model, "arm": args.arm, "series": args.series,
+-           "index": args.index, "status": "ERROR",
++           "index": args.index, "variant": variant, "status": "ERROR",
+            "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
+                           "request_sha256": file_sha256(args.request),
+                           "pins_sha256": file_sha256(args.pins)}}
+@@ -114,7 +117,7 @@ def main() -> int:
+         out.update({"repo": model.repo, "revision": model.revision,
+                     "max_new_tokens": model.max_new_tokens,
+                     "weights_digest": model.weights_digest()})
+-        run_cell(model, args.arm, args.series, args.index, out)
++        run_cell(model, args.arm, args.series, args.index, out, variant)
+         out["status"] = "OK"
+     except Exception:
+         out["traceback"] = traceback.format_exc()[-4000:]
+diff --git a/config/dryrun.json b/config/dryrun.json
+index 42a2126..a2b19ce 100644
+--- a/config/dryrun.json
++++ b/config/dryrun.json
+@@ -3,7 +3,16 @@
+  "enabled": true,
+  "note": "Technical end-to-end check of the pilot path with real model bytes on a separate series (dryrun-m2), never used for the pilot or any decision. Smallest model, one world.",
+  "series": "dryrun-m2",
+- "models": ["smollm2-135m"],
+- "arms": ["A0", "A1", "O1"],
+- "indices": [0]
++ "models": [
++  "smollm2-135m"
++ ],
++ "arms": [
++  "A0",
++  "A1",
++  "O1"
++ ],
++ "indices": [
++  0
++ ],
++ "variant": "v1"
+ }
+diff --git a/config/pilot.json b/config/pilot.json
+index 830b12b..216d593 100644
+--- a/config/pilot.json
++++ b/config/pilot.json
+@@ -1,7 +1,7 @@
+ {
+  "schema": "episodic_lab.pilot_request.v1",
+- "enabled": true,
+- "note": "Milestone 2 pilot (exploratory): arms A0, A1, O1 on the four pinned models and five worlds of the series 'pilot-m2'. Results are exploratory and never count as confirmation.",
++ "enabled": false,
++ "note": "Milestone 2 pilot, variant v1 (reason: docs/PILOT_M2.md; definition: episodic_lab/variants.py): instruction without example values, E3a in both A/B orders. Same series, worlds, models and arms as the base run 38956502610. Exploratory; never counts as confirmation.",
+  "series": "pilot-m2",
+  "models": [
+   "smollm2-135m",
+@@ -20,5 +20,6 @@
+   2,
+   3,
+   4
+- ]
++ ],
++ "variant": "v1"
+ }
+diff --git a/docs/PROTOCOL.md b/docs/PROTOCOL.md
+index f1dfcf3..9c738a8 100644
+--- a/docs/PROTOCOL.md
++++ b/docs/PROTOCOL.md
+@@ -177,6 +177,10 @@ Controls:
+   Model, answer format and hyperparameter changes share this one budget. A variant is
+   chosen after analysing why the previous one failed; it is committed as a configuration
+   file with its reason *before* it runs, and every variant is reported.
++- **Variant log.** v0 = base (pilot run 38956502610). v1: instruction without example
++  values and E3a asked in both A/B orders with a pair score; reason and base results in
++  `docs/PILOT_M2.md`, definition in `episodic_lab/variants.py`. Counts as variant 1 of 3
++  for A0, A1 and O1.
+ - **Scope of a negative result.** Three failed variants are a negative result for those
+   configurations and this compute budget, not a refutation of the mechanism.
+ 
+diff --git a/episodic_lab/arms.py b/episodic_lab/arms.py
+index 6ea9ce7..a4a41ac 100644
+--- a/episodic_lab/arms.py
++++ b/episodic_lab/arms.py
+@@ -31,21 +31,37 @@ FORMAT = {
+     "choice": ("the letter A or the letter B", "A"),
+ }
+ NO_NOTES = "(no notes)"
+-
+-
+-def instruction(answer_type: str) -> str:
+-    form, example = FORMAT[answer_type]
+-    text = (f"You read story notes and answer one question about them. Answer with only "
+-            f"{form} (for example: {example}), nothing else.")
++# Variant v1: no example values at all (the base examples were copied by the models).
++FORMAT_V1 = {
++    "person": "the person's full name as written in the notes",
++    "place": "the place name as written in the notes",
++    "object": "the object name as written in the notes",
++    "day": "the day number",
++    "choice": "the letter of the correct option, A or B",
++}
++STYLES = ("v0", "v1")
++
++
++def instruction(answer_type: str, style: str = "v0") -> str:
++    if style == "v1":
++        text = ("You read story notes and answer one question about them. Answer with only "
++                f"{FORMAT_V1[answer_type]}, nothing else.")
++    elif style == "v0":
++        form, example = FORMAT[answer_type]
++        text = (f"You read story notes and answer one question about them. Answer with only "
++                f"{form} (for example: {example}), nothing else.")
++    else:
++        raise ValueError(f"unknown instruction style {style!r}")
+     if answer_type != "choice":
+         text += (" If the notes do not contain the event the question asks about, answer "
+                  "with the single word: none.")
+     return text
+ 
+ 
+-def build_messages(question: str, notes: list[str], answer_type: str) -> list[dict]:
++def build_messages(question: str, notes: list[str], answer_type: str,
++                   style: str = "v0") -> list[dict]:
+     body = "\n".join(notes) if notes else NO_NOTES
+-    return [{"role": "system", "content": instruction(answer_type)},
++    return [{"role": "system", "content": instruction(answer_type, style)},
+             {"role": "user", "content": f"Story notes:\n{body}\n\nQuestion: {question}"}]
+ 
+ 
+@@ -54,8 +70,11 @@ class _ModelArm:
+     # E1b declaration per encoded episode (class attributes, not memory state)
+     E1B = {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 0}
+ 
+-    def __init__(self, model):
++    def __init__(self, model, style: str = "v0"):
++        if style not in STYLES:
++            raise ValueError(f"unknown instruction style {style!r}")
+         self.model = model
++        self.style = style
+         self.notes: list[str] = []
+ 
+     def state_digest(self) -> str:
+@@ -74,7 +93,7 @@ class NoMemory(_ModelArm):
+         pass
+ 
+     def answer(self, text: str, answer_type: str) -> str:
+-        return self.model.generate(build_messages(text, [], answer_type))
++        return self.model.generate(build_messages(text, [], answer_type, self.style))
+ 
+ 
+ class AllInPrompt(_ModelArm):
+@@ -86,7 +105,7 @@ class AllInPrompt(_ModelArm):
+         self.notes.append(text)
+ 
+     def answer(self, text: str, answer_type: str) -> str:
+-        return self.model.generate(build_messages(text, list(self.notes), answer_type))
++        return self.model.generate(build_messages(text, list(self.notes), answer_type, self.style))
+ 
+ 
+ class OracleEvidence(_ModelArm):
+@@ -100,7 +119,7 @@ class OracleEvidence(_ModelArm):
+         raise RuntimeError("O1 answers only with evidence")
+ 
+     def answer_with(self, text: str, evidence: list[str], answer_type: str) -> str:
+-        return self.model.generate(build_messages(text, list(evidence), answer_type))
++        return self.model.generate(build_messages(text, list(evidence), answer_type, self.style))
+ 
+ 
+ ARMS = {"A0": NoMemory, "A1": AllInPrompt, "O1": OracleEvidence}
+diff --git a/episodic_lab/questions.py b/episodic_lab/questions.py
+index d5452ea..134d4af 100644
+--- a/episodic_lab/questions.py
++++ b/episodic_lab/questions.py
+@@ -131,7 +131,7 @@ def _binding_needed(early, cue, qtype) -> bool:
+     return True
+ 
+ 
+-def build_questions(world: dict, per_type: int = 8) -> dict:
++def build_questions(world: dict, per_type: int = 8, order_both: bool = False) -> dict:
+     """Return {"public": {"phase1": [...], "final": [...]}, "gold": {...}, ...}."""
+     seed, params = world["seed"], world["params"]
+     eps = episodes_of(world)
+@@ -221,6 +221,7 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
+                                                       place=e.place))
+         add("E4", "day", text, "day", cue, [e.episode_id], True)
+ 
++    order_items = []
+     # E3a order: a fixed quota of aligned and inverted pairs (presentation order equal
+     # to / opposite of day order); every episode is used in at most one pair.
+     pairs = rng.shuffled([((pa, a), (pb, b)) for i, (pa, a) in enumerate(described)
+@@ -242,10 +243,11 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
+             (pa, a), (pb, b) = (pb, b), (pa, a)
+         cue = {"a": dict(person=pa, action=a.action, obj=a.object, place=a.place),
+                "b": dict(person=pb, action=b.action, obj=b.object, place=b.place)}
+-        text = rng.choice(PARA["order"]).format(
+-            a=f"{pa} {a.action} the {a.object} at {a.place}.",
+-            b=f"{pb} {b.action} the {b.object} at {b.place}.")
++        template = rng.choice(PARA["order"])
++        text = template.format(a=f"{pa} {a.action} the {a.object} at {a.place}.",
++                               b=f"{pb} {b.action} the {b.object} at {b.place}.")
+         add("E3a", "order", text, "choice", cue, [a.episode_id, b.episode_id], True, kind)
++        order_items.append((kind, template, (pa, a), (pb, b)))
+ 
+     # E3b place on a given early day.
+     for person, e in pick([(p, e) for e in early for p in e.participants], per_type // 2):
+@@ -288,6 +290,23 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
+         raise ValueError(f"WORLD_TOO_SMALL:{short}")
+ 
+     items = rng.shuffled(items)
++    if order_both:
++        # Variant v1: every order pair is also asked with (A) and (B) swapped (same
++        # template, no further random draws, so all other items stay identical to the
++        # base set). Both items carry the pair id; a constant letter scores 0 pairs.
++        originals = [i for i in items if i["criterion"] == "E3a"]
++        for kind, template, (pa, a), (pb, b) in order_items:
++            cue = {"a": dict(person=pb, action=b.action, obj=b.object, place=b.place),
++                   "b": dict(person=pa, action=a.action, obj=a.object, place=a.place)}
++            text = template.format(a=f"{pb} {b.action} the {b.object} at {b.place}.",
++                                   b=f"{pa} {a.action} the {a.object} at {a.place}.")
++            add("E3a", "order", text, "choice", cue, [b.episode_id, a.episode_id], True, kind)
++            pair = "p" + hashlib.sha256(json.dumps(sorted([a.episode_id, b.episode_id])).encode()).hexdigest()[:10]
++            items[-1]["pair"] = pair
++            match = [i for i in originals if set(i["targets"]) == {a.episode_id, b.episode_id}]
++            assert len(match) == 1 and match[0]["gold"] != items[-1]["gold"]
++            match[0]["pair"] = pair
++        counts["order_swapped"] = len(order_items)
+     public = {"phase1": [], "final": []}
+     gold = {}
+     for item in items:
+@@ -302,13 +321,16 @@ def build_questions(world: dict, per_type: int = 8) -> dict:
+             public["phase1"].append(record)
+         gold[qid] = {k: item[k] for k in ("criterion", "qtype", "answer_type", "gold",
+                                           "targets", "phase1", "cue", "variant")}
++        if "pair" in item:
++            gold[qid]["pair"] = item["pair"]
+     return {"schema": QUESTION_SCHEMA, "public": public, "gold": gold, "counts": counts,
+             "candidates": {"person": sorted({p for e in eps for p in e.participants}),
+                            "place": sorted({e.place for e in eps}),
+                            "object": sorted({e.object for e in eps})}}
+ 
+ 
+-def make_world(base_seed: str, index: int, max_attempts: int = 50) -> tuple[int, dict]:
++def make_world(base_seed: str, index: int, max_attempts: int = 50,
++               order_both: bool = False) -> tuple[int, dict]:
+     """World `index` of a series: the first attempt whose seed yields valid question sets
+     in BOTH overlap conditions (protocol section 3). The rule depends only on the
+     generator, never on any system's answers. Returns (attempt, {overlap: (world, qs)})."""
+@@ -318,7 +340,7 @@ def make_world(base_seed: str, index: int, max_attempts: int = 50) -> tuple[int,
+             pair = {}
+             for overlap in ("high", "low"):
+                 world = generate_world(seed, overlap=overlap)
+-                pair[overlap] = (world, build_questions(world))
++                pair[overlap] = (world, build_questions(world, order_both=order_both))
+             return attempt, pair
+         except ValueError as exc:
+             if not str(exc).startswith("WORLD_TOO_SMALL"):
+diff --git a/episodic_lab/score.py b/episodic_lab/score.py
+index c773aaa..3fd2adf 100644
+--- a/episodic_lab/score.py
++++ b/episodic_lab/score.py
+@@ -99,6 +99,8 @@ def score_world(gold: dict, candidates: dict, answers: dict, phase: str) -> list
+                      "extracted": value, "category": category, "correct": correct,
+                      "false_recall": g["gold"] == ["none"] and kind == "value",
+                      "targets": g["targets"]})
++        if "pair" in g:
++            rows[-1]["pair"] = g["pair"]
+     return rows
+ 
+ 
+@@ -116,6 +118,12 @@ def summarise(rows: list[dict]) -> dict:
+                                                    "uncertain", "other")}}
+         if criterion == "E5":
+             out[criterion]["false_recall"] = sum(r["false_recall"] for r in sub) / n
++        if any("pair" in r for r in sub):  # variant v1: E3a asked in both A/B orders
++            pairs = {}
++            for r in sub:
++                pairs.setdefault(r["pair"], []).append(r["correct"])
++            out[criterion]["pairs"] = {"n": len(pairs), "both_correct": sum(
++                len(v) == 2 and all(v) for v in pairs.values()) / len(pairs)}
+         if criterion == "E3b":  # the two subtypes are reported separately (protocol E3b)
+             out[criterion]["by_qtype"] = {
+                 q: {"n": len(s), "accuracy": sum(r["correct"] for r in s) / len(s)}
+---END DIFF---
+
+=== END OF LAB PILOT V1 PART 1 ===

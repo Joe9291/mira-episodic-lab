@@ -1,0 +1,135 @@
+MIRA EPISODIC LAB - STRATEGY QUESTION AFTER THE FIRST PILOT (one part)
+
+Request to Astra, as an independent machine-learning expert (Claude is the other expert and lead; you answer blind: Claude's own analysis is withheld until both are in). This is not a code review. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB STRATEGY QUESTION ===".
+
+GOAL OF THE EXPERIMENT LEAD (Joe), verbatim intent: "We want episodic memory, as fast as possible." Language-model agents (Claude, Astra) design, build, run and evaluate everything themselves, fully online, without Joe's computer. Compute: only the free tier of GitHub Actions on a public repository (CPU-only runners, 4 vCPU, 16 GB RAM, 6 h per job, 20 jobs in parallel, no paid API, no GPU). No limit on how often we rethink.
+
+QUESTION: Looking at everything below as a top expert in machine learning and memory research: (1) What conclusions do the first pilot runs support, and which do they not? (2) Where are our thinking errors? (3) What are we overlooking (in the benchmark, the arms, the evaluation, the definition of "episodic memory", the process)? (4) What should we do instead or in addition to reach episodic memory as fast as possible under the constraints - concrete, prioritised, with the first two or three steps in enough detail to build? (5) What would you need to see to call a result "episodic memory" and not "a database with a language model in front of it"? Please disagree with anything in our setup you think is wrong, including the goal framing. Then, separately, anything else you think matters.
+
+WHAT EXISTS (public lab repository Joe9291/mira-episodic-lab)
+- Protocol v0.6 (exploratory pilot; a confirmatory version 1.0 with signed seed comes later). Functional criteria:
+| Id | Criterion | Test |
+|---|---|---|
+| E1a | Single external presentation | The environment presents each episode exactly once. Afterwards its raw text is available to the system only through the memory mechanism under test. Verified by code audit and run receipt. |
+| E1b | Declared internal processing | Every arm reports, per episode: internal replays, tokens processed, optimizer steps (weight-based arms), store writes (store-based arms). These are reported, not hidden; arm comparisons state them. |
+| E2 | Cue-based recall with binding | Questions cue an event by a combination of time, place, people, object or action and ask for a missing detail. People, places and objects recur across many episodes. Binding test per item: dropping any single cue detail leaves early episodes with *different* answers (for "who" questions: no person took part in all of them), so the full combination is needed for the answer. Question wording is drawn from paraphrase sets never used in encoding text. |
+| E3a | Temporal order | Which of two events happened first. About a third of the early episodes are told later than their day. Every world has exactly 4 pairs whose presentation order agrees with their day order and 4 whose order is inverted, and every episode appears in at most one pair, so the strategies "the earlier told happened first" and "the later told happened first" both score exactly 50%. |
+| E3b | State at a time | Latest state ("where was X last") and earlier states ("where was X on day d"), so overwriting the current state alone does not suffice. Both subtypes have their own minimum count and are reported separately. |
+| E4 | Source memory | On which day an event happened, asked only for content (person, action, object) that occurs on at least two early days; the place tells the occurrences apart, so the content alone does not give the day. Episode identifiers are random tokens and reveal no order. |
+| E5 | No confabulation | Lure questions built from known details in combinations that never occurred (same templates as E2); every pair of their details co-occurs in the early block. Reported per answer category: correct rejection, in-world false recall, uncertainty, other (format errors and out-of-world claims). Success needs a high correct-rejection rate AND a bounded in-world false-recall rate; false recall alone is never read as the full confabulation rate. |
+| E6 | Retention under interference | Recall of early episodes after K further episodes, in two conditions with equal length: high-overlap (competing) and low-overlap follow-up episodes. Reported: immediate accuracy, delayed accuracy (absolute) and their ratio. |
+| E7 | Use of memory for a decision | Decision items: "where do you go to meet the last person who handled object X" and "where do you go to meet the person who did Y" - each needs the episode that identifies the person AND that person's latest episode at another place. Executing the choice in a small environment is a later extension. |
+
+- Arms planned (only S0, O1, A0, A1 run so far):
+| Arm | Description | Role |
+|---|---|---|
+| S0 | Symbolic event manager: rule-based parser and database over the same texts | How far plain data handling solves the task |
+| O1 | Oracle evidence (diagnostic): the target episode(s) of each question placed in the prompt; for E5 lures, confusable early episodes, one per pair of the lure's details (first in presentation order, deduplicated), so that no lure is answered from an empty context | Can the model use given evidence at all. Not a memory system: the evaluator supplies the evidence at every question, so its E5 and E6 values are no memory results. A lure always gets three notes, positive items one or two, so the note count can signal a lure: O1's E5 is no clean binding diagnosis (equal note counts would be needed for that) |
+| A0 | Model, no memory: empty notes and the instruction to answer "none" when the notes lack the event | Missing-evidence control with requested abstention; guessing and confabulation floor |
+| A1 | All episodes in the prompt (if they fit) | In-context reference, not episodic memory |
+| A2 | Simple retrieval: lexical search, top-k episodes into the prompt | Standard external memory |
+| A3 | Mira memory: structured event store (time, place, people, provenance), state tracking, retrieval | Mira's architecture |
+| P1 | Fast weights: one small LoRA update per episode at encoding, answers without episodes in context | Parametric single-presentation memory |
+| P2 | Rank-one weight edits | Conditional, only if milestone 0 shows it feasible |
+| C1 | A3 store plus periodic consolidation into LoRA weights by replay | Consolidation |
+
+- Benchmark: synthetic worlds. Per world 30 early + 10 follow-up episodes, 4 people, 4 places, 4 objects, 4 actions (heavy feature reuse, so binding matters); about a third told out of day order; follow-ups in a high-overlap (same pools) or low-overlap (new names) condition; tests after the early block (phase1) and after all episodes (final). Episodes are rendered from 5 sentence templates; questions from paraphrase templates. Example episodes of one world:
+  "On day 2, Halsey Ostrin painted the heavy mirror at Pellan Chapel."
+  "Ilsen Ostrin was at Pellan Chapel on day 4 and found the tiny map together with Fenwick Vesk."
+  "Looking back to day 1: Halsey Ostrin hid the wooden lantern at Mossgate Harbour."
+  Example questions: "At Thornby Bridge, which thing did Ilsen Ostrin paint?" / "On which day did Halsey Ostrin hide the tiny map at Pellan Chapel?" / "Which happened first? (A) ... (B) ... Answer A or B." / "Decide where to go: you are looking for whoever last handled the heavy mirror, at the place where that person was last seen." Lures (E5) combine details that each co-occur pairwise but never all together.
+- Scoring: strict answer grammar on generated text (greedy, max 16 new tokens), categories correct / wrong_value / none_answer / uncertain / other; per-world statistics; strict result validation (all numbers recomputed from the answer rows).
+- Models (pinned bytes, CPU, float32): SmolLM2-135M/360M-Instruct, Qwen2.5-0.5B-Instruct, Qwen3-0.6B (thinking off). Measured on the runner: LoRA step 0.35-1.95 s, prefill 120-790 tokens/s, peak RAM 1.2-4.7 GB. A1 prompts are about 1,000 tokens (40 episodes).
+- S0 (rule-based regex parser + event table over the same texts) answers 100% of all items in all worlds (checked in every pilot cell).
+- Arms run: A0 = no notes, instruction "answer none if the notes lack the event"; A1 = all presented episodes in the prompt; O1 (diagnostic) = the evaluator's target episode(s) for positive items, three confusable early episodes (one per pair of lure details) for lures. One fresh chat per question.
+- Selection rule: smallest model with O1 accuracy on positive items >= 0.8.
+
+RESULTS (5 worlds x 2 overlap conditions, final test; exploratory)
+Base run v0 (instruction with one example value per answer type, e.g. "red door"):
+| model | arm | worlds | E2 | E3a | E3b at_day | E3b latest | E4 | E5 | E7 | E5 false recall | E5 uncertain | E5 other | format | trunc | E6 phase1 | E6 final high | E6 final low |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| qwen2.5-0.5b | A0 | 5 | 0.00 | 0.53 | 0.00 | 0.00 | 0.07 | 0.46 | 0.00 | 0.00 | 0.00 | 0.54 | 0.64 | 0.02 | 0.03 | 0.03 | 0.03 |
+| qwen2.5-0.5b | A1 | 5 | 0.28 | 0.53 | 0.53 | 0.23 | 0.11 | 0.01 | 0.11 | 0.99 | 0.00 | 0.01 | 0.99 | 0.00 | 0.27 | 0.24 | 0.21 |
+| qwen2.5-0.5b | O1 (diagnostic) | 5 | 0.99 | 0.50 | 1.00 | 0.97 | 1.00 | 0.00 | 0.56 | 0.97 | 0.00 | 0.03 | 0.99 | 0.00 | 0.99 | 0.99 | 0.99 |
+| qwen3-0.6b | A0 | 5 | 0.00 | 0.53 | 0.00 | 0.00 | 0.00 | 0.89 | 0.00 | 0.00 | 0.00 | 0.11 | 0.94 | 0.00 | 0.00 | 0.00 | 0.00 |
+| qwen3-0.6b | A1 | 5 | 0.23 | 0.53 | 0.10 | 0.05 | 0.20 | 0.65 | 0.04 | 0.34 | 0.00 | 0.01 | 0.99 | 0.00 | 0.28 | 0.22 | 0.22 |
+| qwen3-0.6b | O1 (diagnostic) | 5 | 0.54 | 0.53 | 0.65 | 0.28 | 1.00 | 0.05 | 0.17 | 0.68 | 0.00 | 0.28 | 0.78 | 0.00 | 0.71 | 0.71 | 0.71 |
+| smollm2-135m | A0 | 5 | 0.00 | 0.50 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.14 | 0.41 | 0.00 | 0.00 | 0.00 |
+| smollm2-135m | A1 | 5 | 0.00 | 0.39 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.06 | 0.00 | 0.94 | 0.15 | 0.51 | 0.00 | 0.00 | 0.00 |
+| smollm2-135m | O1 (diagnostic) | 5 | 0.05 | 0.45 | 0.00 | 0.05 | 0.00 | 0.00 | 0.02 | 0.06 | 0.00 | 0.94 | 0.18 | 0.49 | 0.03 | 0.03 | 0.03 |
+| smollm2-360m | A0 | 5 | 0.00 | 0.53 | 0.00 | 0.00 | 0.05 | 0.69 | 0.00 | 0.00 | 0.00 | 0.31 | 0.67 | 0.02 | 0.02 | 0.02 | 0.02 |
+| smollm2-360m | A1 | 5 | 0.01 | 0.53 | 0.00 | 0.03 | 0.00 | 0.08 | 0.00 | 0.17 | 0.00 | 0.74 | 0.27 | 0.39 | 0.02 | 0.01 | 0.00 |
+| smollm2-360m | O1 (diagnostic) | 5 | 0.03 | 0.53 | 0.00 | 0.00 | 0.95 | 0.72 | 0.05 | 0.01 | 0.00 | 0.26 | 0.73 | 0.02 | 0.39 | 0.39 | 0.39 |
+
+## Model selection (protocol section 5): O1 on positive items only
+
+Per world: share correct over final-test items E2, E3a, E3b, E4, E7 of both conditions (E5 lures excluded). Threshold 0.8.
+
+| model | worlds | mean | min world | meets threshold |
+|---|---|---|---|---|
+| qwen2.5-0.5b | 5 | 0.844 | 0.826 | yes |
+| qwen3-0.6b | 5 | 0.557 | 0.500 | no |
+| smollm2-135m | 5 | 0.109 | 0.067 | no |
+| smollm2-360m | 5 | 0.298 | 0.216 | no |
+
+Variant v1 (no example values; every A/B order item also asked with A and B swapped; "E3a pairs" = both orders correct; baselines: constant letter 0, guessing 0.25, told-order strategy 0.5):
+| model | arm | worlds | E2 | E3a | E3a pairs | E3b at_day | E3b latest | E4 | E5 | E7 | E5 false recall | E5 uncertain | E5 other | format | trunc | E6 phase1 | E6 final high | E6 final low |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| qwen2.5-0.5b | A0 | 5 | 0.00 | 0.50 | 0.00 | 0.00 | 0.00 | 0.03 | 0.81 | 0.00 | 0.00 | 0.00 | 0.19 | 0.79 | 0.01 | 0.01 | 0.01 | 0.01 |
+| qwen2.5-0.5b | A1 | 5 | 0.29 | 0.50 | 0.00 | 0.45 | 0.28 | 0.11 | 0.00 | 0.12 | 0.99 | 0.00 | 0.01 | 0.99 | 0.00 | 0.26 | 0.21 | 0.25 |
+| qwen2.5-0.5b | O1 (diagnostic) | 5 | 1.00 | 0.50 | 0.00 | 1.00 | 0.97 | 0.97 | 0.00 | 0.43 | 0.99 | 0.00 | 0.01 | 0.99 | 0.00 | 0.99 | 0.99 | 0.99 |
+| qwen3-0.6b | A0 | 5 | 0.00 | 0.50 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| qwen3-0.6b | A1 | 5 | 0.27 | 0.50 | 0.00 | 0.10 | 0.07 | 0.21 | 0.63 | 0.00 | 0.35 | 0.00 | 0.02 | 0.99 | 0.00 | 0.26 | 0.22 | 0.26 |
+| qwen3-0.6b | O1 (diagnostic) | 5 | 0.91 | 0.49 | 0.00 | 0.90 | 0.60 | 1.00 | 0.12 | 0.07 | 0.85 | 0.00 | 0.03 | 0.98 | 0.00 | 0.95 | 0.95 | 0.95 |
+| smollm2-135m | A0 | 5 | 0.00 | 0.30 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 1.00 | 0.15 | 0.67 | 0.00 | 0.00 | 0.00 |
+| smollm2-135m | A1 | 5 | 0.00 | 0.34 | 0.01 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.06 | 0.00 | 0.94 | 0.20 | 0.53 | 0.00 | 0.00 | 0.00 |
+| smollm2-135m | O1 (diagnostic) | 5 | 0.12 | 0.45 | 0.00 | 0.00 | 0.10 | 0.00 | 0.00 | 0.00 | 0.17 | 0.00 | 0.82 | 0.31 | 0.52 | 0.07 | 0.07 | 0.07 |
+| smollm2-360m | A0 | 5 | 0.00 | 0.47 | 0.05 | 0.00 | 0.00 | 0.05 | 0.21 | 0.00 | 0.00 | 0.00 | 0.79 | 0.55 | 0.07 | 0.02 | 0.02 | 0.02 |
+| smollm2-360m | A1 | 5 | 0.03 | 0.47 | 0.01 | 0.00 | 0.00 | 0.00 | 0.13 | 0.02 | 0.12 | 0.00 | 0.75 | 0.37 | 0.35 | 0.03 | 0.03 | 0.00 |
+| smollm2-360m | O1 (diagnostic) | 5 | 0.49 | 0.50 | 0.00 | 0.50 | 0.35 | 0.95 | 0.28 | 0.42 | 0.34 | 0.00 | 0.39 | 0.77 | 0.03 | 0.66 | 0.66 | 0.66 |
+
+## Model selection (protocol section 5): O1 on positive items only
+
+Per world: share correct over final-test items E2, E3a, E3b, E4, E7 of both conditions (E5 lures excluded; the two A/B orientations of an E3a pair count 1/2 each). Threshold 0.8.
+
+| model | worlds | mean | min world | meets threshold |
+|---|---|---|---|---|
+| qwen2.5-0.5b | 5 | 0.825 | 0.795 | yes |
+| qwen3-0.6b | 5 | 0.713 | 0.667 | no |
+| smollm2-135m | 5 | 0.131 | 0.093 | no |
+| smollm2-360m | 5 | 0.547 | 0.465 | no |
+
+Comparison v0 -> v1 on the items common to both runs ('echo' = answer is a copied instruction example; 'A' = share of A/B answers that are "A"):
+criterion accuracy on COMMON items (final), mean over worlds: v0 -> v1
+qwen2.5-0.5b  A0 | E2 0.00->0.00 | E3a 0.53->0.53 | E3b 0.00->0.00 | E4 0.07->0.03 | E5 0.46->0.81 | E7 0.00->0.00 | FR 0.00->0.00 | echo 0.20->0.00 | 'A' 1.00->1.00
+qwen2.5-0.5b  A1 | E2 0.28->0.29 | E3a 0.53->0.53 | E3b 0.38->0.36 | E4 0.11->0.11 | E5 0.01->0.00 | E7 0.12->0.12 | FR 0.99->0.99 | echo 0.01->0.00 | 'A' 1.00->1.00
+qwen2.5-0.5b  O1 | E2 0.99->1.00 | E3a 0.50->0.53 | E3b 0.99->0.99 | E4 1.00->0.97 | E5 0.00->0.00 | E7 0.56->0.43 | FR 0.97->0.99 | echo 0.02->0.00 | 'A' 0.97->1.00
+qwen3-0.6b    A0 | E2 0.00->0.00 | E3a 0.53->0.53 | E3b 0.00->0.00 | E4 0.00->0.00 | E5 0.89->1.00 | E7 0.00->0.00 | FR 0.00->0.00 | echo 0.07->0.00 | 'A' 1.00->1.00
+qwen3-0.6b    A1 | E2 0.23->0.27 | E3a 0.53->0.53 | E3b 0.07->0.09 | E4 0.20->0.21 | E5 0.65->0.63 | E7 0.04->0.00 | FR 0.34->0.35 | echo 0.01->0.00 | 'A' 1.00->1.00
+qwen3-0.6b    O1 | E2 0.54->0.91 | E3a 0.53->0.53 | E3b 0.46->0.75 | E4 1.00->1.00 | E5 0.05->0.12 | E7 0.16->0.07 | FR 0.68->0.85 | echo 0.23->0.00 | 'A' 1.00->0.99
+smollm2-135m  A0 | E2 0.00->0.00 | E3a 0.50->0.30 | E3b 0.00->0.00 | E4 0.00->0.00 | E5 0.00->0.00 | E7 0.00->0.00 | FR 0.00->0.00 | echo 0.20->0.00 | 'A' 0.47->0.03
+smollm2-135m  A1 | E2 0.00->0.00 | E3a 0.39->0.33 | E3b 0.00->0.00 | E4 0.00->0.00 | E5 0.00->0.00 | E7 0.00->0.00 | FR 0.06->0.06 | echo 0.00->0.00 | 'A' 0.53->0.38
+smollm2-135m  O1 | E2 0.05->0.12 | E3a 0.45->0.42 | E3b 0.03->0.05 | E4 0.00->0.00 | E5 0.00->0.00 | E7 0.02->0.00 | FR 0.06->0.17 | echo 0.10->0.00 | 'A' 0.03->0.00
+smollm2-360m  A0 | E2 0.00->0.00 | E3a 0.53->0.47 | E3b 0.00->0.00 | E4 0.05->0.05 | E5 0.69->0.21 | E7 0.00->0.00 | FR 0.00->0.00 | echo 0.44->0.00 | 'A' 1.00->0.68
+smollm2-360m  A1 | E2 0.01->0.03 | E3a 0.53->0.41 | E3b 0.01->0.00 | E4 0.00->0.00 | E5 0.08->0.13 | E7 0.00->0.02 | FR 0.17->0.12 | echo 0.00->0.00 | 'A' 1.00->0.59
+smollm2-360m  O1 | E2 0.03->0.49 | E3a 0.53->0.53 | E3b 0.00->0.42 | E4 0.95->0.95 | E5 0.72->0.28 | E7 0.05->0.42 | FR 0.01->0.34 | echo 0.18->0.01 | 'A' 1.00->1.00
+
+per-world E2 (final, common items) v0 -> v1, and O1 selection v1 per world
+qwen2.5-0.5b A1 0.19->0.25 0.20->0.25 0.32->0.38 0.35->0.27 0.34->0.32
+qwen2.5-0.5b O1 1.00->1.00 1.00->1.00 0.94->1.00 1.00->1.00 1.00->1.00
+qwen3-0.6b A1 0.38->0.44 0.15->0.20 0.29->0.41 0.12->0.08 0.24->0.21
+qwen3-0.6b O1 0.75->0.88 0.50->0.90 0.53->1.00 0.38->0.85 0.53->0.95
+smollm2-135m A1 0.00->0.00 0.00->0.00 0.00->0.00 0.00->0.00 0.00->0.00
+smollm2-135m O1 0.00->0.12 0.00->0.00 0.06->0.18 0.15->0.23 0.05->0.05
+smollm2-360m A1 0.06->0.12 0.00->0.00 0.00->0.00 0.00->0.00 0.00->0.00
+smollm2-360m O1 0.00->0.88 0.00->0.40 0.00->0.24 0.15->0.46 0.00->0.47
+
+Observations recorded so far: removing the examples removed copying entirely and raised Qwen3 O1 E2 from 0.54 to 0.91 (every world); the A/B "A" preference of the Qwen models persists in all arms, also with both dated episodes in the prompt (pair score 0); Qwen2.5 claims an in-world value for 99% of the binding lures with all episodes in the prompt (A1) and also with only the three confusable notes (O1); with exactly its target episode it answers recall/state/source items almost perfectly. Selected model (rule): qwen2.5-0.5b (v1: 0.825, lowest world 0.795).
+
+PLANNED NEXT (before this question): milestone 3 = A2 (lexical top-k retrieval), A3 (structured event store with time, place, people, provenance, state tracking, retrieval), controls (random retrieval, misbound memory, ablations, shortcut strategies), plus an E3a answer-format variant. Later: P1 (one LoRA update per episode), C1 (store + consolidation into weights), protocol 1.0 confirmatory series.
+
+PROCESS SO FAR: every step reviewed blind by you, with Claude as lead; milestone 2 took 3 review rounds for the code, 2 for the variant.
+
+Please answer in German or English, as you prefer.
+
+=== END OF LAB STRATEGY QUESTION ===
