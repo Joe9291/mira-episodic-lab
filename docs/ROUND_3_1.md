@@ -30,3 +30,26 @@ no prompt variants without a stated purpose.
 - Reported in addition: per kind (S3 positive/lure, S5 observed/reported/missing), S2
   pair scores per form (both orders correct; constant letter 0, guessing 0.25).
 - Five cases per model are shown to Joe for an independent check.
+
+## Result (run 39016623785, commit 8b89d17, VERDICT COMPLETE)
+
+| sub-skill | qwen2.5 free / cand | qwen3 free / cand | decision (rules above) |
+|---|---|---|---|
+| S1 extract | 1.00 / 1.00 | 1.00 / 1.00 | reader carries it |
+| S2 compare | 0.45 / 0.45 (pairs 0) | 0.53 / 0.50 (content pairs free 0.50, cand 0.40; letter 0) | explicit operator |
+| S3 binding | 0.40 / 0.30 (lures 0.00, positives 0.80 / 0.60) | 0.35 / 0.40 (lures 0.10 / 0.20) | explicit operator (conjunctive match + abstention) |
+| S4 link | 0.05 / 0.05 | 0.05 / 0.10 | explicit operator |
+| S5 source | 0.52 / 0.52 (missing 0.00) | 0.48 / 0.48 (missing 0.29) | explicit operator (source filter + abstention) |
+
+Patterns: in S2 Qwen2.5 picks the object named first in the question in 18 of 20
+content items and "A" in 20 of 20 letter items; Qwen3's content pair score (0.50 free)
+equals the told-order baseline. In S4 Qwen2.5 answers the place of the episode named in
+the relative clause in 19 of 20 cases; Qwen3 answers "none" in 12. The candidate channel
+does not rescue any sub-skill: the failures are decisions, not output format.
+
+Consequence for round 3.2: the model is used as a reader for extraction only (single
+episode, single detail); comparison, conjunctive matching with abstention, linking and
+source filtering are explicit operators of the memory.
+
+Independent check by Joe: the first case of every sub-skill (fixed rule), with both
+models' answers.
