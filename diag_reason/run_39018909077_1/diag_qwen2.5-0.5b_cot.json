@@ -1,0 +1,1473 @@
+{
+ "battery_seed": "diag-m3",
+ "code_commit": "a5a680e3c6cc492c7d791911670113efcfce6edb",
+ "mode": "cot",
+ "model": "qwen2.5-0.5b",
+ "n_cases": 101,
+ "revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+ "rows": [
+  {
+   "cid": "c2be903cdc9",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "The striped compass was handled first.",
+    "value": null
+   },
+   "gold": "striped compass",
+   "kind": "content",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cid": "cf392f8f644",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "To determine which event occurred first, let's analyze each:\n\n1. **Elvie Brack carried the striped compass at Ashgrove Garden**:\n   - This is an action taken on day 3.\n   \n2. **Dorran Vesk measured the wooden lantern at Quarrel Chapel**:\n   - This is an action taken on day 4.\n\nGiven this information, we can see that:\n- Day 3 involves carrying the compass.\n- Day 4 involves measuring the lantern.\n\nSince carrying the compass happens before measuring the lantern, it logically follows that carrying the compass must have occurred earlier than measuring the lantern.\n\nTherefore, the correct sequence is:\n- Elvie Brack carried the striped compass at Ashgrove Garden.\n- Dorran Vesk measured the wooden lantern at Quarrel Chapel.\n\nThus, the correct answer is:\n**A**",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cid": "c9248a97003",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden lantern",
+    "value": null
+   },
+   "gold": "striped compass",
+   "kind": "content",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cid": "c3d1e48a84f",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "To determine which event occurred first, let's analyze each:\n\n1. **Elvie Brack carried the striped compass at Ashgrove Garden**:\n   - This is an action taken on day 3.\n\n2. **Dorran Vesk measured the wooden lantern at Quarrel Chapel**:\n   - This is an action taken on day 4.\n\nGiven this information, we can see that:\n- Day 3 involves carrying the compass.\n- Day 4 involves measuring the lantern.\n\nSince Dorran Vesk took place on day 4, it must have happened before Elvie Brack carried the compass on day 3.\n\nTherefore, the correct answer is:\n**B**",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-0",
+   "skill": "S2"
+  },
+  {
+   "cid": "c1bd185aa50",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver ledger",
+    "value": null
+   },
+   "gold": "heavy lantern",
+   "kind": "content",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cid": "cc34fa9b8a0",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cid": "cf73d8efb02",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver ledger",
+    "value": null
+   },
+   "gold": "heavy lantern",
+   "kind": "content",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cid": "cc4b9127cae",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-1",
+   "skill": "S2"
+  },
+  {
+   "cid": "c3173ba0078",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "striped mirror",
+    "value": null
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cid": "cdf626b6014",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cid": "c9d95829101",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "The copper map was handled first.",
+    "value": null
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cid": "cb94cc8c1dd",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-2",
+   "skill": "S2"
+  },
+  {
+   "cid": "c40e877e873",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver lantern",
+    "value": null
+   },
+   "gold": "silver lantern",
+   "kind": "content",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cid": "c146e4201df",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cid": "c34d913a498",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver lantern",
+    "value": null
+   },
+   "gold": "silver lantern",
+   "kind": "content",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cid": "c7e63f32af3",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-3",
+   "skill": "S2"
+  },
+  {
+   "cid": "cc247b1fdb6",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden telescope",
+    "value": null
+   },
+   "gold": "wooden telescope",
+   "kind": "content",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cid": "cd5716629c2",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cid": "c90c979ebc5",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "blue lantern",
+    "value": null
+   },
+   "gold": "wooden telescope",
+   "kind": "content",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cid": "c971e1e91aa",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-4",
+   "skill": "S2"
+  },
+  {
+   "cid": "cd96d4c78f0",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver telescope",
+    "value": null
+   },
+   "gold": "tiny map",
+   "kind": "content",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cid": "cceca7ec479",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cid": "c2fbc4d5862",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver telescope",
+    "value": null
+   },
+   "gold": "tiny map",
+   "kind": "content",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cid": "ceff435d470",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-5",
+   "skill": "S2"
+  },
+  {
+   "cid": "cb36d565c5d",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver ledger",
+    "value": null
+   },
+   "gold": "tiny lantern",
+   "kind": "content",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cid": "c79b7f726ef",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cid": "cd9919ace59",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver ledger",
+    "value": null
+   },
+   "gold": "tiny lantern",
+   "kind": "content",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cid": "cbaf82fc541",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "To determine which event occurred first, let's analyze each:\n\n1. **Casimo Tellin**:\n   - Found the tiny lantern at Pellan Library on day 2.\n   - This is an action taken on day 2.\n\n2. **Dorran Brack**:\n   - Measured the silver ledger at Ellsmere Orchard on day 8.\n   - This is an action taken on day 8.\n\nGiven this analysis:\n- Day 2 is when Casimo Tellin found the tiny lantern.\n- Day 8 is when Dorran Brack measured the silver ledger.\n\nSince day 2 precedes day 8 in time, it logically follows that Casimo Tellin found the tiny lantern before Dorran Brack measured the silver ledger.\n\nTherefore, the correct answer is:\n(A)",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-6",
+   "skill": "S2"
+  },
+  {
+   "cid": "cc04c6a6fe6",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver telescope",
+    "value": null
+   },
+   "gold": "blue basket",
+   "kind": "content",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cid": "c1d26527ab8",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cid": "ccb451d40b1",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver telescope",
+    "value": null
+   },
+   "gold": "blue basket",
+   "kind": "content",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cid": "cab9c402361",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-7",
+   "skill": "S2"
+  },
+  {
+   "cid": "c91336b181c",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "copper violin",
+    "value": null
+   },
+   "gold": "copper violin",
+   "kind": "content",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cid": "c0689f8abdb",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "A",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cid": "c8a062fe790",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "The cracked telescope was handled first, as it was carried on day 3 of the journey to Ashgrove Harbour.",
+    "value": null
+   },
+   "gold": "copper violin",
+   "kind": "content",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cid": "cd06f4779da",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "B",
+    "value": null
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-8",
+   "skill": "S2"
+  },
+  {
+   "cid": "c5d8fbf99f5",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "striped mirror",
+    "value": null
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cid": "c17d2d4fff3",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "To determine which event occurred first, let's analyze each:\n\n- Day 14: Tamric Brack carried the silver compass at Carrow Station.\n- Day 10: Quillon Ambery cleaned the striped mirror at Thornby Bridge.\n\nGiven this information, we can see that:\n\n- Day 14 is before Day 10 in chronological order.\n- Therefore, Day 14 must have happened before Day 10.\n\nSince Day 14 was the earlier event, it follows logically that Day 14 should be considered to be the first event.\n\nThus, the correct answer is:\n\n**A**",
+    "value": null
+   },
+   "gold": "A",
+   "kind": "letter",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cid": "cfbdc547691",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver compass",
+    "value": null
+   },
+   "gold": "striped mirror",
+   "kind": "content",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cid": "cca377b1d28",
+   "free": {
+    "answer": "A",
+    "correct": false,
+    "parsed": "value",
+    "raw": "To determine which event occurred first, let's analyze each:\n\n- On day 14, Tamric Brack carried the silver compass at Carrow Station.\n- On day 10, Quillon Ambery cleaned the striped mirror at Thornby Bridge.\n\nGiven this information, we can see that:\n\n- Day 14 is earlier than day 10.\n- The time difference between these two events is significant enough to consider it as an event occurring before the other.\n\nTherefore, based on the chronological order provided in the story notes, the event that happened first is:\n\nAnswer: A",
+    "value": "A"
+   },
+   "gold": "B",
+   "kind": "letter",
+   "pair": "s2-9",
+   "skill": "S2"
+  },
+  {
+   "cid": "cbab24216e5",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "striped kettle",
+    "value": null
+   },
+   "gold": "cracked umbrella",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c5385aead17",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver violin",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c4486356df2",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "blue clock",
+    "value": null
+   },
+   "gold": "heavy compass",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c4c2af040a7",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver basket",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "cfa9519468e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "cracked clock",
+    "value": null
+   },
+   "gold": "tiny umbrella",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c62eb2253d0",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden lantern",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "ce1ef73f235",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "quarrel mill",
+    "value": null
+   },
+   "gold": "cracked lantern",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c23f4530da9",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "blue basket",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c22d1ec84fb",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver telescope",
+    "value": null
+   },
+   "gold": "tiny lantern",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c86b27a2bd0",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "The answer is \"striped clock\".",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "ce78d33ea08",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "blue map",
+    "value": null
+   },
+   "gold": "blue map",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c1ce9cc0b7c",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "blue clock",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c0b03c1f24e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden lantern",
+    "value": null
+   },
+   "gold": "cracked kettle",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c75b07b31e1",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden violin",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "ca2aebc874e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden mirror",
+    "value": null
+   },
+   "gold": "heavy map",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "cb3e80b10f1",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "silver umbrella",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c3f3577a767",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "blue compass",
+    "value": null
+   },
+   "gold": "heavy basket",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c7a39c8c815",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden clock",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "cdb6939854b",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "tiny telescope",
+    "value": null
+   },
+   "gold": "tiny telescope",
+   "kind": "positive",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c5ed1930f0b",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "wooden mirror",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "lure",
+   "pair": null,
+   "skill": "S3"
+  },
+  {
+   "cid": "c9b5d554a0f",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Brannick Library",
+    "value": null
+   },
+   "gold": "Brannick Library",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cd14d29b8d0",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Forge",
+    "value": null
+   },
+   "gold": "Ellsmere Mill",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "ceee87148a3",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Pellan Garden",
+    "value": null
+   },
+   "gold": "Carrow Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cac1858c4ec",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Market",
+    "value": null
+   },
+   "gold": "Mossgate Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cc2c8dd956e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Fenhollow Garden",
+    "value": null
+   },
+   "gold": "Pellan Market",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cf9eb9ee35a",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Orchard",
+    "value": null
+   },
+   "gold": "Ashgrove Market",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cc804ab5f16",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Bridge",
+    "value": null
+   },
+   "gold": "Fenhollow Harbour",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c649468a279",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Mossgate Forge",
+    "value": null
+   },
+   "gold": "Ashgrove Bridge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c4c664f668f",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Chapel",
+    "value": null
+   },
+   "gold": "Carrow Orchard",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c3e6a5443b0",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Mossgate Library",
+    "value": null
+   },
+   "gold": "Mossgate Library",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cfee00e5ecc",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Chapel",
+    "value": null
+   },
+   "gold": "Fenhollow Orchard",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "ceff24d1932",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Carrow Orchard",
+    "value": null
+   },
+   "gold": "Thornby Library",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c2b8a456d99",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Brenna Brack",
+    "value": null
+   },
+   "gold": "Ellsmere Bridge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cabb62f233d",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Chapel",
+    "value": null
+   },
+   "gold": "Wyndle Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c26de9e7e5e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Garden",
+    "value": null
+   },
+   "gold": "Thornby Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c01a90f1df5",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Mill",
+    "value": null
+   },
+   "gold": "Ellsmere Orchard",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "cc235eac10e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Pellan Mill",
+    "value": null
+   },
+   "gold": "Mossgate Forge",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c08857a8ab8",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Brannick Market",
+    "value": null
+   },
+   "gold": "Pellan Harbour",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "ce0a4da2abe",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Fenhollow Chapel",
+    "value": null
+   },
+   "gold": "Fenhollow Chapel",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c2fde1d30cf",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ashgrove Library",
+    "value": null
+   },
+   "gold": "Sorrow Harbour",
+   "kind": "link",
+   "pair": null,
+   "skill": "S4"
+  },
+  {
+   "cid": "c01ef208e10",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Bridge",
+    "value": null
+   },
+   "gold": "Lindmere Bridge",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c881ae42ab8",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Brannick Library",
+    "value": null
+   },
+   "gold": "Lindmere Forge",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "cb13f139dba",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Bridge",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "ca120173898",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Pellan Bridge",
+    "value": null
+   },
+   "gold": "Pellan Bridge",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c0bc3d90258",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Fenhollow Harbour",
+    "value": null
+   },
+   "gold": "Fenhollow Harbour",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "cebe43ead42",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Sorrow Bridge",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c7325ce1f98",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Garden",
+    "value": null
+   },
+   "gold": "Ellsmere Garden",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c410a02cde9",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Quarrel Orchard",
+    "value": null
+   },
+   "gold": "Quarrel Orchard",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c805482e814",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Brannick Market",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c7172b569cb",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Thornby Mill",
+    "value": null
+   },
+   "gold": "Thornby Mill",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "ce832d71cd4",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Brannick Forge",
+    "value": null
+   },
+   "gold": "Pellan Bridge",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "cc7028891c7",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Pellan Mill",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c59c7ee698e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Harbour",
+    "value": null
+   },
+   "gold": "Mossgate Station",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c170aa3600f",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Station",
+    "value": null
+   },
+   "gold": "Ashgrove Market",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "ca2ab5d5d35",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Pellan Station",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c1d4a163cd7",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ashgrove Harbour",
+    "value": null
+   },
+   "gold": "Pellan Library",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "cd6658bc09e",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Lindmere Orchard",
+    "value": null
+   },
+   "gold": "Lindmere Orchard",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c57e6782ee5",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Pellan Market",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "cdf72a791fa",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Wyndle Harbour",
+    "value": null
+   },
+   "gold": "Wyndle Harbour",
+   "kind": "observed",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c99d6c3ee84",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Ellsmere Bridge",
+    "value": null
+   },
+   "gold": "Quarrel Chapel",
+   "kind": "reported",
+   "pair": null,
+   "skill": "S5"
+  },
+  {
+   "cid": "c602b63ef77",
+   "free": {
+    "answer": "",
+    "correct": false,
+    "parsed": "other",
+    "raw": "Quarrel Chapel",
+    "value": null
+   },
+   "gold": "none",
+   "kind": "missing",
+   "pair": null,
+   "skill": "S5"
+  }
+ ],
+ "schema": "episodic_lab.diag_result.v1",
+ "seconds": 213.9,
+ "skills": [
+  "S2",
+  "S3",
+  "S4",
+  "S5"
+ ],
+ "status": "OK",
+ "style": "v1",
+ "summary": {
+  "S2": {
+   "free": 0.0,
+   "free_by_kind": {
+    "content": 0.0,
+    "letter": 0.0
+   },
+   "free_pairs": {
+    "content": 0.0,
+    "letter": 0.0
+   },
+   "n": 40
+  },
+  "S3": {
+   "free": 0.0,
+   "free_by_kind": {
+    "lure": 0.0,
+    "positive": 0.0
+   },
+   "n": 20
+  },
+  "S4": {
+   "free": 0.0,
+   "free_by_kind": {
+    "link": 0.0
+   },
+   "n": 20
+  },
+  "S5": {
+   "free": 0.0,
+   "free_by_kind": {
+    "missing": 0.0,
+    "observed": 0.0,
+    "reported": 0.0
+   },
+   "n": 21
+  }
+ },
+ "weights_digest": "8f67cfdd66abbd1338639c042c2d9c645fa717f20899e89c59abc487707b6aed"
+}
