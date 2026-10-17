@@ -1,0 +1,65 @@
+5m 39s nachgedacht
+
+unittest.main()
+---END FILE tests/test_round33.py---
+
+REQUEST CHANGES.
+
+Der Grundaufbau eignet sich für das eng gefasste Meilenstein-3-Ziel: gleiche Entscheidungssituation, unterschiedliche frühere Erfahrung, Speicherung über einen Prozesswechsel und gezielte Eingriffe mit vorhergesagter Handlungsänderung. Besonders sinnvoll sind die Bindungsvertauschung, die Entfernung irrelevanter Erinnerungen und die Bewertung durch die Umgebung.
+
+Vor dem Lauf bleiben drei konkrete Punkte. Meine Prüfung ist statisch; die angegebenen lokalen Ergebnisse und Tests habe ich nicht ausgeführt.
+
+1. Der Collector kann trotz gescheiterter Zielkriterien COMPLETE ausgeben.
+
+In collect_round33.main() wird passed für jedes Kriterium berechnet und protokolliert. Dieser Wert verändert ok anschließend nicht. Damit können FAIL-Einträge, ein COMPLETE-Verdikt und ein erfolgreicher Workflow gemeinsam auftreten.
+
+Erforderlich: Entweder alle Zielkriterien in das abschließende Verdikt aufnehmen oder zwei ausdrücklich getrennte Ergebnisse erzeugen: vollständige/reproduzierbare Auswertung und Meilenstein bestanden. Für eine Meilensteinfreigabe muss der Workflow das zweite Ergebnis berücksichtigen.
+
+Außerdem sollten die Kriterien die erwarteten Fallzahlen absichern. available=False wird derzeit aus den Nennern entfernt; dadurch können Kriterien auf verkleinerten Teilmengen bestehen. Verfügbarkeit und Mindestumfang informativer Fälle gehören in den vorab festgelegten Prüfvertrag.
+
+Die gespeicherten Felder schema und provenance werden ebenfalls noch nicht validiert. Request-Hash und Codezuordnung sollten geprüft werden.
+
+2. Die behauptete Prozessisolation ist stärker als die tatsächliche Umsetzung.
+
+fresh_decisions() startet einen gemeinsamen Kindprozess für den gesamten Manifest-Batch. Dieser erhält sämtliche Speicherpfade und Entscheidungen, einschließlich beider Welten und aller Interventionen. Die Ergebnisbeschreibung „every action decided by a fresh process“ suggeriert dagegen eine fallweise Isolation.
+
+Im vorgelegten decide() erkenne ich keinen Zugriff auf vorherige Fälle. Der Prozesswechsel zwischen Erfahrungs- und Entscheidungsphase findet tatsächlich statt. Eine unabhängige Prozessgrenze je Entscheidung ist damit aber nicht nachgewiesen.
+
+Erforderlich: Entweder tatsächlich einen frischen Prozess je Welt/Intervention verwenden oder die Beschreibung ausdrücklich auf einen gemeinsamen frischen Entscheidungsprozess begrenzen und Unabhängigkeit von Reihenfolge und vorherigen Fällen prüfen. Der vorhandene Test auf das fehlende Wort truth im Skript belegt diese Grenze nicht ausreichend.
+
+3. Die Interventionsvorhersagen teilen den Encoder mit dem Agenten.
+
+intervene() gewinnt content mittels env_encode() aus den Erfahrungstexten. Daraus entstehen sowohl die manipulierten Erinnerungen als auch wesentliche Vorhersagen. Das ist eine getrennte Implementierung gegenüber dem Entscheidungsoperator, aber keine vollständig unabhängige Referenz gegenüber der Gedächtniskodierung.
+
+Ein Encoderfehler kann damit Kontrollspeicher und Vorhersage gemeinsam verändern. Die bereits vorhandenen strukturierten Umgebungsereignisse in truth_content wären die stärkere Referenz; _events_of() bleibt derzeit ungenutzt.
+
+Erforderlich: Vorhersagen aus den ursprünglichen Umgebungsereignissen beziehungsweise truth_content ableiten, mit einer getrennten Anwendung der jeweiligen Gegenfaktik. Der Referenzpfad sollte weder den Agentenencoder noch dessen Entscheidungsoperatoren verwenden. Ein gezielter Encodierungsfehler sollte die Referenzvorhersage unverändert lassen.
+
+Diese Korrekturen lassen den Grundaufbau bestehen. Die bekannten Reader-Probleme aus 3.2 müssen für diesen Test ohne Modellinferenz nicht zusätzlich gelöst werden.
+
+Verbesserungsideen – getrennt von den Freigabepunkten
+
+Den größten zusätzlichen Beleg würde für mich in 3.4 ein später gewähltes historisches Ziel bei identischem Endzustand bringen.
+
+Die derzeitigen Aufgaben verlangen überwiegend den letzten Objekt-/Personenort, ergänzt um eine Geberrelation. Deshalb würde ich als nächste Frage prüfen, ob das System eine bestimmte ältere Episode für wechselnde spätere Ziele nutzen kann.
+
+Ein kleines, aussagekräftiges Design:
+
+- In beiden Welten liegt der rote Becher am Ende am selben Ort; auch die aktuellen Personenorte stimmen überein.
+- Nur eine frühere Ablageepisode unterscheidet sich.
+- Nach der Speicherung wird das Ziel gewählt: etwa „Finde den Becher jetzt“ oder „Gehe zum Ort der ersten beobachteten Ablage“.
+- Die aktuelle Suchaufgabe verlangt in beiden Welten dieselbe Handlung; die historische Aufgabe verlangt unterschiedliche Handlungen.
+- Entfernen oder Vertauschen der älteren Episode soll gezielt die historische Entscheidung verändern. Die aktuelle Suchentscheidung soll erhalten bleiben.
+
+Dazu eine Baseline mit ausschließlich aktuellem Zustandswissen aufnehmen: letzter Ort je Objekt/Person und die für die bisherigen Aufgaben benötigten Relationen. Alle Systeme erhalten dieselben Erfahrungen; der gespeicherte Informationsumfang wird offengelegt.
+
+Ein Erfolg würde zusätzlich zeigen, dass erhaltene Episodendetails über den aktuellen Faktenstand hinaus für spätere Ziele gebraucht werden. Eine Datenbank mit Episodenhistorie wäre dafür weiterhin eine legitime Implementierung. Diese Erweiterung ist keine zusätzliche Bedingung für das Bestehen von 3.3.
+
+Weitere sinnvolle Verbesserungen:
+
+- Eingriffe am tatsächlich kodierten Speicher materialisieren. Pro Welt einmal kodieren, anschließend Varianten aus diesem Speicher ableiten und neu versiegeln. Die veränderten Nutzdaten ausdrücklich vergleichen. Das erleichtert später den Übergang zu einem LM-Encoder.
+- Entscheidungstraces behalten. Der Kindprozess liefert bereits result mit IDs und Trace; der Ergebnisdatensatz verwirft davon fast alles. Diese Informationen wären besonders bei unerwarteten Interventionseffekten hilfreich.
+- Die Zufallskontrolle stärken. Sie entfernt momentan Zielobjekt und beteiligte Personen weitgehend aus den Erinnerungen. Zusätzlich wären falsche, aber plausible Bindungen mit denselben Zielentitäten informativ. Die vorhandene Swap-Kontrolle ist dafür bereits der stärkere Ansatz.
+- Die Evidenz korrekt einordnen. Die gezeigten 40 Paare sind lokal bereits ausgewertet. Ihr GitHub-Lauf liefert eine Reproduktions- und Integritätsprüfung. „Präregistriert“ setzt eine nachvollziehbare Festlegung vor der ersten entsprechenden Auswertung voraus.
+- Die Paarregel auf die feste Policy begrenzen. Paarerfolg null folgt hier aus identischen deterministischen Handlungen bei unterschiedlichen richtigen Orten. Für spätere stochastische LM-Agenten gilt diese Nullerwartung ohne gekoppelte Zufallsziehung nicht.
+- Die Sprachschnittstelle anschließend separat erweitern. Ein eingefrorener LM-Encoder auf zurückgehaltenen Formulierungen, zunächst mit unveränderten Operatoren, würde klar zuordnen lassen, welche Fehler aus der Kodierung entstehen.

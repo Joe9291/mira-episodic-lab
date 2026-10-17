@@ -1,8 +1,18 @@
-"""Collector of round 3.3: re-runs the whole deterministic job and compares; checks the
-pair design (worlds differ only in the critical episode, identical decision inputs) and
-the pre-registered pass criteria (docs/ROUND_3_3.md)."""
+"""Collector of round 3.3. Two separate results:
+
+VERDICT (COMPLETE / INCOMPLETE): the evaluation is complete and reproducible - schema,
+identity and provenance (request hash, code commit) check out, the pair design holds
+(worlds differ only in the critical episode, identical decision inputs), the collector's
+re-run of the whole deterministic job reproduces every row, the decision process refuses
+cut-off and changed stores.
+
+MILESTONE (PASS / FAIL): the pre-registered criteria of docs/ROUND_3_3.md, including the
+required numbers of available and informative cases. The workflow fails unless both are
+COMPLETE and PASS.
+"""
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import tempfile
@@ -14,17 +24,36 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import run_round33  # noqa: E402
 from episodic_lab.env import KINDS, generate_pair  # noqa: E402
 
-CRITERIA = (
-    ("intact success = 1.0 in every kind", lambda s, k: s[f"{k}:intact"]["success"] == 1.0),
-    ("intact pair success = 1.0 in every kind", lambda s, k: s[f"{k}:intact"]["pair_success"] == 1.0),
-    ("no memory / random memory: pair success = 0", lambda s, k: s[f"{k}:none"]["pair_success"] == 0.0
-     and s[f"{k}:random"]["pair_success"] == 0.0),
-    ("swapped binding: action as predicted >= 0.95 where the prediction differs from the truth",
-     lambda s, k: (s[f"{k}:swapped_binding"]["as_predicted_informative"] or 0) >= 0.95),
-    ("relevant episode removed: action as predicted >= 0.95 where it differs from the truth",
-     lambda s, k: (s[f"{k}:relevant_removed"]["as_predicted_informative"] or 0) >= 0.95),
-    ("irrelevant episode removed: success = 1.0", lambda s, k: s[f"{k}:irrelevant_removed"]["success"] == 1.0),
-)
+FULLY_AVAILABLE = ("intact", "none", "random", "relevant_removed")
+MIN_AVAILABLE = 0.9      # swapped_binding, irrelevant_removed: share of planned cases
+MIN_INFORMATIVE = 0.6    # swapped_binding, relevant_removed: informative cases / planned
+
+
+def criteria(s: dict, pairs: int) -> list[tuple[str, bool]]:
+    planned = 2 * pairs
+    out = []
+
+    def every(fn):
+        return all(fn(k) for k in KINDS)
+    out.append(("every case planned for intact, none, random, relevant_removed is available",
+                every(lambda k: all(s[f"{k}:{n}"].get("n") == planned == s[f"{k}:{n}"]["n_planned"]
+                                    for n in FULLY_AVAILABLE))))
+    out.append((f"swapped_binding and irrelevant_removed available in >= {MIN_AVAILABLE:.0%} of planned cases",
+                every(lambda k: all(s[f"{k}:{n}"].get("n", 0) >= MIN_AVAILABLE * planned
+                                    for n in ("swapped_binding", "irrelevant_removed")))))
+    out.append((f"informative cases (prediction != truth) >= {MIN_INFORMATIVE:.0%} of planned for swap and relevant removal",
+                every(lambda k: all(s[f"{k}:{n}"].get("n_informative", 0) >= MIN_INFORMATIVE * planned
+                                    for n in ("swapped_binding", "relevant_removed")))))
+    out.append(("intact: success 1.0 and pair success 1.0",
+                every(lambda k: s[f"{k}:intact"]["success"] == 1.0 and s[f"{k}:intact"]["pair_success"] == 1.0)))
+    out.append(("no memory and random memory: pair success 0 (fixed, deterministic exploration policy)",
+                every(lambda k: s[f"{k}:none"]["pair_success"] == 0.0 and s[f"{k}:random"]["pair_success"] == 0.0)))
+    out.append(("swapped binding: action as predicted in >= 0.95 of informative cases",
+                every(lambda k: (s[f"{k}:swapped_binding"].get("as_predicted_informative") or 0) >= 0.95)))
+    out.append(("relevant episode removed: action as predicted in >= 0.95 of informative cases",
+                every(lambda k: (s[f"{k}:relevant_removed"].get("as_predicted_informative") or 0) >= 0.95)))
+    out.append(("irrelevant episode removed: success 1.0", every(lambda k: s[f"{k}:irrelevant_removed"]["success"] == 1.0)))
+    return out
 
 
 def design_problems(series: str, pairs: int) -> list:
@@ -39,14 +68,20 @@ def design_problems(series: str, pairs: int) -> list:
     return p
 
 
-def main(request_path: str, result_path: str, dest: str) -> int:
+def main(request_path: str, result_path: str, dest: str, commit: str | None = None) -> int:
     req = json.loads(Path(request_path).read_text())
     data = json.loads(Path(result_path).read_text())
-    lines, ok = [], True
+    problems = []
+    if data.get("schema") != run_round33.SCHEMA:
+        problems.append("schema")
     if (data.get("series"), data.get("pairs_per_kind"), data.get("status")) != (req["series"], req["pairs_per_kind"], "OK"):
-        lines.append("FAILED identity_or_status")
-        ok = False
-    problems = design_problems(req["series"], req["pairs_per_kind"])
+        problems.append("identity_or_status")
+    prov = data.get("provenance") or {}
+    if prov.get("request_sha256") != hashlib.sha256(Path(request_path).read_bytes()).hexdigest():
+        problems.append("provenance:request")
+    if not isinstance(prov.get("code_commit"), str) or (commit and prov["code_commit"] != commit):
+        problems.append("provenance:commit")
+    problems += design_problems(req["series"], req["pairs_per_kind"])
     with tempfile.TemporaryDirectory() as tmp:
         again = run_round33.run(req["series"], req["pairs_per_kind"], Path(tmp))
     if json.dumps(again["rows"], sort_keys=True) != json.dumps(data.get("rows"), sort_keys=True):
@@ -55,31 +90,37 @@ def main(request_path: str, result_path: str, dest: str) -> int:
         problems.append("rerun_summary_or_hashes_differ")
     if data.get("refused") != {"cut": True, "changed": True}:
         problems.append("store_integrity")
-    lines += [f"FAILED {x}" for x in problems] or ["OK rerun, design and integrity"]
-    ok = ok and not problems
+    verdict = "COMPLETE" if not problems else "INCOMPLETE"
+    results = criteria(again["summary"], req["pairs_per_kind"])
+    milestone = "PASS" if verdict == "COMPLETE" and all(ok for _, ok in results) else "FAIL"
+    lines = [f"FAILED {x}" for x in problems] or ["OK schema, provenance, design, re-run and store integrity"]
+    lines += ["", f"VERDICT {verdict}", ""] + [f"{'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
+    lines += ["", f"MILESTONE {milestone}"]
     s = again["summary"]
-    lines.append("")
-    for text, check in CRITERIA:
-        passed = all(check(s, k) for k in KINDS)
-        lines.append(f"{'PASS' if passed else 'FAIL'} {text}")
     md = ["# Round 3.3 summary (paired action worlds, explicit agent memory)", "",
-          f"{req['pairs_per_kind']} pairs per kind; every action decided by a fresh process from the store only.",
-          "", "| kind | intervention | n | success | pair success | as predicted | informative n | as predicted (informative) | memory used |",
+          f"{req['pairs_per_kind']} pairs per kind. Every case was decided by its own fresh isolated "
+          "process that received only that case's store, seal and decision text.", "",
+          "| kind | intervention | n / planned | success | pair success | as predicted | informative n | as predicted (informative) | memory used |",
           "|---|---|---|---|---|---|---|---|---|"]
     for key, v in s.items():
         kind, name = key.split(":")
+        if not v.get("n"):
+            md.append(f"| {kind} | {name} | 0 / {v['n_planned']} | - | - | - | - | - | - |")
+            continue
         inf = "-" if v["as_predicted_informative"] is None else f"{v['as_predicted_informative']:.2f}"
-        md.append(f"| {kind} | {name} | {v['n']} | {v['success']:.2f} | {v['pair_success']:.2f} | "
+        md.append(f"| {kind} | {name} | {v['n']} / {v['n_planned']} | {v['success']:.2f} | {v['pair_success']:.2f} | "
                   f"{v['as_predicted']:.2f} | {v['n_informative']} | {inf} | {v['memory_policy']:.2f} |")
     md += ["", f"Store integrity in the decision process: cut-off store refused {data.get('refused', {}).get('cut')}, "
-           f"changed store refused {data.get('refused', {}).get('changed')}.", "", "Pre-registered criteria:", ""]
-    md += [f"- {line}" for line in lines if line.startswith(("PASS", "FAIL "))]
+           f"changed store refused {data.get('refused', {}).get('changed')}.", "",
+           f"VERDICT {verdict} - MILESTONE {milestone}", "", "Pre-registered criteria:", ""]
+    md += [f"- {'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
     d = Path(dest)
     (d / "CHECK.txt").write_text("\n".join(lines) + "\n")
     (d / "SUMMARY.md").write_text("\n".join(md) + "\n")
-    (d / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
+    (d / "VERDICT").write_text(verdict + "\n")
+    (d / "MILESTONE").write_text(milestone + "\n")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(*sys.argv[1:4]))
+    raise SystemExit(main(*sys.argv[1:5]))

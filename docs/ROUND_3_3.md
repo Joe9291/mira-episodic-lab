@@ -1,4 +1,4 @@
-# Round 3.3 - paired action worlds with causal memory interventions (pre-registered)
+# Round 3.3 - paired action worlds with causal memory interventions (v2, after Astra's review)
 
 Milestone-3 goal (docs/STRATEGY.md): an agent keeps a single experience across a process
 restart, uses it for a goal announced later, and targeted interventions on exactly that
@@ -30,12 +30,23 @@ a different place correct. Distractors re-use people, places and objects (bindin
 
 ## Agent and memory boundary (episodic_lab/env_agent.py, bench/m3/run_round33.py)
 
-Experience phase: every experience is encoded into an append-only, chained, sealed store
-file. Decision phase: one fresh isolated interpreter receives only (store path, seal,
-decision) and decides from the store with explicit operators (latest placing of the
-object; the unique "gave" episode, then the giver's latest appearance). Without a
-supported memory answer it explores: it goes to the first listed place (memory-free,
-identical in both worlds of a pair). The environment scores the actions afterwards.
+Experience phase: each world's experiences are encoded ONCE into an append-only, chained,
+sealed store file; every intervention is derived from that encoded store and written as
+a new sealed store. Decision phase: for EVERY case (world x intervention) a new isolated
+interpreter (`python -I`) receives only that case's store path, seal and decision text
+and decides from the store with explicit operators (latest placing of the object; the
+unique "gave" episode, then the giver's latest appearance); it returns the action and the
+operator result (status, record ids, trace), which is kept. Without a supported memory
+answer it explores: it goes to the first listed place (memory-free, identical in both
+worlds of a pair). The environment scores the actions afterwards.
+
+## Reference path (episodic_lab/env_reference.py)
+
+Interventions are planned, and their predictions computed, on the environment side from
+the generator's structured events (`truth_content`), with this module's own counterfactual
+application and decision rules. It uses neither the store, nor its operators, nor the
+experience encoder; a test injects an encoding error and shows that the prediction stays
+the same while the agent's decision changes.
 
 ## Interventions (on the memory only) and predictions (from the environment's events)
 
@@ -48,16 +59,30 @@ identical in both worlds of a pair). The environment scores the actions afterwar
 | relevant_removed | the critical episode deleted | hidden: exploration; moved: the earlier place; giver: the giver's last appearance before |
 | irrelevant_removed | one distractor deleted that mentions neither the object nor the people involved | the true place |
 
-## Pass criteria (fixed now, all kinds)
+## Two results: VERDICT and MILESTONE
 
-1. intact: success 1.0 and pair success (both worlds right) 1.0;
-2. none and random: pair success 0 (a memory-free agent cannot be right in both worlds);
-3. swapped_binding and relevant_removed: the action equals the prediction in >= 0.95 of
-   the cases where the prediction differs from the truth;
-4. irrelevant_removed: success 1.0;
-5. the decision process refuses a cut-off and a changed store.
+VERDICT (COMPLETE / INCOMPLETE) = the evaluation is complete and reproducible: schema,
+identity, provenance (request hash, code commit of the run), pair design, the collector's
+full re-run reproduces every row, cut-off and changed stores are refused.
 
-The collector re-runs the whole deterministic job and must reproduce every row.
+MILESTONE (PASS / FAIL) = all criteria below, in every kind; the workflow fails unless
+VERDICT is COMPLETE and MILESTONE is PASS.
+
+1. every planned case of intact, none, random and relevant_removed is available (80 per
+   kind); swapped_binding and irrelevant_removed in >= 90% of the planned cases;
+   informative cases (prediction differs from the truth) >= 60% of the planned cases for
+   swapped_binding and relevant_removed;
+2. intact: success 1.0 and pair success (both worlds right) 1.0;
+3. none and random: pair success 0 - this follows from the FIXED, deterministic
+   exploration policy (same action in both worlds, different correct places); for
+   stochastic LM agents later it holds only with coupled random draws;
+4. swapped_binding and relevant_removed: the action equals the prediction in >= 0.95 of
+   the informative cases;
+5. irrelevant_removed: success 1.0.
+
+Status of these criteria: they were written after a local development run of the same
+design (round 3.3 v1) and fixed before the GitHub run; the GitHub run is therefore a
+reproduction and integrity check of a locally known result, not a test on unseen data.
 
 ## What a pass shows, and what it does not
 
@@ -67,4 +92,14 @@ behaviour depending causally and specifically on the relevant memory (swap moves
 decision in the predicted direction, irrelevant edits do nothing). It does not show:
 robustness to free wording (the encoder is the template parser), an LM agent's ability
 to use the memory, source monitoring with reports and corrections, or scale. These are
-the extensions of round 3.4, one at a time.
+the extensions of round 3.4, one at a time. First extension (Astra's proposal, adopted):
+a historical goal chosen after storage with an identical final state - both worlds end
+with the same object and person locations and differ only in an earlier placing episode;
+the goal is either "find X now" (same action in both worlds) or a historical one such as
+"go to where X was first put" (different actions); removing or swapping the earlier
+episode must change only the historical decision; plus a baseline that stores only the
+current state (latest place per object/person and the relations the current goals need),
+all systems with the same experiences and their stored information disclosed. Then the
+frozen LM encoder on held-out wordings with unchanged operators, reports and corrections,
+longer histories. The random control will add plausible wrong bindings with the same
+target entities.

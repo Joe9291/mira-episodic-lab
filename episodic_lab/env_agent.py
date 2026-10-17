@@ -5,29 +5,19 @@ decision time, answers the goal only from the store with the explicit operators.
 memory gives no supported answer it explores: it goes to the first listed place (a fixed,
 memory-free policy, identical in both worlds of a pair).
 
-Interventions change only the memory content, then the decision is taken by a fresh
-process that sees nothing but the store, its seal and the decision text. Predictions for
-every intervention are computed from the ENVIRONMENT's event list (not from the agent):
-
-  intact            the true place
-  none              the exploration place (empty store)
-  random            the exploration place (equal number of irrelevant episodes from the
-                    same vocabulary, nothing about the goal object or its giver)
-  swapped_binding   the place implied by the swapped binding (hidden/moved: the critical
-                    episode exchanges its place with another object's placing episode;
-                    giver: the two "gave" episodes exchange their person)
-  relevant_removed  hidden: exploration; moved: the earlier place; giver: the giver's
-                    last appearance before the critical sighting
-  irrelevant_removed the true place (one distractor that mentions neither the goal object
-                    nor the giver is removed)
+Interventions change only the memory content: the agent's store is encoded ONCE per
+world, every variant is derived from that encoded store (derive_variant) following the
+plan of env_reference.plan and written as a new sealed store; the decision is taken by a
+fresh process per case that sees nothing but one store, its seal and the decision text.
+Predictions are computed on the environment side (episodic_lab/env_reference.py) from
+the generator's structured events, independently of the encoder and the operators.
 """
 from __future__ import annotations
 
-from .env import PLACING, SELF, _distractor, _render, _vocab, env_encode, parse_goal, render_content
+from .env import PLACING, SELF, env_encode, parse_goal, render_content
 from .memory import EpisodeStore, Result, _day, _ok, latest, match
-from .rng import HashRng
 
-INTERVENTIONS = ("intact", "none", "random", "swapped_binding", "relevant_removed", "irrelevant_removed")
+from .env_reference import INTERVENTIONS  # noqa: E402  (one list of interventions)
 
 
 def object_location(records, obj: str) -> Result:
@@ -85,68 +75,36 @@ def write_store(path, experiences: list, contents: list | None = None) -> Episod
     return store
 
 
-def _events_of(world: dict) -> list:
-    return [dict(c) for c in world["truth_content"]]
+CONTENT = ("actor", "partner", "action", "object", "place", "event_day")
 
 
-def intervene(pair: dict, world_name: str) -> dict:
-    """{intervention: (experiences, contents, predicted place)} for one world of a pair."""
-    world = pair["worlds"][world_name]
-    exps, content = world["experiences"], [env_encode(e["text"]) for e in world["experiences"]]
-    options, explore = world["decision"]["options"], world["decision"]["options"][0]
-    kind, obj, person, other = pair["kind"], pair["object"], pair["person"], pair["other_person"]
-    crit, relevant = pair["critical"], pair["relevant"]
-    truth = world["truth"]
-    out = {"intact": (exps, content, truth), "none": ([], [], explore)}
+def derive_variant(spec: dict, records: list[dict]) -> list[dict]:
+    """Memory side: the intervened record contents, derived from the ACTUALLY ENCODED store
+    (agent's records), following the plan made by env_reference.plan. This is a separate
+    implementation of the counterfactual; predictions never use it."""
+    contents = [{k: r[k] for k in CONTENT} for r in records]
+    op = spec["op"]
+    if op == "keep":
+        return contents
+    if op == "clear":
+        return []
+    if op == "replace":  # the random memory comes from the environment's random events
+        return [{k: e[k] for k in CONTENT} for e in spec["events"]]
+    if op == "swap":
+        f, i, j = spec["field"], spec["i"], spec["j"]
+        a, b = contents[i][f], contents[j][f]
+        contents[i] = dict(contents[i], **{f: b})
+        contents[j] = dict(contents[j], **{f: a})
+        return contents
+    if op == "remove":
+        return [c for n, c in enumerate(contents) if n != spec["i"]]
+    raise ValueError(op)
 
-    rng = HashRng(f"intervene:{pair['seed']}:{kind}:{world_name}")
-    v = _vocab(HashRng(f"env:{pair['seed']}:{kind}"))
-    rand_exps, rand_content = [], []
-    while len(rand_exps) < len(exps):
-        ev = _distractor(rng, v, obj, {person, other})
-        if ev[0] == "seen" and ev[1] in (person, other):
-            continue
-        if ev[0] == "placing" and ev[1] in (person, other):
-            ev = ("went", ev[-1])
-        text, c = _render(len(rand_exps) + 1, ev)
-        rand_exps.append({"text": text, "source": {"kind": "own_action" if c["actor"] == SELF else "observed", "by": None}})
-        rand_content.append(dict(c, event_day=len(rand_exps)))
-    out["random"] = (rand_exps, rand_content, explore)
 
-    swapped = [dict(c) for c in content]
-    if kind in ("hidden", "moved"):
-        partner = next((i for i, c in enumerate(content)
-                        if c["action"] in PLACING and c["object"] not in (obj, None)
-                        and c["place"] != truth and i not in relevant), None)
-        if partner is None:
-            predicted_swap = None
-        else:
-            swapped[crit]["place"], swapped[partner]["place"] = content[partner]["place"], content[crit]["place"]
-            predicted_swap = content[partner]["place"]
-    else:
-        g1 = next(i for i, c in enumerate(content) if c["action"] == "gave" and c["object"] == obj)
-        g2 = next(i for i, c in enumerate(content) if c["action"] == "gave" and c["object"] != obj)
-        swapped[g1]["actor"], swapped[g2]["actor"] = content[g2]["actor"], content[g1]["actor"]
-        appearances = [c for c in swapped if other in (c["actor"], c["partner"])]
-        predicted_swap = max(appearances, key=lambda c: c["event_day"])["place"]
-    out["swapped_binding"] = (exps, swapped, predicted_swap) if predicted_swap is not None else None
-
-    keep = [i for i in range(len(exps)) if i != crit]
-    if kind == "hidden":
-        predicted_rm = explore
-    elif kind == "moved":
-        predicted_rm = content[relevant[0]]["place"]
-    else:
-        before = [content[i] for i in keep if person in (content[i]["actor"], content[i]["partner"])]
-        predicted_rm = max(before, key=lambda c: c["event_day"])["place"]
-    out["relevant_removed"] = ([exps[i] for i in keep], [content[i] for i in keep], predicted_rm)
-
-    irrelevant = next((i for i, c in enumerate(content)
-                       if i not in relevant and c["object"] != obj
-                       and person not in (c["actor"], c["partner"]) and other not in (c["actor"], c["partner"])), None)
-    if irrelevant is None:
-        out["irrelevant_removed"] = None
-    else:
-        keep = [i for i in range(len(exps)) if i != irrelevant]
-        out["irrelevant_removed"] = ([exps[i] for i in keep], [content[i] for i in keep], truth)
-    return out
+def materialize(path, contents: list[dict], sources: list[dict]) -> EpisodeStore:
+    """A new sealed store from intervened contents; every text is re-rendered from its
+    fields, so text and fields of a record never contradict each other."""
+    store = EpisodeStore(path)
+    for content, source in zip(contents, sources):
+        store.append(render_content(content), content, source=source, encoder="env-template")
+    return store
