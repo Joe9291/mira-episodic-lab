@@ -86,6 +86,9 @@ class FakeModel:
     def generate(self, messages):
         return self.answer(self._case(messages))
 
+    def generate_reasoning(self, messages, seed):
+        return {"answer": self.answer(self._case(messages)), "new_tokens": 100, "finished": True}
+
     def score_candidates(self, messages, candidates):
         want = self.answer(self._case(messages))
         return [0.0 if c == want else -5.0 for c in candidates]
@@ -194,7 +197,7 @@ class RunnerAndCollectorTests(unittest.TestCase):
                 (dest / f"diag_{m}.json").write_text(json.dumps(result(m, rows)))
             collect_diag.main(["a", "b"], str(dest))
             self.assertEqual((dest / "VERDICT").read_text().strip(), "COMPLETE")
-            self.assertIn("| a | S3 | 20 | 1.00 | 1.00 |", (dest / "SUMMARY.md").read_text())
+            self.assertIn("| a | direct | S3 | 20 | 1.00 | 1.00 |", (dest / "SUMMARY.md").read_text())
             bad = result("b", rows)
             bad["summary"]["S1"]["free"] = 0.5
             (dest / "diag_b.json").write_text(json.dumps(bad))
@@ -208,6 +211,45 @@ class RunnerAndCollectorTests(unittest.TestCase):
             collect_diag.main(["a", "b"], str(dest))
             self.assertIn("FAILED diag_b.json identity", (dest / "CHECK.txt").read_text())
             self.assertEqual((dest / "VERDICT").read_text().strip(), "INCOMPLETE")
+
+
+class ReasoningModeTests(unittest.TestCase):
+    def test_cot_answer_extraction(self):
+        self.assertEqual(run_diag.cot_answer("First... then.\nAnswer: Elm Court"), "Elm Court")
+        self.assertEqual(run_diag.cot_answer("answer: a\nANSWER: B"), "B")
+        self.assertEqual(run_diag.cot_answer("no final line"), "")
+
+    def test_cot_and_think_rows(self):
+        class CotModel(FakeModel):
+            def generate(self, messages):
+                question = messages[1]["content"].split("\n\nQuestion: ")[1]
+                case = self.by_question[question]
+                assert "Think step by step" in messages[0]["content"]
+                return f"Let me look at the notes.\nAnswer: {solve(case)}"
+        sub = [c for c in CASES if c["skill"] in ("S2", "S3")]
+        for mode, model in (("cot", CotModel()), ("think", FakeModel())):
+            rows = [run_diag.run_case(model, c, mode) for c in sub]
+            self.assertTrue(all(r["free"]["correct"] for r in rows), mode)
+            self.assertTrue(all("cand" not in r for r in rows))
+            s = summarise(rows)
+            self.assertEqual(set(s), {"S2", "S3"})
+            self.assertNotIn("cand", s["S2"])
+
+    def test_collector_accepts_partial_skill_sets_per_mode(self):
+        sub = [c for c in CASES if c["skill"] in ("S2", "S3")]
+        rows = [run_diag.run_case(FakeModel(), c, "think") for c in sub]
+        data = {"schema": run_diag.SCHEMA, "model": "q", "mode": "think", "status": "OK",
+                "rows": rows, "summary": summarise(rows)}
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp)
+            (dest / "diag_q_think.json").write_text(json.dumps(data))
+            collect_diag.main(["q:think:S2+S3"], str(dest))
+            self.assertEqual((dest / "VERDICT").read_text().strip(), "COMPLETE", (dest / "CHECK.txt").read_text())
+            self.assertIn("| q | think | S3 | 20 | 1.00 | - |", (dest / "SUMMARY.md").read_text())
+            collect_diag.main(["q:think:S2+S3+S4"], str(dest))
+            self.assertIn("FAILED diag_q_think.json cases", (dest / "CHECK.txt").read_text())
+            collect_diag.main(["q:cot:S2+S3"], str(dest))
+            self.assertIn("unreadable", (dest / "CHECK.txt").read_text())
 
 
 if __name__ == "__main__":

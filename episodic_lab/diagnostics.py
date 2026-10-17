@@ -188,14 +188,16 @@ def candidate_names(case: dict) -> dict:
 
 
 def summarise(rows: list[dict]) -> dict:
-    """Per skill and channel: accuracy; S2 also pair scores per form; S3 and S5 per kind."""
+    """Per skill and channel: accuracy; S2 also pair scores per form; S3 and S5 per kind.
+    Channels are those present in every row ("cand" is absent in the reasoning modes)."""
     out = {}
+    channels = [ch for ch in ("free", "cand") if rows and all(ch in r for r in rows)]
     for skill in SKILLS:
         sub = [r for r in rows if r["skill"] == skill]
         if not sub:
             continue
         entry = {"n": len(sub)}
-        for ch in ("free", "cand"):
+        for ch in channels:
             entry[ch] = sum(r[ch]["correct"] for r in sub) / len(sub)
             kinds = {}
             for kind in sorted({r["kind"] for r in sub}):

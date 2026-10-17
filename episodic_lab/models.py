@@ -37,7 +37,8 @@ def verify_snapshot(path: Path, spec: dict) -> None:
 
 
 class PinnedModel:
-    def __init__(self, slug: str, pins_path: str, max_new_tokens: int = 16, threads: int | None = None):
+    def __init__(self, slug: str, pins_path: str, max_new_tokens: int = 16, threads: int | None = None,
+                 thinking: bool = False):
         import torch
         from huggingface_hub import snapshot_download
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -55,7 +56,10 @@ class PinnedModel:
         self.model.eval()
         self.model.requires_grad_(False)
         self.max_new_tokens = max_new_tokens
-        self.template_kwargs = {"enable_thinking": False} if slug.startswith("qwen3") else {}
+        if thinking and not slug.startswith("qwen3"):
+            raise ValueError("thinking mode exists only for Qwen3")
+        self.thinking = thinking
+        self.template_kwargs = {"enable_thinking": thinking} if slug.startswith("qwen3") else {}
         # telemetry, not memory: totals plus one entry per call (prompt length, answer
         # length, and whether the answer was cut off by the token limit)
         self.stats = {"calls": 0, "prompt_tokens": 0, "new_tokens": 0, "truncated": 0}
@@ -93,6 +97,30 @@ class PinnedModel:
             out.append(float(sum(logp[i, t] for i, t in enumerate(cid))))
         self.stats["scored"] = self.stats.get("scored", 0) + len(candidates)
         return out
+
+    def generate_reasoning(self, messages: list[dict], seed: int) -> dict:
+        """Qwen3 thinking mode with the sampling settings recommended for it (temperature
+        0.6, top-p 0.95, top-k 20), seeded per call so every answer is reproducible. The
+        answer is the text after the last </think> token; without it the reply was cut
+        off by the token limit and the answer is empty."""
+        torch = self._torch
+        ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
+                                                 return_tensors="pt", **self.template_kwargs)
+        torch.manual_seed(seed)
+        with torch.no_grad():
+            out = self.model.generate(ids, attention_mask=torch.ones_like(ids),
+                                      max_new_tokens=self.max_new_tokens, do_sample=True,
+                                      temperature=0.6, top_p=0.95, top_k=20,
+                                      pad_token_id=self.tokenizer.eos_token_id)
+        new = out[0, ids.shape[1]:].tolist()
+        end = self.tokenizer.convert_tokens_to_ids("</think>")
+        finished = end in new
+        answer_ids = new[len(new) - new[::-1].index(end):] if finished else []
+        self.stats["calls"] += 1
+        self.stats["prompt_tokens"] += int(ids.shape[1])
+        self.stats["new_tokens"] += len(new)
+        return {"answer": self.tokenizer.decode(answer_ids, skip_special_tokens=True).strip(),
+                "new_tokens": len(new), "finished": finished}
 
     def generate(self, messages: list[dict]) -> str:
         torch = self._torch

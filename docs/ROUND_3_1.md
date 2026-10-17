@@ -53,3 +53,25 @@ source filtering are explicit operators of the memory.
 
 Independent check by Joe: the first case of every sub-skill (fixed rule), with both
 models' answers.
+
+## Round 3.1b - reasoning probe (pre-registered with its code)
+
+Gap in round 3.1: Qwen3's thinking mode was switched off and no step-by-step reasoning
+was allowed, so "the reader cannot compare / bind / link" may only hold for direct
+answers. Uncertainty removed: whether explicit reasoning lets a small reader carry
+S2-S5. It does not block round 3.2 (operators are used there in any case); it decides
+whether an LM-reasoning reader is added to the round 3.2 comparison.
+
+- Same battery cases S2-S5 (101 cases), same strict grammar, free channel only.
+- think: Qwen3-0.6B thinking mode, recommended sampling (temperature 0.6, top-p 0.95,
+  top-k 20), seeded per case (reproducible), up to 1024 new tokens; answer = text after
+  the last </think>; a reply without </think> counts as cut off ("other").
+- cot: Qwen3-0.6B (thinking off) and Qwen2.5-0.5B with a step-by-step instruction,
+  greedy, up to 384 new tokens; answer = text after the last "Answer:".
+- Reported in addition: new tokens per answer, share of cut-off replies, seconds.
+- Rule: a sub-skill at >= 0.95 with reasoning is recorded as "LM reasoning can carry it at
+  this cost" and that reader becomes one more cell of the round 3.2 comparison; the
+  prototype still uses the explicit operator. Below 0.95: no further reasoning variants.
+- The direct battery workflow re-runs once on this commit because its code changed (the
+  summary function now handles runs without the candidate channel); its numbers must be
+  identical to run 39016623785 (regression check).
