@@ -1,0 +1,2 @@
+OK diag_qwen2.5-0.5b.json
+OK diag_qwen3-0.6b.json
