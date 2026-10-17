@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 
 from episodic_lab.arms import AllInPrompt, NoMemory  # noqa: E402
 from episodic_lab.cells import (FullOps, Lex3Ops, Lex3Reader, LMEncoder, Random3Ops,  # noqa: E402
-                                Struct3Ops, Struct3Reader)
+                                Struct3Ops, Struct3Reader, diagnose)
 from episodic_lab.memory import (EpisodeStore, answer_query, misbind, parse_question,  # noqa: E402
                                  regex_encode)
 from episodic_lab.questions import make_world  # noqa: E402
@@ -53,23 +53,6 @@ def canonical_sha256(obj) -> str:
 
 def slim(rows):
     return [{k: r[k] for k in SLIM + ("pair",) if k in r} for r in rows]
-
-
-def phase_records(records, world, phase):
-    n_early = sum(e["block"] == "early" for e in world["episodes"])
-    return records if phase == "final" else [r for r in records if r["seq"] < n_early]
-
-
-def add_diagnostics(cell, rows, world, questions):
-    texts = {e["episode_id"]: e["text"] for e in world["episodes"]}
-    by_qid = {q["qid"]: q["text"] for q in questions["public"]["final"]}
-    for row in rows:
-        recs = phase_records(cell.store._records, world, row["phase"])
-        diag = cell.explain(by_qid[row["qid"]], recs)
-        chosen = {r["text"] for r in recs if r["id"] in set(diag["selected"])}
-        targets = questions["gold"][row["qid"]]["targets"]
-        diag["gold_support_selected"] = all(texts[t] in chosen for t in targets) if targets else None
-        row["diag"] = diag
 
 
 def restart_test(store_path: Path, seal: dict, questions, in_process: dict) -> dict:
@@ -106,7 +89,7 @@ def run_cell(name, cell, model, world, questions):
         result = run_world(cell, world, questions)
         rows = slim(result["rows"])
         if hasattr(cell, "explain"):
-            add_diagnostics(cell, rows, world, questions)
+            diagnose(cell, rows, world, questions)
         entry = {"status": "OK", "phase1": result["phase1"], "final": result["final"],
                  "retention": retention(result), "rows": rows}
     except Exception:
@@ -130,7 +113,7 @@ def run_condition(model, world, questions, out: dict, workdir: Path) -> None:
         uses_model = name in ("A0", "A1", "lex3+reader", "struct3+reader", "full+ops/lm-encoder")
         out["cells"][name] = run_cell(name, cell, model if uses_model else None, world, questions)
     lm_cell = cells["full+ops/lm-encoder"]
-    out["encoder"] = {"records": [
+    out["encoder"] = {"encoder_name": lm_cell.encoder_name, "records": [
         {"text": r["text"], "lm": {k: r[k] for k in CONTENT}, "truth": regex_encode(r["text"]),
          "invalid": bad, "raw": raw}
         for r, bad, raw in zip(lm_cell.store._records, lm_encoder.invalid, lm_encoder.raw)]}

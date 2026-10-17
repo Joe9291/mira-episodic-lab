@@ -1,0 +1,78 @@
+5m 31s nachgedacht
+
+Teil 1:
+
+__all__ = ["CELLS", "LMEncoder", "Result", "bm25_top", "match", "slot_accuracy", "struct_select"]
+---END FILE episodic_lab/cells.py---
+
+Teil 2:
+
+unittest.main()
+---END FILE tests/test_round32.py---
+
+REQUEST CHANGES für Runde 3.2 v2, beide Teile.
+
+Die Überarbeitung adressiert wesentliche Punkte: Die vollständige Operatorenzelle ist jetzt eine separate Referenz; externer Seal, Inhaltsdigest und Neustart mit dem tatsächlichen Hauptspeicher sind sinnvoll umgesetzt. Auch das Verschieben von Thinking-Reader und Quellenprüfung ist vertretbar. Drei Probleme bleiben vor dem Lauf zu beheben.
+
+Meine Prüfung ist rein statisch. Die angegebenen 87 Tests und Mutationsprüfungen habe ich nicht ausgeführt.
+
+1. Teil 1: Gleiche Episodenauswahl bedeutet hier weiterhin keinen gleichen Informations- und Antwortvertrag.
+
+In _Cell.answer() erhält der Reader ausschließlich die ausgewählten Notiztexte. Das berechnete complete wird nicht an seinen Prompt übergeben. Die Operatoren erhalten dagegen complete und bei zertifizierter Auswahl zusätzlich das vollständige universe für die Entitätskenntnis.
+
+Damit unterscheiden sich die Bedingungen weiterhin:
+
+- lex3+ops muss bei „latest“, „last handler“ und fehlenden Treffern abstinieren.
+- Der Reader erfährt diese Einschränkung nicht.
+- Die strukturierte Operatorenzelle darf zusätzlich Wissen darüber verwenden, welche Entitäten außerhalb der drei Notizen bekannt sind.
+
+Der eigene Vergleich mit dem regelbasierten Reader zeigt bereits die Auswirkung: Unterschiede bei E3b, E7 und E5 entstehen teilweise durch diese Regeln. Sie lassen sich nicht vollständig als Unterschied der Verarbeitungskompetenz interpretieren.
+
+Erforderliche Änderung: Beide Mitglieder eines Paars müssen dieselben neutralen Angaben zur Abdeckung und gegebenenfalls zur Entitätskenntnis erhalten und demselben Enthaltungsvertrag folgen. Dabei klar unterscheiden zwischen „vollständiger Speicher“ und „für diese Frage hinreichend abgedeckte Auswahl“. Letzteres ist das, was struct3 tatsächlich zertifiziert.
+
+Der Test muss auch die an den Reader übergebenen Informationen prüfen. Gleiche Rückgaben von explain() reichen dafür nicht.
+
+2. Teil 1: Unbekannte Datumswerte werden verworfen, statt ihre Unsicherheit weiterzugeben.
+
+latest(), last_handler_latest(), _recent() und der strukturierte act-Retriever entfernen relevante Datensätze mit ungültigem Datum. Anschließend können sie trotzdem eine definitive Antwort beziehungsweise eine Vollständigkeitszertifizierung erzeugen.
+
+Ein Gegenbeispiel, unmittelbar aus dem Code ableitbar:
+
+Person	Datum	Ort
+
+Ana Bell	7	Oak Mill
+Ana Bell	unbekannt	Ash Mill
+
+
+latest() liefert hier Oak Mill mit Status ok. Das undatierte Ereignis könnte aber später stattgefunden haben. Ebenso kann state_at(..., day=9) none_in_scope liefern, obwohl das undatierte Ereignis vom Tag 9 stammen könnte.
+
+Der vorhandene Test „Encoder liefert überhaupt keine Tage“ deckt diesen gemischten Fall nicht ab.
+
+Daneben gibt es einen verwandten Typfehler: Antwortet der Encoder für einen Ort mit none, kann latest() bei einem eindeutigen letzten Datensatz Result(None, "ok") erzeugen. answer() liefert dann keinen String. Fehlende Pflichtwerte außer actor werden außerdem nicht durchgehend als ungültig protokolliert.
+
+Erforderliche Änderung: Relevante unbekannte Werte müssen zu Unsicherheit führen, wenn sie das Ergebnis verändern könnten. Sie dürfen keine definitive Abwesenheit oder globale zeitliche Reihenfolge begründen. Außerdem muss gelten: Jeder ok-Wert ist eine gültige Antwort des verlangten Typs.
+
+Gezielt ergänzen: gemischte gültige/fehlende Tage für „latest“, „last handler“ und „state at“, fehlender Ort sowie ein irrelevanter undatierter Datensatz, der eine weiterhin eindeutige Antwort nicht verhindern soll.
+
+3. Teil 2: Der Collector verifiziert die neuen Diagnosegrößen und die Encoder-Referenz noch nicht ausreichend.
+
+Das erneute Bewerten der Rohantworten und Nachrechnen der deterministischen Antworten ist gut. Die Diagnosetabellen bleiben jedoch teilweise ungeprüfte Eingaben:
+
+- Bei Operatorenzellen werden selected, complete, Ergebniswert, Status und Trace nicht mit dem Replay verglichen.
+- Bei Readern werden nur die ausgewählten IDs verglichen, nicht die Abdeckung.
+- gold_support_selected wird typgeprüft, aber nicht neu berechnet.
+- Die Encoder-Slotgenauigkeit wird gegen das gespeicherte truth berechnet. Dieses wird nicht mit der aus den regenerierten Episoden neu gewonnenen Referenz verglichen.
+
+Dadurch können nach dem vorliegenden Prüfpfad beispielsweise ein umgedrehter Gold-Support-Wert, ein anderer zulässiger Operatorstatus oder eine veränderte Encoder-Referenz unbeanstandet bleiben. Gerade diese Größen sollen aber erklären, warum eine Zelle scheitert, und die Encoder-Referenz beeinflusst die Übernahmeentscheidung.
+
+Erforderliche Änderung: Alle deterministisch rekonstruierbaren Diagnosefelder aus den passenden Phasenbeständen neu berechnen und vergleichen. Encoder-Referenzen aus den regenerierten Episoden erzeugen; raw, bereinigte Werte und invalid auf Konsistenz prüfen. Dazu gezielte Beschädigungstests für diese Felder ergänzen.
+
+Beim LM-Replay beachten: encoder_name="replay" verändert die Hashkette und dadurch nachfolgende Record-IDs. Für einen Vergleich der Traces müssen die ursprünglichen Identitäten reproduzierbar bleiben.
+
+Unabhängig von diesen drei Freigabepunkten sehe ich folgende Verbesserungsideen:
+
+- Abdeckung, Enthaltung und Verarbeitung getrennt berichten. Dass lex3+ops bei E5 definitionsgemäß 0 erreicht, ist zunächst eine fehlende Abdeckungszertifizierung. Zusätzlich zur Gesamtgenauigkeit zeigen: zertifizierte Abdeckung, Genauigkeit bei ausreichender Evidenz und Enthaltungsrate. Gold-Support bleibt eine separate Evaluatorgröße.
+- Die Encoder-Übernahme rechnerisch eindeutig machen. Den Positivscore einschließlich E3a-Gewichtung und Aggregation über Welten/Bedingungen ausdrücklich festlegen. Neben False Recall auch korrekte Zurückweisung und unknown bei Lures ausweisen: Eine niedrige False-Recall-Rate allein belegt keine erfolgreiche Zurückweisung.
+- Statistik weiterhin explorativ behandeln. Vergleiche innerhalb derselben Welt paaren; High/Low und einzelne Fragen nicht als unabhängige Wiederholungen zählen. Entwicklungs- und bereits verwendete Pilotwelten getrennt zeigen. Die festen Übernahmeschwellen sind technische Entscheidungsregeln, noch kein Zuverlässigkeitsnachweis.
+- 3.3 jetzt parallel vorbereiten. Regex plus Operatoren reichen dafür. Besonders aussagekräftig sind gleiche aktuelle Beobachtungen bei unterschiedlicher früherer Erfahrung und ein erst später bekannt gegebenes Ziel. Relevantes Entfernen sollte die Entscheidung verschlechtern; gleich umfangreiches irrelevantes Entfernen sollte sie erhalten.
+- CPU-Budget anhand der tatsächlichen Aufrufmenge planen. Pro Welt fallen bei zwei Bedingungen ungefähr \(2[4(Q_1+Q_f)+6E]\) Modellaufrufe an: vier Reader/Baseline-Zellen plus sechs Encoderfragen je Episode. Kurze Ausgaben machen die wiederholte Promptverarbeitung nicht kostenlos. Vorhandene Laufzeiten und Prompttoken deshalb ebenfalls in die Zusammenfassung aufnehmen. Aus den Fake-Modell-Tests lässt sich die Einhaltung der sechs Stunden nicht ableiten.

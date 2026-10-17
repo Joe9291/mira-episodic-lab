@@ -25,8 +25,8 @@ import hashlib
 import math
 import re
 
-from .arms import build_messages
-from .memory import (FIELDS, EpisodeStore, Result, _day, answer_query, match, parse_question,
+from .arms import FORMAT_V1
+from .memory import (FIELDS, EpisodeStore, Result, _day, _known, answer_query, match, parse_question,
                      regex_encode)
 
 K = 3
@@ -69,19 +69,24 @@ def _overlap(record: dict, cue: dict) -> int:
 
 
 def _best(records, cue, budget):
-    """Full matches first (all of them must fit to certify), then best partial matches."""
+    """Full matches first, then records that could be full matches because a needed field
+    is unknown, then the best partial matches. Certified only if all full and possible
+    matches fit into the budget."""
+    from .memory import possible
     full = [r for r in records if _overlap(r, cue) == len(cue)]
-    partial = sorted((r for r in records if 0 < _overlap(r, cue) < len(cue)),
+    maybe = [r for r in possible(records, **cue) if r not in full]
+    partial = sorted((r for r in records if 0 < _overlap(r, cue) < len(cue) and r not in maybe),
                      key=lambda r: (-_overlap(r, cue), r["seq"]))
-    return (full + partial)[:budget], len(full) <= budget
+    return (full + maybe + partial)[:budget], len(full) + len(maybe) <= budget
 
 
 def _recent(records, person, budget):
-    hits = sorted((r for r in records if person in (r["actor"], r["partner"]) and _day(r) is not None),
-                  key=lambda r: (-_day(r), r["seq"]))
-    # certified if every record of the latest day is inside the budget
+    mine = [r for r in records if person in (r["actor"], r["partner"])]
+    hits = sorted((r for r in mine if _day(r) is not None), key=lambda r: (-_day(r), r["seq"]))
+    # certified if every record of the latest day fits and no record of the person is undated
     top = _day(hits[0]) if hits else None
-    return hits[:budget], sum(_day(r) == top for r in hits) <= budget
+    undated = len(mine) - len(hits)
+    return hits[:budget], undated == 0 and sum(_day(r) == top for r in hits) <= budget
 
 
 def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> tuple[list[dict], bool]:
@@ -107,9 +112,11 @@ def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> t
             got += [r for r in more if r not in got]
             ok = ok and c
     elif qtype == "act":
-        with_obj = sorted((r for r in records if r["object"] == query["obj"] and _day(r) is not None),
-                          key=lambda r: (-_day(r), r["seq"]))
-        got, ok = with_obj[:1], len([r for r in with_obj if with_obj and _day(r) == _day(with_obj[0])]) <= 1
+        all_obj = [r for r in records if r["object"] == query["obj"]]
+        with_obj = sorted((r for r in all_obj if _day(r) is not None), key=lambda r: (-_day(r), r["seq"]))
+        got = with_obj[:1]
+        ok = (len(with_obj) == len(all_obj)
+              and len([r for r in with_obj if _day(r) == _day(with_obj[0])]) <= 1)
         if got:
             more, c = _recent(records, got[0]["actor"], k - 1)
             got += [r for r in more if r not in got]
@@ -117,6 +124,53 @@ def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> t
     else:
         got, ok = [], False
     return sorted(got, key=lambda r: r["seq"])[:k], ok
+
+
+def _entities(qtype: str, query: dict) -> list[tuple[str, str]]:
+    cues = [query["cue"]] if "cue" in query else [q for q in (query.get("a"), query.get("b")) if q]
+    out = []
+    for cue in cues:
+        for key in ("person", "obj", "place"):
+            if cue.get(key):
+                out.append((key, cue[key]))
+    if qtype in ("latest", "at_day"):
+        out.append(("person", query["person"]))
+    if qtype == "act":
+        out.append(("obj", query["obj"]))
+    return sorted(set(out))
+
+
+def entity_note(qtype: str, query: dict, universe: list[dict]) -> str:
+    """The index's knowledge about the question's names (the same knowledge the operators
+    use to tell none_in_scope from no_observation)."""
+    missing = [v for k, v in _entities(qtype, query) if not _known(universe, **{k: v})]
+    if not missing:
+        return "Every person, place and object named in the question occurs in memory."
+    return "Never recorded in memory at all: " + ", ".join(missing) + "."
+
+
+def reader_messages(question: str, notes: list[str], covered: bool, note: str | None,
+                    answer_type: str) -> list[dict]:
+    """Reader prompt with the SAME information and abstention contract as the operators:
+    coverage of the selection for this question, the index's entity knowledge when the
+    selection is covered, "none" only for a covered selection without the event and with
+    every name known, "unknown" otherwise."""
+    text = ("You answer one question from notes retrieved from your memory. Answer with only "
+            f"{FORMAT_V1[answer_type]}, nothing else.")
+    if answer_type == "choice":
+        text += " If the notes do not settle it, answer with the single word: unknown."
+    else:
+        text += (" If the notes are complete for this question and none of them contains the event "
+                 "asked about, answer with the single word: none - unless a name in the question was "
+                 "never recorded in memory; then answer: unknown. If the notes are not complete and do "
+                 "not settle the answer, or the question asks for the latest or last state and the notes "
+                 "are not complete, answer with the single word: unknown.")
+    coverage = ("Coverage: complete for this question (the whole memory was searched)." if covered
+                else "Coverage: partial selection (other relevant notes may exist).")
+    lines = [coverage] + ([note] if covered and note else [])
+    body = "\n".join(notes) if notes else "(no notes)"
+    user = "\n".join(lines) + f"\n\nMemory notes:\n{body}\n\nQuestion: {question}"
+    return [{"role": "system", "content": text}, {"role": "user", "content": user}]
 
 
 class _Cell:
@@ -149,26 +203,34 @@ class _Cell:
         over a given record set; used by the evaluator after the run, never while answering."""
         parsed = parse_question(text)
         if parsed is None:
-            return {"selected": [], "complete": False, "result": None}
-        got, complete = self.select(text, *parsed, records)
-        out = {"selected": [r["id"] for r in got], "complete": complete, "result": None}
+            return {"selected": [], "covered": False, "entity_note": None, "result": None}
+        got, covered = self.select(text, *parsed, records)
+        out = {"selected": [r["id"] for r in got], "covered": covered,
+               "entity_note": entity_note(*parsed, records) if covered else None, "result": None}
         if not self.READER:
-            out["result"] = self._ops(got, parsed, complete, records).to_json()
+            out["result"] = self._ops(got, parsed, covered, records).to_json()
         return out
 
-    def _ops(self, got, parsed, complete, records):
-        # an index scan over the whole store also certifies which entities are known
-        return answer_query(got, *parsed, complete=complete, universe=records if complete else None)
+    def _ops(self, got, parsed, covered, records):
+        # `covered`: the selection is certified sufficient for THIS question (an index scan
+        # over the whole store); the index then also knows which names occur at all
+        return answer_query(got, *parsed, complete=covered, universe=records if covered else None)
+
+    def reader_prompt(self, text: str, answer_type: str, records: list[dict]) -> list[dict]:
+        parsed = parse_question(text)
+        got, covered = self.select(text, *parsed, records)
+        note = entity_note(*parsed, records) if covered else None
+        return reader_messages(text, [r["text"] for r in got], covered, note, answer_type)
 
     def answer(self, text: str, answer_type: str) -> str:
         parsed = parse_question(text)
         if parsed is None:
             return "unknown"
         records = self.store._records
-        got, complete = self.select(text, *parsed, records)
         if not self.READER:
-            return self._ops(got, parsed, complete, records).answer()
-        return self.model.generate(build_messages(text, [r["text"] for r in got], answer_type, STYLE))
+            got, covered = self.select(text, *parsed, records)
+            return self._ops(got, parsed, covered, records).answer()
+        return self.model.generate(self.reader_prompt(text, answer_type, records))
 
 
 class Lex3Reader(_Cell):
@@ -263,26 +325,53 @@ class LMEncoder:
         self.invalid: list[list] = []   # invalid slots per encoded episode
 
     def __call__(self, text: str) -> dict:
-        out, raw, bad = {}, {}, []
+        raw = {}
         for slot, (question, kind) in SLOT_QUESTIONS.items():
             msgs = [{"role": "system", "content": "You read one note and answer one question "
                      f"about it. Answer with only {SLOT_FORMAT[kind]}, nothing else."},
                     {"role": "user", "content": f"Note:\n{text}\n\nQuestion: {question}"}]
             raw[slot] = self.model.generate(msgs)
-            value = _clean(raw[slot], kind)
-            if value is INVALID:
-                bad.append(slot)
-                value = None
-            elif value is not None and kind in _NAME_SHAPE and not _NAME_SHAPE[kind].fullmatch(value):
-                bad.append(slot)
-            out[slot] = value
-        if out["actor"] is None:
-            bad.append("actor")
-        if out["partner"] == out["actor"]:
-            out["partner"] = None
+        content, bad = postprocess(raw)
         self.raw.append(raw)
-        self.invalid.append(sorted(set(bad)))
-        return {k: out[k] for k in FIELDS}
+        self.invalid.append(bad)
+        return content
+
+
+def postprocess(raw: dict) -> tuple[dict, list]:
+    """Raw slot replies -> (record content, invalid slots); deterministic, so the
+    collector can re-derive both from the recorded raw replies."""
+    out, bad = {}, []
+    for slot, (_, kind) in SLOT_QUESTIONS.items():
+        value = _clean(raw[slot], kind)
+        if value is INVALID:
+            bad.append(slot)
+            value = None
+        elif value is not None and kind in _NAME_SHAPE and not _NAME_SHAPE[kind].fullmatch(value):
+            bad.append(slot)
+        out[slot] = value
+    for slot in ("actor", "action", "object", "place", "event_day"):  # required in every episode
+        if out[slot] is None:
+            bad.append(slot)
+    if out["partner"] == out["actor"]:
+        out["partner"] = None
+    return {k: out[k] for k in FIELDS}, sorted(set(bad))
+
+
+def diagnose(cell, rows: list[dict], world: dict, questions: dict) -> None:
+    """Per answer row: deterministic replay of the selection, coverage, entity note and
+    operator result on the record set of that test point, plus evaluator-only gold support.
+    Used by the job after the run and by the collector to recompute every field."""
+    texts = {e["episode_id"]: e["text"] for e in world["episodes"]}
+    by_qid = {q["qid"]: q["text"] for q in questions["public"]["final"]}
+    n_early = sum(e["block"] == "early" for e in world["episodes"])
+    for row in rows:
+        recs = cell.store._records if row["phase"] == "final" else [r for r in cell.store._records
+                                                                      if r["seq"] < n_early]
+        diag = cell.explain(by_qid[row["qid"]], recs)
+        chosen = {r["text"] for r in recs if r["id"] in set(diag["selected"])}
+        targets = questions["gold"][row["qid"]]["targets"]
+        diag["gold_support_selected"] = all(texts[t] in chosen for t in targets) if targets else None
+        row["diag"] = diag
 
 
 def slot_accuracy(pairs: list[tuple[dict, dict]]) -> dict:

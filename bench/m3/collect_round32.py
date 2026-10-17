@@ -20,8 +20,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from episodic_lab.cells import CELLS, slot_accuracy  # noqa: E402
-from episodic_lab.memory import STATUSES, answer_query, misbind, parse_question  # noqa: E402
+from episodic_lab.cells import CELLS, SLOT_QUESTIONS, diagnose, postprocess, slot_accuracy  # noqa: E402
+from episodic_lab.memory import STATUSES, answer_query, misbind, parse_question, regex_encode  # noqa: E402
 from episodic_lab.questions import make_world  # noqa: E402
 from episodic_lab.runner import retention, run_world  # noqa: E402
 from episodic_lab.score import score_world, summarise  # noqa: E402
@@ -86,32 +86,56 @@ def check_cell(name, cell, world, questions, problems, where):
     if not (isinstance(cost, dict) and all(isinstance(cost.get(k), int) and cost[k] >= 0
                                            for k in ("calls", "prompt_tokens", "new_tokens"))):
         problems.append(f"cost:{where}")
-    if name in SELECTING:
-        for r in rows:
-            d = r.get("diag")
-            if not (isinstance(d, dict) and isinstance(d.get("selected"), list)
-                    and isinstance(d.get("complete"), bool)
-                    and d.get("gold_support_selected") in (True, False, None)
-                    and (d.get("result") is None or d["result"].get("status") in STATUSES)):
-                problems.append(f"diag:{where}")
-                break
 
 
-def replay(name, data_cell, world, questions, encoder_records=None):
-    """Re-run a deterministic cell (or the LM-encoder cell from its recorded records)."""
+class _NoModel:
+    """Stands in for the reader model when only the selection is replayed."""
+    def weights_digest(self, recompute=False):
+        return ""
+
+
+def presented(world):
+    """Episode texts in the runner's encoding order (early block, then follow-ups)."""
+    return [e["text"] for blk in ("early", "followup") for e in world["episodes"] if e["block"] == blk]
+
+
+def replay(name, world, questions, encoder=None):
+    """Re-create a cell's store exactly; deterministic cells are re-run completely."""
     if name == "full+ops/lm-encoder":
-        recs = iter(encoder_records)
+        recs = iter(encoder["records"])
 
         def enc(text):
             r = next(recs)
             if r["text"] != text:
                 raise ValueError("encoder records out of order")
             return {k: r["lm"][k] for k in CONTENT}
-        cell = CELLS["full+ops"](encoder=enc, encoder_name="replay")
-    else:
+        cell = CELLS["full+ops"](encoder=enc, encoder_name=encoder["encoder_name"])
+    elif name in DETERMINISTIC:
         cell = CELLS[name]()
+    else:
+        cell = CELLS[name](_NoModel())
+        for text in presented(world):
+            cell.encode(text)
+        return None, cell
     result = run_world(cell, world, questions)
     return {(r["phase"], r["qid"]): r["raw"] for r in result["rows"]}, cell
+
+
+def check_encoder(enc, world) -> bool:
+    if not (isinstance(enc, dict) and isinstance(enc.get("encoder_name"), str)
+            and isinstance(enc.get("records"), list)):
+        return False
+    if [r.get("text") for r in enc["records"]] != presented(world):
+        return False
+    for r in enc["records"]:
+        if r.get("truth") != regex_encode(r["text"]):
+            return False
+        if not isinstance(r.get("raw"), dict) or set(r["raw"]) != set(SLOT_QUESTIONS):
+            return False
+        content, bad = postprocess(r["raw"])
+        if content != r.get("lm") or bad != r.get("invalid"):
+            return False
+    return True
 
 
 def validate(data, expected, request_sha, pins_sha):
@@ -142,38 +166,30 @@ def validate(data, expected, request_sha, pins_sha):
             continue
         for name in CELL_NAMES:
             check_cell(name, cells[name], world, questions, p, f"{overlap}:{name}")
-        enc = (c.get("encoder") or {}).get("records")
-        if not isinstance(enc, list) or [r.get("text") for r in enc] != [e["text"] for e in world["episodes"]]:
+        enc = c.get("encoder")
+        if not check_encoder(enc, world):
             p.append(f"encoder:{overlap}")
             enc = None
-        for name in DETERMINISTIC + (("full+ops/lm-encoder",) if enc else ()):
-            if cells[name].get("status") != "OK":
+        for name in SELECTING:
+            if cells[name].get("status") != "OK" or (name == "full+ops/lm-encoder" and enc is None):
                 continue
             try:
-                raws, cell = replay(name, cells[name], world, questions, enc)
+                raws, cell = replay(name, world, questions, enc)
             except Exception as exc:
                 p.append(f"replay_error:{overlap}:{name}:{type(exc).__name__}")
                 continue
-            if raws != {(r["phase"], r["qid"]): r["raw"] for r in cells[name]["rows"]}:
+            rows = cells[name]["rows"]
+            if raws is not None and raws != {(r["phase"], r["qid"]): r["raw"] for r in rows}:
                 p.append(f"replay:{overlap}:{name}")
             if name == "full+ops" and c.get("store_seal") != cell.store.seal():
                 p.append(f"seal:{overlap}")
-        for name in ("lex3+reader", "struct3+reader"):
-            if cells[name].get("status") != "OK":
-                continue
-            ref = CELLS["lex3+ops" if name.startswith("lex") else "struct3+ops"]()
-            for e in world["episodes"]:
-                ref.encode(e["text"])
-            n_early = sum(e["block"] == "early" for e in world["episodes"])
-            text = {q["qid"]: q["text"] for q in questions["public"]["final"]}
-            for r in cells[name]["rows"]:
-                recs = ref.store._records if r["phase"] == "final" else ref.store._records[:n_early]
-                if ref.explain(text[r["qid"]], recs)["selected"] != r.get("diag", {}).get("selected"):
-                    p.append(f"selection_replay:{overlap}:{name}")
-                    break
+            fresh = [{k: v for k, v in r.items() if k != "diag"} for r in rows]
+            diagnose(cell, fresh, world, questions)
+            if [f["diag"] for f in fresh] != [r.get("diag") for r in rows]:
+                p.append(f"diag_replay:{overlap}:{name}")
         ref = CELLS["full+ops"]()
-        for e in world["episodes"]:
-            ref.encode(e["text"])
+        for text in presented(world):
+            ref.encode(text)
         mis_rows = slim(score_world(questions["gold"], questions["candidates"], {
             q["qid"]: answer_query(misbind(ref.store.records, world["seed"]), *parse_question(q["text"])).answer()
             for q in questions["public"]["final"]}, "final"))
@@ -193,46 +209,92 @@ def mean(v):
     return sum(v) / len(v) if v else float("nan")
 
 
+def positive_score(rows) -> float:
+    """Positive final items (E2, E3a, E3b, E4, E7), the two A/B orientations of an E3a pair
+    weighing 1/2 each (as in the pilot's model selection)."""
+    pos = [r for r in rows if r["phase"] == "final" and r["criterion"] in ("E2", "E3a", "E3b", "E4", "E7")]
+    w = [0.5 if "pair" in r else 1.0 for r in pos]
+    return sum(x for x, r in zip(w, pos) if r["correct"]) / sum(w)
+
+
+def per_world(cells, name, fn):
+    """fn over the rows of both conditions of a world, then the mean over worlds."""
+    return mean(fn([r for c in d["conditions"].values() for r in c["cells"][name]["rows"]])
+                for d in cells.values())
+
+
+def lure_shares(rows):
+    lures = [r for r in rows if r["phase"] == "final" and r["criterion"] == "E5"]
+    n = len(lures)
+    return {"rejected": sum(r["category"] == "none_answer" or r["correct"] for r in lures) / n,
+            "false_recall": sum(r["false_recall"] for r in lures) / n,
+            "unknown": sum(r["category"] == "uncertain" for r in lures) / n}
+
+
 def table(cells) -> str:
-    conds = [c for d in cells.values() for c in d["conditions"].values()]
     L = ["# Round 3.2 summary (exploratory, template benchmark)", "",
-         f"{len(cells)} worlds x 2 overlap conditions; final test; means over worlds and conditions.",
-         "E5 = correct rejection of binding lures; FR = in-world false recall. Gold support = share "
-         "of positive final items whose gold target episodes were all selected (evaluator "
-         "information, not an upper bound of accuracy).", "",
-         "| cell | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | gold support | calls | new tokens |",
-         "|" + "---|" * (len(CRIT) + 6)]
-    for name in CELL_NAMES:
-        cs = [c["cells"][name] for c in conds]
-        row = [name] + [f"{mean(x['final'][k]['accuracy'] for x in cs):.2f}" for k in CRIT]
-        pairs = [x["final"]["E3a"].get("pairs") for x in cs]
-        row.append(f"{mean(q['both_correct'] for q in pairs):.2f}" if all(pairs) else "-")
-        row.append(f"{mean(x['final']['E5']['false_recall'] for x in cs):.2f}")
-        sup = [r["diag"]["gold_support_selected"] for x in cs for r in x["rows"]
-               if r["phase"] == "final" and "diag" in r and r["diag"]["gold_support_selected"] is not None]
-        row.append(f"{mean(sup):.2f}" if sup else "-")
-        row.append(str(sum(x["cost"]["calls"] for x in cs)))
-        row.append(str(sum(x["cost"]["new_tokens"] for x in cs)))
-        L.append("| " + " | ".join(row) + " |")
-    L += ["", "## Operator statuses (final test)", "", "| cell | " + " | ".join(STATUSES) + " |",
-          "|" + "---|" * (len(STATUSES) + 1)]
-    for name in ("lex3+ops", "struct3+ops", "full+ops", "random3+ops", "full+ops/lm-encoder"):
-        st = [r["diag"]["result"]["status"] for c in conds for r in c["cells"][name]["rows"] if r["phase"] == "final"]
-        L.append(f"| {name} | " + " | ".join(f"{st.count(s) / len(st):.2f}" for s in STATUSES) + " |")
-    pairs = [(r["lm"], r["truth"]) for c in conds for r in c["encoder"]["records"]]
+         "Means over worlds (both overlap conditions pooled within a world). Development worlds "
+         "(dev-m3) and the pilot worlds already used (pilot-m2) are shown separately. "
+         "E5 = correct rejection of binding lures; FR = in-world false recall; unknown = "
+         "abstention. Coverage = share of final items whose selection was certified "
+         "sufficient for the question; acc|cov = accuracy on those items; gold support = "
+         "share of positive items whose gold target episodes were all selected (evaluator "
+         "information, not an upper bound of accuracy).", ""]
+    for series in sorted({s for s, _ in cells}):
+        part = {k: v for k, v in cells.items() if k[0] == series}
+        conds = [c for d in part.values() for c in d["conditions"].values()]
+        L += [f"## {series} ({len(part)} worlds)", "",
+              "| cell | positives | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | E5 unknown | coverage | acc|cov | gold support | calls | prompt tokens | seconds |",
+              "|" + "---|" * (len(CRIT) + 11)]
+        for name in CELL_NAMES:
+            cs = [c["cells"][name] for c in conds]
+            row = [name, f"{per_world(part, name, positive_score):.2f}"]
+            row += [f"{mean(x['final'][k]['accuracy'] for x in cs):.2f}" for k in CRIT]
+            pairs = [x["final"]["E3a"].get("pairs") for x in cs]
+            row.append(f"{mean(q['both_correct'] for q in pairs):.2f}" if all(pairs) else "-")
+            row.append(f"{mean(x['final']['E5']['false_recall'] for x in cs):.2f}")
+            row.append(f"{per_world(part, name, lambda rows: lure_shares(rows)['unknown']):.2f}")
+            final = [r for x in cs for r in x["rows"] if r["phase"] == "final"]
+            if final and "diag" in final[0]:
+                cov = [r for r in final if r["diag"]["covered"]]
+                row.append(f"{len(cov) / len(final):.2f}")
+                row.append(f"{mean(r['correct'] for r in cov):.2f}" if cov else "-")
+                sup = [r["diag"]["gold_support_selected"] for r in final if r["diag"]["gold_support_selected"] is not None]
+                row.append(f"{mean(sup):.2f}" if sup else "-")
+            else:
+                row += ["-", "-", "-"]
+            row += [str(sum(x["cost"]["calls"] for x in cs)), str(sum(x["cost"]["prompt_tokens"] for x in cs)),
+                    f"{sum(x['seconds'] for x in cs):.0f}"]
+            L.append("| " + " | ".join(row) + " |")
+        L += ["", "Operator statuses (final test):", "", "| cell | " + " | ".join(STATUSES) + " |",
+              "|" + "---|" * (len(STATUSES) + 1)]
+        for name in ("lex3+ops", "struct3+ops", "full+ops", "random3+ops", "full+ops/lm-encoder"):
+            st = [r["diag"]["result"]["status"] for c in conds for r in c["cells"][name]["rows"] if r["phase"] == "final"]
+            L.append(f"| {name} | " + " | ".join(f"{st.count(s) / len(st):.2f}" for s in STATUSES) + " |")
+        L.append("")
+    every = [c for d in cells.values() for c in d["conditions"].values()]
+    pairs = [(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]]
     acc = slot_accuracy(pairs)
-    invalid = sum(bool(r["invalid"]) for c in conds for r in c["encoder"]["records"])
-    L += ["", "## LM encoder (slot filling) vs template truth", "",
+    invalid = sum(bool(r["invalid"]) for c in every for r in c["encoder"]["records"])
+    ref_pos = per_world(cells, "full+ops", positive_score)
+    lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
+    fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
+              for d in cells.values())
+    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
+    L += ["## LM encoder (slot filling) vs template truth (all worlds)", "",
           "| " + " | ".join(acc) + " | records with invalid slots |", "|" + "---|" * (len(acc) + 1),
           "| " + " | ".join(f"{v:.3f}" for v in acc.values()) + f" | {invalid}/{len(pairs)} |", "",
-          "## Controls", "",
-          f"- misbound store + operators: E2 {mean(c['misbound']['summary']['E2']['accuracy'] for c in conds):.2f}, "
-          f"E5 FR {mean(c['misbound']['summary']['E5']['false_recall'] for c in conds):.2f}",
-          f"- restart (store file of full+ops): same answers {sum(c['restart']['same_as_in_process'] for c in conds)}/{len(conds)}, "
-          f"accuracy after restart {mean(c['restart']['accuracy_after_restart'] for c in conds):.3f}, "
-          f"empty store on positive items {mean(c['restart']['empty_store_positive_accuracy'] for c in conds):.3f}, "
-          f"truncated refused {sum(c['restart']['truncated_store_refused'] for c in conds)}/{len(conds)}, "
-          f"changed refused {sum(c['restart']['changed_store_refused'] for c in conds)}/{len(conds)}"]
+          f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
+          f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
+          f"recall {fr:.3f} <= 0.05 -> {'ADOPT the LM encoder for round 3.3+' if adopt else 'keep the template encoder; limit stated'}.",
+          "", "## Controls (all worlds)", "",
+          f"- misbound store + operators: E2 {mean(c['misbound']['summary']['E2']['accuracy'] for c in every):.2f}, "
+          f"E5 FR {mean(c['misbound']['summary']['E5']['false_recall'] for c in every):.2f}",
+          f"- restart (store file of full+ops): same answers {sum(c['restart']['same_as_in_process'] for c in every)}/{len(every)}, "
+          f"accuracy after restart {mean(c['restart']['accuracy_after_restart'] for c in every):.3f}, "
+          f"empty store on positive items {mean(c['restart']['empty_store_positive_accuracy'] for c in every):.3f}, "
+          f"truncated refused {sum(c['restart']['truncated_store_refused'] for c in every)}/{len(every)}, "
+          f"changed refused {sum(c['restart']['changed_store_refused'] for c in every)}/{len(every)}"]
     return "\n".join(L) + "\n"
 
 

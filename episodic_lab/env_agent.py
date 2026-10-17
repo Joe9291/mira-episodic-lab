@@ -24,22 +24,26 @@ every intervention are computed from the ENVIRONMENT's event list (not from the 
 from __future__ import annotations
 
 from .env import PLACING, SELF, _distractor, _render, _vocab, env_encode, parse_goal, render_content
-from .memory import EpisodeStore, Result, _day, latest, match
+from .memory import EpisodeStore, Result, _day, _ok, latest, match
 from .rng import HashRng
 
 INTERVENTIONS = ("intact", "none", "random", "swapped_binding", "relevant_removed", "irrelevant_removed")
 
 
 def object_location(records, obj: str) -> Result:
-    hits = [r for r in match(records, obj=obj) if r["action"] in PLACING + ("put",) and _day(r) is not None]
+    """Latest placing of the object; an undated placing elsewhere makes it ambiguous."""
+    hits = [r for r in match(records, obj=obj) if r["action"] in PLACING]
     trace = [("object_location", obj, [r["id"] for r in hits])]
     if not hits:
         return Result(None, "no_observation", [], trace)
-    top = max(_day(r) for r in hits)
-    last = [r for r in hits if _day(r) == top]
-    if len({r["place"] for r in last}) != 1:
-        return Result(None, "ambiguous", [r["id"] for r in last], trace)
-    return Result(last[0]["place"], "ok", [r["id"] for r in last], trace)
+    dated = [r for r in hits if _day(r) is not None]
+    if not dated:
+        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+    top = max(_day(r) for r in dated)
+    places = {r["place"] for r in dated if _day(r) == top} | {r["place"] for r in hits if _day(r) is None}
+    if len(places) != 1:
+        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+    return _ok(places.pop(), [r["id"] for r in dated if _day(r) == top], trace)
 
 
 def giver_location(records, obj: str) -> Result:

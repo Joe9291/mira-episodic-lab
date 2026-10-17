@@ -153,6 +153,17 @@ def match(records, person=None, action=None, obj=None, place=None, day=None):
             and (day is None or _day(r) == day)]
 
 
+def possible(records, person=None, action=None, obj=None, place=None, day=None):
+    """Records that match the cue OR could match it because a needed field is unknown
+    (None, or an invalid day): an unknown value is never evidence of absence."""
+    def ok(value, field):
+        return value is None or field is None or field == value
+    return [r for r in records
+            if (person is None or person in _people(r) or r["actor"] is None)
+            and ok(action, r["action"]) and ok(obj, r["object"]) and ok(place, r["place"])
+            and ok(day, _day(r))]
+
+
 def _known(records, person=None, obj=None, place=None, **_):
     people = set().union(*(_people(r) for r in records)) if records else set()
     return ((person is None or person in people)
@@ -168,43 +179,63 @@ def _negative(records, cue, complete, universe=None):
     return "none_in_scope" if _known(universe if universe is not None else records, **cue) else "no_observation"
 
 
+def _ok(value, ids, trace) -> Result:
+    """Every ok result carries a valid answer value (a non-empty string); a missing value
+    (an encoder that gave none for a required slot) is uncertainty, never an answer."""
+    if isinstance(value, str) and value:
+        return Result(value, "ok", ids, trace)
+    return Result(None, "ambiguous", ids, trace)
+
+
 def find(records, cue: dict, want: str, complete: bool = True, universe=None) -> Result:
     hits = match(records, **cue)
-    trace = [("find", dict(cue), [h["id"] for h in hits])]
+    maybe = [r for r in possible(records, **cue) if r not in hits]
+    trace = [("find", dict(cue), [h["id"] for h in hits + maybe])]
     if not hits:
+        if maybe:  # a record with an unknown field could be the event
+            return Result(None, "insufficient_evidence", [r["id"] for r in maybe], trace)
         return Result(None, _negative(records, cue, complete, universe), [], trace)
     if want == "day":
-        values = {str(_day(h)) if _day(h) is not None else None for h in hits}
+        values = {str(_day(h)) if _day(h) is not None else None for h in hits + maybe}
     else:
-        values = {h["actor"] if want == "person" else h[want] for h in hits}
-    if len(values) != 1 or None in values:
-        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
-    return Result(values.pop(), "ok", [h["id"] for h in hits], trace)
+        values = {h["actor"] if want == "person" else h[want] for h in hits + maybe}
+    if len(values) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in hits + maybe], trace)
+    return _ok(values.pop(), [h["id"] for h in hits], trace)
 
 
 def latest(records, person: str, complete: bool = True) -> Result:
-    hits = [h for h in match(records, person=person) if _day(h) is not None]
+    """Latest place of a person. Records with an unknown day could be later than every
+    dated one: if one of them has another place, the answer is ambiguous."""
+    hits = match(records, person=person)
     trace = [("latest", person, [h["id"] for h in hits])]
     if not complete:
         return Result(None, "insufficient_evidence", [h["id"] for h in hits], trace)
     if not hits:
         return Result(None, "no_observation", [], trace)
-    top = max(_day(h) for h in hits)
-    last = [h for h in hits if _day(h) == top]
-    if len({h["place"] for h in last}) != 1:
-        return Result(None, "ambiguous", [h["id"] for h in last], trace)
-    return Result(last[0]["place"], "ok", [h["id"] for h in last], trace)
+    dated = [h for h in hits if _day(h) is not None]
+    if not dated:
+        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
+    top = max(_day(h) for h in dated)
+    last = [h for h in dated if _day(h) == top]
+    places = {h["place"] for h in last} | {h["place"] for h in hits if _day(h) is None}
+    if len(places) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
+    return _ok(places.pop(), [h["id"] for h in last], trace)
 
 
 def state_at(records, person: str, day: int, complete: bool = True, universe=None) -> Result:
     hits = match(records, person=person, day=day)
-    trace = [("state_at", [person, day], [h["id"] for h in hits])]
+    undated = [h for h in match(records, person=person) if _day(h) is None]
+    trace = [("state_at", [person, day], [h["id"] for h in hits + undated])]
     if not hits:
+        if undated:  # an undated record could be from that day
+            return Result(None, "insufficient_evidence", [h["id"] for h in undated], trace)
         return Result(None, _negative(records, {"person": person}, complete, universe), [], trace)
-    places = {h["place"] for h in hits}
+    places = {h["place"] for h in hits} | {h["place"] for h in undated}
     if len(places) != 1:
-        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
-    return Result(places.pop(), "ok", [h["id"] for h in hits], trace)
+        return Result(None, "ambiguous", [h["id"] for h in hits + undated], trace)
+    return _ok(places.pop(), [h["id"] for h in hits], trace)
 
 
 def compare_time(records, cue_a: dict, cue_b: dict, complete: bool = True, universe=None) -> Result:
@@ -215,6 +246,8 @@ def compare_time(records, cue_a: dict, cue_b: dict, complete: bool = True, unive
         return Result(None, "ambiguous", ids, trace)
     if not a or not b:
         missing = cue_a if not a else cue_b
+        if possible(records, **missing):
+            return Result(None, "insufficient_evidence", ids, trace)
         return Result(None, _negative(records, missing, complete, universe), ids, trace)
     da, db = _day(a[0]), _day(b[0])
     if da is None or db is None or da == db:
@@ -232,16 +265,20 @@ def link_latest(records, cue: dict, complete: bool = True, universe=None) -> Res
 
 
 def last_handler_latest(records, obj: str, complete: bool = True) -> Result:
-    """E7 "act": the actor of the latest event with the object, then that actor's latest place."""
-    with_obj = [r for r in match(records, obj=obj) if _day(r) is not None]
+    """E7 "act": the actor of the latest event with the object, then that actor's latest
+    place. An undated event with the object by another actor makes the handler ambiguous."""
+    with_obj = match(records, obj=obj)
     trace = [("last_handler", obj, [r["id"] for r in with_obj])]
     if not complete:
         return Result(None, "insufficient_evidence", [r["id"] for r in with_obj], trace)
     if not with_obj:
         return Result(None, "no_observation", [], trace)
-    top = max(_day(r) for r in with_obj)
-    holders = {r["actor"] for r in with_obj if _day(r) == top}
-    if len(holders) != 1:
+    dated = [r for r in with_obj if _day(r) is not None]
+    if not dated:
+        return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
+    top = max(_day(r) for r in dated)
+    holders = {r["actor"] for r in dated if _day(r) == top} | {r["actor"] for r in with_obj if _day(r) is None}
+    if len(holders) != 1 or not isinstance(next(iter(holders)), str):
         return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
     nxt = latest(records, holders.pop(), complete)
     return Result(nxt.value, nxt.status, [r["id"] for r in with_obj] + nxt.ids, trace + nxt.trace)
