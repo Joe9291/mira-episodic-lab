@@ -1,11 +1,11 @@
-# Round 3.2 - agent memory from S0 (design v3, after Astra's reviews of v1 and v2)
+# Round 3.2 - agent memory from S0 (design v4, after Astra's reviews of v1, v2 and v3)
 
 Uncertainty removed: does an explicit episodic memory work as an agent memory (survives a
 restart, answers from its own records, abstains correctly and only where it may), and
 does a gain come from what is selected or from how it is processed? Ends with one run;
 round 3.3 (action environment with causal interventions) starts from its result and is
 prepared in parallel. Reviews: `reviews/2026-10-17_r32_astra.txt` (v1),
-`reviews/2026-10-17_r32v2_astra.txt` (v2).
+`reviews/2026-10-17_r32v2_astra.txt` (v2), `reviews/2026-10-17_r32v3_r33v2_astra.txt` (v3).
 
 Basis: round 3.1/3.1b (docs/ROUND_3_1.md). Direct and instructed step-by-step answers of
 both small readers fail at comparison, conjunctive matching with abstention, linking and
@@ -37,14 +37,37 @@ closed benchmark; everything that is not `ok` or `none_in_scope` answers "unknow
 operators use the same semantics (compare_time included). Days that are not valid
 integers (an encoder error) are treated as unknown, never compared.
 
-Unknown values (v3): a record whose day, place, object, action or person is unknown (an
-encoder error) is never evidence of absence or of order. `possible()` returns records
-that could match a cue because a needed field is unknown: a find without exact hits but
-with possible ones gives `insufficient_evidence`; possible records with other values make
-a find `ambiguous`; latest/last-handler/state-at with an undated record of the person or
-object that could change the answer give `ambiguous` or `insufficient_evidence`; an
-undated or unknown record that cannot change the answer (same place, other person) does
-not block it. Every `ok` result carries a non-empty string value.
+Unknown values (v3, completed in v4). A field is unknown if the encoder declared it so
+(record `extra.unknown`; its value is then None - every invalid or missing LM slot) or if
+a field every episode has (actor, action, place, a valid integer day) is missing. A
+missing partner or object without that declaration means "none in this episode". An
+unknown value is never evidence of absence, order or uniqueness. `possible()` returns
+the records that match a cue or could match it through an unknown field; a person could
+be the actor or the partner of a record in which either is unknown. Rules, the same in
+every operator: find - no exact hit but possible ones -> `insufficient_evidence`,
+possible records with another value of the asked field -> `ambiguous`; latest / last
+handler - every record that could be the latest one about the person or object (exact
+records of the latest known day, exact undated records, and possible records that are
+undated or not earlier) must agree (same place / same known actor), else `ambiguous`;
+only possible records -> `insufficient_evidence`; state_at - possible records of that day
+or undated ones block a negative and must agree on the place; compare_time - a second
+exact OR possible match of a side makes it non-unique -> `ambiguous` (checked before the
+negative for a missing side). A record whose known fields contradict the cue is no
+possible match, and a possible record that cannot change the answer (earlier than the
+latest known day, same place, same actor) does not block it. Every `ok` result carries a
+non-empty string value. Tests: Astra's counterexamples (unknown actor later than the
+latest record; unknown object of a later event by another actor; a second possible
+comparison match), the cases in which the unknown cannot change the answer, and a
+soundness test against brute force: for 400 random small stores with up to three unknown
+fields, every answer other than "unknown" (full store, and certified struct3 selections)
+equals the answer under EVERY completion of the unknown fields (exact semantics on the
+completed records); the v3 operators fail this test in many cases, v4 in none (also in
+10 x 1,500 stores outside the test suite).
+
+On a partial (uncertified) selection, positive answers (find, comparison, state on a day)
+are drawn from the selected records; a contradicting record outside the selection can
+make them wrong. This is the declared cost of partial retrieval and is what lex3 and
+random3 measure; negatives, latest and last handler are never concluded there.
 
 ## 3. Cells - reader and operators get the same selection, information and contract
 
@@ -57,8 +80,11 @@ not block it. Every `ok` result carries a non-empty string value.
 | full+ops/lm-encoder | all records of a store written by the LM encoder | operators |
 
 `covered` means: the selection is certified sufficient for THIS question (not that the
-store is complete). struct3 certifies only if all full and possible matches (or all
-records of the latest day, with no undated record of the person/object) fit into the 3.
+store is complete). struct3 certifies only if all full and possible matches of each
+event fit into the budget, or, for latest and last handler, if every record that could be
+the latest one (same rule as the operators, possible records included) is selected. A
+test shows that the operators on a certified selection give exactly the full-store answer
+(status and answer) for every query of the random stores above.
 Within a pair, the reader receives in its prompt exactly what the operators use: the
 coverage line (complete for this question / partial selection), and, when covered, the
 index's entity knowledge (whether every name in the question occurs in memory); and it
@@ -96,14 +122,24 @@ coverage, entity note, operator value, status, trace, gold support) from the sto
 matching test point, rebuilds the LM-encoder cell from its recorded records with its
 original encoder name (so record identities are reproduced), re-derives the encoder's
 reference from the regenerated episodes and its cleaned values and invalid flags from the
-recorded raw replies, recomputes the misbound control, checks provenance (request and
-pins hashes, one code commit) and the restart flags.
+recorded raw replies (declared unknown slots included), recomputes the misbound control,
+checks provenance (request and pins hashes, one code commit, and that it is the code
+commit of the run, passed by the workflow) and the restart flags. The encoder adoption
+decision (separate file ENCODER_DECISION: ADOPT / KEEP / UNDECIDABLE) is drawn only from
+the complete, fully validated set of the 15 planned world reports; with a missing or
+invalid report the verdict is INCOMPLETE, the decision UNDECIDABLE, and the tables of the
+valid reports are marked as diagnostics only. "Accuracy covered" is pooled over all
+covered final items of a series (not averaged per world first).
 
 ## 5. LM encoder
 
 Slot filling by single-detail questions (day, first person, second person or none,
 action, object, place), one fresh chat per slot, v1-style instruction; every value is
-type-checked; invalid values are kept as data (`invalid`) and never stop the run. S1
+type-checked; an invalid or (for an always-present slot) missing value is listed in
+`invalid`, stored as None and declared unknown in the record; the raw reply is kept; it
+never stops the run. A reply for the second person that repeats the first person is read
+as "no second person" (a declared normalisation; a wrong partner is then a slot error
+measured by the partner slot accuracy, like any valid but wrong value). S1
 qualified person, place, object and day; the second person and the action are measured
 here for the first time. Adoption rule for round 3.3 (fixed now): all_slots (share of
 episodes with every slot right) >= 0.95 AND the full+ops/lm-encoder cell within 0.02 of
@@ -113,7 +149,10 @@ weighing 1/2 each, pooled over both conditions within a world, then the mean ove
 worlds; lure false recall the same way. Lure correct rejection and "unknown" are reported
 next to it (a low false recall alone is no rejection). These are technical decision
 rules for development, not reliability claims. Otherwise the regex
-encoder is used in 3.3 and the limit is stated.
+encoder is used and the limit is stated. An adoption holds only for the round 3.2
+template episode formats; other formats (the round 3.3 environment with "You" and
+object-free events, free wordings) need their own check (round 3.4: frozen LM encoder on
+held-out wordings).
 
 ## 6. Restart test (completion point)
 

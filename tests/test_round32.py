@@ -184,9 +184,11 @@ class CellTests(unittest.TestCase):
         from episodic_lab.memory import find
         res = find(s4.records, {"person": "Ana Bell", "action": "hid", "place": "Oak Mill"}, "object")
         self.assertEqual(res.status, "insufficient_evidence")
-        # and the index does not certify a selection while undated or unknown records could match
+        # the index certifies a selection only if it holds every record that could be the
+        # latest (here both), so the operators on it give the full-store answer
         got, ok = struct_select(s.records, "latest", {"person": "Ana Bell"})
-        self.assertFalse(ok)
+        self.assertEqual((ok, len(got)), (True, 2))
+        self.assertEqual(latest(got, "Ana Bell").status, "ambiguous")
 
     def test_unknown_values_in_handlers_index_and_encoder(self):
         from episodic_lab.cells import postprocess
@@ -208,6 +210,146 @@ class CellTests(unittest.TestCase):
                "object": "red cup", "place": "none"}
         content, bad = postprocess(raw)
         self.assertEqual((content["place"], bad), (None, ["place"]))
+
+    def test_unknown_person_object_and_comparison(self):
+        """v4 (Astra's review of v3): unknown actors/partners, unknown objects and second
+        possible matches; and the cases in which the unknown cannot change the answer."""
+        from episodic_lab.memory import compare_time, find, last_handler_latest, latest, state_at
+        def store(*rows):
+            s = EpisodeStore()
+            for i, (actor, partner, action, obj, place, day, unk) in enumerate(rows):
+                s.append(f"r{i}", {"actor": actor, "partner": partner, "action": action, "object": obj,
+                                   "place": place, "event_day": day}, extra={"unknown": unk} if unk else None)
+            return s.records
+        # Astra's counterexample: a later record with an unknown actor could be Ana Bell
+        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
+                     (None, None, "hid", "red cup", "Ash Mill", 9, ["actor"]))
+        self.assertEqual(latest(recs, "Ana Bell").status, "ambiguous")
+        self.assertEqual(state_at(recs, "Ana Bell", 9).status, "insufficient_evidence")
+        got, ok = struct_select(recs, "latest", {"person": "Ana Bell"})
+        self.assertTrue(ok and {r["seq"] for r in got} == {0, 1})  # the possible record is selected
+        # ... but an EARLIER unknown-actor record, or a later one at the same place, cannot change it
+        for day, place in ((5, "Ash Mill"), (9, "Oak Mill")):
+            recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
+                         (None, None, "hid", "red cup", place, day, ["actor"]))
+            r = latest(recs, "Ana Bell")
+            self.assertEqual((r.status, r.value), ("ok", "Oak Mill"))
+        # an unknown partner could be the person as well
+        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
+                     ("Cal Dorr", None, "gave", "red cup", "Ash Mill", 8, ["partner"]))
+        self.assertEqual(latest(recs, "Ana Bell").status, "ambiguous")
+        # without the declaration a missing partner means "no second person"
+        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 7, []),
+                     ("Cal Dorr", None, "gave", "red cup", "Ash Mill", 8, []))
+        self.assertEqual(latest(recs, "Ana Bell").value, "Oak Mill")
+        # unknown object: a later event whose object is unknown, by another actor
+        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 5, []),
+                     ("Cal Dorr", None, "hid", None, "Ash Mill", 6, ["object"]))
+        self.assertEqual(last_handler_latest(recs, "red cup").status, "ambiguous")
+        got, ok = struct_select(recs, "act", {"obj": "red cup"})
+        self.assertFalse(ok)
+        recs = store(("Ana Bell", None, "hid", "red cup", "Oak Mill", 5, []),
+                     ("Cal Dorr", None, "hid", None, "Ash Mill", 4, ["object"]))  # earlier: no effect
+        self.assertEqual(last_handler_latest(recs, "red cup").value, "Oak Mill")
+        # comparison: a second POSSIBLE match makes a side non-unique
+        a = {"person": "Ana Bell", "action": "hid", "obj": "red cup", "place": "Oak Mill"}
+        b = {"person": "Cal Dorr", "action": "gave", "obj": "blue map", "place": "Ash Mill"}
+        base = (("Ana Bell", None, "hid", "red cup", "Oak Mill", 2, []), ("Cal Dorr", None, "gave", "blue map", "Ash Mill", 5, []))
+        self.assertEqual(compare_time(store(*base), a, b).value, "A")
+        self.assertEqual(compare_time(store(*base, ("Ana Bell", None, "hid", "red cup", None, 6, ["place"])), a, b).status,
+                         "ambiguous")
+        # ... also when the other side is missing (the answer could be "ambiguous" or "none")
+        self.assertEqual(compare_time(store(base[0], ("Ana Bell", None, "hid", "red cup", None, 6, ["place"])), a, b).status,
+                         "ambiguous")
+        # a record whose KNOWN fields contradict the cue is no possible match
+        self.assertEqual(compare_time(store(*base, ("Ana Bell", None, "hid", "blue map", None, 6, ["place"])), a, b).value,
+                         "A")
+        # find: an unknown field in an otherwise matching record blocks a confident "none"
+        res = find(store(("Ana Bell", None, "hid", None, "Oak Mill", 3, ["object"])),
+                   {"person": "Ana Bell", "action": "hid", "obj": "red cup"}, "place")
+        self.assertEqual(res.status, "insufficient_evidence")
+
+    def test_invalid_encoder_values_become_declared_unknowns(self):
+        from episodic_lab.cells import postprocess
+        from episodic_lab.memory import find
+        raw = {"event_day": "Day 3", "actor": "Ana Bell", "partner": "someone", "action": "hid",
+               "object": "red cup", "place": "unclear"}
+        content, bad = postprocess(raw)
+        self.assertEqual((content["place"], content["partner"], bad), (None, None, ["partner", "place"]))
+
+        class Fixed:
+            def __call__(self, text):
+                return postprocess(raw)
+        cell = CELLS["full+ops"](encoder=Fixed(), encoder_name="lm:fixed")
+        cell.encode("Ana Bell hid the red cup at Oak Mill on day 3.")
+        rec = cell.store.records[0]
+        self.assertEqual(rec["extra"], {"unknown": ["partner", "place"]})
+        # the invalid place is no evidence that Ana Bell hid nothing at Elm Mill
+        res = find(cell.store.records, {"person": "Ana Bell", "action": "hid", "place": "Elm Mill"}, "object")
+        self.assertEqual(res.status, "insufficient_evidence")
+
+    def test_soundness_against_every_completion_of_the_unknowns(self):
+        """An answer other than "unknown" (full store, or a certified struct3 selection)
+        must equal the answer under EVERY completion of the unknown fields; and a certified
+        selection gives the full-store answer."""
+        import itertools
+        import random
+        from episodic_lab.memory import answer_query
+        P, O, L, A = ["Ana Bell", "Ben Cole", "Cal Dorr"], ["red cup", "blue map"], ["Oak Mill", "Ash Mill"], ["hid", "gave"]
+        dom = {"actor": P + ["Zed Fox"], "partner": [None] + P + ["Zed Fox"], "action": A + ["sold"],
+               "object": O + ["old key"], "place": L + ["Elm Mill"], "event_day": [1, 2, 3, 4, 5]}
+        fields = tuple(dom)
+        rng = random.Random("v4-soundness")
+
+        def build(rows):
+            s = EpisodeStore()
+            for i, (c, u) in enumerate(rows):
+                s.append(f"t{i}", dict(c), extra={"unknown": u} if u else None)
+            return s.records
+        checked = 0
+        for _ in range(400):
+            rows = []
+            for _ in range(rng.randint(1, 4)):
+                c = {"actor": rng.choice(P), "partner": rng.choice([None, None] + P), "action": rng.choice(A),
+                     "object": rng.choice(O), "place": rng.choice(L), "event_day": rng.randint(1, 4)}
+                unk = [f for f in fields if rng.random() < 0.12]
+                for f in unk:
+                    c[f] = None
+                if c["partner"] == c["actor"]:
+                    c["partner"] = None
+                rows.append((c, unk if rng.random() < 0.6 else [f for f in unk if f != "partner" and f != "object"]))
+            slots = [(i, f) for i, (_, u) in enumerate(rows) for f in u]
+            if not slots or len(slots) > 3:
+                continue
+            real = build(rows)
+            comps = []
+            for vals in itertools.product(*[dom[f] for _, f in slots]):
+                done = [(dict(c), []) for c, _ in rows]
+                for (i, f), v in zip(slots, vals):
+                    done[i][0][f] = v
+                if all(c["partner"] != c["actor"] for c, _ in done):
+                    comps.append(build(done))
+            ev = lambda: {"person": rng.choice(P), "action": rng.choice(A), "obj": rng.choice(O), "place": rng.choice(L)}
+            cue = {k: v for k, v in {"person": rng.choice(P + [None]), "action": rng.choice(A + [None]),
+                                     "obj": rng.choice(O + [None]), "place": rng.choice(L + [None])}.items() if v}
+            for qtype, query in ((rng.choice(["object", "place", "person", "day"]), {"cue": cue or {"obj": "red cup"}}),
+                                 ("order", {"a": ev(), "b": ev()}), ("latest", {"person": rng.choice(P)}),
+                                 ("at_day", {"person": rng.choice(P), "day": rng.randint(1, 4)}),
+                                 ("act", {"obj": rng.choice(O)}),
+                                 ("find", {"cue": {"action": rng.choice(A), "place": rng.choice(L), "obj": rng.choice(O)}})):
+                full = answer_query(real, qtype, query)
+                answers = [full.answer()]
+                sel, ok = struct_select(real, qtype, query)
+                if ok:
+                    part = answer_query(sel, qtype, query, True, real)
+                    self.assertEqual((part.status, part.answer()), (full.status, full.answer()), (qtype, query))
+                    answers.append(part.answer())
+                for given in answers:
+                    if given != "unknown":
+                        checked += 1
+                        self.assertEqual({answer_query(c, qtype, query).answer() for c in comps}, {given},
+                                         (qtype, query, rows))
+        self.assertGreater(checked, 500)
 
     def test_env_object_location_with_an_undated_placing(self):
         from episodic_lab.env_agent import object_location
@@ -286,26 +428,57 @@ class JobTests(unittest.TestCase):
 
 
 class CollectorTests(unittest.TestCase):
-    def run_collect(self, data):
+    def run_collect(self, data, planned=(0,), commit=None, decision=False):
         with tempfile.TemporaryDirectory() as tmp:
             dest = Path(tmp)
             req, pins = dest / "req.json", dest / "pins.json"
-            req.write_text(json.dumps({"model": "m", "worlds": {SERIES: [0]}}))
+            req.write_text(json.dumps({"model": "m", "worlds": {SERIES: list(planned)}}))
             pins.write_text("{}")
             data = json.loads(json.dumps(data))
             data["provenance"].update(request_sha256=collect_round32.sha256_file(req),
                                       pins_sha256=collect_round32.sha256_file(pins))
             (dest / f"r32_{SERIES}_0.json").write_text(json.dumps(data))
-            collect_round32.main(str(req), str(dest), str(pins))
-            return ((dest / "VERDICT").read_text().strip(), (dest / "CHECK.txt").read_text(),
-                    (dest / "SUMMARY.md").read_text())
+            collect_round32.main(str(req), str(dest), str(pins), commit)
+            out = ((dest / "VERDICT").read_text().strip(), (dest / "CHECK.txt").read_text(),
+                   (dest / "SUMMARY.md").read_text())
+            return out + ((dest / "ENCODER_DECISION").read_text().strip(),) if decision else out
 
     def test_complete(self):
-        verdict, check, summary = self.run_collect(DATA)
+        verdict, check, summary, decision = self.run_collect(DATA, commit="c", decision=True)
         self.assertEqual(verdict, "COMPLETE", check)
         self.assertIn("| full+ops | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0.00 | 0.00 | 1.00 | 1.00 | 1.00 |", summary)
-        self.assertIn("ADOPT the LM encoder", summary)
+        self.assertIn("ADOPT the LM encoder for the round 3.2 template episode formats", summary)
+        self.assertEqual(decision, "ADOPT")
         self.assertIn("truncated refused 2/2", summary)
+        self.assertNotIn("acc|cov", summary)
+
+    def test_declared_unknowns_are_replayed(self):
+        # an LM encoder with invalid slots: the collector must rebuild the same records
+        # (declared unknowns included) and reproduce every answer and diagnostic
+        class Vague(SlotModel):
+            def generate(self, messages):
+                reply = super().generate(messages)
+                if "second person" in messages[1]["content"]:
+                    return "someone"
+                return reply
+        data = job(Vague())
+        recs = data["conditions"]["low"]["encoder"]["records"]
+        self.assertTrue(recs and all(r["invalid"] == ["partner"] and r["lm"]["partner"] is None for r in recs))
+        verdict, check, summary = self.run_collect(data)
+        self.assertEqual(verdict, "COMPLETE", check)
+        self.assertIn("keep the template encoder", summary)
+
+    def test_incomplete_evaluation_gives_no_adoption(self):
+        # one good world report, a second planned report missing: INCOMPLETE, no ADOPT
+        verdict, check, summary, decision = self.run_collect(DATA, planned=(0, 1), decision=True)
+        self.assertEqual((verdict, decision), ("INCOMPLETE", "UNDECIDABLE"), check)
+        self.assertIn("FAILED r32_round32-test_1.json", check)
+        self.assertNotIn("ADOPT", summary)
+        self.assertIn("NOT DECIDABLE", summary)
+        # a report from another code commit than the run's
+        verdict, check, _, decision = self.run_collect(DATA, commit="other", decision=True)
+        self.assertEqual((verdict, decision), ("INCOMPLETE", "UNDECIDABLE"))
+        self.assertIn("provenance:commit", check)
 
     def test_damage_is_detected(self):
         def edit(f):

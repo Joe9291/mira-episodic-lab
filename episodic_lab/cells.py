@@ -26,8 +26,8 @@ import math
 import re
 
 from .arms import FORMAT_V1
-from .memory import (FIELDS, EpisodeStore, Result, _day, _known, answer_query, match, parse_question,
-                     regex_encode)
+from .memory import (FIELDS, EpisodeStore, Result, _day, _known, _minus, answer_query, could_be_latest,
+                     encode_into, match, parse_question, possible, regex_encode)
 
 K = 3
 STYLE = "v1"
@@ -72,21 +72,28 @@ def _best(records, cue, budget):
     """Full matches first, then records that could be full matches because a needed field
     is unknown, then the best partial matches. Certified only if all full and possible
     matches fit into the budget."""
-    from .memory import possible
     full = [r for r in records if _overlap(r, cue) == len(cue)]
-    maybe = [r for r in possible(records, **cue) if r not in full]
-    partial = sorted((r for r in records if 0 < _overlap(r, cue) < len(cue) and r not in maybe),
+    maybe = _minus(possible(records, **cue), full)
+    taken = {r["id"] for r in full + maybe}
+    partial = sorted((r for r in records if 0 < _overlap(r, cue) < len(cue) and r["id"] not in taken),
                      key=lambda r: (-_overlap(r, cue), r["seq"]))
     return (full + maybe + partial)[:budget], len(full) + len(maybe) <= budget
 
 
+def _by_recency(rs):
+    return sorted(rs, key=lambda r: (-(_day(r) if _day(r) is not None else 10 ** 9), r["seq"]))
+
+
 def _recent(records, person, budget):
-    mine = [r for r in records if person in (r["actor"], r["partner"])]
-    hits = sorted((r for r in mine if _day(r) is not None), key=lambda r: (-_day(r), r["seq"]))
-    # certified if every record of the latest day fits and no record of the person is undated
-    top = _day(hits[0]) if hits else None
-    undated = len(mine) - len(hits)
-    return hits[:budget], undated == 0 and sum(_day(r) == top for r in hits) <= budget
+    """The records that could be the person's latest (memory.could_be_latest, including
+    possible records with an unknown actor/partner) first, then the person's other dated
+    records by recency. Certified if all records that could be the latest fit."""
+    if not isinstance(person, str):
+        return [], False
+    mine = match(records, person=person)
+    cands, _ = could_be_latest(mine, _minus(possible(records, person=person), mine))
+    rest = _minus(_by_recency([r for r in mine if _day(r) is not None]), cands)
+    return (_by_recency(cands) + rest)[:budget], len(cands) <= budget
 
 
 def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> tuple[list[dict], bool]:
@@ -112,11 +119,12 @@ def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> t
             got += [r for r in more if r not in got]
             ok = ok and c
     elif qtype == "act":
-        all_obj = [r for r in records if r["object"] == query["obj"]]
-        with_obj = sorted((r for r in all_obj if _day(r) is not None), key=lambda r: (-_day(r), r["seq"]))
-        got = with_obj[:1]
-        ok = (len(with_obj) == len(all_obj)
-              and len([r for r in with_obj if _day(r) == _day(with_obj[0])]) <= 1)
+        # the record that could be the last event with the object (also one whose unknown
+        # object could be it); certified only if there is at most one such record
+        with_obj = match(records, obj=query["obj"])
+        cands, _ = could_be_latest(with_obj, _minus(possible(records, obj=query["obj"]), with_obj))
+        got = _by_recency(cands)[:1]
+        ok = len(cands) <= 1
         if got:
             more, c = _recent(records, got[0]["actor"], k - 1)
             got += [r for r in more if r not in got]
@@ -189,7 +197,7 @@ class _Cell:
         self.encoder_name = encoder_name
 
     def encode(self, text: str) -> None:
-        self.store.append(text, self.encoder(text), encoder=self.encoder_name)
+        encode_into(self.store, text, self.encoder, self.encoder_name)
 
     def state_digest(self) -> str:
         models = [m for m in (self.model, getattr(self.encoder, "model", None)) if m is not None]
@@ -315,9 +323,11 @@ _NAME_SHAPE = {"person": re.compile(r"[A-Z][a-z]+ [A-Z][a-z]+"), "place": re.com
 class LMEncoder:
     """Slot filling by single-detail questions. S1 qualified person, place, object and day;
     the second person and the action are measured here for the first time. Every slot is
-    type-checked: an invalid value (no day number, a reply not shaped like a name) is kept
-    as a datum in `invalid` and stored as None (day) or as the raw string (it will then
-    simply match nothing); it never stops the run."""
+    type-checked: an invalid or missing required value (no day number, a reply not shaped
+    like a name, "none" for a slot every episode has) is listed in `invalid`, stored as
+    None and declared unknown in the record; the raw reply is kept in `raw`. It never stops
+    the run. A reply for the second person that repeats the first person is read as "no
+    second person" (a declared normalisation, measured by the partner slot accuracy)."""
 
     def __init__(self, model):
         self.model = model
@@ -334,12 +344,13 @@ class LMEncoder:
         content, bad = postprocess(raw)
         self.raw.append(raw)
         self.invalid.append(bad)
-        return content
+        return content, bad
 
 
 def postprocess(raw: dict) -> tuple[dict, list]:
-    """Raw slot replies -> (record content, invalid slots); deterministic, so the
-    collector can re-derive both from the recorded raw replies."""
+    """Raw slot replies -> (record content, invalid slots); every invalid slot is None in
+    the content and declared unknown in the record. Deterministic, so the collector can
+    re-derive both from the recorded raw replies."""
     out, bad = {}, []
     for slot, (_, kind) in SLOT_QUESTIONS.items():
         value = _clean(raw[slot], kind)
@@ -348,6 +359,7 @@ def postprocess(raw: dict) -> tuple[dict, list]:
             value = None
         elif value is not None and kind in _NAME_SHAPE and not _NAME_SHAPE[kind].fullmatch(value):
             bad.append(slot)
+            value = None  # the raw reply stays in the encoder's raw record
         out[slot] = value
     for slot in ("actor", "action", "object", "place", "event_day"):  # required in every episode
         if out[slot] is None:

@@ -109,3 +109,19 @@ all systems with the same experiences and their stored information disclosed. Th
 frozen LM encoder on held-out wordings with unchanged operators, reports and corrections,
 longer histories. The random control will add plausible wrong bindings with the same
 target entities.
+
+## Result (GitHub run 39073059273, code commit f230b7d)
+
+Review: Astra APPROVE for v2 (`reviews/2026-10-17_r32v3_r33v2_astra.txt`), Claude lead
+review APPROVE; her improvement ideas for the collector and wording were adopted before
+the run. VERDICT COMPLETE, MILESTONE PASS (results branch, `round33/run_39073059273_1/`):
+all 1,440 planned cases available (40 pairs per kind, every case in its own fresh
+process); intact success and pair success 1.00 in all three kinds; no memory and random
+memory pair success 0.00; swapped binding and relevant removal: action as predicted in
+1.00 of the informative cases (hidden 80 and 63, moved 80 and 80, giver 65 and 67);
+irrelevant removal success 1.00; cut-off and changed stores refused. As stated above, the
+criteria were fixed after a local development run: this is a reproduction and integrity
+check, a limited functional proof for this explicit memory implementation, not a test on
+unseen data. The round 3.2 v4 operator changes (unknown fields) leave every row of this
+run unchanged (checked by a local re-run on the v4 code: rows, summary and integrity
+flags identical), because the environment's records have no unknown fields.

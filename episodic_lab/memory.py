@@ -146,6 +146,22 @@ def _day(r):
     return d if isinstance(d, int) and not isinstance(d, bool) else None
 
 
+# A field is UNKNOWN if the encoder declared it so (record extra "unknown", e.g. an
+# invalid or missing LM slot; its value is then None) or if a field every episode has
+# (actor, action, place, a valid integer day) is missing. A missing partner or object
+# without that declaration means "none in this episode" (legitimate in the templates
+# for the partner, in the round 3.3 environment also for the object).
+ALWAYS_PRESENT = ("actor", "action", "place", "event_day")
+
+
+def unknown(r, f) -> bool:
+    if f in ((r.get("extra") or {}).get("unknown") or ()):
+        return True
+    if f == "event_day":
+        return _day(r) is None
+    return f in ALWAYS_PRESENT and r[f] is None
+
+
 def match(records, person=None, action=None, obj=None, place=None, day=None):
     return [r for r in records
             if (person is None or person in _people(r)) and (action is None or r["action"] == action)
@@ -155,13 +171,36 @@ def match(records, person=None, action=None, obj=None, place=None, day=None):
 
 def possible(records, person=None, action=None, obj=None, place=None, day=None):
     """Records that match the cue OR could match it because a needed field is unknown
-    (None, or an invalid day): an unknown value is never evidence of absence."""
-    def ok(value, field):
-        return value is None or field is None or field == value
+    (see `unknown`): an unknown value is never evidence of absence. A person could be
+    the actor or the partner of a record in which either is unknown."""
+    def ok(r, value, f):
+        return value is None or unknown(r, f) or r[f] == value
     return [r for r in records
-            if (person is None or person in _people(r) or r["actor"] is None)
-            and ok(action, r["action"]) and ok(obj, r["object"]) and ok(place, r["place"])
-            and ok(day, _day(r))]
+            if (person is None or person in _people(r) or unknown(r, "actor") or unknown(r, "partner"))
+            and ok(r, action, "action") and ok(r, obj, "object") and ok(r, place, "place")
+            and (day is None or unknown(r, "event_day") or _day(r) == day)]
+
+
+def _ids(rs):
+    return [r["id"] for r in rs]
+
+
+def _minus(rs, exclude):
+    ids = set(_ids(exclude))
+    return [r for r in rs if r["id"] not in ids]
+
+
+def could_be_latest(exact, maybe):
+    """Records that could be the latest one about an entity: the exact records of the
+    latest known day, exact undated records, and possible records (an unknown field could
+    make them about the entity) that are undated or not earlier than that day. Records
+    outside this set cannot change a latest-state answer."""
+    dated = [r for r in exact if _day(r) is not None]
+    if not dated:
+        return list(exact) + list(maybe), None
+    top = max(_day(r) for r in dated)
+    return ([r for r in exact if _day(r) in (top, None)]
+            + [r for r in maybe if _day(r) is None or _day(r) >= top]), top
 
 
 def _known(records, person=None, obj=None, place=None, **_):
@@ -189,7 +228,7 @@ def _ok(value, ids, trace) -> Result:
 
 def find(records, cue: dict, want: str, complete: bool = True, universe=None) -> Result:
     hits = match(records, **cue)
-    maybe = [r for r in possible(records, **cue) if r not in hits]
+    maybe = _minus(possible(records, **cue), hits)
     trace = [("find", dict(cue), [h["id"] for h in hits + maybe])]
     if not hits:
         if maybe:  # a record with an unknown field could be the event
@@ -205,45 +244,55 @@ def find(records, cue: dict, want: str, complete: bool = True, universe=None) ->
 
 
 def latest(records, person: str, complete: bool = True) -> Result:
-    """Latest place of a person. Records with an unknown day could be later than every
-    dated one: if one of them has another place, the answer is ambiguous."""
+    """Latest place of a person. Every record that could be the latest one about the
+    person (an undated record of the person, or a record whose unknown actor/partner
+    could be the person and that is not earlier) must agree on the place."""
     hits = match(records, person=person)
-    trace = [("latest", person, [h["id"] for h in hits])]
+    maybe = _minus(possible(records, person=person), hits)
+    trace = [("latest", person, _ids(hits + maybe))]
     if not complete:
-        return Result(None, "insufficient_evidence", [h["id"] for h in hits], trace)
+        return Result(None, "insufficient_evidence", _ids(hits + maybe), trace)
     if not hits:
-        return Result(None, "no_observation", [], trace)
-    dated = [h for h in hits if _day(h) is not None]
-    if not dated:
-        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
-    top = max(_day(h) for h in dated)
-    last = [h for h in dated if _day(h) == top]
-    places = {h["place"] for h in last} | {h["place"] for h in hits if _day(h) is None}
+        return Result(None, "insufficient_evidence" if maybe else "no_observation", _ids(maybe), trace)
+    cands, top = could_be_latest(hits, maybe)
+    if top is None:
+        return Result(None, "ambiguous", _ids(cands), trace)
+    places = {r["place"] for r in cands}
     if len(places) != 1:
-        return Result(None, "ambiguous", [h["id"] for h in hits], trace)
-    return _ok(places.pop(), [h["id"] for h in last], trace)
+        return Result(None, "ambiguous", _ids(cands), trace)
+    return _ok(places.pop(), [h["id"] for h in hits if _day(h) == top], trace)
 
 
 def state_at(records, person: str, day: int, complete: bool = True, universe=None) -> Result:
+    """Place of a person on a day. Possible records (undated records of the person, or
+    records of that day or undated whose unknown actor/partner could be the person) could
+    be from that day: without an exact hit they give insufficient_evidence, with one they
+    must agree on the place."""
     hits = match(records, person=person, day=day)
-    undated = [h for h in match(records, person=person) if _day(h) is None]
-    trace = [("state_at", [person, day], [h["id"] for h in hits + undated])]
+    maybe = _minus(possible(records, person=person, day=day), hits)
+    trace = [("state_at", [person, day], _ids(hits + maybe))]
     if not hits:
-        if undated:  # an undated record could be from that day
-            return Result(None, "insufficient_evidence", [h["id"] for h in undated], trace)
+        if maybe:
+            return Result(None, "insufficient_evidence", _ids(maybe), trace)
         return Result(None, _negative(records, {"person": person}, complete, universe), [], trace)
-    places = {h["place"] for h in hits} | {h["place"] for h in undated}
+    places = {r["place"] for r in hits + maybe}
     if len(places) != 1:
-        return Result(None, "ambiguous", [h["id"] for h in hits + undated], trace)
-    return _ok(places.pop(), [h["id"] for h in hits], trace)
+        return Result(None, "ambiguous", _ids(hits + maybe), trace)
+    return _ok(places.pop(), _ids(hits), trace)
 
 
 def compare_time(records, cue_a: dict, cue_b: dict, complete: bool = True, universe=None) -> Result:
+    """Which of two unique events happened first. A second exact match makes a side
+    ambiguous; so does a second POSSIBLE match (if it were the event, the side would not
+    be unique), whatever its day."""
     a, b = match(records, **cue_a), match(records, **cue_b)
-    ids = [r["id"] for r in a + b]
-    trace = [("compare_time", [dict(cue_a), dict(cue_b)], ids)]
+    pa, pb = possible(records, **cue_a), possible(records, **cue_b)
+    ids = _ids(a + b)
+    trace = [("compare_time", [dict(cue_a), dict(cue_b)], _ids(pa + _minus(pb, pa)))]
     if len(a) > 1 or len(b) > 1:
         return Result(None, "ambiguous", ids, trace)
+    if len(pa) > 1 or len(pb) > 1:  # before the negative: a side that may not be unique
+        return Result(None, "ambiguous", _ids(pa + _minus(pb, pa)), trace)
     if not a or not b:
         missing = cue_a if not a else cue_b
         if possible(records, **missing):
@@ -266,22 +315,22 @@ def link_latest(records, cue: dict, complete: bool = True, universe=None) -> Res
 
 def last_handler_latest(records, obj: str, complete: bool = True) -> Result:
     """E7 "act": the actor of the latest event with the object, then that actor's latest
-    place. An undated event with the object by another actor makes the handler ambiguous."""
+    place. Every record that could be the latest event with the object (an undated one, or
+    one whose unknown object could be it and that is not earlier) must have the same,
+    known actor."""
     with_obj = match(records, obj=obj)
-    trace = [("last_handler", obj, [r["id"] for r in with_obj])]
+    maybe = _minus(possible(records, obj=obj), with_obj)
+    trace = [("last_handler", obj, _ids(with_obj + maybe))]
     if not complete:
-        return Result(None, "insufficient_evidence", [r["id"] for r in with_obj], trace)
+        return Result(None, "insufficient_evidence", _ids(with_obj + maybe), trace)
     if not with_obj:
-        return Result(None, "no_observation", [], trace)
-    dated = [r for r in with_obj if _day(r) is not None]
-    if not dated:
-        return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
-    top = max(_day(r) for r in dated)
-    holders = {r["actor"] for r in dated if _day(r) == top} | {r["actor"] for r in with_obj if _day(r) is None}
-    if len(holders) != 1 or not isinstance(next(iter(holders)), str):
-        return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
+        return Result(None, "insufficient_evidence" if maybe else "no_observation", _ids(maybe), trace)
+    cands, top = could_be_latest(with_obj, maybe)
+    holders = {r["actor"] for r in cands}
+    if top is None or len(holders) != 1 or not isinstance(next(iter(holders)), str):
+        return Result(None, "ambiguous", _ids(cands), trace)
     nxt = latest(records, holders.pop(), complete)
-    return Result(nxt.value, nxt.status, [r["id"] for r in with_obj] + nxt.ids, trace + nxt.trace)
+    return Result(nxt.value, nxt.status, _ids(cands) + nxt.ids, trace + nxt.trace)
 
 
 def misbind(records: list[dict], seed: str) -> list[dict]:
@@ -348,6 +397,14 @@ def answer_query(records, qtype: str, query: dict, complete: bool = True, univer
     raise ValueError(qtype)
 
 
+def encode_into(store: EpisodeStore, text: str, encoder, encoder_name: str) -> dict:
+    """An encoder returns the record content, or (content, unknown slots); declared
+    unknown slots are kept in the record (extra "unknown") and read by `unknown`."""
+    out = encoder(text)
+    content, unk = out if isinstance(out, tuple) else (out, [])
+    return store.append(text, content, encoder=encoder_name, extra={"unknown": list(unk)} if unk else None)
+
+
 class MemoryAgent:
     """struct+ops cell: encodes every presented episode into the store, answers from it."""
     DIGEST_COVERS = ("store",)
@@ -358,7 +415,7 @@ class MemoryAgent:
         self.encoder_name = encoder_name
 
     def encode(self, text: str) -> None:
-        self.store.append(text, self.encoder(text), encoder=self.encoder_name)
+        encode_into(self.store, text, self.encoder, self.encoder_name)
 
     def state_digest(self) -> str:
         return self.store.content_digest()

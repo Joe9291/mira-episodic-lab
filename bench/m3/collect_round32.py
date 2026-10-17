@@ -108,7 +108,7 @@ def replay(name, world, questions, encoder=None):
             r = next(recs)
             if r["text"] != text:
                 raise ValueError("encoder records out of order")
-            return {k: r["lm"][k] for k in CONTENT}
+            return {k: r["lm"][k] for k in CONTENT}, list(r["invalid"])
         cell = CELLS["full+ops"](encoder=enc, encoder_name=encoder["encoder_name"])
     elif name in DETERMINISTIC:
         cell = CELLS[name]()
@@ -231,20 +231,47 @@ def lure_shares(rows):
             "unknown": sum(r["category"] == "uncertain" for r in lures) / n}
 
 
-def table(cells) -> str:
-    L = ["# Round 3.2 summary (exploratory, template benchmark)", "",
+def adoption(cells, complete: bool) -> tuple[str, str]:
+    """(decision, text). The adoption rule is evaluated only on the complete, fully
+    validated set of planned world reports; otherwise it is not decidable."""
+    if not complete:
+        return "UNDECIDABLE", ("Adoption rule (docs/ROUND_3_2.md): NOT DECIDABLE - the evaluation is incomplete "
+                               f"({len(cells)} valid world reports); partial tables above are diagnostic only.")
+    every = [c for d in cells.values() for c in d["conditions"].values()]
+    acc = slot_accuracy([(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]])
+    ref_pos = per_world(cells, "full+ops", positive_score)
+    lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
+    fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
+              for d in cells.values())
+    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
+    return ("ADOPT" if adopt else "KEEP"), (
+        f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
+        f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
+        f"recall {fr:.3f} <= 0.05 -> "
+        + ("ADOPT the LM encoder for the round 3.2 template episode formats (other formats, e.g. the round 3.3 "
+           "environment with \"You\" and object-free events, need their own check)" if adopt
+           else "keep the template encoder; limit stated") + ".")
+
+
+def table(cells, complete: bool = True) -> str:
+    L = ["# Round 3.2 summary (exploratory, template benchmark)", ""]
+    if not complete:
+        L += ["**INCOMPLETE evaluation: only the valid world reports are tabulated, as diagnostics; "
+              "no decision is drawn from them.**", ""]
+    L += [
          "Means over worlds (both overlap conditions pooled within a world). Development worlds "
          "(dev-m3) and the pilot worlds already used (pilot-m2) are shown separately. "
          "E5 = correct rejection of binding lures; FR = in-world false recall; unknown = "
          "abstention. Coverage = share of final items whose selection was certified "
-         "sufficient for the question; acc|cov = accuracy on those items; gold support = "
+         "sufficient for the question; accuracy covered = accuracy on those items, pooled over all "
+         "covered final items of the series; gold support = "
          "share of positive items whose gold target episodes were all selected (evaluator "
          "information, not an upper bound of accuracy).", ""]
     for series in sorted({s for s, _ in cells}):
         part = {k: v for k, v in cells.items() if k[0] == series}
         conds = [c for d in part.values() for c in d["conditions"].values()]
         L += [f"## {series} ({len(part)} worlds)", "",
-              "| cell | positives | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | E5 unknown | coverage | acc|cov | gold support | calls | prompt tokens | seconds |",
+              "| cell | positives | " + " | ".join(CRIT) + " | E3a pairs | E5 FR | E5 unknown | coverage | accuracy covered | gold support | calls | prompt tokens | seconds |",
               "|" + "---|" * (len(CRIT) + 11)]
         for name in CELL_NAMES:
             cs = [c["cells"][name] for c in conds]
@@ -274,20 +301,13 @@ def table(cells) -> str:
         L.append("")
     every = [c for d in cells.values() for c in d["conditions"].values()]
     pairs = [(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]]
-    acc = slot_accuracy(pairs)
+    acc = slot_accuracy(pairs) if pairs else {}
     invalid = sum(bool(r["invalid"]) for c in every for r in c["encoder"]["records"])
-    ref_pos = per_world(cells, "full+ops", positive_score)
-    lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
-    fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
-              for d in cells.values())
-    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
-    L += ["## LM encoder (slot filling) vs template truth (all worlds)", "",
+    L += ["## LM encoder (slot filling) vs template truth (valid worlds)", "",
           "| " + " | ".join(acc) + " | records with invalid slots |", "|" + "---|" * (len(acc) + 1),
           "| " + " | ".join(f"{v:.3f}" for v in acc.values()) + f" | {invalid}/{len(pairs)} |", "",
-          f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
-          f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
-          f"recall {fr:.3f} <= 0.05 -> {'ADOPT the LM encoder for round 3.3+' if adopt else 'keep the template encoder; limit stated'}.",
-          "", "## Controls (all worlds)", "",
+          adoption(cells, complete)[1],
+          "", "## Controls (valid worlds)", "",
           f"- misbound store + operators: E2 {mean(c['misbound']['summary']['E2']['accuracy'] for c in every):.2f}, "
           f"E5 FR {mean(c['misbound']['summary']['E5']['false_recall'] for c in every):.2f}",
           f"- restart (store file of full+ops): same answers {sum(c['restart']['same_as_in_process'] for c in every)}/{len(every)}, "
@@ -302,7 +322,7 @@ def sha256_file(path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def main(request_path, dest, pins_path):
+def main(request_path, dest, pins_path, commit=None):
     req = json.loads(Path(request_path).read_text())
     request_sha, pins_sha = sha256_file(request_path), sha256_file(pins_path)
     dest, cells, lines = Path(dest), {}, []
@@ -322,16 +342,24 @@ def main(request_path, dest, pins_path):
     ok = len(cells) == sum(len(v) for v in req["worlds"].values()) and len(commits) <= 1
     if len(commits) > 1:
         lines.append("FAILED provenance:mixed_commits")
+    if commit is not None and commits - {commit}:
+        ok = False
+        lines.append("FAILED provenance:commit")
+    decision = "UNDECIDABLE"
     try:
-        (dest / "SUMMARY.md").write_text(table(cells))
+        (dest / "SUMMARY.md").write_text(table(cells, ok))
+        decision = adoption(cells, ok)[0]
     except Exception as exc:
         ok = False
         lines.append(f"FAILED SUMMARY.md {type(exc).__name__}")
         (dest / "SUMMARY.md").write_text(f"summary failed: {type(exc).__name__}: {exc}\n")
+    if not ok:
+        decision = "UNDECIDABLE"
     (dest / "CHECK.txt").write_text("\n".join(lines) + "\n")
     (dest / "VERDICT").write_text("COMPLETE\n" if ok else "INCOMPLETE\n")
+    (dest / "ENCODER_DECISION").write_text(decision + "\n")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1], sys.argv[2], sys.argv[3]))
+    raise SystemExit(main(*sys.argv[1:5]))
