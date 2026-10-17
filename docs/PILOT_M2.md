@@ -77,10 +77,14 @@ VERDICT COMPLETE, 60/60 cells. Same worlds as v0; the comparison below uses only
 items common to v0 and v1 (final test, mean over the five worlds), so it isolates the
 instruction change from the added E3a orientations.
 
-- **Copied examples: gone.** Example echo fell to 0.00 in every model and arm (v0: up to
-  0.44).
+- **Instruction-example strings: almost gone.** Answers equal to one of the v0 example
+  values fell to 0.00 in every cell except SmolLM2-360M O1 (0.01; v0: up to 0.44). This
+  is an observed string match, not by itself proof of a copying process.
 - **Qwen3 hypothesis supported (exploratory).** Qwen3 O1 E2 0.54 -> 0.91, higher in every
   world (0.75->0.88, 0.50->0.90, 0.53->1.00, 0.38->0.85, 0.53->0.95); E3b 0.46 -> 0.75.
+  Attributable to the instruction change as a whole (examples removed AND form wording
+  changed), not to the examples alone. At the same time Qwen3 O1 lure false recall rose
+  from 0.68 to 0.85: better-formed answers turned "other" errors into named wrong values.
   SmolLM2-360M O1 E2 0.03 -> 0.49. Qwen2.5 was hardly affected (O1 E2 0.99 -> 1.00, A1
   0.28 -> 0.29).
 - **E3a A/B preference: NOT an instruction artefact.** Qwen2.5 and Qwen3 still answer

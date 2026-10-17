@@ -1,0 +1,292 @@
+1m 31s nachgedacht
+
+7m 49s nachgedacht
+
+PROCESS SO FAR: every step reviewed blind by you, with Claude as lead; milestone 2 took 3 review rounds for the code, 2 for the variant.
+Please answer in German or English, as you prefer.
+
+Ich würde die Strategie ändern: zuerst einen funktionierenden episodischen Agentenspeicher bauen und dessen Beitrag zu späteren Entscheidungen nachweisen. Gewichtslernen würde ich als getrennte Forschungsfrage danach behandeln.
+
+Euer bisheriger Aufbau ist als diagnostischer Prüfstand nützlich. Die zentrale Unklarheit liegt inzwischen weniger im Code als im Ziel: Soll Mira Erlebnisse zuverlässig speichern und nutzen, soll diese Fähigkeit in Modellgewichten entstehen, oder soll etwas dem menschlichen Wiedererleben Vergleichbares nachgewiesen werden? Diese Ziele verlangen unterschiedliche Experimente.
+
+Consensus habe ich wie gewünscht aufgerufen. Der Dienst hat wegen ausgeschöpften Monatskontingents keine verwertbaren Suchergebnisse geliefert. Die wissenschaftliche Einordnung unten beruht deshalb auf direkt geprüften Originalarbeiten. Die Pilotzahlen übernehme ich aus eurem Anhang; die Rohdaten habe ich nicht erneut ausgewertet.
+
+1. Welche Schlussfolgerungen unterstützen die Pilotläufe?
+
+Der stärkste Befund ist eine Trennung zwischen erfolgreicher Nutzung eines einzelnen passenden Belegs und Schwierigkeiten bei Auswahl, Kombination und Zurückweisung konkurrierender Informationen.
+
+Beobachtung	Tragfähige Schlussfolgerung	Nicht dadurch nachgewiesen
+
+Qwen2.5 erreicht in O1 bei E2 praktisch 100 %, bei Zustands- und Tagesfragen ebenfalls sehr hohe Werte.	Das Modell kann viele dieser Fragen beantworten, wenn ihm passende Belege direkt vorgelegt werden.	Dass es diese Belege selbst gespeichert, gefunden oder dauerhaft erinnert hat.
+A1 erreicht trotz aller Episoden nur etwa 29 % bei E2.	Die vollständige Bereitstellung der Geschichte genügt diesem Modell unter dieser Instruktion nicht.	Ob der Engpass Aufmerksamkeit, Auswahl, Vergleich, Sprachverständnis oder Gedächtnisbindung ist.
+Qwen3 steigt auf gemeinsamen O1-E2-Items von 0,54 auf 0,91, mit Verbesserungen in allen fünf Welten.	Die Instruktionsänderung hat einen großen Einfluss auf die gemessene Leistung.	Dass ausschließlich das Entfernen der Beispiele verantwortlich ist: Auch die übrige Instruktionsformulierung wurde verändert.
+Die Qwen-Modelle erreichen bei E3a einen Paarscore von null.	Ihre Antworten zeigen hier keine erfolgreiche, gegenüber A/B-Vertauschung robuste Zeitentscheidung.	Dass sie keine Episoden speichern könnten. Dieser Test scheitert bereits bei unmittelbar vorliegenden Belegen.
+Qwen2.5 nennt bei A1 und O1 für rund 99 % der Lures einen inweltlichen Wert.	Die Zurückweisung unzutreffender Ereigniskombinationen funktioniert unter diesen Bedingungen fast überhaupt nicht.	Welcher interne Mechanismus das verursacht.
+S0 löst sämtliche geprüften Aufgaben.	Die Aufgaben sind mit expliziter Ereignisspeicherung und passenden Operationen lösbar.	Dass ein neuronaler oder menschenähnlicher Gedächtnismechanismus erforderlich wäre.
+
+
+Zwei zusätzliche Befunde sind strategisch wichtig:
+
+Erstens: Bessere positive Erinnerung und weniger falsche Behauptungen gehen hier nicht automatisch zusammen. Bei Qwen3 verbessert sich O1-E2 stark, während O1-False-Recall von 0,68 auf 0,85 steigt. Eine bessere Antwortform oder bessere Faktenerkennung kann Fehler auch von „other“ in wohlgeformte Falschantworten verschieben.
+
+Zweitens: Die Modellauswahl funktioniert nach eurer Regel, aber die Regel erfüllt ihren diagnostischen Zweck nur eingeschränkt. Qwen2.5s Mittelwert von 0,825 ist ein gültiges Auswahlresultat. Gleichzeitig verdeckt er E3a-Paarscore 0, E7 etwa 0,43 und praktisch vollständiges Scheitern bei den O1-Lures. Der niedrigste Weltwert von 0,795 verletzt eure Mittelwertregel nicht; er zeigt deren begrenzte Aussagekraft.
+
+Für die Aussage „dieser Reader ist geeignet, sämtliche geplanten Gedächtnisfähigkeiten zu prüfen“ reicht ein gepoolter positiver Gesamtwert deshalb nicht.
+
+Fünf Welten liefern außerdem vor allem Entwicklungsinformation. Als Größenordnung: Selbst bei fünf von fünf bestandenen unabhängigen Welten läge die untere einseitige 95%-Clopper-Pearson-Grenze für die Erfolgswahrscheinlichkeit neuer Welten nur bei ungefähr 0,55. Das ist keine Berechnung eines Intervalls für eure 0,825, sondern eine Illustration der kleinen Stichprobe.
+
+2. Wo liegen die Denkfehler?
+
+Die Gegenüberstellung „episodisches Gedächtnis oder Datenbank“ halte ich für falsch.
+
+Eine Datenbank bezeichnet eine Implementierung. Episodische Gedächtnisfunktionen beschreiben unter anderem, welche Informationen aus einzelnen Erfahrungen erhalten bleiben und wie sie später genutzt werden. Ein externer Ereignisspeicher kann solche Funktionen implementieren.
+
+Auch in der ML-Forschung sind explizite Erfahrungsspeicher kein Ausschlusskriterium: Neural Episodic Control arbeitet beispielsweise mit einem semitabellarischen Erfahrungspuffer, um neue Erfahrungen schnell für Entscheidungen zu nutzen. Das ist keine Gleichsetzung mit menschlichem Erinnern, widerlegt aber die Vorstellung, ein rechnerischer episodischer Mechanismus müsse ausschließlich in Gewichten liegen. 
+
+Die entsprechende Konsequenz ist unbequem:
+
+Wenn S0 ausschließlich aus den präsentierten Episoden arbeitet und eure inhaltlichen Tests vollständig löst, besitzt ihr bereits einen funktionierenden Ereignisspeicher für diese Aufgaben. Dann müsst ihr bestimmen, welche zusätzliche Fähigkeit A3 gegenüber S0 bieten soll.
+
+Derzeit sind „S0: Parser plus Ereignistabelle“ und „A3: strukturierter Ereignisspeicher mit Zeit, Personen und Zustandsverfolgung“ noch nicht ausreichend als verschiedene Mechanismen beschrieben. A3 kann eine sinnvolle Weiterentwicklung von S0 sein. Ein neuer Name schafft jedoch noch keinen neuen Forschungsgegenstand.
+
+Ihr vermischt außerdem drei Ziele:
+
+Ziel	Was dafür nachgewiesen werden muss
+
+Ein praktisch nützliches episodisches Agentengedächtnis	Einzelne Erfahrungen bleiben erhalten und verbessern späteres Verhalten.
+Ein parametergestützter episodischer Mechanismus	Episodenspezifische Information wird durch Gewichtsänderungen gespeichert und ohne externen Episodenspeicher wieder nutzbar.
+Menschliches episodisches Wiedererleben	Eine wesentlich weitergehende kognitive und möglicherweise subjektive Eigenschaft. Eure QA-Tests entscheiden darüber nicht.
+
+
+Für „so schnell wie möglich“ würde ich das erste Ziel wählen.
+
+Ein LoRA-Schritt ist kein Gedächtniskriterium. Er ist eine Optimierungsentscheidung. Ein Update kann wirkungslos bleiben, Fakten einprägen, andere Informationen stören oder lediglich das Antwortverhalten verändern. Umgekehrt kann das einmalige Anlegen einer ausreichend reichhaltigen Ereignisspur bereits die gewünschte Information dauerhaft verfügbar machen.
+
+Ihr lasst schwache Reader zu stark über die Architekturfrage entscheiden. Wenn ein Modell bei zwei unmittelbar vorliegenden datierten Ereignissen konstant denselben Buchstaben nennt, ist dieser Ausgabekanal zunächst ungeeignet, die Leistungsfähigkeit eines Speichers zu beurteilen. Mehr Speichertraining behebt das nicht zwangsläufig.
+
+Und ihr investiert derzeit zu viel in die Absicherung des Prüfstands, bevor der zusätzliche Nutzen des eigentlichen Systems sichtbar ist. Die bisherigen Korrekturen waren berechtigt. Auch meine Reviews hätten die Fragen nach der Abgrenzung A3/S0 und den getrennten O1-Teilfähigkeiten früher priorisieren sollen. Korrekte Auswertungssoftware garantiert noch keine gut identifizierte Forschungsfrage.
+
+3. Was wird übersehen?
+
+E1–E7 sind überwiegend sinnvolle Funktionstests. Als ausschließende Definition episodischen Gedächtnisses sind sie zu unspezifisch. Viele davon kann eine historische Ereignistabelle erfüllen; einige vermischen Erinnerung mit anderen Fähigkeiten.
+
+Kriterium	Wichtige Grenze des aktuellen Tests
+
+E1a/E1b	Gute Regeln für Exposition und Kosten. Sie unterscheiden aber nicht, welche Art von Gedächtnisfunktion entsteht. Einmalige äußere Präsentation kann mit vielen internen Verarbeitungsschritten vereinbar sein.
+E2	Die Bindungskontrollen sind eine Stärke. Getestet wird allerdings auch die Ausführung einer mehrstelligen Suchbedingung. Das allein trennt episodischen Abruf nicht von relationaler Abfrage.
+E3a	Bei expliziten Datumsangaben kann die Lösung ein numerischer Vergleich sein. Das prüft die Verfügbarkeit und Verwendung zeitlicher Information, nicht automatisch eine episodische Zeitrepräsentation.
+E3b	Historische und aktuelle Zustände sind wichtig. Eine versionierte Ereignistabelle kann beides liefern. Interessanter wird es bei verspäteten Meldungen, Korrekturen und unsicheren Beobachtungen.
+E4	„An welchem Tag?“ prüft zeitlichen Kontext. Quellenüberwachung umfasst zusätzlich: selbst beobachtet, selbst gehandelt, von jemandem berichtet oder nur erschlossen.
+E5	Ihr prüft eine geschlossene Welt. Bei späteren Agenten darf „nicht gespeichert“ nicht mit „nie geschehen“ gleichgesetzt werden.
+E6	Mehr Episoden können den Abruf erschweren, obwohl alle Spuren unverändert gespeichert sind. Das muss von tatsächlichem Informationsverlust unterschieden werden.
+E7	Die zweistufige Frage ist ein brauchbarer Kompositionstest. Eine erfolgreiche Handlung und deren Folgen werden bisher noch nicht geprüft.
+
+
+Darüber hinaus fehlen vier wesentliche Dimensionen.
+
+Unvorhergesehene spätere Nutzung. Der Aufbau ist vollständig auf bekannte Fragefamilien zugeschnitten. Eine stärkere Demonstration wäre, dass beim Erleben noch nicht feststeht, welche Einzelheit oder Verknüpfung später gebraucht wird. Forschung zu episodischem Erinnern nutzt deshalb unter anderem unerwartete Fragen nach beiläufiger Aufnahme als zusätzliche Evidenz. Das ist kein direkt auf KI übertragener Beweisstandard, aber eine wichtige Designidee. 
+
+Wissensstand und Weltzustand. Ein Agent kann sich korrekt erinnern, dass ihm jemand einen falschen Ort genannt hat. Euer Speicher muss dann unterscheiden zwischen dem berichteten Ereignis, der Quelle und einer gegebenenfalls späteren Korrektur. Ein einzelnes „aktueller Ort“-Feld verliert diese Unterscheidung.
+
+Übertragung. Neue Zufallsnamen innerhalb derselben fünf Satzschablonen testen etwas anderes als neue Beschreibungsformen, neue Beziehungen oder neue Aufgaben. Ein frischer Seed allein erzeugt noch keinen starken Transfer-Test.
+
+Getrennte Fehlerquellen. Ihr benötigt mindestens Messungen für:
+
+- Aufnahme der tatsächlich beobachteten Information;
+- Wiederfinden sämtlicher benötigter Belege;
+- Schlussfolgerung aus den gefundenen Belegen;
+- korrekte Ausgabe beziehungsweise begründete Enthaltung;
+- erfolgreiche Verwendung für eine Handlung.
+
+Diese Trennung ist keine exotische Sonderforderung. LongMemEval unterscheidet unter anderem zeitliches Schlussfolgern, Aktualisierungen und Enthaltung und zerlegt Speicherarchitekturen in Indexierung, Retrieval und Lesen. Eure Auswertung sollte mindestens ähnlich klar benennen, an welcher Stufe ein Fehler entsteht. 
+
+4. Was sollte konkret als Nächstes passieren?
+
+Meine Prioritätenfolge wäre:
+
+Teilfähigkeiten diagnostizieren → expliziten Speicher fertigstellen → Nutzen in einer kleinen Agentenumgebung nachweisen → erst danach Gewichtslernen untersuchen.
+
+Die folgenden Zahlen und Architekturentscheidungen sind meine Entwicklungsvorschläge, keine allgemein anerkannten wissenschaftlichen Grenzwerte.
+
+Schritt 1: Eine kleine Diagnosebatterie statt der nächsten großen Modellmatrix.
+
+Nehmt zunächst Qwen2.5 und Qwen3. Die beiden kleinsten Modelle würde ich aus den regelmäßigen vollständigen Läufen herausnehmen; ihre wiederkehrenden Formatprobleme liefern für die nächste Architekturentscheidung wenig zusätzliche Information.
+
+Erstellt jeweils etwa 20 kurze Fälle für fünf getrennte Fähigkeiten:
+
+1. Eine Einzelinformation aus einer unmittelbar vorliegenden Episode entnehmen.
+2. Zwei datierte Ereignisse zeitlich vergleichen.
+3. Eine vollständige Merkmalskombination von nur teilweise passenden Kombinationen unterscheiden.
+4. Zwei vorliegende Episoden über eine Person oder ein Objekt verknüpfen.
+5. Zwischen einer beobachteten Information, einer fremden Behauptung und fehlender Information unterscheiden.
+
+Jeder Fall erhält eine unabhängig kontrollierbare Lösung. Positive und negative Fälle sollten hinsichtlich Belegzahl und ungefährer Länge vergleichbar sein. Die Anzahl der Notizen darf nicht die Antwort verraten.
+
+Vergleicht zwei klar registrierte Ausgabekanäle:
+
+- die bisherige freie Textantwort;
+- eine beschränkte Ausgabe aus erlaubten Werten, gegebenenfalls durch Bewertung der Kandidatenwahrscheinlichkeiten.
+
+Bei der zweiten Variante müssen richtige und falsche Kandidaten gleichartig angeboten, Positionen vertauscht und Enthaltungsoptionen angemessen berücksichtigt werden. Eine solche Beschränkung verhindert unerlaubte Zeichenfolgen; sie behebt keine inhaltliche Fehlentscheidung.
+
+Wichtig ist das Ergebnis dieser Diagnose:
+
+- Scheitert nur die Ausgabe, verbessert die Schnittstelle.
+- Scheitert der Vergleich korrekter Belege, verwendet für das erste funktionierende System einen expliziten Vergleichsoperator.
+- Scheitert bereits die Extraktion einfacher Informationen, behandelt den Sprachencoder als eigenes Problem.
+
+Als Entwicklungsziel würde ich bei diesen einfachen Teilfunktionen eine sehr hohe Zuverlässigkeit verlangen, beispielsweise mindestens 95 % je Teilfunktion. Das wäre ein vorab gesetztes technisches Ziel, kein konfirmatorischer Nachweis.
+
+Abbruchregel: Wenn eine Teilfunktion nach einer begrenzten Diagnose weiterhin systematisch scheitert, wird sie für den Prototyp algorithmisch gelöst. Weitere Promptvarianten müssen einen konkreten Erkenntniszweck haben und entsprechend eurem Variantenbudget erfasst werden.
+
+Schritt 2: S0 als Ausgangspunkt eines tatsächlichen Agentenspeichers nutzen.
+
+Ich würde keinen zweiten nahezu identischen Ereignisspeicher neu bauen. Entwickelt den vorhandenen Kern weiter und beschreibt offen, welche zusätzlichen Funktionen entstehen.
+
+Ein brauchbarer erster Datensatz pro Episode enthält:
+
+Feldgruppe	Inhalt
+
+Identität	Zufällige Episoden-ID, Agent beziehungsweise Beobachtungsstrom
+Zeit	Reihenfolge der Aufnahme und Zeitpunkt des berichteten Ereignisses getrennt
+Inhalt	Beteiligte, Handlung, Objekt, Ort und weitere beobachtete Merkmale
+Quelle	Eigene Handlung, direkte Beobachtung, Mitteilung einer Person oder Schlussfolgerung
+Original	Unveränderte beobachtete Eingabe
+Beziehungen	Verweise auf Korrekturen, zusammengehörige Ereignisse und abgeleitete Zustände
+
+
+Neue Episoden werden angehängt. Eine aktuelle Zustandsansicht darf aktualisiert werden, die historischen Episoden bleiben erhalten. Eine spätere Korrektur löscht nicht die Tatsache, dass zuvor eine andere Information vorlag.
+
+Darauf reichen zunächst generische Operationen:
+
+- Ereignisse anhand mehrerer Hinweise suchen;
+- zeitliche Reihenfolgen vergleichen;
+- einen Zustand zu einem früheren Zeitpunkt bestimmen;
+- den zuletzt belegten Zustand bestimmen;
+- Ereignisse über gemeinsame Personen oder Objekte verknüpfen.
+
+Das System sollte intern neben dem Ergebnis die verwendeten Episoden-IDs und die ausgeführten Operationen liefern. Das sind überprüfbare Belege und Programmschritte, keine nachträglich erzeugte Erklärung des Sprachmodells.
+
+Bei einer erfolglosen Suche muss die Bedeutung klar sein:
+
+- „Kein entsprechendes Ereignis in diesem vollständig erfassten Bereich“ ist eine mögliche negative Antwort.
+- „Dazu liegt keine Beobachtung vor“ ist eine andere.
+- „Mehrere passende Ereignisse mit verschiedenen Antworten“ ist wiederum eine andere.
+
+Für euren bisherigen geschlossenen Benchmark kann die erste Antwort häufig auf none abgebildet werden. Für einen teilweise beobachtenden Agenten ist diese Gleichsetzung gefährlich.
+
+Den Nutzen von Struktur und Reader getrennt vergleichen. Eine kleine Kreuzung reicht:
+
+Retrieval	Weiterverarbeitung
+
+Lexikalische Suche	Derselbe LLM-Reader
+Strukturierte Suche	Derselbe LLM-Reader
+Lexikalische Suche	Explizite Vergleichs- und Verknüpfungsoperatoren
+Strukturierte Suche	Dieselben expliziten Operatoren
+
+
+Die Sprachverarbeitung der Frage sollte dabei möglichst gemeinsam sein. Sonst erhält A3 womöglich bereits eine präzise Abfrage, während A2 zusätzlich das Sprachproblem lösen muss.
+
+Diese Gegenüberstellung zeigt, ob ein Gewinn aus besserem Wiederfinden, besserem Schlussfolgern oder beidem stammt. Wenn der Gewinn ausschließlich durch einen neuen Schlussfolgerungsoperator entsteht, berichtet genau das.
+
+Erster Fertigstellungspunkt: Der Speicher übersteht einen Prozessneustart. Der Chatverlauf wird verworfen. Beim Neustart stehen ausschließlich der deklarierte Speicher und die festgelegte Software zur Verfügung. Derselbe Test ohne diesen Speicher verliert die episodenabhängige Leistung.
+
+Auf dem bisherigen Schablonenbenchmark erwarte ich von dieser Konstruktion annähernd vollständige Korrektheit. Das wäre ein funktionierender Prototyp, noch kein überraschender wissenschaftlicher Befund.
+
+Schritt 3: Eine kleine textuelle Handlungsumgebung mit kausalen Gedächtnistests bauen.
+
+Dafür braucht ihr keine Grafik, GPU oder bezahlte API. Eine Umgebung mit beispielsweise sechs Orten, acht Objekten und zwei weiteren Akteuren genügt.
+
+Der Agent kann:
+
+- einen Ort aufsuchen;
+- etwas beobachten;
+- eine Mitteilung erhalten;
+- einen Gegenstand bewegen oder verwenden.
+
+Beobachtungen und eigene Handlungen werden als Episoden gespeichert. Ein späteres Ziel wird erst nach einer Reihe von Erlebnissen bekanntgegeben.
+
+Eine gute Aufgabe hat folgende Eigenschaft:
+
+> Zwei Versuchswelten sehen zum Entscheidungszeitpunkt gleich aus. Nur ein früheres Erlebnis unterscheidet sich. Aufgrund dieses Erlebnisses ist jeweils eine andere Handlung richtig.
+
+
+
+Beispielsweise hat der Agent zuvor gesehen, welcher von zwei äußerlich später nicht mehr unterscheidbaren Schlüsseln zu einer Tür gehört. Die Zuordnung wird pro Welt zufällig gewählt. Beim späteren Ziel kann er sie nicht aus Namen, Farben oder der aktuellen Beobachtung ableiten.
+
+Dann testet ihr gezielte Eingriffe:
+
+- intakter Speicher;
+- kein Episodenspeicher;
+- zufällige, hinsichtlich Umfang vergleichbare Episoden;
+- vertauschte relevante Bindung bei erhaltenen Einzelmerkmalen;
+- entfernte relevante Episode;
+- entfernte irrelevante Episode.
+
+Ein überzeugendes Muster wäre: Intakter Speicher ermöglicht die richtige Handlung; das Entfernen der relevanten Erfahrung verschlechtert gezielt diese Entscheidung; eine vertauschte Bindung verändert die Entscheidung in der vorhergesagten Richtung; das Entfernen irrelevanter Episoden hat deutlich geringeren Einfluss.
+
+Die Bewertung erfolgt durch das tatsächliche Umgebungsergebnis. Eine richtige Textantwort und eine erfolgreiche Handlung werden getrennt erfasst.
+
+Erweitert anschließend schrittweise:
+
+- mehr Ablenkungsereignisse;
+- wiederkehrende Personen und Objekte;
+- fremde Behauptungen und Korrekturen;
+- neue Formulierungen;
+- neue Kombinationen bekannter Operationen;
+- längere Historien bei begrenztem Abrufbudget.
+
+Dafür ist euer CPU-Budget wesentlich besser eingesetzt als für viele weitere vollständige Durchläufe derselben unzureichenden Antwortinstruktion.
+
+Was ich vorerst zurückstellen würde:
+
+P1 ist nach euren gemessenen Schrittzeiten auf CPU grundsätzlich plausibel. Meine Zurückstellung wäre eine Prioritätsentscheidung, keine Behauptung technischer Unmöglichkeit.
+
+Ich würde P1 erst beginnen, wenn eine präzise zusätzliche Hypothese vorliegt, etwa:
+
+> Einzelne neu beobachtete Bindungen werden durch wenige deklarierte Updates so in einem Adapter gespeichert, dass sie nach Neustart ohne Episodentext und ohne externen Speicher auf neue Fragen abrufbar sind.
+
+
+
+Dann braucht es unter anderem Update-Kontrollen, Tests alter und neuer Episoden, andere Frageformulierungen, Messungen allgemeiner Fähigkeitsverluste und einen Test ohne mitgeführte Rohtexte. Eine verringerte Trainings-Loss genügt nicht.
+
+C1 würde ich erst verfolgen, wenn ein konkretes Problem des funktionierenden Speichers gemessen wurde – beispielsweise zu hoher Abrufaufwand oder ein festes Speicherbudget. „Konsolidierung“ sollte ein überprüfbares Optimierungsziel erhalten.
+
+5. Was müsste ich sehen, um es episodisches Gedächtnis zu nennen?
+
+Zunächst der begriffliche Vorbehalt: In der klassischen menschlichen Gedächtnistheorie umfasst episodisches Erinnern auch subjektive Zeit, Selbstbezug und autonoetisches Bewusstsein. Eine erfolgreiche Ereignisabfrage weist diese Eigenschaften nicht nach. Deshalb würde ich für euer erreichbares Ziel zunächst „funktionales episodisches“ oder „episodenähnliches Agentengedächtnis“ sagen. 
+
+Verhaltensbasierte Forschung verwendet entsprechend vorsichtig den Begriff „episodic-like“: etwa für die integrierte Nutzung von Information darüber, was wo und wann erlebt wurde. Solche Prüfungen liefern funktionale Evidenz, ohne subjektives Wiedererleben direkt nachzuweisen. 
+
+Für eure künstlichen Agenten würde ich folgende Kombination verlangen:
+
+1. Erfahrungsbezug: Die Information stammt nachweislich aus einem einzelnen konkreten Erlebnis des Agenten.
+2. Gebundene Ereignisspur: Beteiligte, Inhalt, Zeit, Ort und Quelle werden zusammen erhalten; die Antwort entsteht nicht aus zufälligem Zusammenfügen bekannter Merkmale.
+3. Flexibler Abruf: Verschiedene Hinweise erschließen dieselbe Episode, und nicht nur die bereits beim Speichern erwartete Frage kann beantwortet werden.
+4. Historische Unterscheidung: Frühere Zustände und frühere Informationsstände bleiben trotz späterer Änderungen rekonstruierbar.
+5. Quellenüberwachung: Eigene Beobachtung, Mitteilung und Schlussfolgerung werden auseinandergehalten.
+6. Verhaltensnutzen: Die Erinnerung verbessert spätere Entscheidungen in Aufgaben, bei denen die aktuelle Beobachtung allein nicht genügt.
+7. Kausale Abhängigkeit: Gezielte Veränderungen relevanter Gedächtnisinhalte verändern das Verhalten vorhersagbar.
+8. Übertragung und Grenzen: Das Muster hält in neuen Szenarien; Unsicherheit und fehlende Beobachtung werden angemessen ausgewiesen.
+
+Ein Datenbanksystem kann diese Anforderungen erfüllen. Dann wäre die korrekte Beschreibung beispielsweise: „ein extern implementiertes episodisches Agentengedächtnis“.
+
+Ich kann euch keinen seriösen Verhaltenstest anbieten, der gleichzeitig diese Fähigkeiten fordert und ihre Implementierung durch eine Datenbank grundsätzlich ausschließt. Eine ausreichend allgemeine Datenbank mit passenden Operationen kann dieselben beobachtbaren Funktionen bereitstellen.
+
+Wenn ihr ausdrücklich einen parametrischen Mechanismus wollt, ist das eine zusätzliche architektonische Forderung. Dann muss die notwendige neue Information nachweislich in den veränderten Parametern liegen. Das ist prüfbar. Dass diese Speicherung deshalb menschenähnlicher oder „echter“ wäre, folgt daraus nicht.
+
+Getrennt: Was darüber hinaus wichtig ist
+
+- Euer Vorhaben benötigt nicht zwingend eine neue Gedächtnismethode. Wenn Joes Priorität ein funktionierendes Gedächtnis ist, darf vorhandene Technik die Lösung sein. Für einen Forschungsbeitrag müsste dagegen klar werden, was neu ist: eine Fähigkeit, ein nachgewiesener Mechanismus, eine bessere Ressourcenbilanz oder ein aussagekräftigerer Test. Strukturierte externe Agentenspeicher sind bereits ein aktives Forschungsgebiet; beispielsweise organisiert A-MEM Erinnerungen als verknüpfte strukturierte Notizen. 
+
+- Der aktuelle Benchmark sollte als kontrollierter Teiltest erhalten bleiben. Seine enge Struktur ist für Fehlerdiagnosen nützlich. Er sollte jedoch nicht allein die spätere Erfolgsaussage tragen. Bestehende Arbeiten wie LoCoMo prüfen zusätzlich längere, vielfältigere Interaktionen und andere Aufgabenformen. Das macht solche Benchmarks nicht automatisch zum richtigen Ersatz, zeigt aber die Reichweite, die eure Schablonenwelt noch nicht abdeckt. 
+
+- Unbegrenztes Umdenken braucht endliche Entscheidungspunkte. Legt für jede Entwicklungsrunde fest, welche Unsicherheit sie beseitigen soll und wann sie beendet wird. Wiederholtes Auswerten derselben fünf Welten bleibt explorativ. Die spätere Bestätigungsserie muss nach Abschluss der relevanten Anpassungen beginnen.
+
+- Zwei KI-Reviews ersetzen keine unabhängige Validierung. Blindes Arbeiten reduziert direkte Beeinflussung. Gemeinsame Annahmen, ähnliche Trainingsprägungen und gemeinsam erzeugte Testlogik können trotzdem dieselben Fehler hervorbringen. Unabhängig hergeleitete Testfälle und einige inhaltlich von Joe geprüfte Beispiele wären wertvoller als weitere übereinstimmende Freigaben allein.
+
+- Trennt die experimentierenden Assistenten vom untersuchten System. Die Kontinuität von Claude oder diesem Chat ist keine Messung des späteren A3-Speichers. Das Zielsystem braucht eine eigene überprüfbare Speichergrenze.
+
+- Eine kleine Berichtsungenauigkeit sollte korrigiert werden: „Copying entirely removed“ passt nicht zum noch ausgewiesenen echo-Wert 0,01 bei SmolLM2-360M O1. Außerdem ist eine Ausgabe, die einem früheren Beispiel entspricht, ohne dieses Beispiel im aktuellen Prompt zunächst eine beobachtete Zeichenfolgenübereinstimmung – noch kein Nachweis eines Kopiervorgangs.
+
+Mein erster neuer Meilenstein wäre deshalb klar definiert: Ein Agent behält eine einmalige Erfahrung über einen Neustart, verwendet sie für ein später bekanntgegebenes Ziel, und gezielte Eingriffe in genau diese Erinnerung verändern seine tatsächliche Entscheidung. Das wäre unter euren Einschränkungen ein sinnvoller, überprüfbarer nächster Fortschritt.
