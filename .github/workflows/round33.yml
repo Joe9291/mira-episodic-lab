@@ -1,0 +1,48 @@
+name: round33
+# Round 3.3 paired action worlds (docs/ROUND_3_3.md), no model inference; runs only if
+# config/round33.json says "enabled": true. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round33.json"
+permissions:
+  contents: write
+concurrency:
+  group: round33
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: plan
+        run: python3 -c "import json;print('enabled=' + ('true' if json.load(open('config/round33.json')).get('enabled') is True else 'false'))" >> "$GITHUB_OUTPUT"
+      - name: Run, check and store
+        if: steps.plan.outputs.enabled == 'true'
+        run: |
+          set -e
+          series=$(python3 -c "import json;print(json.load(open('config/round33.json'))['series'])")
+          pairs=$(python3 -c "import json;print(json.load(open('config/round33.json'))['pairs_per_kind'])")
+          mkdir -p out
+          python3 bench/m3/run_round33.py --series "$series" --pairs "$pairs" --request config/round33.json --out out/round33.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r . "$RUNNER_TEMP/code"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round33/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp "$RUNNER_TEMP/code/out/round33.json" "$dest/"
+          cp "$RUNNER_TEMP/code/config/round33.json" "$dest/request.json"
+          python3 "$RUNNER_TEMP/code/bench/m3/collect_round33.py" "$RUNNER_TEMP/code/config/round33.json" "$dest/round33.json" "$dest" || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} verdict ${verdict}" > "$dest/RUN.txt"
+          git add round33
+          git commit --quiet -m "Round 3.3 results, run ${GITHUB_RUN_ID}, ${verdict}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+          [ "$verdict" = COMPLETE ]
