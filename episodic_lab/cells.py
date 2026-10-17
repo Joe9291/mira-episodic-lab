@@ -1,18 +1,32 @@
 """Round 3.2 comparison cells (docs/ROUND_3_2.md section 4) and the LM encoder.
 
 All cells share the store (episodes appended once, in presentation order) and the
-template question parser. They differ in retrieval (lexical BM25 over the raw texts vs
-conjunctive match over the records) and in processing (the LM reads the retrieved notes
-vs explicit operators over the retrieved records). Every cell keeps its whole state in
-the store; answering never changes it (checked by the runner's fingerprint).
+template question parser. Within one retrieval method, the reader cell and the operator
+cell receive exactly the same selected records:
+
+  lex3   BM25 over the raw texts, top 3. Cannot certify completeness (scope incomplete).
+  struct3 an index scan over ALL records: per event in the query the records matching
+         every cue feature (pattern completion fills up with the best partial matches);
+         time-aware for "latest" (the person's most recent records) and two-stage for E7
+         (the unique cue match, then its person's most recent records). Because the scan
+         covered the whole store, a missing full match or a latest record is certified
+         (scope complete for this query) as long as the full matches fit in the budget.
+         This processing inside the retriever is part of the "struct" method.
+  full   all records (the reference system, operators only).
+  random3 3 records chosen by a hash of the question (control, operators only).
+
+Readers get the selected notes as text; operators get the selected records and the scope
+flag. Answering never changes a cell's state (runner fingerprint over the actual record
+contents).
 """
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 
 from .arms import build_messages
-from .memory import (FIELDS, EpisodeStore, Result, answer_query, match, parse_question,
+from .memory import (FIELDS, EpisodeStore, Result, _day, answer_query, match, parse_question,
                      regex_encode)
 
 K = 3
@@ -37,22 +51,7 @@ def bm25_top(records: list[dict], query: str, k: int = K, k1: float = 1.5, b: fl
                 idf = math.log(1 + (n - df[t] + 0.5) / (df[t] + 0.5))
                 s += idf * f * (k1 + 1) / (f + k1 * (1 - b + b * len(d) / avg))
         scores.append((-s, i))
-    return [records[i] for _, i in sorted(scores)[:k]]
-
-
-def _cue_features(qtype: str, query: dict) -> list[dict]:
-    """The partial records a structured retrieval looks for (one per event in the query)."""
-    if qtype in ("object", "place", "person", "day", "find"):
-        return [query["cue"]]
-    if qtype == "order":
-        return [q for q in (query["a"], query["b"]) if q]
-    if qtype in ("latest",):
-        return [{"person": query["person"]}]
-    if qtype == "at_day":
-        return [{"person": query["person"], "day": query["day"]}]
-    if qtype == "act":
-        return [{"obj": query["obj"]}]
-    return []
+    return sorted((records[i] for _, i in sorted(scores)[:k]), key=lambda r: r["seq"])
 
 
 def _overlap(record: dict, cue: dict) -> int:
@@ -63,33 +62,74 @@ def _overlap(record: dict, cue: dict) -> int:
         elif key == "obj":
             n += record["object"] == value
         elif key == "day":
-            n += record["event_day"] == value
+            n += _day(record) == value
         else:
             n += record[key] == value
     return n
 
 
-def struct_top(records: list[dict], qtype: str, query: dict, k: int = K) -> list[dict]:
-    """Pattern completion: per event in the query, the records matching the most cue
-    features (at least one), ties by record order; up to k in total."""
-    chosen = []
-    for cue in _cue_features(qtype, query):
-        ranked = sorted(((-_overlap(r, cue), r["seq"]) for r in records if _overlap(r, cue) > 0))
-        per = max(1, k // max(1, len(_cue_features(qtype, query))))
-        for _, seq in ranked[:per]:
-            if records[seq] not in chosen:
-                chosen.append(records[seq])
-    return sorted(chosen, key=lambda r: r["seq"])[:k]
+def _best(records, cue, budget):
+    """Full matches first (all of them must fit to certify), then best partial matches."""
+    full = [r for r in records if _overlap(r, cue) == len(cue)]
+    partial = sorted((r for r in records if 0 < _overlap(r, cue) < len(cue)),
+                     key=lambda r: (-_overlap(r, cue), r["seq"]))
+    return (full + partial)[:budget], len(full) <= budget
+
+
+def _recent(records, person, budget):
+    hits = sorted((r for r in records if person in (r["actor"], r["partner"]) and _day(r) is not None),
+                  key=lambda r: (-_day(r), r["seq"]))
+    # certified if every record of the latest day is inside the budget
+    top = _day(hits[0]) if hits else None
+    return hits[:budget], sum(_day(r) == top for r in hits) <= budget
+
+
+def struct_select(records: list[dict], qtype: str, query: dict, k: int = K) -> tuple[list[dict], bool]:
+    if qtype in ("object", "place", "person", "day"):
+        got, ok = _best(records, query["cue"], k)
+    elif qtype == "order":
+        sides = [q for q in (query["a"], query["b"]) if q]
+        got, ok = [], True
+        for cue in sides:
+            part, c = _best(records, cue, max(1, k // len(sides)) if sides else k)
+            got += [r for r in part if r not in got]
+            ok = ok and c
+    elif qtype == "latest":
+        got, ok = _recent(records, query["person"], k)
+    elif qtype == "at_day":
+        got, ok = _best(records, {"person": query["person"], "day": query["day"]}, k)
+    elif qtype == "find":
+        first, ok = _best(records, query["cue"], 1)
+        full = [r for r in first if _overlap(r, query["cue"]) == len(query["cue"])]
+        got = list(first)
+        if full:
+            more, c = _recent(records, full[0]["actor"], k - 1)
+            got += [r for r in more if r not in got]
+            ok = ok and c
+    elif qtype == "act":
+        with_obj = sorted((r for r in records if r["object"] == query["obj"] and _day(r) is not None),
+                          key=lambda r: (-_day(r), r["seq"]))
+        got, ok = with_obj[:1], len([r for r in with_obj if with_obj and _day(r) == _day(with_obj[0])]) <= 1
+        if got:
+            more, c = _recent(records, got[0]["actor"], k - 1)
+            got += [r for r in more if r not in got]
+            ok = ok and c
+    else:
+        got, ok = [], False
+    return sorted(got, key=lambda r: r["seq"])[:k], ok
 
 
 class _Cell:
     DIGEST_COVERS = ("store", "model", "encoder")
     EXPOSURE = None
     E1B = {"internal_replays": 0, "optimizer_steps": 0, "store_writes": 1}
+    READER = False
 
     def __init__(self, model=None, store: EpisodeStore | None = None, encoder=regex_encode,
                  encoder_name: str = "regex"):
-        self.model = model
+        if self.READER and model is None:
+            raise ValueError("reader cells need a model")
+        self.model = model if self.READER else None
         self.store = store if store is not None else EpisodeStore()
         self.encoder = encoder
         self.encoder_name = encoder_name
@@ -98,69 +138,77 @@ class _Cell:
         self.store.append(text, self.encoder(text), encoder=self.encoder_name)
 
     def state_digest(self) -> str:
-        recs = self.store._records
         models = [m for m in (self.model, getattr(self.encoder, "model", None)) if m is not None]
-        return (recs[-1]["hash"] if recs else "") + "".join(m.weights_digest() for m in models)
+        return self.store.content_digest() + "".join(m.weights_digest() for m in models)
 
-    def retrieve(self, text: str, qtype: str, query: dict, records: list[dict]) -> list[dict]:
+    def select(self, text: str, qtype: str, query: dict, records: list[dict]) -> tuple[list[dict], bool]:
         raise NotImplementedError
+
+    def explain(self, text: str, records: list[dict]) -> dict:
+        """Deterministic replay of the selection (and the operator result) for one question
+        over a given record set; used by the evaluator after the run, never while answering."""
+        parsed = parse_question(text)
+        if parsed is None:
+            return {"selected": [], "complete": False, "result": None}
+        got, complete = self.select(text, *parsed, records)
+        out = {"selected": [r["id"] for r in got], "complete": complete, "result": None}
+        if not self.READER:
+            out["result"] = self._ops(got, parsed, complete, records).to_json()
+        return out
+
+    def _ops(self, got, parsed, complete, records):
+        # an index scan over the whole store also certifies which entities are known
+        return answer_query(got, *parsed, complete=complete, universe=records if complete else None)
 
     def answer(self, text: str, answer_type: str) -> str:
         parsed = parse_question(text)
         if parsed is None:
             return "unknown"
-        qtype, query = parsed
         records = self.store._records
-        got = self.retrieve(text, qtype, query, records)
-        if self.model is None:  # explicit operators over the retrieved records only
-            return answer_query(got, qtype, query).answer()
+        got, complete = self.select(text, *parsed, records)
+        if not self.READER:
+            return self._ops(got, parsed, complete, records).answer()
         return self.model.generate(build_messages(text, [r["text"] for r in got], answer_type, STYLE))
 
 
-class LexReader(_Cell):
-    NAME = "lex+reader"
+class Lex3Reader(_Cell):
+    NAME, READER = "lex3+reader", True
 
-    def retrieve(self, text, qtype, query, records):
-        return sorted(bm25_top(records, text), key=lambda r: r["seq"])
-
-
-class StructReader(_Cell):
-    NAME = "struct+reader"
-
-    def retrieve(self, text, qtype, query, records):
-        return struct_top(records, qtype, query)
+    def select(self, text, qtype, query, records):
+        return bm25_top(records, text), False
 
 
-class LexOps(LexReader):
-    NAME = "lex+ops"
-
-    def __init__(self, store=None, encoder=regex_encode, encoder_name="regex"):
-        super().__init__(None, store, encoder, encoder_name)
+class Lex3Ops(Lex3Reader):
+    NAME, READER = "lex3+ops", False
 
 
-class StructOps(_Cell):
-    """The full system: operators over ALL records (conjunctive matching is itself the
-    structured retrieval)."""
-    NAME = "struct+ops"
+class Struct3Reader(_Cell):
+    NAME, READER = "struct3+reader", True
 
-    def __init__(self, store=None, encoder=regex_encode, encoder_name="regex"):
-        super().__init__(None, store, encoder, encoder_name)
-
-    def retrieve(self, text, qtype, query, records):
-        return records
+    def select(self, text, qtype, query, records):
+        return struct_select(records, qtype, query)
 
 
-class RandomOps(StructOps):
-    """Control: K records drawn by a fixed hash of the question, operators over them."""
-    NAME = "random+ops"
+class Struct3Ops(Struct3Reader):
+    NAME, READER = "struct3+ops", False
 
-    def retrieve(self, text, qtype, query, records):
-        import hashlib
+
+class FullOps(_Cell):
+    NAME = "full+ops"
+
+    def select(self, text, qtype, query, records):
+        return list(records), True
+
+
+class Random3Ops(_Cell):
+    NAME = "random3+ops"
+
+    def select(self, text, qtype, query, records):
         order = sorted(records, key=lambda r: hashlib.sha256((text + r["id"]).encode()).hexdigest())
-        return sorted(order[:K], key=lambda r: r["seq"])
+        return sorted(order[:K], key=lambda r: r["seq"]), False
 
 
-CELLS = {c.NAME: c for c in (LexReader, StructReader, LexOps, StructOps, RandomOps)}
+CELLS = {c.NAME: c for c in (Lex3Reader, Lex3Ops, Struct3Reader, Struct3Ops, FullOps, Random3Ops)}
 
 
 # ----------------------------------------------------------------- LM encoder
@@ -187,7 +235,7 @@ def _clean(raw: str, kind: str):
         return None
     if kind == "day":
         m = re.fullmatch(r"(?:day\s*)?(\d+)", low)
-        return int(m.group(1)) if m else text
+        return int(m.group(1)) if m else INVALID
     if kind == "object" and low.startswith("the "):
         text = text[4:]
     if kind == "place" and low.startswith("at "):
@@ -197,24 +245,43 @@ def _clean(raw: str, kind: str):
     return text
 
 
+INVALID = object()
+_NAME_SHAPE = {"person": re.compile(r"[A-Z][a-z]+ [A-Z][a-z]+"), "place": re.compile(r"[A-Z][a-z]+ [A-Z][a-z]+"),
+               "object": re.compile(r"[a-z]+ [a-z]+"), "action": re.compile(r"[a-z]+")}
+
+
 class LMEncoder:
-    """Slot filling by single-detail questions (the sub-skill round 3.1 found reliable)."""
+    """Slot filling by single-detail questions. S1 qualified person, place, object and day;
+    the second person and the action are measured here for the first time. Every slot is
+    type-checked: an invalid value (no day number, a reply not shaped like a name) is kept
+    as a datum in `invalid` and stored as None (day) or as the raw string (it will then
+    simply match nothing); it never stops the run."""
 
     def __init__(self, model):
         self.model = model
-        self.raw: list[dict] = []   # telemetry of the last encoding, not memory
+        self.raw: list[dict] = []       # telemetry per encoded episode, not memory
+        self.invalid: list[list] = []   # invalid slots per encoded episode
 
     def __call__(self, text: str) -> dict:
-        out, raw = {}, {}
+        out, raw, bad = {}, {}, []
         for slot, (question, kind) in SLOT_QUESTIONS.items():
             msgs = [{"role": "system", "content": "You read one note and answer one question "
                      f"about it. Answer with only {SLOT_FORMAT[kind]}, nothing else."},
                     {"role": "user", "content": f"Note:\n{text}\n\nQuestion: {question}"}]
             raw[slot] = self.model.generate(msgs)
-            out[slot] = _clean(raw[slot], kind)
-        self.raw.append(raw)
+            value = _clean(raw[slot], kind)
+            if value is INVALID:
+                bad.append(slot)
+                value = None
+            elif value is not None and kind in _NAME_SHAPE and not _NAME_SHAPE[kind].fullmatch(value):
+                bad.append(slot)
+            out[slot] = value
+        if out["actor"] is None:
+            bad.append("actor")
         if out["partner"] == out["actor"]:
             out["partner"] = None
+        self.raw.append(raw)
+        self.invalid.append(sorted(set(bad)))
         return {k: out[k] for k in FIELDS}
 
 
@@ -225,4 +292,4 @@ def slot_accuracy(pairs: list[tuple[dict, dict]]) -> dict:
     return acc
 
 
-__all__ = ["CELLS", "LMEncoder", "Result", "bm25_top", "match", "slot_accuracy", "struct_top"]
+__all__ = ["CELLS", "LMEncoder", "Result", "bm25_top", "match", "slot_accuracy", "struct_select"]

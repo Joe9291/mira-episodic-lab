@@ -44,8 +44,9 @@ no prompt variants without a stated purpose.
 Patterns: in S2 Qwen2.5 picks the object named first in the question in 18 of 20
 content items and "A" in 20 of 20 letter items; Qwen3's content pair score (0.50 free)
 equals the told-order baseline. In S4 Qwen2.5 answers the place of the episode named in
-the relative clause in 19 of 20 cases; Qwen3 answers "none" in 12. The candidate channel
-does not rescue any sub-skill: the failures are decisions, not output format.
+the relative clause in 19 of 20 cases; Qwen3 answers "none" in 12. The candidate
+procedure used here does not remove the failures; that does not prove that output
+format, candidate scoring and calibration play no part.
 
 Consequence for round 3.2: the model is used as a reader for extraction only (single
 episode, single detail); comparison, conjunctive matching with abstention, linking and
@@ -85,7 +86,8 @@ whether an LM-reasoning reader is added to the round 3.2 comparison.
 | S4 link | **0.60** | 0.00 | 0.00 / 0.15 |
 | S5 source | **0.95** (missing 1.00, observed 0.86, reported 1.00) | 0.62 | 0.00 / 0.38 |
 
-- Qwen3's trained thinking mode changes the picture: every sub-skill rises strongly over
+- Qwen3's thinking configuration (thinking mode, its recommended sampling and a 1024-token
+  budget, changed together) changes the picture: every sub-skill rises strongly over
   its direct value (S2 0.53 -> 0.82, S3 0.35 -> 0.75, S4 0.05 -> 0.60, S5 0.48 -> 0.95).
   Cost: 246 new tokens per answer on average, all 101 replies finished within 1024
   tokens, 38 s per answer on the runner (3840 s for 101 cases), versus about 1 s direct.
@@ -93,9 +95,12 @@ whether an LM-reasoning reader is added to the round 3.2 comparison.
   direct values. Qwen2.5 cot scores 0.00 under the registered extraction rule because it
   almost never wrote the required "Answer:" line (format failure, 100 of 101 "other");
   a post-hoc lenient reading of its last line (not used for any decision) gives 0.10-0.45.
+- S5 reaches the registered target with 20 of 21 cases; the observed-source cases alone
+  are 6 of 7. This justifies a limited further test, not a general reliability claim.
 - Decision by the registered rule: S5 meets 0.95 with thinking -> "LM reasoning can carry
-  source filtering at about 38 s per answer"; a thinking-reader cell (Qwen3 thinking over
-  structured retrieval) is added to the round 3.2 comparison. S2-S4 stay below 0.95 ->
+  source filtering at about 38 s per answer". (Round 3.2 v1 planned a thinking-reader
+  cell; after review it was removed from 3.2 in favour of a later small source test,
+  docs/ROUND_3_2.md.) S2-S4 stay below 0.95 ->
   explicit operators; no further reasoning variants in this round.
 - Correction of round 3.1's reading: "the reader cannot compare / bind / link" holds for
   direct answers and instructed step-by-step answers of these models, not for Qwen3 with

@@ -1,0 +1,96 @@
+7m 41s nachgedacht
+
+Teil 1:
+
+return answer_query(self.store._records, *parsed).answer()
+---END FILE episodic_lab/memory.py---
+
+Teil 2:
+
+unittest.main()
+---END FILE tests/test_round32.py---
+
+REQUEST CHANGES für Runde 3.2. Die Richtung ist sinnvoll und bringt euch dem Meilenstein-3-Ziel näher. Im vorgelegten Code lassen sich die zentralen Forschungsfragen aber noch nicht sauber beantworten. Die wichtigsten Korrekturen betreffen den Vergleich selbst, die Bedeutung negativer Antworten und die Nachweise im Ergebnisdatensatz.
+
+Die abgeschlossenen Runden 3.1 und 3.1b sind als explorative Diagnose im Wesentlichen plausibel ausgewertet. Die Entscheidung, für den Prototyp explizite Operatoren einzusetzen, wird durch die Ergebnisse gestützt.
+
+Zwei Formulierungen sollten enger werden:
+
+- Dass der Kandidatenkanal nicht hilft, zeigt: Dieses Kandidatenverfahren beseitigt die Fehler nicht. Es beweist nicht abschließend, dass Ausgabeformat, Kandidatenbewertung und Kalibrierung keinerlei Anteil haben.
+- 3.1b zeigt einen Gewinn der gesamten Thinking-Konfiguration. Thinking-Modus, Sampling und Tokenbudget wurden gemeinsam geändert. S5 erreicht mit 20/21 Fällen das registrierte Entwicklungsziel; die beobachteten Fälle allein erreichen jedoch nur 6/7. Das rechtfertigt einen begrenzten weiteren Versuch, keinen allgemeinen Zuverlässigkeitsnachweis.
+
+Die strikte Hauptwertung und die ausdrücklich getrennte nachträgliche Auswertung von Qwen2.5-CoT sind dagegen sauber dokumentiert.
+
+Vor 3.2 sind folgende Änderungen erforderlich:
+
+1. Der angekündigte 2×2-Vergleich muss tatsächlich dieselben Informationen bereitstellen.
+
+   StructReader erhält höchstens drei Datensätze aus struct_top(). StructOps.retrieve() liefert hingegen sämtliche Datensätze.
+
+   Ein Unterschied zwischen diesen Zellen kann deshalb aus Verarbeitung, Informationsumfang oder beidem entstehen. Damit beantwortet die Matrix ihre zentrale Frage noch nicht.
+
+   Kleinste Korrektur: Eine zusätzliche Operatorzelle verwendet exakt dieselbe strukturierte Top-3-Auswahl wie StructReader. Das vollständige System mit Zugriff auf alle Datensätze bleibt als gesonderte Referenz erhalten. Innerhalb jedes Retrieval-Verfahrens müssen Reader und Operatoren dieselben ausgewählten Episoden erhalten.
+
+2. Bekannte Einzelmerkmale sind kein Nachweis eines vollständig beobachteten Suchbereichs.
+
+   find() erklärt eine erfolglose Suche zu none_in_scope, sobald _known() die genannten Personen, Objekte und Orte kennt. Bei Top-3-Retrieval können diese Einzelmerkmale vorhanden sein, während genau das gesuchte Ereignis außerhalb der Auswahl liegt.
+
+   Dann wird aus einem Retrievalfehler eine vermeintlich begründete Negativaussage. Ähnlich kann latest() über einem Ausschnitt lediglich das neueste gefundene Ereignis bestimmen.
+
+   Erforderlich: Vollständigkeit beziehungsweise Geltungsbereich ausdrücklich mitführen. Bei unvollständigem Retrieval ist eine nicht gefundene Kombination zunächst unzureichende Evidenz. Globale Negativ- oder Latest-Aussagen benötigen einen vollständigen Suchbereich, einen entsprechenden Indexnachweis oder weiteres Nachladen.
+
+   Auch die Operatoren sollten dieselbe Semantik verwenden: compare_time() kann derzeit bei völlig unbekannten Ereignissen none_in_scope liefern, während andere Funktionen no_observation verwenden.
+
+3. Die angekündigte Fehlerlokalisierung muss im Datensatz vorhanden und prüfbar sein.
+
+   _Cell.answer() reduziert das Operatorergebnis sofort auf .answer(). Dadurch gehen Status, Episoden-IDs und Operationsspur verloren. Die gespeicherten Antwortzeilen enthalten weder diese Informationen noch die tatsächlich ausgewählte Evidenz. recall() liefert lediglich aggregierte Abdeckung nach Kriterium.
+
+   Damit könnt ihr die angekündigten drei Negativarten und Fehlerstufen pro Antwort nicht auswerten. Auch Tokenkosten fehlen im Ergebnis, obwohl sie angekündigt werden.
+
+   Erforderlich: Pro Antwort mindestens Auswahl-IDs, Ergebnisstatus, Operationsspur und erforderliche Diagnostik speichern. Goldbezogene Unterstützungsabdeckung bleibt ausschließlich Evaluatorinformation. Tokenkosten lassen sich aus der vorhandenen Modelltelemetrie übernehmen.
+
+   Der neue Collector braucht außerdem die bereits erarbeiteten grundlegenden Validierungen zurück: Zeilenschema, erwartete Items/Kriterien, Paarstruktur, Wertebereiche und nachvollziehbare Aggregationen. Aktuell könnte beispielsweise eine Encoder-Genauigkeit von 1.5 durchgehen, weil nur das Vorhandensein von encoder geprüft wird.
+
+   Modellpins, Konfiguration, Code sowie Welt-/Fragensatz sollten wieder eindeutig an die Ergebnisse gebunden werden. Dafür würde ich vorhandene Prüffunktionen wiederverwenden.
+
+4. Die Integritäts- und Zustandsprüfungen versprechen mehr, als sie leisten.
+
+   Die Hashkette erkennt Änderungen und entfernte innere Datensätze. Das Abschneiden letzter Datensätze bleibt unentdeckt: Der verbleibende Präfix besitzt weiterhin eine gültige Kette.
+
+   Zusätzlich verwenden die Zustandsdigests nur den bereits gespeicherten letzten Hash. Eine Änderung an store._records[0]["place"] verändert diesen Digest nicht. Der Fingerprint garantiert deshalb derzeit keine unveränderten Speicherinhalte während der Antwort.
+
+   Erforderlich: Den abgeschlossenen Speicher gegen erwartete Datensatzanzahl und einen außerhalb der Datensatzkette festgehaltenen Abschlusswert prüfen. Für den Zustandsvergleich die tatsächlichen Inhalte prüfen oder wirksam unveränderliche Datensätze verwenden. Ergänzt gezielte Tests für Endabschneiden und Inhaltsänderungen im Arbeitsspeicher.
+
+   Für den Restart-Nachweis wäre es zudem stärker und einfacher nachvollziehbar, exakt das Artefakt der getesteten Hauptzelle weiterzugeben, statt separat noch einmal aus der Welt zu encodieren.
+
+5. Erwartbare Encoderfehler dürfen die Untersuchung nicht abbrechen oder die Übernahmeentscheidung beschönigen.
+
+   S1 qualifiziert bisher Person, Ort, Objekt und Tag. Handlung und zweiter Beteiligter sind zusätzliche Teilfunktionen. Gut, dass ihr sie in 3.2 messen wollt; ihre Zuverlässigkeit folgt aber noch nicht aus S1.
+
+   _clean() kann einen nicht erkannten Datumswert als Zeichenkette zurückgeben. Gemischte Datentypen können später bei Zeitvergleichen eine ganze Welt abbrechen lassen. Solche Modellfehler sollten als Messdaten erhalten bleiben und nicht sämtliche anderen Zellen dieser Welt unbrauchbar machen.
+
+   Erforderlich: Feldtypen validieren, erwartbare Extraktionsfehler ausdrücklich erfassen und betroffene Ergebnisse nachvollziehbar behandeln.
+
+   Außerdem sollte die Übernahmeregel für 3.3 all_slots und die End-to-End-Leistung berücksichtigen. Sechs Slotgenauigkeiten von jeweils 95 % bedeuten keine 95 % vollständig korrekten Episoden; bei unabhängigen Fehlern wären es ungefähr 73,5 %. Ihr berechnet all_slots bereits – nutzt diese Größe für die Entscheidung.
+
+6. Entwurf und ausführbare Matrix müssen übereinstimmen.
+
+   Im vorgelegten Paket fehlt struct+think in Runner, Konfiguration und Collector. Auch by_source(kind, by) ist beschrieben, aber nicht implementiert. Die bisherigen Benchmarkfragen prüfen zudem keine Quellenfilterung wie S5.
+
+   Erforderlich ist eine eindeutige Entscheidung: implementieren und gezielt prüfen oder ausdrücklich aus Runde 3.2 herausnehmen. Für den schnellsten Weg würde ich den umfangreichen Thinking-Lauf zurückstellen. Ein späterer kleiner Quellenversuch wäre zielgerichteter als eine teure Wiederholung aller Kriterien.
+
+Getrennte Verbesserungsideen – besonders für einen schnelleren Weg zu Meilenstein 3:
+
+- Den funktionalen Kern zuerst abschließen. Regex-Encoder, vollständiger Speicher, Operatoren, Restart und gezielte Eingriffe benötigen praktisch keine Modellinferenz. Diese Tests sollten den Übergang zur kleinen Handlungsumgebung in 3.3 ermöglichen. Die allgemeine Sprachschnittstelle kann anschließend verbessert werden; ihre bisher begrenzte Reichweite muss offen ausgewiesen bleiben.
+
+- Billige Retrievaldiagnostik vor teuren Readerläufen nutzen. struct_top() bevorzugt bei latest derzeit durch Gleichstandsauflösung frühe Datensätze. Bei E7 lädt es den zweiten benötigten Zusammenhang nicht gezielt nach. Die bereits niedrige Belegabdeckung ist deshalb ein vorhersehbarer Engpass. Prüft zeitbewusste Auswahl und zweistufiges Nachladen zunächst ohne LLM. Dokumentiert dabei, welche Verarbeitung bereits im Retriever steckt.
+
+- „Retrieval ceiling“ vorsichtiger benennen. Die Abdeckung der vorgesehenen Gold-Episoden ist eine wichtige Diagnose, aber keine strikte Obergrenze der Antwortgenauigkeit: Ein System kann zufällig richtig antworten oder alternative ausreichende Evidenz verwenden. „Gold-Belegabdeckung“ ist präziser.
+
+- Kein pauschaler Wechsel zu Qwen3. Beide Modelle bestehen den bisherigen S1-Test. Daraus ergibt sich kein Genauigkeitsvorteil für Qwen3 als Encoder. Vergleicht bei Bedarf die sechs tatsächlichen Slots auf einer kleinen gemeinsamen Stichprobe und entscheidet nach gemeinsamer Episodengenauigkeit und gemessenen Kosten. Thinking würde ich nur für eine ausdrücklich benötigte Fähigkeit einsetzen.
+
+- Die Thinking-Kosten als eigenen Erkenntnispreis behandeln. Bei den berichteten 38 Sekunden benötigen bereits 100 zusätzliche Antworten rund 63 Minuten. Das kann als Kontrollversuch sinnvoll sein, sollte den funktionsfähigen Speicher und 3.3 aber nicht aufhalten.
+
+- Die nächste echte Zielprüfung jetzt vorbereiten: identische aktuelle Beobachtung, unterschiedliche frühere Erfahrung, dadurch unterschiedliche richtige Handlung. Relevante Erinnerung entfernen oder gezielt vertauschen; irrelevante Erinnerung als Kontrollintervention verändern. Dieses Ergebnis würde das Meilenstein-3-Ziel wesentlich stärker voranbringen als weitere Verbesserungen auf den bekannten Schablonenfragen.
+
+Die Prüfung erfolgte statisch anhand beider Anhänge. Die berichteten Läufe und 78 Tests wurden nicht unabhängig ausgeführt oder extern verifiziert; Projektdateien wurden nicht verändert.

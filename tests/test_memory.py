@@ -54,6 +54,26 @@ class StoreTests(unittest.TestCase):
                 with self.assertRaises(StoreCorrupted):
                     EpisodeStore(path)
 
+    def test_tail_truncation_needs_the_external_seal(self):
+        world, _ = PAIR["low"]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "store.jsonl"
+            store = encoded_store(path, world)
+            seal = store.seal()
+            self.assertEqual(EpisodeStore(path, expect=seal).seal(), seal)
+            lines = path.read_text().splitlines()
+            path.write_text("\n".join(lines[:-2]) + "\n")
+            EpisodeStore(path)  # a valid prefix: undetectable from the chain alone
+            with self.assertRaises(StoreCorrupted):
+                EpisodeStore(path, expect=seal)
+
+    def test_content_digest_sees_in_memory_changes(self):
+        world, _ = PAIR["low"]
+        store = encoded_store(None, world)
+        before = store.content_digest()
+        store._records[0]["place"] = "Changed Place"
+        self.assertNotEqual(store.content_digest(), before)
+
     def test_append_only_interface(self):
         store = EpisodeStore()
         rec = store.append("x", {"actor": "A B", "partner": None, "action": "hid", "object": "c d",

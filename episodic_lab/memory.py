@@ -40,7 +40,10 @@ def _digest(record: dict) -> str:
 class EpisodeStore:
     """Append-only episodic store backed by one file (or memory only if path is None)."""
 
-    def __init__(self, path: str | os.PathLike | None = None, stream: str = "agent"):
+    def __init__(self, path: str | os.PathLike | None = None, stream: str = "agent",
+                 expect: dict | None = None):
+        """`expect` = a seal kept OUTSIDE the record chain ({"count", "head"}); with it, a
+        store whose last records were cut off is refused as well."""
         self.path = Path(path) if path is not None else None
         self.stream = stream
         self._records: list[dict] = []
@@ -52,6 +55,17 @@ class EpisodeStore:
                     raise StoreCorrupted(f"record {n}")
                 prev = rec["hash"]
                 self._records.append(rec)
+        if expect is not None and self.seal() != expect:
+            raise StoreCorrupted(f"seal mismatch: {self.seal()} != {expect}")
+
+    def seal(self) -> dict:
+        return {"count": len(self._records),
+                "head": self._records[-1]["hash"] if self._records else GENESIS}
+
+    def content_digest(self) -> str:
+        """Digest of the actual record contents (not of the stored hashes), so any change
+        of a record in working memory changes it."""
+        return hashlib.sha256(json.dumps(self._records, sort_keys=True).encode()).hexdigest()
 
     @property
     def records(self) -> list[dict]:
@@ -93,29 +107,50 @@ def regex_encode(text: str) -> dict:
 
 
 # ----------------------------------------------------------------- operators
+# Every operator takes the record set it may use and whether that set is the COMPLETE
+# store (`complete`). Statuses:
+#   ok                    a value supported by the records used
+#   none_in_scope         complete scope; the cue's entities are known, the combination never occurred
+#   no_observation        complete scope; one of the cue's entities was never recorded
+#   ambiguous             several records with different answers
+#   insufficient_evidence incomplete scope; nothing (or no unique latest/negative) can be concluded
+# Global statements (a negative, "latest", "last handler") require a complete scope.
+STATUSES = ("ok", "none_in_scope", "no_observation", "ambiguous", "insufficient_evidence")
+
+
 @dataclass
 class Result:
     value: str | None
-    status: str                     # "ok", "none_in_scope", "no_observation", "ambiguous"
+    status: str
     ids: list = field(default_factory=list)
     trace: list = field(default_factory=list)
 
     def answer(self) -> str:
-        """Closed-benchmark answer: a value, or "none" only for none_in_scope."""
+        """Closed-benchmark answer: a value, "none" only for none_in_scope, else "unknown"."""
         if self.status == "ok":
             return self.value
         return "none" if self.status == "none_in_scope" else "unknown"
+
+    def to_json(self) -> dict:
+        return {"value": self.value, "status": self.status, "ids": list(self.ids),
+                "trace": [[op, arg, list(ids)] for op, arg, ids in self.trace]}
 
 
 def _people(r):
     return {r["actor"]} | ({r["partner"]} if r["partner"] else set())
 
 
+def _day(r):
+    """Event day if it is a valid integer, else None (an encoder error stays a datum)."""
+    d = r.get("event_day")
+    return d if isinstance(d, int) and not isinstance(d, bool) else None
+
+
 def match(records, person=None, action=None, obj=None, place=None, day=None):
     return [r for r in records
             if (person is None or person in _people(r)) and (action is None or r["action"] == action)
             and (obj is None or r["object"] == obj) and (place is None or r["place"] == place)
-            and (day is None or r["event_day"] == day)]
+            and (day is None or _day(r) == day)]
 
 
 def _known(records, person=None, obj=None, place=None, **_):
@@ -125,70 +160,101 @@ def _known(records, person=None, obj=None, place=None, **_):
             and (place is None or any(r["place"] == place for r in records)))
 
 
-def find(records, cue: dict, want: str) -> Result:
+def _negative(records, cue, complete, universe=None):
+    """Negative status. `universe` = the whole store when the selection was certified by
+    an index scan over it (entity knowledge then comes from the index, not the subset)."""
+    if not complete:
+        return "insufficient_evidence"
+    return "none_in_scope" if _known(universe if universe is not None else records, **cue) else "no_observation"
+
+
+def find(records, cue: dict, want: str, complete: bool = True, universe=None) -> Result:
     hits = match(records, **cue)
     trace = [("find", dict(cue), [h["id"] for h in hits])]
     if not hits:
-        return Result(None, "none_in_scope" if _known(records, **cue) else "no_observation", [], trace)
-    values = {(h["actor"] if want == "person" else str(h["event_day"]) if want == "day" else h[want])
-              for h in hits}
-    if len(values) != 1:
+        return Result(None, _negative(records, cue, complete, universe), [], trace)
+    if want == "day":
+        values = {str(_day(h)) if _day(h) is not None else None for h in hits}
+    else:
+        values = {h["actor"] if want == "person" else h[want] for h in hits}
+    if len(values) != 1 or None in values:
         return Result(None, "ambiguous", [h["id"] for h in hits], trace)
     return Result(values.pop(), "ok", [h["id"] for h in hits], trace)
 
 
-def latest(records, person: str) -> Result:
-    hits = match(records, person=person)
+def latest(records, person: str, complete: bool = True) -> Result:
+    hits = [h for h in match(records, person=person) if _day(h) is not None]
     trace = [("latest", person, [h["id"] for h in hits])]
+    if not complete:
+        return Result(None, "insufficient_evidence", [h["id"] for h in hits], trace)
     if not hits:
         return Result(None, "no_observation", [], trace)
-    last = max(hits, key=lambda r: r["event_day"])
-    return Result(last["place"], "ok", [last["id"]], trace)
+    top = max(_day(h) for h in hits)
+    last = [h for h in hits if _day(h) == top]
+    if len({h["place"] for h in last}) != 1:
+        return Result(None, "ambiguous", [h["id"] for h in last], trace)
+    return Result(last[0]["place"], "ok", [h["id"] for h in last], trace)
 
 
-def state_at(records, person: str, day: int) -> Result:
-    if not match(records, person=person):
-        return Result(None, "no_observation", [], [("state_at", (person, day), [])])
+def state_at(records, person: str, day: int, complete: bool = True, universe=None) -> Result:
     hits = match(records, person=person, day=day)
-    trace = [("state_at", (person, day), [h["id"] for h in hits])]
+    trace = [("state_at", [person, day], [h["id"] for h in hits])]
     if not hits:
-        return Result(None, "none_in_scope", [], trace)
+        return Result(None, _negative(records, {"person": person}, complete, universe), [], trace)
     places = {h["place"] for h in hits}
     if len(places) != 1:
         return Result(None, "ambiguous", [h["id"] for h in hits], trace)
     return Result(places.pop(), "ok", [h["id"] for h in hits], trace)
 
 
-def compare_time(records, cue_a: dict, cue_b: dict) -> Result:
+def compare_time(records, cue_a: dict, cue_b: dict, complete: bool = True, universe=None) -> Result:
     a, b = match(records, **cue_a), match(records, **cue_b)
-    trace = [("compare_time", (dict(cue_a), dict(cue_b)), [r["id"] for r in a + b])]
-    if len(a) != 1 or len(b) != 1:
-        status = "ambiguous" if (len(a) > 1 or len(b) > 1) else "none_in_scope"
-        return Result(None, status, [r["id"] for r in a + b], trace)
-    if a[0]["event_day"] == b[0]["event_day"]:
-        return Result(None, "ambiguous", [a[0]["id"], b[0]["id"]], trace)
-    return Result("A" if a[0]["event_day"] < b[0]["event_day"] else "B", "ok",
-                  [a[0]["id"], b[0]["id"]], trace)
+    ids = [r["id"] for r in a + b]
+    trace = [("compare_time", [dict(cue_a), dict(cue_b)], ids)]
+    if len(a) > 1 or len(b) > 1:
+        return Result(None, "ambiguous", ids, trace)
+    if not a or not b:
+        missing = cue_a if not a else cue_b
+        return Result(None, _negative(records, missing, complete, universe), ids, trace)
+    da, db = _day(a[0]), _day(b[0])
+    if da is None or db is None or da == db:
+        return Result(None, "ambiguous", ids, trace)
+    return Result("A" if da < db else "B", "ok", ids, trace)
 
 
-def link_latest(records, cue: dict, holder: str = "actor") -> Result:
-    """E7: the person of the unique event matching `cue`, then that person's latest place."""
-    first = find(records, cue, "person")
+def link_latest(records, cue: dict, complete: bool = True, universe=None) -> Result:
+    """E7 "find": the person of the unique event matching `cue`, then that person's latest place."""
+    first = find(records, cue, "person", complete, universe)
     if first.status != "ok":
         return Result(None, first.status, first.ids, first.trace)
-    nxt = latest(records, first.value)
+    nxt = latest(records, first.value, complete)
     return Result(nxt.value, nxt.status, first.ids + nxt.ids, first.trace + nxt.trace)
 
 
-def last_handler_latest(records, obj: str) -> Result:
+def last_handler_latest(records, obj: str, complete: bool = True) -> Result:
     """E7 "act": the actor of the latest event with the object, then that actor's latest place."""
-    with_obj = match(records, obj=obj)
+    with_obj = [r for r in match(records, obj=obj) if _day(r) is not None]
     trace = [("last_handler", obj, [r["id"] for r in with_obj])]
+    if not complete:
+        return Result(None, "insufficient_evidence", [r["id"] for r in with_obj], trace)
     if not with_obj:
         return Result(None, "no_observation", [], trace)
-    holder = max(with_obj, key=lambda r: r["event_day"])["actor"]
-    nxt = latest(records, holder)
+    top = max(_day(r) for r in with_obj)
+    holders = {r["actor"] for r in with_obj if _day(r) == top}
+    if len(holders) != 1:
+        return Result(None, "ambiguous", [r["id"] for r in with_obj], trace)
+    nxt = latest(records, holders.pop(), complete)
     return Result(nxt.value, nxt.status, [r["id"] for r in with_obj] + nxt.ids, trace + nxt.trace)
+
+
+def misbind(records: list[dict], seed: str) -> list[dict]:
+    """Control store: places and objects permuted across records (marginals kept)."""
+    import random
+    rng = random.Random(seed)
+    places, objects = [r["place"] for r in records], [r["object"] for r in records]
+    rng.shuffle(places)
+    rng.shuffle(objects)
+    return [dict(r, place=pl, object=ob) for r, pl, ob in zip(records, places, objects)]
 
 
 # ----------------------------------------------------------------- question parsing (shared)
@@ -227,21 +293,21 @@ def parse_question(text: str) -> tuple[str, dict] | None:
     return None
 
 
-def answer_query(records, qtype: str, query: dict) -> Result:
+def answer_query(records, qtype: str, query: dict, complete: bool = True, universe=None) -> Result:
     if qtype in ("object", "place", "person", "day"):
-        return find(records, query["cue"], qtype)
+        return find(records, query["cue"], qtype, complete, universe)
     if qtype == "order":
         if query["a"] is None or query["b"] is None:
             return Result(None, "no_observation")
-        return compare_time(records, query["a"], query["b"])
+        return compare_time(records, query["a"], query["b"], complete, universe)
     if qtype == "latest":
-        return latest(records, query["person"])
+        return latest(records, query["person"], complete)
     if qtype == "at_day":
-        return state_at(records, query["person"], query["day"])
+        return state_at(records, query["person"], query["day"], complete, universe)
     if qtype == "act":
-        return last_handler_latest(records, query["obj"])
+        return last_handler_latest(records, query["obj"], complete)
     if qtype == "find":
-        return link_latest(records, query["cue"])
+        return link_latest(records, query["cue"], complete, universe)
     raise ValueError(qtype)
 
 
@@ -258,8 +324,7 @@ class MemoryAgent:
         self.store.append(text, self.encoder(text), encoder=self.encoder_name)
 
     def state_digest(self) -> str:
-        recs = self.store._records
-        return recs[-1]["hash"] if recs else GENESIS
+        return self.store.content_digest()
 
     def answer(self, text: str, answer_type: str | None = None) -> str:
         parsed = parse_question(text)

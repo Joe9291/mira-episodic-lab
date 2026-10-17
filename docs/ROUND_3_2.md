@@ -1,93 +1,98 @@
-# Round 3.2 - agent memory from S0 (design, for review before building)
+# Round 3.2 - agent memory from S0 (design v2, after Astra's review of v1)
 
-Uncertainty removed: does an explicit episodic memory work as an agent memory (survives
-a restart, answers from its own records, abstains correctly), and does a gain come from
-retrieval, from the operators, or from both? Ends with one run on the development
-worlds; the next round (3.3, action environment) starts from its result.
+Uncertainty removed: does an explicit episodic memory work as an agent memory (survives a
+restart, answers from its own records, abstains correctly and only where it may), and
+does a gain come from what is selected or from how it is processed? Ends with one run;
+round 3.3 (action environment with causal interventions) starts from its result and is
+prepared in parallel. Review of v1: `reviews/2026-10-17_r32_astra.txt`.
 
-Basis: round 3.1 (docs/ROUND_3_1.md): the reader extracts single details reliably
-(1.00 in both channels, both models) and fails at comparison, conjunctive matching with
-abstention, linking and source filtering (0.05-0.53). So: the LM reads and extracts; the
-memory compares, matches, links, filters and abstains.
+Basis: round 3.1/3.1b (docs/ROUND_3_1.md). Direct and instructed step-by-step answers of
+both small readers fail at comparison, conjunctive matching with abstention, linking and
+source filtering; extraction of a single detail works. Qwen3's whole thinking
+configuration (thinking mode, its sampling and a 1024-token budget, changed together)
+lifts all four, S5 to 20/21 (observed cases 6/7) - a reason for a limited later test,
+not a reliability proof. The candidate procedure used did not remove the failures; it
+does not prove that output format, scoring and calibration play no part.
 
-## 1. Store (episodic_lab/memory.py, evolved from S0)
+## 1. Store (episodic_lab/memory.py)
 
-Append-only JSON-lines file; one record per episode, written once and flushed; never
-rewritten. Record fields:
+Append-only JSON-lines file; one record per episode, written once and flushed; SHA-256
+chain (changed, removed or reordered records are refused) plus an external seal (record
+count and head hash kept outside the file) that also refuses a store whose last records
+were cut off. Fields: identity (`id`, `stream`, `seq` = record time), `event_day`,
+`actor`, `partner`, `action`, `object`, `place`, `source` (kind, by), original `text`,
+`relations`, `encoder`. Derived state (latest place etc.) is computed at query time. The
+runner's fingerprint uses a digest of the actual record contents, so any change of a
+record in working memory while answering is detected.
 
-| group | fields |
-|---|---|
-| identity | `id` (random), `stream` (whose experience), `seq` (record order) |
-| time | `event_day` (time of the reported event, may be missing), `seq` is the record time |
-| content | `actor`, `partner`, `action`, `object`, `place` |
-| source | `kind` (observed / own_action / reported / inferred), `by` (who reported) |
-| original | `text` (the input exactly as received) |
-| relations | list of `{type: corrects / same_event / derived_from, target: id}` |
-| encoding | `encoder` ("regex" or "lm:<model>"), per-slot raw extractor output |
+## 2. Operators and scope
 
-Current state (e.g. latest place of a person) is always derived from the records at query
-time, never stored, so history cannot be overwritten and no view can drift.
+Every operator receives the records it may use and whether that set is the complete
+store. Statuses: `ok`; `none_in_scope` and `no_observation` (only with a complete scope:
+the cue's entities are known but the combination never occurred / an entity was never
+recorded); `ambiguous`; `insufficient_evidence` (incomplete scope: no negative, no
+"latest", no "last handler" may be concluded). Only `none_in_scope` maps to "none" in the
+closed benchmark; everything that is not `ok` or `none_in_scope` answers "unknown". All
+operators use the same semantics (compare_time included). Days that are not valid
+integers (an encoder error) are treated as unknown, never compared.
 
-## 2. Encoders (where the LM is used)
+## 3. Cells - reader and operators always get the same selection
 
-- **regex** (S0's template parser): control and ceiling.
-- **lm**: slot filling by single-detail questions to the reader, the skill that round 3.1
-  showed to be reliable: day, main person, other person (or none), action, object,
-  place; one fresh chat per slot, v1 instruction, strict grammar with open values.
-  Reported: accuracy per slot against the generator's truth (encoding-stage errors).
-  Rule: if every slot is >= 0.95, the lm encoder becomes the main encoder from round 3.3
-  on (the template parser must not be needed once wordings change in round 3.4).
-
-## 3. Operators (explicit, with trace)
-
-`find(cue)`, `compare_time(cue_a, cue_b)`, `state_at(person, day)`, `latest(person)`,
-`link(cue_identifying_person, cue_answer)`, `by_source(kind, by)`. Every result carries
-the episode ids used and the operation sequence. Negative results are three-valued:
-`none_in_scope` (no matching event in a fully observed scope), `no_observation`
-(nothing recorded about the cue's subject), `ambiguous` (several matches with different
-answers). Only `none_in_scope` maps to "none" in the closed benchmark; the other two are
-reported separately.
-
-## 4. Comparison on the template benchmark
-
-Question parsing into a structured query is shared by all cells (the template question
-parser; an LM cue parser is a round 3.4 extension), so no cell gets a more precise query
-than another.
-
-| cell | retrieval | processing |
+| cell | selection | processing |
 |---|---|---|
-| lex+reader | BM25 over the raw texts, top 3 | the LM reads the retrieved notes and answers |
-| struct+reader | conjunctive match over the records (pattern completion: most cue features matched), up to 3 | same LM reader |
-| lex+ops | BM25 top 3 | explicit operators over the records of the retrieved episodes |
-| struct+ops | conjunctive match | explicit operators (the full system) |
-| struct+think | as struct+reader, reader = Qwen3-0.6B in thinking mode | added because round 3.1b found S5 at 0.95 and S2/S3 at 0.75-0.82 with thinking; run on the 5 pilot-m2 worlds only (about 38 s per answer) |
+| lex3+reader / lex3+ops | BM25 over the raw texts, top 3; cannot certify completeness | LM reads the 3 notes / operators with incomplete scope |
+| struct3+reader / struct3+ops | index scan over all records: all full matches of each event in the query first, best partial matches after; time-aware for "latest" (the person's most recent records), two-stage for E7 (the unique cue match, then its person's most recent records); certified complete when the full matches (or the latest-day records) fit into the 3 | LM reads the 3 notes / operators with the certified scope |
+| full+ops (reference) | all records | operators, complete scope |
+| random3+ops (control) | 3 records by a hash of the question | operators, incomplete scope |
+| full+ops/lm-encoder | all records of a store written by the LM encoder | operators |
 
-Controls: no memory (A0), all in prompt (A1), S0 reference, random retrieval (3 random
-episodes) + operators, misbound store (participants, objects and places permuted across
-records, marginals kept) + operators, encoder regex vs lm for struct+ops.
+The struct3 retriever contains processing of its own (time order, two stages); this is
+part of the "struct" method and is reported as such. Baselines A0 and A1 (v1
+instruction) run on the same worlds. Removed from round 3.2 (decision): the
+thinking-reader cell (about 38 s per answer; a small targeted source test later is more
+useful than a costly repeat of all criteria) and the `by_source` operator (the template
+benchmark has no source items; source filtering returns with the action environment).
 
-Error localisation per answer: encoding (record vs truth), retrieval (were all target
-episodes retrieved), operation (result given the retrieved records), output/abstention.
+## 4. Per-answer record and evaluation
 
-## 5. Restart test (completion point)
+Every answer row stores, besides raw answer and category: the selected record ids, the
+scope flag, the operator status and trace (replayed deterministically after the run from
+the record set of that test point, never while answering) and, as evaluator-only
+information, whether all gold target episodes were selected ("gold support"; not an
+upper bound of accuracy). Cost per cell: LM calls, prompt and new tokens. A failing cell
+is recorded with its traceback and does not stop the others.
 
-Process 1 receives the episodes one by one and writes the store, then exits. Process 2 is
-a fresh interpreter that receives only the store path, the fixed code and the public
-questions (no world file, no chat history) and answers. Passed if: (a) process 2's
-answers equal an in-process run on the same store; (b) with an empty store process 2
-loses all episode-dependent accuracy (falls to the no-memory level); (c) a store file
-with one byte changed is detected (per-record SHA-256 chain) and refused.
+The collector trusts nothing: it regenerates world and questions from series and index
+(hashes must match, every expected item answered exactly once), re-scores every row from
+its raw answer, recomputes all summaries, re-runs the deterministic cells and compares
+their raw answers, replays the reader cells' selections, replays the LM-encoder cell from
+its recorded records, recomputes the misbound control, checks provenance (request and
+pins hashes, one code commit) and the restart flags.
 
-## 6. Worlds and models
+## 5. LM encoder
 
-Development series `dev-m3`, 10 new worlds (both overlap conditions), plus the five
-`pilot-m2` worlds for paired comparison with the pilot's A0/A1/O1. Reader and lm encoder:
-qwen2.5-0.5b (selected model). Expected on the template benchmark: struct+ops near 1.0
-with the regex encoder; a working prototype, not a surprising finding. The informative
-numbers are the cell differences, the lm encoder accuracy and the restart test.
+Slot filling by single-detail questions (day, first person, second person or none,
+action, object, place), one fresh chat per slot, v1-style instruction; every value is
+type-checked; invalid values are kept as data (`invalid`) and never stop the run. S1
+qualified person, place, object and day; the second person and the action are measured
+here for the first time. Adoption rule for round 3.3 (fixed now): all_slots (share of
+episodes with every slot right) >= 0.95 AND the full+ops/lm-encoder cell within 0.02 of
+full+ops on positive final items AND its lure false recall <= 0.05. Otherwise the regex
+encoder is used in 3.3 and the limit is stated.
 
-## 7. Reported
+## 6. Restart test (completion point)
 
-Per cell and criterion: accuracy, lure false recall, the three negative kinds, error
-stage; encoder slot accuracy; restart test (a)-(c); cost per cell (LM calls, tokens,
-seconds).
+Exactly the store file of the full+ops cell and its seal are handed to a fresh isolated
+interpreter that receives only the store path, the seal, the fixed code and the public
+questions. Passed if: (a) answers equal the in-process answers; (b) with an empty store
+no positive item is answered correctly; (c) a store with its last record cut off and (d)
+a store with one changed record are refused.
+
+## 7. Worlds, model, run
+
+Development series `dev-m3` worlds 0-9 and `pilot-m2` worlds 0-4 (paired with the pilot),
+both overlap conditions, v1 question sets. Reader and LM encoder: qwen2.5-0.5b (selected;
+no switch to Qwen3 without a measured reason: both pass S1). Expected on the template
+benchmark: full+ops and struct3+ops near 1.0; the informative results are the reader vs
+operator difference at equal selection, the lex vs struct difference, the LM encoder
+and the restart test.
