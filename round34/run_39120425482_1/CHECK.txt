@@ -1,0 +1,15 @@
+OK schema, provenance, design, one store per world, re-run and store integrity
+
+VERDICT COMPLETE
+
+PASS availability: every planned case of intact, none, old_removed, last_removed, irrelevant_removed
+PASS availability: old_swapped in >= 90% of planned cases
+PASS informative cases >= 60% of planned (first goal: old_removed, old_swapped; current goal: last_removed)
+PASS episodic intact: success 1.0 for all goals, pair success 1.0 for the first goal
+PASS state_only: success 1.0 for the current goal, pair success 0.0 for the first goal
+PASS episodic none: pair success 0.0 for the first goal
+PASS old_removed, old_swapped: first goal as predicted >= 0.95 (informative); current and previous unchanged 1.0
+PASS last_removed: current goal as predicted >= 0.95 (informative); first goal unchanged 1.0
+PASS irrelevant_removed: success 1.0 for all goals
+
+MILESTONE PASS
