@@ -284,3 +284,22 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    that the approved sum score can be compared with a per-token mean and a calibrated
    (pointwise mutual information) score on the same encodings. A switch away from the
    approved score definition would be a design change and goes to Astra first.
+3. Probe 2 (GitHub 39152703744; p2, c2; qwen2.5-0.5b; same 80 texts, null scores and
+   token counts recorded): complete records 0.000 under every scoring mode. Sum and
+   per-token mean behave alike ("You" for actors and receivers, nouns without adjective);
+   the calibrated score (minus the score without the note) fixes the actors (48/48 of the
+   non-"You" actors) and the action (72/80) but never chooses "You" or "none" and picks
+   note-specific junk for objects and places. Offline sweep of a partial calibration
+   (sum - a * null, per slot, on these 80 development texts): best per slot actor 69/80
+   (a 0.25), action 72/80 (a 1.0), object 60/80 (a 0.25), place 80/80 (a 0), receiver at
+   most 16/80 (only the "You" receivers; "none" is never chosen at any a). Reading: the
+   0.5B model with this interface is far from the 0.95 criterion; no rescaling of its
+   scores closes the gap. Next measurement (probe 3, before any design change): a
+   few-shot prompt p3 (five worked examples per slot as earlier chat turns, development
+   wordings only, names/places/objects outside the world vocabulary) and the larger model
+   qwen2.5-1.5b (pinned in run 39154386597, revision 989aa798..., Apache-2.0; qwen2.5-3b
+   pinned as well, revision aa8e7253..., Qwen research licence, not yet used: 12 GB of
+   float32 weights are tight on the 16 GB runner). The design said "a larger model only
+   if both fail, as a separate measured decision": qwen2.5-0.5b failed in the timing run
+   and probes 1-2, qwen3-0.6b in the timing run (0.10); this probe measures, the decision
+   goes to Astra with the evidence.
