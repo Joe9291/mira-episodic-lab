@@ -1,0 +1,9 @@
+{
+ "schema": "episodic_lab.round35_request.v1",
+ "enabled": true,
+ "note": "Round 3.5 (docs/ROUND_3_5.md): development probe 3 - few-shot prompt p3 and the larger model qwen2.5-1.5b (measurement for the model-size decision), 80 stratified development texts, null scores and token counts recorded.",
+ "phase": "probe",
+ "models": ["qwen2.5-0.5b+p3", "qwen2.5-1.5b+p2", "qwen2.5-1.5b+p3"],
+ "splits": ["dev"],
+ "chunks": 1
+}
