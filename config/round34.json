@@ -1,6 +1,6 @@
 {
  "schema": "episodic_lab.round34_request.v1",
- "enabled": false,
+ "enabled": true,
  "note": "Round 3.4 step 1 (docs/ROUND_3_4.md): history goals with an identical final state, current-state baseline, decisions in a fresh process. No model inference.",
  "series": "hist-m34",
  "pairs_per_kind": 40

@@ -1,0 +1,34 @@
+7m nachgedacht
+
+unittest.main()
+---END FILE tests/test_round34.py---
+
+APPROVE für Runde 3.4 Schritt 1 v1 als deterministischen funktionalen Test.
+
+Das Design liefert den vorgeschlagenen zusätzlichen Beleg: Historische Ortsinformation beeinflusst spätere Entscheidungen, obwohl die aktuellen Zustände der gepaarten Welten übereinstimmen.
+
+Die konkreten Gründe:
+
+1. Der identische Endzustand wird tatsächlich geprüft. Der Collector kontrolliert Objekt- und Personenorte, identische Entscheidungsinformationen sowie die Gleichheit der Zustandsbaseline. Gleichzeitig müssen sich die historischen Erstorte unterscheiden. Das trägt den zentralen Vergleich.
+
+2. Die Zustandsbaseline ist als Informationsablation geeignet. Sie erhält dieselben Erfahrungen und denselben Encoder. Ihre Zustände sind innerhalb eines Paars identisch. Deshalb kann eine deterministische Entscheidung daraus nicht beide unterschiedlichen historischen Erstorte korrekt bestimmen. Diese Paarstruktur macht den Vergleich aussagekräftig; die historische Einzelgenauigkeit der konkreten Explorationsregel ist dafür zweitrangig.
+
+3. Die Eingriffe prüfen zielabhängige Spezifität. Entfernen oder Vertauschen der alten Episode verändert die erste historische Entscheidung, während aktuelle und vorherige Position erhalten bleiben. Entfernen der letzten Episode verändert die aktuelle Entscheidung und erhält die erste. Die zusätzliche previous-Aufgabe prüft eine weitere Position innerhalb des Verlaufs.
+
+4. Speicher, Referenz und Auswertung sind ausreichend getrennt. Derselbe versiegelte Speicher pro Welt und Intervention dient allen drei Zielen. Die Vorhersagen verwenden strukturierte Umgebungsereignisse und eigene Regeln; die Gedächtnisseite arbeitet mit tatsächlich kodierten Einträgen. Der Encoderfehlertest prüft diese Trennung sinnvoll.
+
+5. Die Freigabemechanik ist sauber. Vollständigkeit, Provenienz, Reproduktion, Integritätsproben und Zielkriterien werden getrennt geprüft. Der Workflow verlangt sowohl COMPLETE als auch PASS. Die Generatoränderung nach dem Verfügbarkeitsfehler ist offengelegt und als Entwicklungsänderung nachvollziehbar.
+
+Die lokalen Ergebnisse passen zum erwarteten Verhalten dieser Implementierung. Sie dienen hier der Integrations- und Kontrollprüfung. Ich habe den Anhang vollständig statisch geprüft; Tests, lokale Ergebnisse und Mutationsprüfungen habe ich nicht selbst ausgeführt.
+
+Verbesserungsideen – keine zusätzlichen Freigabebedingungen
+
+- Die Aussage zur späten Zielwahl präzisieren. generate_pair() erzeugt bereits alle drei Zieltexte; run() übergibt sie erst nach der Speicherung nacheinander. Nachgewiesen sind zielunabhängige Speicherung und spätere Zielübergabe. „Bevor irgendein Ziel existiert“ und „Ziele werden danach gezogen“ beschreiben den Code zu stark.
+
+- Vor dem LM-Schritt die neuen Historienoperatoren gegen unbekannte Felder absichern. target_records() verwendet derzeit exaktes Matching. Ein Eintrag mit unbekanntem Akteur könnte beispielsweise eine frühere Sichtung der gesuchten Person sein und würde übergangen. Für die fehlerfreien Templateeinträge dieses Schritts ist das unproblematisch; beim LM-Encoder müssen possible() und die Unsicherheitsmetadaten auch für first und previous berücksichtigt werden.
+
+- Den Zwei-Ereignis-Fall für previous direkt testen. Nach last_removed muss die vorherige Position zum ursprünglichen Erstort werden. Die Ergebnistabelle zeigt dieses Verhalten bereits; ein ausdrücklicher Regressionstest würde diese zusätzliche Vorhersage absichern.
+
+- Die nächste Aussage zur Speicherrepräsentation gezielt prüfen. Ein kleiner Cache für erste, vorletzte und letzte Position könnte die derzeit festgelegten Ziele ebenfalls beantworten. Eine solche weitere Baseline wäre günstig und würde zeigen, wie viel historische Information diese Aufgaben tatsächlich verlangen. Spätere kontextbezogene Abfragen könnten anschließend den Nutzen einer umfassenderen Ereignishistorie prüfen.
+
+- Die Einleitung zu 3.3 korrigieren. Dort gab es bereits die historische Geber-Verknüpfung. Der neue Beitrag von 3.4 ist die relevante historische Ortsinformation bei identischem aktuellem Zustand, einschließlich der selektiven Eingriffseffekte auf unterschiedliche Ziele.

@@ -1,13 +1,19 @@
-# Round 3.4 step 1 - history goals with an identical final state (v1)
+# Round 3.4 step 1 - history goals with an identical final state (v1, Astra APPROVE)
 
-Uncertainty removed: round 3.3 asked only "where is X now?"; a memory that keeps nothing
-but the current state (latest place per object and person) would solve that as well.
+Uncertainty removed: in round 3.3 the object goals asked "where is X now?" (a memory that
+keeps only the current state - latest place per object and person - would solve them as
+well), and the giver goal already linked a historical episode (who gave X) to a current
+one. New here: historical PLACE information that matters although the current state of
+the paired worlds is identical, with intervention effects selective for different goals.
 Episodic means that the history of single events is kept and can be used for a goal
 chosen later. This step tests exactly that, as Astra proposed in her reviews of round
-3.3 (`reviews/2026-10-17_r33_astra.txt`, `reviews/2026-10-17_r32v3_r33v2_astra.txt`):
+3.3 (`reviews/2026-10-17_r33_astra.txt`, `reviews/2026-10-17_r32v3_r33v2_astra.txt`).
+Review of v1: `reviews/2026-10-18_r34v1_astra.txt` (APPROVE; her wording, test and scope
+ideas adopted before the run, see the end of this document):
 
-1. one store per world, written before any goal exists, used unchanged for different
-   goals chosen afterwards;
+1. goal-independent storage: one store per world, written before any goal is handed to
+   the agent, used unchanged for the different goals handed over afterwards (the
+   generator creates all goal texts in advance; the agent sees none while storing);
 2. paired worlds whose FINAL STATE is identical (every object's last place and every
    person's last appearance), checked explicitly; they differ only in an OLD episode;
 3. changing the old episode changes the historical decision as predicted and leaves the
@@ -38,8 +44,8 @@ In both kinds one further day holds an irrelevant episode of the same type as th
 place that differs from the old place in both worlds: the swap partner of the
 old_swapped intervention.
 
-Goals, all three asked for every stored world (the store is written first; the goal is
-drawn afterwards and never seen while encoding):
+Goals, all three asked for every stored world (the store is written first; the goals
+are handed over one by one afterwards and are never seen while encoding):
 
 | goal | object kind | person kind | truth | A vs B |
 |---|---|---|---|---|
@@ -121,10 +127,21 @@ no criterion was changed.
 ## What a pass shows, and what it does not
 
 It shows, for the explicit agent memory: the store keeps event history that a
-current-state memory with the same experiences does not have; one store written before
-the goal serves different later goals; the old and the latest episode control different
+current-state memory with the same experiences does not have; one goal-independently
+written store serves different goals handed over later; the old and the latest episode control different
 decisions (double dissociation), as predicted by an independent reference. The result is
 expected by construction for a correct rule-based implementation; the round checks that
 the implementation, the design (identical final state) and the evaluation hold. It does
 not show robustness to free wording, an LM's ability to write or use the memory, reports
-and corrections, or scale. Statistical statements, if any, treat pairs as units.
+and corrections, or scale. Nor does it show that a full event history is needed: a small
+cache of the first, the previous and the latest place per entity would answer these three
+fixed goals as well (Astra); that baseline, and context-dependent historical queries that
+such a cache cannot anticipate, belong to a later step. Statistical statements, if any,
+treat pairs as units.
+
+Before the LM encoder is used with these operators (round 3.4 step 2), the history
+operators must handle unknown fields like the round 3.2 v4 operators: `target_records`
+matches exactly, so a record with an unknown actor that could be an earlier sighting of
+the person would be skipped; `possible()` and the declared unknowns must also govern the
+first and previous positions. With the error-free template records of this step that
+case cannot occur.

@@ -94,6 +94,21 @@ class ReferenceTests(unittest.TestCase):
                     self.assertEqual({g: pred["old_swapped"][g] for g in ("current", "previous")},
                                      {g: pred["intact"][g] for g in ("current", "previous")})
 
+    def test_after_the_latest_episode_is_removed_previous_becomes_the_first_place(self):
+        # two remaining episodes: the previous position is the original first place
+        for kind in KINDS:
+            for i in range(6):
+                pair = generate_pair(f"{SERIES}-{i}", kind)
+                for name in "AB":
+                    w = pair["worlds"][name]
+                    pred = predictions(pair, name)["last_removed"]
+                    self.assertEqual((pred["previous"], pred["current"], pred["first"]),
+                                     (w["truth"]["first"], w["truth"]["previous"], w["truth"]["first"]))
+                    store = write_store(None, w["experiences"])
+                    contents = derive_variant(plan(pair, name)["last_removed"], store.records)
+                    recs = env_agent.materialize(None, contents, [{"kind": "observed", "by": None}] * len(contents)).records
+                    self.assertEqual(decide(recs, w["decisions"]["previous"])["action"]["go"], w["truth"]["first"])
+
     def test_an_encoding_error_cannot_change_a_prediction(self):
         pair = generate_pair(f"{SERIES}-1", "object")
         w = pair["worlds"]["A"]

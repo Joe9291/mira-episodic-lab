@@ -1,7 +1,7 @@
 """Round 3.4 step 1 job: history goals with an identical final state (docs/ROUND_3_4.md).
 
 Experience phase (this process): for each world the episodic store is written ONCE
-(sealed) before any goal is drawn; every intervention is derived from that encoded store
+(sealed) before any goal is handed to the agent; every intervention is derived from that encoded store
 and written as a new sealed store; the state-only baseline reads the same experiences
 and writes its state file (with its digest). Decision phase: every case (system x world
 x intervention x goal) is decided by a new isolated interpreter that receives only one
@@ -77,7 +77,7 @@ def run(series: str, pairs_per_kind: int, workdir: Path) -> dict:
             for world in ("A", "B"):
                 w = pair["worlds"][world]
                 tag = f"{kind}_{i}_{world}"
-                # 1. experience phase: everything is stored before any goal is drawn
+                # 1. experience phase: everything is stored before any goal is handed over
                 encoded = write_store(workdir / f"{tag}_encoded.jsonl", w["experiences"])
                 state = state_only_encode(w["experiences"])
                 state_path = workdir / f"{tag}_state.json"
@@ -93,7 +93,7 @@ def run(series: str, pairs_per_kind: int, workdir: Path) -> dict:
                     path = workdir / f"{tag}_{name}.jsonl"
                     stores[name] = (path, materialize(path, contents, [_source(c) for c in contents]).seal(),
                                     len(contents))
-                # 2. decision phase: goals drawn now, one fresh process per case
+                # 2. decision phase: the goals are handed over now, one fresh process per case
                 for goal in GOAL_NAMES:
                     decision = w["decisions"][goal]
                     truth = w["truth"][goal]

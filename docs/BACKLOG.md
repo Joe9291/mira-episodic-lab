@@ -16,3 +16,7 @@ named; until then the limit stated here applies when reading results.
 - (Astra, review of 3.2 v4) Broaden the completion (soundness) tests: some larger stores
   with still few unknown fields, to exercise the selection budget, ties and multi-stage
   links without a large combinatorial cost.
+- (Astra, review of 3.4 step 1) A cache baseline (first, previous and latest place per
+  entity) and context-dependent historical queries it cannot anticipate.
+- (Astra, review of 3.4 step 1) Before round 3.4 step 2: history operators with unknown
+  fields (possible() and declared unknowns for first/previous positions).

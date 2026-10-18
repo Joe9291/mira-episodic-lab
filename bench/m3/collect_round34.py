@@ -135,7 +135,7 @@ def main(request_path: str, result_path: str, dest: str, commit: str | None = No
     ent = [v["state_entries"] for v in again["stored"].values()]
     md = ["# Round 3.4 step 1 summary (history goals, identical final state)", "",
           f"{req['pairs_per_kind']} pairs per kind; every decision in its own fresh isolated process; one "
-          "episodic store per world written before any goal was drawn. Evaluation units are the pairs. "
+          "episodic store per world, written before any goal was handed to the agent. Evaluation units are the pairs. "
           f"Stored information: episodic store {min(rec)}-{max(rec)} records per world; state-only baseline "
           f"{min(ent)}-{max(ent)} entries (one place per object and person).", "",
           "| kind | system | intervention | goal | n / planned | success | pair success | as predicted (informative, n) | unchanged vs intact |",
