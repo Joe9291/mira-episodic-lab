@@ -320,3 +320,10 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    the head is an exact token prefix); probes now include a cache check against the
    uncached scores (3 texts, all slots). Decision record: the 0.5B models are dropped
    for this round (failed in every measurement); qwen2.5-1.5b is the candidate model.
+5. Probe 4 (GitHub 39165423016; qwen2.5-1.5b+p4): the shared prompt-head cache works -
+   35 s per text instead of 103 (model loading 23 s), cache check OK (max diff 1.4e-4,
+   identical choices). But the explicit receiver question p4 made the receiver worse
+   (49/80, complete records 0.588; "You" receivers 5/16). Probe 5 compares p3 (now with
+   the head cache) with p5: the receiver asked as a question about the narrator ("did the
+   narrator receive something? You / none") and two more worked examples (a second gave,
+   a placing by another person). The other slots stay as in p3.
