@@ -187,3 +187,27 @@ deterministic cells over all 15 worlds are identical under three hash seeds. The
 collector worked as intended: it refused the unreplayable reports and the incomplete
 evaluation drew no encoder decision. The tables of run 1 were not used for anything;
 the whole round is re-run on the fixed code (run 2), and only run 2 is evaluated.
+
+Run 2 (GitHub 39117442278, commit 18a7b1c): VERDICT COMPLETE (15 of 15 world reports
+valid, every row, summary and diagnostic replayed), encoder decision KEEP. Positives
+(means over worlds, dev-m3 / pilot-m2): struct3+ops 1.00 / 1.00 and full+ops 1.00 / 1.00
+(lures rejected 1.00, false recall 0.00); lex3+ops 0.69 / 0.66 (never certified, abstains
+on every lure); struct3+reader 0.51 / 0.56 with gold support 1.00 (the right notes were
+always selected) but lure false recall 0.95; lex3+reader 0.51 / 0.51 (false recall
+0.94-0.96); A1 (everything in the prompt) 0.31 / 0.29 (false recall 0.98-0.99); A0 0.10;
+random3+ops 0.04 / 0.05; full+ops/lm-encoder 0.10 / 0.12. LM encoder slot accuracy:
+actor 0.99, partner 0.87, action 0.69, object 0.40, place 0.99, day 0.80, all slots 0.22
+(866 of 1,200 records with invalid slots; the partner normalisation applied in 837 of
+1,200). Restart: same answers 30/30, accuracy after restart 1.00, empty store 0.00 on
+positive items, truncated and changed stores refused 30/30. Misbound control: E2 0.09.
+
+Reading (exploratory): with the same certified notes, operators answer everything and
+the 0.5B reader about half, and the reader invents answers to almost every lure - the
+processing, not the selection, is the bottleneck of the small model; selection quality
+matters too (lex3 vs struct3 with operators: 0.69 vs 1.00). The LM slot encoder fails the
+qualification; a look at the raw replies (after the run, so this is post hoc) shows mostly
+format errors: the object without its adjective ("umbrella" for "tiny umbrella"), verbs
+capitalised or in the base form, and days answered as weekdays ("Wednesday"). So the
+template encoder stays; the next language-interface attempt should constrain the encoder
+to spans of the note (e.g. candidate scoring, which worked for single details in S1)
+rather than free generation, and keep the reasoning in the operators.

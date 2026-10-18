@@ -145,3 +145,12 @@ matches exactly, so a record with an unknown actor that could be an earlier sigh
 the person would be skipped; `possible()` and the declared unknowns must also govern the
 first and previous positions. With the error-free template records of this step that
 case cannot occur.
+
+## Result (GitHub run 39120425482, code commit 9cf8154)
+
+VERDICT COMPLETE, MILESTONE PASS (results branch, `round34/run_39120425482_1/`): every
+criterion passed; one fresh process per decision (3,360 cases); one store per world and
+intervention for all goals; the collector's full re-run reproduced every row. As stated
+above: a deterministic functional test, a pass expected by construction for a correct
+implementation; it shows the double dissociation and the current-state baseline's
+failure on the historical goal, not robustness to free wording or LM use.
