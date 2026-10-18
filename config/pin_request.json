@@ -1,6 +1,6 @@
 {
   "schema": "episodic_lab.pin_request.v1",
-  "note": "Revisions recorded by the milestone 0 run 38915077515; the pinning run records every file's SHA-256 at exactly these revisions. Round 3.5 (2026-10-18): qwen2.5-1.5b and qwen2.5-3b added for the measured model-size decision; their revisions were resolved by the pinning run 39154386597 and are recorded here (qwen2.5-3b licence: Qwen research licence, 'other').",
+  "note": "Revisions recorded by the milestone 0 run 38915077515; the pinning run records every file's SHA-256 at exactly these revisions. Round 3.5 (2026-10-18): qwen2.5-1.5b added for the measured model-size decision; its revision was resolved by the pinning run 39154386597 and is recorded here (qwen2.5-3b was pinned in the same run but removed again: Qwen research licence and too large for the runner's memory in float32).",
   "models": {
     "smollm2-135m": {
       "repo": "HuggingFaceTB/SmolLM2-135M-Instruct",
@@ -21,10 +21,6 @@
     "qwen2.5-1.5b": {
       "repo": "Qwen/Qwen2.5-1.5B-Instruct",
       "revision": "989aa7980e4cf806f80c7fef2b1adb7bc71aa306"
-    },
-    "qwen2.5-3b": {
-      "repo": "Qwen/Qwen2.5-3B-Instruct",
-      "revision": "aa8e72537993ba99e69dfaafa59ed015b17504d1"
     }
   }
 }

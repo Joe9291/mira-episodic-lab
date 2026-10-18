@@ -222,7 +222,9 @@ class JobTests(unittest.TestCase):
         out = d / f"r35_{phase}_{model}_{split}_{chunk}.json"
         argv = ["run_round35.py", "--phase", phase, "--model", model, "--split", split, "--chunk", str(chunk),
                 "--chunks", str(chunks), "--pins", str(d / "pins.json"), "--request", str(d / "req.json"), "--out", str(out)]
-        with mock.patch("sys.argv", argv), mock.patch("episodic_lab.models.PinnedModel", FakeModel):
+        # the job records GITHUB_SHA as its code commit; the tests' collector expects "local"
+        with mock.patch("sys.argv", argv), mock.patch("episodic_lab.models.PinnedModel", FakeModel), \
+                mock.patch.dict("os.environ", {"GITHUB_SHA": "local"}):
             run_round35.main()
         return json.loads(out.read_text())
 

@@ -327,3 +327,12 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    the head cache) with p5: the receiver asked as a question about the narrator ("did the
    narrator receive something? You / none") and two more worked examples (a second gave,
    a placing by another person). The other slots stay as in p3.
+6. Repository check (2026-10-19): the unit-test workflow had failed since commit 0a5b90e
+   although the suite passed locally. Cause: the round 3.5 job tests ran the encode job
+   on GitHub, where GITHUB_SHA is set, so the recorded code commit differed from the
+   tests' expected "local" and the collector (correctly) reported a provenance mismatch.
+   Fixed in the tests (GITHUB_SHA set to "local" for the test job). Since a70b5d8 the pin
+   test also failed: qwen2.5-3b has the Qwen research licence ("other") while the test
+   requires Apache-2.0; qwen2.5-3b (unused, too large in float32 for the runner) is
+   removed from the pins and the pin request. No run result is affected: the failures
+   were in the tests only; the round 3.5 runs record and verify their own provenance.
