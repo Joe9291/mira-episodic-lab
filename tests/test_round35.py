@@ -270,6 +270,20 @@ class JobTests(unittest.TestCase):
             self.assertIn("scoring pmi", summary)
             self.assertTrue(all(len(x) == 5 and x[4] >= 2 for enc in r["encodings"].values() for x in enc["actor"]))
 
+    def test_variant_with_few_shot_prompt(self):
+        from episodic_lab.encoder35 import EXAMPLES, messages
+        from episodic_lab.world import FIRST, LAST
+        msgs = messages("actor", "Day 6: you walked to Oak Mill.", "p3")
+        self.assertEqual(len(msgs), 1 + 2 * len(EXAMPLES) + 1)
+        for note, answers in EXAMPLES:      # examples outside the world vocabulary
+            self.assertFalse(any(n in note for n in list(FIRST) + list(LAST)))
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "pins.json").write_text("{}")
+            (d / "req.json").write_text(json.dumps({"phase": "probe", "models": ["m+p3"], "splits": ["dev"], "chunks": 1}))
+            r = self.run_job(d, "probe", "m+p3")
+            self.assertEqual((r["status"], r["prompt_version"], r["model"]), ("OK", "p3", "m+p3"))
+
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)

@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from .cands35 import ACTIONS, NONE, SLOTS, candidates, decide, ranking
 
-PROMPT_VERSION = "p2"
 # p2 (development change after the timing slice, logged in docs/ROUND_3_5.md): questions
 # state the schema's roles explicitly (who is reported, who received something, objects
 # are things, "was" = a person seen somewhere)
@@ -32,16 +31,39 @@ QUESTIONS = {
 }
 
 
-def messages(slot: str, text: str) -> list[dict]:
-    return [{"role": "system", "content": SYSTEM},
-            {"role": "user", "content": f"Note: {text}\n\nQuestion: {QUESTIONS[slot]}"}]
+# p3 = p2 plus five worked examples per slot as earlier chat turns (development wordings
+# only; names, places and objects outside the world vocabulary)
+EXAMPLES = [
+    ("On day 3, you saw Mara Lind hid the green box at Rook Tower.",
+     {"actor": "Mara Lind", "partner": "none", "action": "hid", "object": "green box", "place": "Rook Tower", "event_day": "3"}),
+    ("At Pine Lodge on day 8, you spotted Tom Reed.",
+     {"actor": "Tom Reed", "partner": "none", "action": "was", "object": "none", "place": "Pine Lodge", "event_day": "8"}),
+    ("You got the old key from Ida Voss at Fern Hall on day 5.",
+     {"actor": "Ida Voss", "partner": "You", "action": "gave", "object": "old key", "place": "Fern Hall", "event_day": "5"}),
+    ("You placed the small drum at Rook Tower on day 11.",
+     {"actor": "You", "partner": "none", "action": "put", "object": "small drum", "place": "Rook Tower", "event_day": "11"}),
+    ("Day 6: you walked to Pine Lodge.",
+     {"actor": "You", "partner": "none", "action": "went", "object": "none", "place": "Pine Lodge", "event_day": "6"}),
+]
+PROMPTS = ("p2", "p3")
+
+
+def messages(slot: str, text: str, prompt: str = "p2") -> list[dict]:
+    if prompt not in PROMPTS:
+        raise ValueError(prompt)
+    turns = [{"role": "system", "content": SYSTEM}]
+    if prompt == "p3":
+        for note, answers in EXAMPLES:
+            turns += [{"role": "user", "content": f"Note: {note}\n\nQuestion: {QUESTIONS[slot]}"},
+                      {"role": "assistant", "content": answers[slot]}]
+    return turns + [{"role": "user", "content": f"Note: {text}\n\nQuestion: {QUESTIONS[slot]}"}]
 
 
 NULL_NOTE = "(no note)"
 MODES = ("sum", "mean", "pmi")
 
 
-def encode_text(scorer, text: str, null_scorer=None, ntokens=None) -> dict:
+def encode_text(scorer, text: str, null_scorer=None, ntokens=None, prompt: str = "p2") -> dict:
     """{slot: [[surface, canonical, score, null_score, tokens], ...]}: `score` is the total
     log-probability of the complete answer after the slot question about this note (the
     approved definition); `null_score` the same with the note replaced by "(no note)"
@@ -51,7 +73,7 @@ def encode_text(scorer, text: str, null_scorer=None, ntokens=None) -> dict:
     for slot in SLOTS:
         cands = candidates(slot, text)
         surf = [s for s, _ in cands]
-        scores = scorer(messages(slot, text), surf)
+        scores = scorer(messages(slot, text, prompt), surf)
         nulls = null_scorer(slot, surf) if null_scorer else [None] * len(surf)
         toks = [ntokens(s) for s in surf] if ntokens else [None] * len(surf)
         out[slot] = [[s, c, float(x), None if n is None else float(n), t]

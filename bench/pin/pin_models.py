@@ -25,7 +25,11 @@ def sha256_file(path: Path) -> str:
 
 
 def pin(repo: str, revision: str) -> dict:
+    """revision "resolve": take the repository's current commit and record it (used once
+    to pin a newly added model; the recorded hash is then the pinned revision)."""
     from huggingface_hub import model_info, snapshot_download
+    if revision == "resolve":
+        revision = model_info(repo).sha
     info = model_info(repo, revision=revision)
     if info.sha != revision:
         raise RuntimeError(f"revision mismatch: asked {revision}, got {info.sha}")

@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from episodic_lab.cands35 import CANDIDATE_VERSION, SLOTS, candidates, ranking  # noqa: E402
-from episodic_lab.encoder35 import NULL_NOTE, PROMPT_VERSION, encode_text, messages  # noqa: E402
+from episodic_lab.encoder35 import NULL_NOTE, encode_text, messages  # noqa: E402
 from episodic_lab.env35 import KINDS35, split_pairs  # noqa: E402
 
 SCHEMA = "episodic_lab.round35_encode.v1"
@@ -54,13 +54,13 @@ def probe_texts(per_frame: int = 4) -> list[str]:
 
 class NullScores:
     """Scores without the note ("(no note)"), cached per (slot, surface) within the job."""
-    def __init__(self, model):
-        self.model, self.cache = model, {}
+    def __init__(self, model, prompt: str = "p2"):
+        self.model, self.cache, self.prompt = model, {}, prompt
 
     def __call__(self, slot: str, surfaces: list[str]) -> list[float]:
         todo = [s for s in dict.fromkeys(surfaces) if (slot, s) not in self.cache]
         if todo:
-            for s, x in zip(todo, self.model.score_candidates_cached(messages(slot, NULL_NOTE), todo)):
+            for s, x in zip(todo, self.model.score_candidates_cached(messages(slot, NULL_NOTE, self.prompt), todo)):
                 self.cache[(slot, s)] = x
         return [self.cache[(slot, s)] for s in surfaces]
 
@@ -85,16 +85,20 @@ def cache_check(model, texts: list[str]) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", choices=("timing", "probe", "encode"), required=True)
-    ap.add_argument("--model", required=True)
+    ap.add_argument("--model", required=True, help="a model slug, or a variant 'slug+prompt'")
     ap.add_argument("--split", default="dev")
     ap.add_argument("--chunk", type=int, default=0)
     ap.add_argument("--chunks", type=int, default=1)
     ap.add_argument("--pins", default="config/model_pins.json")
     ap.add_argument("--request", default="config/round35.json")
+    ap.add_argument("--prompt", default="p2")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
+    slug, _, variant_prompt = args.model.partition("+")
+    if variant_prompt:
+        args.prompt = variant_prompt
     out = {"schema": SCHEMA, "phase": args.phase, "model": args.model, "split": args.split, "chunk": args.chunk,
-           "chunks": args.chunks, "prompt_version": PROMPT_VERSION, "candidate_version": CANDIDATE_VERSION,
+           "chunks": args.chunks, "prompt_version": args.prompt, "candidate_version": CANDIDATE_VERSION,
            "status": "ERROR",
            "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
                           "request_sha256": hashlib.sha256(Path(args.request).read_bytes()).hexdigest(),
@@ -102,17 +106,17 @@ def main() -> int:
     try:
         from episodic_lab.models import PinnedModel
         t0 = time.perf_counter()
-        model = PinnedModel(args.model, args.pins)
+        model = PinnedModel(slug, args.pins)
         out["load_seconds"] = round(time.perf_counter() - t0, 1)
         out["weights_sha256"] = model.weights_digest()
         texts = (timing_texts() if args.phase == "timing" else probe_texts() if args.phase == "probe"
                  else split_texts(args.split)[args.chunk::args.chunks])
         encodings, seconds = {}, {}
-        nulls = NullScores(model)
+        nulls = NullScores(model, args.prompt)
         ntok = (lambda s: model.count_tokens(s) + 1)
         for text in texts:
             t = time.perf_counter()
-            encodings[text] = encode_text(model.score_candidates_cached, text, nulls, ntok)
+            encodings[text] = encode_text(model.score_candidates_cached, text, nulls, ntok, args.prompt)
             seconds[text] = round(time.perf_counter() - t, 3)
         out.update(encodings=encodings, seconds=seconds, texts=len(texts))
         if args.phase == "timing":
