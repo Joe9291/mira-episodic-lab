@@ -1,0 +1,410 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.5 DESIGN v1 (encoder pilot in the target environment), with the work done on your previous points
+
+Review request (Astra; Claude is lead reviewer). Please review the design before anything is built that depends on it. Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 3.5 DESIGN v1 ===".
+
+YOUR REVIEW OF THE RESULTS (archived as reviews/2026-10-18_results_decision_astra.txt) - what was done:
+1. Your sequence is adopted as the plan: encoder errors broken down -> uncertainty semantics of the history operators closed -> encoder pilot in the target environment with the parser fixed -> language parser separately -> combination. The name is now "LM-assisted structured extraction with given candidates".
+2. Encoder error breakdown (bench/m3/encoder_errors.py, run-2 data): you were right that it is not "mostly format": lossless normalisation repairs 494 slot values but leaves most records wrong (median per world 0.375 all-correct); identity (object without adjective, 567), time (weekday for the day, 246, depending strongly on the sentence frame) and role errors (the partner normalisation helped 754 times and hid a role error 120 times) remain. Table in docs/ROUND_3_5.md section 0.
+3. History operators with unknown fields done (diff below): possible target records block an answer whenever they could take the asked position or tie with it; ties count only at the positions a goal needs (same rule in the reference); soundness test against all completions of up to three unknown fields (in the suite; 5 x 3,000 stores outside: 0 violations, step-1 operators 559-648 per 3,000). Round 3.4 step 1 rows unchanged (re-run identical).
+4. The qualification text now states each criterion with PASS/FAIL (e.g. "all_slots 0.217 < 0.95: FAIL").
+5. Your other points are in the design: none vs unknown (candidate "none" vs margin rule), candidate coverage upper bound checked before any run on development and held-out wordings, extraction baselines (position/word rules), encodings reused across paired worlds and interventions, a timing run on a fixed development slice before the full run, qualification in the target environment per goal type with historical pair success separately, world-level results and spread, everything frozen on development data before the single held-out run, the cache baseline as a small model-free addition, and context-dependent historical queries as the later stronger memory test.
+
+OPEN QUESTIONS: Is the margin rule for "unknown" (tau chosen for >= 0.99 precision of confident values on development) adequate, or do you prefer calibration on a separate development split? Is span candidate generation of 1-3 words plus "You"/"none" and a fixed action label set the right amount of help? Anything missing for the held-out wordings?
+
+---BEGIN FILE docs/ROUND_3_5.md---
+# Round 3.5 - LM-assisted structured extraction for the action environment (design v1)
+
+Uncertainty removed: can a small language model, used only as an extraction interface
+(no reasoning; the operators keep that), write the episodic store of the round 3.3/3.4
+environment well enough that the memory tasks still pass, on wordings it was never
+developed on? Order and scope follow Astra's review of the results of 3.2 and 3.4 step 1
+(`reviews/2026-10-18_results_decision_astra.txt`): encoder errors broken down first,
+uncertainty semantics of the history operators closed, then an encoder pilot in the
+TARGET environment with the question/goal parser fixed; the language parser is a later,
+separate round; then both combined.
+
+Name of the system (Astra): "LM-assisted structured extraction with given candidates" -
+the model chooses values for a fixed schema from candidates; this is not "the LM writes
+the memory" in a free sense.
+
+## 0. Done before this design (development data, no new run)
+
+**Encoder error breakdown of round 3.2 run 2** (`bench/m3/encoder_errors.py`, all 1,200
+encoded records; development data, already seen):
+
+| slot | correct | case only | base form | partner normalisation helped | noun without adjective | weekday | partner normalisation hid a role error | other |
+|---|---|---|---|---|---|---|---|---|
+| day | 954 | 0 | 0 | 0 | 0 | 246 | 0 | 0 |
+| actor | 1188 | 0 | 0 | 0 | 0 | 0 | 0 | 12 |
+| partner | 294 | 0 | 0 | 754 | 0 | 0 | 120 | 32 |
+| action | 832 | 170 | 177 | 0 | 0 | 0 | 0 | 21 |
+| object | 474 | 147 | 0 | 0 | 567 | 0 | 0 | 12 |
+| place | 1191 | 0 | 0 | 0 | 0 | 0 | 0 | 9 |
+
+Lossless normalisation (case, base form) would repair 494 slot values; it would still
+leave most records wrong: records with every slot right after lossless normalisation,
+per world, min 0.15 / median 0.375 / max 0.625. The remaining errors carry or lose
+information: the object without its adjective (567; the noun alone was unique within the
+world's episodes in all 567, but that uniqueness is only known after all episodes),
+weekdays instead of the event day (246, concentrated in frames where the day stands in
+the middle of the sentence: "N was at N on day D and ..." 65/211, "Day D: at N, ..."
+91/199, "On day D, ..." 20/186, "Earlier, on day D, ..." 0/84), and the partner: the
+declared normalisation (a repeated first person read as "no second person") helped 754
+times and hid a role error 120 times. So Astra's objection holds: the failures are not
+"mostly format"; the free-generation slot encoder loses identity, time and role
+information.
+
+**History operators with unknown fields** (`episodic_lab/history_agent.py`): a record
+that could be about the target because a deciding field is unknown (unknown object or
+action for an object; unknown actor or partner for a person) blocks a history answer
+whenever it could take the asked position or tie with it (undated; not earlier than the
+latest; not later than the first; not earlier than the one before the latest); without
+any exact record but with possible ones the evidence is insufficient. Ties count only at
+the positions a goal needs (same rule in the independent reference). Soundness test
+against brute force: every ok answer equals the answer under EVERY completion of up to
+three unknown fields (600 random stores in the suite; outside the suite 5 x 3,000 stores
+with 0 violations, where the step-1 operators had 559-648 per 3,000). Round 3.4 step 1
+rows are unchanged by this (no unknown fields in template records; re-run identical).
+
+## 1. Data: worlds and wordings
+
+- Worlds: the round 3.3 kinds (hidden, moved, giver) and the round 3.4 kinds (object,
+  person history). Development series `env-dev35` / `hist-dev35` (10 pairs per kind);
+  held-out series `env-ho35` / `hist-ho35` (40 pairs per kind), generated now, not looked
+  at by any model before the qualification run.
+- Wordings: every event type (observed placing, own placing, gave, seen, went) gets the
+  current template plus 3 development paraphrases and 3 held-out paraphrases, written now
+  and fixed in `episodic_lab/wordings35.py` before any model run. The held-out set
+  includes frames that were hard in 3.2 (the day in the middle or at the end of the
+  sentence, a second person in different positions, the object before the verb). Each
+  episode's wording is drawn by a seeded hash, separately for development and held-out.
+
+## 2. Encoder (fixed schema, given candidates)
+
+- Slots: actor, partner, action, object, place, event_day.
+- Candidates, generated generically from the sentence (no template knowledge): every
+  contiguous span of 1-3 words without punctuation, every number, and "You" for the
+  agent (the schema's name for "you"/"I"). Optional slots (partner, object) also get the
+  candidate "none" = the field is absent in this episode. The action is a fixed label set
+  of the schema (hid, left, put, gave, was, went) with one short description each.
+- Score: total log-probability of the complete candidate answer including the end-of-turn
+  token after a fixed slot prompt (the S1 procedure, `models.score_candidates`), computed
+  with one shared prompt prefix per slot (key/value cache reused across candidates).
+- Uncertainty ("unknown", different from "none"): if the margin between the best and the
+  second-best score is below a threshold tau, the slot is stored as None and declared
+  unknown. tau is chosen on the development data (the largest tau whose resulting
+  confident slot values are at least 0.99 correct on development, per model) and then
+  frozen. A missing value of an always-present slot is also unknown.
+- Each distinct sentence is encoded once per model (paired worlds share all but one
+  sentence; interventions reuse the encodings, Astra's idea).
+
+## 3. Controls and upper bounds (model-free, before any model run)
+
+- Candidate coverage: share of slots whose true value is among the candidates; must be
+  1.0 on development AND held-out wordings, checked and reported before the run (else the
+  candidate generator is fixed first).
+- Extraction baselines without a model: (a) position rules (first name-like span = actor,
+  last name-like span = place, first number = day, ...), (b) a word-list rule for the
+  action. They show whether the LM adds anything beyond surface regularities; the
+  held-out wordings include role swaps and similar object names for this.
+- Cache baseline for round 3.4 (Astra): a memory with only the first, the previous and
+  the latest place per entity, same experiences; expected to solve the three fixed
+  history goals - reported so that the 3.4 claim is not over-read.
+
+## 4. Phases
+
+P1 development (GitHub, models qwen2.5-0.5b and qwen3-0.6b without thinking): record
+quality per slot and per wording frame, tau, cost per record. First a timing run on a
+fixed development slice (2 pairs per kind, both models) with an extrapolated cost; the
+full development run only if every job fits into the 6-hour limit with the world matrix.
+Prompts, normalisation, tau and the model are chosen on development data only; every
+development iteration is logged.
+
+P2 held-out qualification (GitHub, once, frozen configuration): on the held-out worlds
+and wordings, (a) record quality: complete records all correct (all six slots) >= 0.95;
+per slot accuracy; none/unknown/wrong reported separately; (b) memory tasks with the
+fixed goal parser and the round 3.3/3.4 decision rules: per goal type (3.3 object, 3.3
+giver, 3.4 current, first, previous) success at most 0.02 below the template encoder on
+the same worlds; historical pair success reported separately; confident-error rate
+(decisions taken from memory that are wrong) <= 0.05; results per world with their
+spread (pairs/worlds are the units). These are technical acceptance rules, not a
+statistical non-inferiority claim.
+
+Pass -> the LM extraction may write the store of later rounds for these episode forms.
+Then round 3.6: the goal/question parser by the same method, with ambiguous and
+unsupported questions; then both combined; then context-dependent historical queries
+("where was X immediately before event Y?") with pairs whose current, first and previous
+values are identical, which the cache baseline cannot answer.
+---END FILE docs/ROUND_3_5.md---
+
+---BEGIN DIFF e973abe..HEAD (history operators, reference, qualification text)---
+diff --git a/bench/m3/collect_round32.py b/bench/m3/collect_round32.py
+index 7d2eef3..191ebc4 100644
+--- a/bench/m3/collect_round32.py
++++ b/bench/m3/collect_round32.py
+@@ -243,11 +243,14 @@ def adoption(cells, complete: bool) -> tuple[str, str]:
+     lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
+     fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
+               for d in cells.values())
+-    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
++    checks = [(acc["all_slots"] >= 0.95, f"all_slots {acc['all_slots']:.3f} {'>=' if acc['all_slots'] >= 0.95 else '<'} 0.95"),
++              (lm_pos >= ref_pos - 0.02, f"positives full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} "
++                                         f"({'within' if lm_pos >= ref_pos - 0.02 else 'more than'} 0.02 lower)"),
++              (fr <= 0.05, f"lure false recall {fr:.3f} {'<=' if fr <= 0.05 else '>'} 0.05")]
++    adopt = all(ok for ok, _ in checks)
+     return ("ADOPT" if adopt else "KEEP"), (
+-        f"LM encoder qualification for the tested round 3.2 templates (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
+-        f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
+-        f"recall {fr:.3f} <= 0.05 -> "
++        "LM encoder qualification for the tested round 3.2 templates (docs/ROUND_3_2.md): "
++        + "; ".join(f"{text}: {'PASS' if ok else 'FAIL'}" for ok, text in checks) + " -> "
+         + ("ADOPT the LM encoder for the round 3.2 template episode formats (other formats, e.g. the round 3.3 "
+            "environment with \"You\" and object-free events, need their own check)" if adopt
+            else "keep the template encoder; limit stated") + ".")
+diff --git a/episodic_lab/history_agent.py b/episodic_lab/history_agent.py
+index f4097ad..3cd5522 100644
+--- a/episodic_lab/history_agent.py
++++ b/episodic_lab/history_agent.py
+@@ -11,7 +11,7 @@ import json
+ import re
+ 
+ from .env import PLACING, SELF, env_encode
+-from .memory import Result, _day, _ok, match
++from .memory import Result, _day, _minus, _ok, match, possible, unknown
+ 
+ _GOALS = [
+     (re.compile(r"Find the (?P<t>[a-z]+ [a-z]+)\."), "object", "current"),
+@@ -39,22 +39,55 @@ def target_records(records, kind: str, target: str) -> list:
+     return match(records, person=target)
+ 
+ 
++def possible_target_records(records, kind: str, target: str) -> list:
++    """Records that are not certainly about the target but could be, because a field
++    that decides it is unknown (round 3.2 v4 semantics: declared unknowns, missing
++    always-present fields): an unknown object or action for an object, an unknown actor
++    or partner for a person."""
++    if kind == "object":
++        cand = [r for r in possible(records, obj=target) if r["action"] in PLACING or unknown(r, "action")]
++    else:
++        cand = possible(records, person=target)
++    return _minus(cand, target_records(records, kind, target))
++
++
+ def history_place(records, kind: str, target: str, which: str) -> Result:
+     """The target's episodes ordered by event day; the latest, the first or the one
+-    before the latest. An undated record or two records on one day make the order, and
+-    so the answer, ambiguous."""
++    before the latest. An undated record, or two records on one day at the asked position
++    (for "previous": at the latest or the one before), make the answer ambiguous. A possible record (one that could be about the target, see
++    possible_target_records) blocks the answer whenever it could take the asked position
++    or tie with it: undated, or not earlier than the latest / not later than the first /
++    not earlier than the one before the latest. Without any exact record but with
++    possible ones the evidence is insufficient."""
+     hits = target_records(records, kind, target)
+-    trace = [("history", [kind, target, which], [r["id"] for r in hits])]
++    maybe = possible_target_records(records, kind, target)
++    trace = [("history", [kind, target, which], [r["id"] for r in hits + maybe])]
+     if not hits:
+-        return Result(None, "no_observation", [], trace)
++        return Result(None, "insufficient_evidence" if maybe else "no_observation", [r["id"] for r in maybe], trace)
+     days = [_day(r) for r in hits]
+-    if None in days or len(set(days)) != len(days):
++    if None in days:
+         return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+     ordered = sorted(hits, key=_day)
+-    pos = {"current": -1, "first": 0, "previous": -2}[which]
+     if which == "previous" and len(ordered) < 2:
+-        return Result(None, "no_observation", [r["id"] for r in ordered], trace)
++        status = "insufficient_evidence" if maybe else "no_observation"
++        return Result(None, status, [r["id"] for r in ordered + maybe], trace)
++    pos = {"current": -1, "first": 0, "previous": -2}[which]
+     chosen = ordered[pos]
++    # a tie decides only where it touches the asked position (latest; first; latest and
++    # the one before it)
++    needed = {"current": [-1], "first": [0], "previous": [-1, -2]}[which]
++    if any(days.count(_day(ordered[i])) > 1 for i in needed):
++        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
++    border = _day(chosen)
++
++    def blocks(r):
++        d = _day(r)
++        if d is None:
++            return True
++        return d <= border if which == "first" else d >= border
++    blocking = [r for r in maybe if blocks(r)]
++    if blocking:
++        return Result(None, "ambiguous", [chosen["id"]] + [r["id"] for r in blocking], trace)
+     return _ok(chosen["place"], [chosen["id"]], trace)
+ 
+ 
+diff --git a/episodic_lab/history_reference.py b/episodic_lab/history_reference.py
+index 32356b4..97a7d27 100644
+--- a/episodic_lab/history_reference.py
++++ b/episodic_lab/history_reference.py
+@@ -62,14 +62,17 @@ def reference_decision(events: list[dict], kind: str, target: str, goal: str, op
+     explore = options[0]
+     mine = sorted((e for e in events if _is_target(e, kind, target)), key=lambda e: e["event_day"])
+     days = [e["event_day"] for e in mine]
+-    if not mine or len(set(days)) != len(days):
++    if not mine:
+         return explore
++
++    def unique(day):  # a tie only matters at the positions the goal needs
++        return days.count(day) == 1
+     if goal == "current":
+-        return mine[-1]["place"]
++        return mine[-1]["place"] if unique(days[-1]) else explore
+     if goal == "first":
+-        return mine[0]["place"]
++        return mine[0]["place"] if unique(days[0]) else explore
+     if goal == "previous":
+-        return mine[-2]["place"] if len(mine) >= 2 else explore
++        return mine[-2]["place"] if len(mine) >= 2 and unique(days[-1]) and unique(days[-2]) else explore
+     raise ValueError(goal)
+ 
+ 
+---END DIFF---
+
+---BEGIN FILE bench/m3/encoder_errors.py---
+"""Error breakdown of the round 3.2 LM slot encoder (Astra's request after run 2).
+
+Reads the stored world reports of a round 3.2 run and classifies every slot of every
+encoded record against the template truth. Development analysis on data already used:
+it informs the design of the next encoder; it is not a qualification.
+
+Categories (per slot):
+  correct            stored value equals the truth
+  case_only          the reply equals the truth up to letter case (normalisable, no loss)
+  base_form          action given in the base form of the true verb (normalisable, no loss)
+  noun_only          object given without its adjective (information loss; reported with
+                     whether the noun alone is unique among the world's objects)
+  weekday            day answered with a weekday name (temporal information missing)
+  wrong_number       day answered with another number
+  missing            "none"/empty (for the partner: "none" although there is a partner)
+  partner_norm_ok    second person repeated the first and the truth has no partner
+                     (the declared normalisation helped)
+  partner_norm_bad   second person repeated the first although the truth has a partner
+                     (the normalisation hid a role error)
+  other              any other wrong value
+"""
+from __future__ import annotations
+
+import collections
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from episodic_lab.cells import INVALID, SLOT_QUESTIONS, _clean  # noqa: E402
+from episodic_lab.symbolic import PAST  # noqa: E402
+
+WEEKDAYS = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+LOSSLESS = ("case_only", "base_form", "partner_norm_ok")
+
+
+def classify(slot: str, raw: str, truth, stored, world_objects: set, actor_raw: str = "") -> str:
+    kind = SLOT_QUESTIONS[slot][1]
+    if stored == truth:
+        if slot == "partner" and truth is None:
+            cleaned = _clean(raw, "person")
+            return "partner_norm_ok" if cleaned not in (None, INVALID) else "correct"
+        return "correct"
+    cleaned = _clean(raw, kind)
+    text = raw.strip().split("\n", 1)[0].strip().strip(".").strip()
+    if slot == "partner":
+        if truth is not None and stored is None and cleaned not in (None, INVALID) and cleaned == _clean(actor_raw, "person"):
+            return "partner_norm_bad"
+        return "missing" if cleaned is None else "other"
+    if cleaned is None or (isinstance(cleaned, str) and not cleaned):
+        return "missing"
+    if slot == "event_day":
+        if text.lower() in WEEKDAYS:
+            return "weekday"
+        return "wrong_number" if isinstance(cleaned, int) else "other"
+    if isinstance(cleaned, str) and isinstance(truth, str):
+        if cleaned.lower() == truth.lower():
+            return "case_only"
+        if slot == "action" and PAST.get(cleaned.lower()) == truth:
+            return "base_form"
+        if slot == "object" and " " in truth and cleaned.lower() == truth.split(" ", 1)[1]:
+            return "noun_only"
+    return "other"
+
+
+def wording(text: str) -> str:
+    """The sentence frame of an episode (names, numbers, objects and verbs masked)."""
+    shape = re.sub(r"[A-Z][a-z]+ [A-Z][a-z]+", "N", text)
+    shape = re.sub(r"\d+", "D", shape)
+    shape = re.sub(r"the [a-z]+ [a-z]+", "the O", shape)
+    return re.sub(r" (" + "|".join(PAST.values()) + r"|hidden) ", " V ", shape)
+
+
+def analyse(paths: list[Path]) -> dict:
+    counts = {s: collections.Counter() for s in SLOT_QUESTIONS}
+    unique_noun = collections.Counter()
+    per_world = {}
+    records = 0
+    frames = collections.defaultdict(collections.Counter)
+    for p in paths:
+        data = json.loads(p.read_text())
+        world_ok = []
+        for cond in data["conditions"].values():
+            recs = cond["encoder"]["records"]
+            objects = {r["truth"]["object"] for r in recs}
+            nouns = collections.Counter(o.split(" ", 1)[1] for o in objects if o and " " in o)
+            for r in recs:
+                records += 1
+                cats = {}
+                for slot in SLOT_QUESTIONS:
+                    c = classify(slot, r["raw"][slot], r["truth"][slot], r["lm"][slot], objects, r["raw"]["actor"])
+                    counts[slot][c] += 1
+                    cats[slot] = c
+                    if c == "noun_only":
+                        unique_noun["unique" if nouns[r["truth"]["object"].split(" ", 1)[1]] == 1 else "shared"] += 1
+                ok = all(c in ("correct",) + LOSSLESS for c in cats.values())
+                world_ok.append(ok)
+                f = frames[wording(r["text"])]
+                f["n"] += 1
+                f["weekday"] += cats["event_day"] == "weekday"
+                f["partner_norm_bad"] += cats["partner"] == "partner_norm_bad"
+                f["noun_only"] += cats["object"] == "noun_only"
+                f["all_ok_lossless"] += ok
+        per_world[p.name] = sum(world_ok) / len(world_ok)
+    return {"records": records, "slots": {s: dict(c) for s, c in counts.items()},
+            "noun_only_uniqueness": dict(unique_noun),
+            "by_wording": {k: dict(v) for k, v in sorted(frames.items(), key=lambda kv: -kv[1]["n"])},
+            "all_slots_after_lossless_normalisation_per_world": per_world}
+
+
+def report(result: dict) -> str:
+    cats = ["correct", "case_only", "base_form", "partner_norm_ok", "noun_only", "weekday", "wrong_number",
+            "missing", "partner_norm_bad", "other"]
+    n = result["records"]
+    lines = [f"Records: {n}", "", "| slot | " + " | ".join(cats) + " |", "|" + "---|" * (len(cats) + 1)]
+    for slot, c in result["slots"].items():
+        lines.append(f"| {slot} | " + " | ".join(str(c.get(k, 0)) for k in cats) + " |")
+    pw = result["all_slots_after_lossless_normalisation_per_world"]
+    vals = sorted(pw.values())
+    lines += ["", f"Object given without adjective: {result['noun_only_uniqueness']} "
+              "(unique = only one object with that noun in the world's episodes)",
+              "", "Share of records with every slot correct after LOSSLESS normalisation only "
+              f"(case, base form, helpful partner normalisation), per world: min {vals[0]:.3f}, "
+              f"median {vals[len(vals) // 2]:.3f}, max {vals[-1]:.3f}"]
+    lines += ["", "| sentence frame | n | weekday | partner_norm_bad | noun_only | all slots ok (lossless) |",
+              "|---|---|---|---|---|---|"]
+    for frame, v in result["by_wording"].items():
+        lines.append(f"| {frame} | {v['n']} | {v['weekday']} | {v['partner_norm_bad']} | {v['noun_only']} | "
+                     f"{v['all_ok_lossless']} |")
+    return "\n".join(lines) + "\n"
+
+
+if __name__ == "__main__":
+    res = analyse(sorted(Path(sys.argv[1]).glob("r32_*.json")))
+    print(report(res))
+    if len(sys.argv) > 2:
+        Path(sys.argv[2]).write_text(json.dumps(res, indent=1, sort_keys=True) + "\n")
+---END FILE bench/m3/encoder_errors.py---
+
+=== END OF LAB ROUND 3.5 DESIGN v1 ===
