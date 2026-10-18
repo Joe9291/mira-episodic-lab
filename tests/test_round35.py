@@ -75,10 +75,14 @@ class CandidateTests(unittest.TestCase):
     def test_spans_and_canonical_values(self):
         self.assertEqual(spans("Day 4: at Oak Mill, you saw Ana Bell.")[:4], ["Day", "Day 4", "4", "at"])
         self.assertNotIn("4 at", spans("Day 4: at Oak Mill."))      # never across punctuation
+        self.assertIsNone(canonical("object", "Oak Mill"))           # typed candidates (c2)
+        self.assertIsNone(canonical("actor", "red cup"))
+        self.assertIsNone(canonical("place", "you"))
         self.assertEqual(canonical("actor", "you"), SELF)
         self.assertEqual(canonical("partner", "I"), SELF)
         self.assertEqual(canonical("partner", "me"), SELF)
-        self.assertEqual(canonical("object", "the Red cup"), "red cup")
+        self.assertEqual(canonical("object", "the red cup"), "red cup")
+        self.assertIsNone(canonical("object", "the Red cup"))
         self.assertEqual(canonical("event_day", "12"), 12)
         self.assertIsNone(canonical("event_day", "twelve"))
         self.assertIsNone(canonical("actor", "none"))
@@ -245,6 +249,18 @@ class JobTests(unittest.TestCase):
             self.assertIn("missing:r35_encode_m_cal_1.json", (d / "CHECK.txt").read_text())
             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "other-commit")
             self.assertIn("provenance:commit", (d / "CHECK.txt").read_text())
+
+    def test_probe_phase(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "pins.json").write_text("{}")
+            (d / "req.json").write_text(json.dumps({"phase": "probe", "models": ["m"], "splits": ["dev"], "chunks": 1}))
+            r = self.run_job(d, "probe", "m")
+            self.assertEqual((r["status"], r["texts"]), ("OK", len(run_round35.probe_texts())))
+            self.assertEqual(r["candidate_version"], "c2")
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
+            self.assertIn("complete records 1.000", (d / "SUMMARY.md").read_text())
 
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:

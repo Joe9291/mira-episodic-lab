@@ -9,7 +9,11 @@ Contract:
   "I", "me", "you" (any case) become "You"; "none" = the optional field is absent;
 - action: a fixed label set with one short description each;
 - surface variants of one canonical value are merged; the value's score is the MAXIMUM of
-  its variants' scores; the margin is taken between DIFFERENT canonical values.
+  its variants' scores; the margin is taken between DIFFERENT canonical values;
+- candidate types (version c2, a development change after the timing slice, see the doc):
+  a name candidate (person, place) is a span whose tokens all begin with a capital letter;
+  an object candidate is a span whose tokens are all lower-case letters (an article
+  removed); "I"/"me"/"you" are person candidates only.
 
 Slots and their candidate kinds:
   actor    person spans + "You"
@@ -23,12 +27,13 @@ from __future__ import annotations
 
 import re
 
+CANDIDATE_VERSION = "c2"
 SELF = "You"
 NONE = "none"
 SLOTS = ("actor", "partner", "action", "object", "place", "event_day")
-ACTIONS = {"hid": "hid an object somewhere", "left": "left an object somewhere",
-           "put": "put or placed an object somewhere", "gave": "gave an object to someone",
-           "was": "was seen somewhere, without an object", "went": "went somewhere"}
+ACTIONS = {"hid": "someone hid a thing somewhere", "left": "someone left a thing somewhere",
+           "put": "someone put or placed a thing somewhere", "gave": "someone gave a thing to someone",
+           "was": "a person was seen or met somewhere, no thing involved", "went": "the narrator went somewhere"}
 _SEGMENT = re.compile(r"[^,.;:!?()\-]+")
 _TOKEN = re.compile(r"[A-Za-z0-9']+")
 _SELF_WORDS = {"i", "me", "you"}
@@ -57,15 +62,20 @@ def canonical(slot: str, surface: str):
         return NONE if slot in ("partner", "object") else None
     if slot == "event_day":
         return int(s) if s.isdigit() else None
+    toks = s.split()
     if slot in ("actor", "partner"):
-        return SELF if s.lower() in _SELF_WORDS else s
+        if s.lower() in _SELF_WORDS:
+            return SELF
+        return s if all(t[:1].isupper() for t in toks) else None
     if slot == "object":
-        low = s.lower()
+        if not all(t.isalpha() and t.islower() for t in toks):
+            return None
+        low = s
         for art in _ARTICLES:
             if low.startswith(art):
                 low = low[len(art):]
-        return low or None
-    return s  # place
+        return low if low and low.split()[0] not in _SELF_WORDS and low not in _SELF_WORDS else None
+    return s if all(t[:1].isupper() for t in toks) and s.lower() not in _SELF_WORDS else None  # place
 
 
 def candidates(slot: str, text: str) -> list[tuple[str, object]]:

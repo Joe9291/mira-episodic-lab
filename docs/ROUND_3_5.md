@@ -253,3 +253,23 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
   reading of all 50 sentences for roles (giver/receiver, passives) and time reference.
   Wordings FROZEN: `episodic_lab/wordings35.py` SHA-256
   d0efe7670f275e9d41fe2ca367d52b63286df4648283618cedb0219ae6a6756a.
+
+## Development log
+
+1. Timing run (GitHub 39142347658, commit 0a5b90e; prompts p1, candidates c1): cache
+   check OK for both models (max |cached - uncached| 1.6e-4 / 2.0e-4, identical choices);
+   seconds per text 17.5 (qwen2.5-0.5b) and 29.1 (qwen3-0.6b), model loading 8 / 12 s;
+   extrapolated: dev about 3.6 / 6.1 h, holdout about 14.5 / 24 h per model (chunks
+   needed). Development look at the 168 timed texts (best value, tau 0): complete records
+   0.089 / 0.101. Main errors: the actor of "seen" events and of placings answered as
+   "You" or as an object or a verb (the schema's actor of "you spotted X" is X); "none"
+   almost never chosen for absent objects (names and places chosen instead); the receiver
+   "You" of gave events missed; the action "was" rarely chosen; the object without its
+   adjective. Changes for the next development iteration (no holdout or reserve wording
+   involved): typed candidates c2 (names = spans of capitalised tokens, objects = spans of
+   lower-case tokens) and prompts p2 (each question names the schema field and its role:
+   the reported person, the receiver, a thing not a person or place, "was" = a person seen
+   or met). Coverage stays 1.0 on dev, cal and aud. Next: a probe phase on a stratified
+   development slice (4 distinct texts per development frame, 80 texts) for quick
+   iterations, qwen2.5-0.5b only (the faster model; qwen3-0.6b was not better on the
+   timed texts); both models again in the full development run.

@@ -36,7 +36,7 @@ def sha256_file(path) -> str:
 
 
 def planned(req: dict) -> list[tuple[str, str, int]]:
-    if req["phase"] == "timing":
+    if req["phase"] in ("timing", "probe"):
         return [(m, "dev", 0) for m in req["models"]]
     return [(m, s, c) for m in req["models"] for s in req["splits"] for c in range(req["chunks"])]
 
@@ -89,6 +89,38 @@ def timing_summary(req: dict, reports: dict) -> list[str]:
             chunks = max(1, int(hours / JOB_HOURS) + 1)
             L.append(f"- {split}: {n} distinct texts, about {hours:.1f} h of encoding -> at least {chunks} chunk(s) "
                      f"of < {JOB_HOURS} h (plus loading)")
+        L.append("")
+    return L
+
+
+def probe_summary(req: dict, enc: dict) -> list[str]:
+    """Development probe: quality with the best value (tau 0), per wording frame, examples."""
+    from episodic_lab.cands35 import ranking, truth_value
+    truth = A.truths("dev")
+    frame = {e["text"]: e["frame"] for p in A.split_pairs("dev") for w in p["worlds"].values() for e in w["experiences"]}
+    L = ["# Round 3.5 development probe", ""]
+    for model in req["models"]:
+        e = enc[(model, "dev")]
+        q = A.quality(e, truth, {s: 0.0 for s in SLOTS})
+        L += [f"## {model}: complete records {q['complete_records']:.3f} ({q['texts']} texts)", "",
+              "| slot | correct | wrong |", "|---|---|---|"]
+        L += [f"| {s} | {v['correct']} | {v['wrong'] + v['unknown']} |" for s, v in q["slots"].items()]
+        L += ["", "By role: " + "; ".join(f"{k} {v['correct']}/{v['wrong'] + v['unknown']}" for k, v in sorted(q["roles"].items())), ""]
+        per = {}
+        for text, x in e.items():
+            ok = all(ranking([tuple(y) for y in x[s]])[0] == truth_value(s, truth[text]) for s in SLOTS)
+            per.setdefault(frame[text], [0, 0])
+            per[frame[text]][0] += 1
+            per[frame[text]][1] += ok
+        L += ["By frame (texts/complete): " + "; ".join(f"{f} {n}/{k}" for f, (n, k) in sorted(per.items())), "",
+              "Examples of wrong slots:", ""]
+        shown = {}
+        for text, x in sorted(e.items()):
+            for s in SLOTS:
+                v = ranking([tuple(y) for y in x[s]])[0]
+                if v != truth_value(s, truth[text]) and shown.get(s, 0) < 4:
+                    shown[s] = shown.get(s, 0) + 1
+                    L.append(f"- {s}: \"{text}\" -> {v!r} (true {truth_value(s, truth[text])!r})")
         L.append("")
     return L
 
@@ -161,6 +193,9 @@ def main(request_path: str, dest: str, pins_path: str, commit: str | None = None
             if not all(d["cache_check"]["ok"] for d in reports.values()):
                 lines.append("FAILED cache_check")
                 verdict = "INCOMPLETE"
+        elif req["phase"] == "probe":
+            if verdict == "COMPLETE":
+                summary = probe_summary(req, enc)
         elif verdict == "COMPLETE":
             summary, decisions = encode_summary(req, enc)
     except Exception as exc:

@@ -12,17 +12,23 @@ from __future__ import annotations
 
 from .cands35 import ACTIONS, NONE, SLOTS, candidates, decide, ranking
 
-PROMPT_VERSION = "p1"
-SYSTEM = "You read one note about an event and answer one question about it. Answer with only the answer, nothing else."
+PROMPT_VERSION = "p2"
+# p2 (development change after the timing slice, logged in docs/ROUND_3_5.md): questions
+# state the schema's roles explicitly (who is reported, who received something, objects
+# are things, "was" = a person seen somewhere)
+SYSTEM = ("You read one note about an event and fill in one field of a record about it. "
+          "Answer with only the value, nothing else.")
 QUESTIONS = {
-    "actor": "Who did what the note describes? If it was the narrator (you or I), answer: You.",
-    "partner": ("Apart from the one who did it, which other person took part in the event, for example by "
-                "receiving something? If it was the narrator, answer: You. If nobody else took part, answer: none."),
-    "action": ("Which word describes the event best? " + "; ".join(f"{k} ({v})" for k, v in ACTIONS.items())
+    "actor": ("Field 'actor': the person whose action or presence the note reports - the one who hid, left, put "
+              "or gave something, or the one who was seen or met. If the narrator (you / I) did it, answer: You."),
+    "partner": ("Field 'receiver': the person who received something from the actor in this event. If the narrator "
+                "(you / me) received it, answer: You. If nothing was given to anyone, answer: none."),
+    "action": ("Field 'action': one of these words: " + "; ".join(f"{k} = {v}" for k, v in ACTIONS.items())
                + ". Answer with one of these words."),
-    "object": "Which object is the note about? Answer with its name as written in the note, or none if there is no object.",
-    "place": "At which place did the event happen? Answer with the place's name as written in the note.",
-    "event_day": "On which day number did the event happen? Answer with the number.",
+    "object": ("Field 'object': the thing (not a person, not a place) that the event is about, as written in the "
+               "note. If the note mentions no thing, answer: none."),
+    "place": "Field 'place': the place where the event happened, as written in the note.",
+    "event_day": "Field 'day': the day number of the event.",
 }
 
 

@@ -3,6 +3,8 @@
   --phase timing  a fixed development slice (2 pairs per kind plus the 20 development
                   texts with the most candidates), cached scoring timed per text, and for
                   the first 10 texts the uncached scores as well (cache check)
+  --phase probe   a small stratified development slice (4 distinct texts per development
+                  wording frame) for quick development iterations
   --phase encode  every distinct text of a split, in chunks (texts[chunk::chunks])
 
 The output keeps every scored surface candidate with its canonical value and score; all
@@ -21,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from episodic_lab.cands35 import SLOTS, candidates, ranking  # noqa: E402
+from episodic_lab.cands35 import CANDIDATE_VERSION, SLOTS, candidates, ranking  # noqa: E402
 from episodic_lab.encoder35 import PROMPT_VERSION, encode_text, messages  # noqa: E402
 from episodic_lab.env35 import KINDS35, split_pairs  # noqa: E402
 
@@ -39,6 +41,15 @@ def timing_texts() -> list[str]:
               for w in p["worlds"].values() for e in w["experiences"]}
     longest = sorted(split_texts("dev"), key=lambda t: (-sum(len(candidates(s, t)) for s in SLOTS), t))[:20]
     return sorted(chosen | set(longest))
+
+
+def probe_texts(per_frame: int = 4) -> list[str]:
+    frames = {}
+    for p in split_pairs("dev"):
+        for w in p["worlds"].values():
+            for e in w["experiences"]:
+                frames.setdefault(e["frame"], set()).add(e["text"])
+    return sorted(t for f in sorted(frames) for t in sorted(frames[f])[:per_frame])
 
 
 def cache_check(model, texts: list[str]) -> dict:
@@ -60,7 +71,7 @@ def cache_check(model, texts: list[str]) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--phase", choices=("timing", "encode"), required=True)
+    ap.add_argument("--phase", choices=("timing", "probe", "encode"), required=True)
     ap.add_argument("--model", required=True)
     ap.add_argument("--split", default="dev")
     ap.add_argument("--chunk", type=int, default=0)
@@ -70,7 +81,8 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     out = {"schema": SCHEMA, "phase": args.phase, "model": args.model, "split": args.split, "chunk": args.chunk,
-           "chunks": args.chunks, "prompt_version": PROMPT_VERSION, "status": "ERROR",
+           "chunks": args.chunks, "prompt_version": PROMPT_VERSION, "candidate_version": CANDIDATE_VERSION,
+           "status": "ERROR",
            "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
                           "request_sha256": hashlib.sha256(Path(args.request).read_bytes()).hexdigest(),
                           "pins_sha256": hashlib.sha256(Path(args.pins).read_bytes()).hexdigest()}}
@@ -80,7 +92,8 @@ def main() -> int:
         model = PinnedModel(args.model, args.pins)
         out["load_seconds"] = round(time.perf_counter() - t0, 1)
         out["weights_sha256"] = model.weights_digest()
-        texts = timing_texts() if args.phase == "timing" else split_texts(args.split)[args.chunk::args.chunks]
+        texts = (timing_texts() if args.phase == "timing" else probe_texts() if args.phase == "probe"
+                 else split_texts(args.split)[args.chunk::args.chunks])
         encodings, seconds = {}, {}
         for text in texts:
             t = time.perf_counter()
