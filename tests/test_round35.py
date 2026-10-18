@@ -101,3 +101,147 @@ class CandidateTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ----------------------------------------------------------------- model-free analysis and the jobs
+import json  # noqa: E402
+import tempfile  # noqa: E402
+from unittest import mock  # noqa: E402
+
+import collect_round35  # noqa: E402
+import run_round35  # noqa: E402
+from episodic_lab import analysis35 as A  # noqa: E402
+from episodic_lab.cands35 import SLOTS, truth_value  # noqa: E402
+from episodic_lab.encoder35 import QUESTIONS, encode_text  # noqa: E402
+
+
+def fake_scorer(truth, prefer=None):
+    """Scores the true canonical value highest; `prefer(slot, surface, want)` may override."""
+    def scorer(msgs, surfaces):
+        text = msgs[1]["content"].split("Note: ", 1)[1].split("\n\nQuestion: ")[0]
+        q = msgs[1]["content"].split("\n\nQuestion: ")[1]
+        slot = next(s for s, qq in QUESTIONS.items() if qq == q)
+        want = truth_value(slot, truth[text])
+        out = []
+        for i, s in enumerate(surfaces):
+            good = canonical(slot, s) == want
+            if prefer is not None:
+                good = prefer(slot, s, want, good)
+            out.append(0.0 if good else -3.0 - 0.01 * i)
+        return out
+    return scorer
+
+
+class FakeModel:
+    def __init__(self, slug, pins, **_):
+        self.truth = {}
+        for split in ("dev", "cal", "ho"):
+            self.truth.update(A.truths(split))
+        self.scorer = fake_scorer(self.truth)
+
+    def weights_digest(self, recompute=False):
+        return "w"
+
+    def score_candidates_cached(self, msgs, surfaces):
+        return self.scorer(msgs, surfaces)
+
+    def score_candidates(self, msgs, surfaces):
+        return self.scorer(msgs, surfaces)
+
+
+class AnalysisTests(unittest.TestCase):
+    def test_env_decisions_equal_round33_on_template_stores(self):
+        from episodic_lab.env import generate_pair
+        from episodic_lab.env_agent import decide, write_store
+        for kind in ("hidden", "moved", "giver"):
+            for i in range(6):
+                p = generate_pair(f"t35-{i}", kind)
+                for w in p["worlds"].values():
+                    recs = write_store(None, w["experiences"]).records
+                    self.assertEqual(A.decide_env(recs, w["decision"])["action"], decide(recs, w["decision"])["action"])
+
+    def test_giver_with_unknown_fields(self):
+        from episodic_lab.memory import EpisodeStore
+        s = EpisodeStore()
+        s.append("a", {"actor": "Ana Bell", "partner": "You", "action": "gave", "object": "red cup", "place": "Oak Mill", "event_day": 1})
+        self.assertEqual(A.giver_of(s.records, "red cup").value, "Ana Bell")
+        s.append("b", {"actor": "Cal Dorr", "partner": "You", "action": "gave", "object": None, "place": "Ash Mill", "event_day": 2},
+                 extra={"unknown": ["object"]})
+        self.assertEqual(A.giver_of(s.records, "red cup").status, "ambiguous")   # could be another gave of the cup
+
+    def test_swap_carries_unknown_flags(self):
+        rows = [({"place": None, "x": 1}, ["place"]), ({"place": "Oak Mill", "x": 2}, [])]
+        out = A.variant({"op": "swap", "field": "place", "i": 0, "j": 1}, rows)
+        self.assertEqual(out, [({"place": "Oak Mill", "x": 1}, []), ({"place": None, "x": 2}, ["place"])])
+
+    def test_calibration_rule(self):
+        truth = {f"t{i}": {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
+                           "place": "Oak Mill", "event_day": 1} for i in range(400)}
+        enc = {}
+        for i, t in enumerate(truth):
+            right = i % 50 != 0                       # 2% wrong, all with small margins
+            m = 0.5 if not right else 1.0 + (i % 7)
+            best, other = ("Ana Bell", "Cal Dorr") if right else ("Cal Dorr", "Ana Bell")
+            enc[t] = {s: [["x", "v", 0.0]] for s in SLOTS}
+            enc[t]["actor"] = [[best, best, 0.0], [other, other, -m]]
+        cal = A.calibrate(enc, truth)["actor"]
+        self.assertGreater(cal["tau"], 0.5)          # excludes the wrong small-margin answers
+        self.assertGreaterEqual(cal["precision"], 0.99)
+        self.assertGreaterEqual(cal["accepted"], 200)
+        few = {t: enc[t] for t in list(enc)[:150]}
+        self.assertIsNone(A.calibrate(few, truth)["actor"]["tau"])   # fewer than 200 accepted: no tau
+
+    def test_perfect_and_adjective_dropping_encoders(self):
+        truth = A.truths("dev")
+        enc = {t: encode_text(fake_scorer(truth), t) for t in truth}
+        taus = {s: 1.0 for s in SLOTS}
+        q = A.quality(enc, truth, taus)
+        c = A.cells(A.tasks("dev", enc, taus)["intact"])
+        self.assertEqual(q["complete_records"], 1.0)
+        self.assertTrue(all(ok for _, ok in A.encoder_qualified(q, c)))
+        drop = fake_scorer(truth, lambda slot, s, want, good: (len(s.split()) == 1 and isinstance(want, str)
+                                                               and want.endswith(" " + s)) if slot == "object" else good)
+        enc2 = {t: encode_text(drop, t) for t in truth}
+        q2 = A.quality(enc2, truth, taus)
+        c2 = A.cells(A.tasks("dev", enc2, taus)["intact"])
+        self.assertLess(q2["complete_records"], 0.95)
+        self.assertFalse(all(ok for _, ok in A.encoder_qualified(q2, c2)))
+
+
+class JobTests(unittest.TestCase):
+    def run_job(self, d, phase, model, split="dev", chunk=0, chunks=1):
+        out = d / f"r35_{phase}_{model}_{split}_{chunk}.json"
+        argv = ["run_round35.py", "--phase", phase, "--model", model, "--split", split, "--chunk", str(chunk),
+                "--chunks", str(chunks), "--pins", str(d / "pins.json"), "--request", str(d / "req.json"), "--out", str(out)]
+        with mock.patch("sys.argv", argv), mock.patch("episodic_lab.models.PinnedModel", FakeModel):
+            run_round35.main()
+        return json.loads(out.read_text())
+
+    def test_timing_and_encode_phases_with_the_collector(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "pins.json").write_text("{}")
+            req = {"phase": "timing", "models": ["m"], "splits": ["dev"], "chunks": 1}
+            (d / "req.json").write_text(json.dumps(req))
+            r = self.run_job(d, "timing", "m")
+            self.assertEqual(r["status"], "OK", r.get("traceback"))
+            self.assertTrue(r["cache_check"]["ok"])
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
+            self.assertIn("seconds per text", (d / "SUMMARY.md").read_text())
+            # encode phase for dev and cal in two chunks; then a missing chunk
+            req = {"phase": "encode", "models": ["m"], "splits": ["dev", "cal"], "chunks": 2}
+            (d / "req.json").write_text(json.dumps(req))
+            for split in ("dev", "cal"):
+                for chunk in (0, 1):
+                    self.run_job(d, "encode", "m", split, chunk, 2)
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
+            dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+            self.assertEqual(set(dec["taus"]), set(SLOTS))
+            (d / "r35_encode_m_cal_1.json").unlink()
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            self.assertEqual((d / "VERDICT").read_text().strip(), "INCOMPLETE")
+            self.assertIn("missing:r35_encode_m_cal_1.json", (d / "CHECK.txt").read_text())
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "other-commit")
+            self.assertIn("provenance:commit", (d / "CHECK.txt").read_text())

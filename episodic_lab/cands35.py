@@ -107,18 +107,27 @@ def merge(scored: list[tuple[str, object, float]]) -> dict:
     return best
 
 
+def ranking(scored: list[tuple[str, object, float]]):
+    """(best canonical value, margin to the best DIFFERENT value or None if there is only
+    one value, number of canonical values). Equal scores are ordered by the value's text,
+    but then the margin is 0 and the slot is unknown anyway."""
+    best = merge(scored)
+    if not best:
+        return None, None, 0
+    ranked = sorted(best.items(), key=lambda kv: (-kv[1], str(kv[0])))
+    margin = ranked[0][1] - ranked[1][1] if len(ranked) > 1 else None
+    return ranked[0][0], margin, len(ranked)
+
+
 def decide(scored: list[tuple[str, object, float]], tau: float | None):
     """(value, margin, status) from scored candidates. status: "ok", "unknown" (margin below
     tau, margin 0, or no qualifying tau = None), "single" (only one canonical value: accepted
     unless the slot has no qualifying tau)."""
-    best = merge(scored)
-    if not best:
+    value, margin, n = ranking(scored)
+    if n == 0:
         return None, None, "unknown"
-    ranked = sorted(best.items(), key=lambda kv: (-kv[1], str(kv[0])))
-    value, top = ranked[0]
-    if len(ranked) == 1:
+    if n == 1:
         return (value, None, "single") if tau is not None else (None, None, "unknown")
-    margin = top - ranked[1][1]
     if tau is None or margin <= 0 or margin < tau:
         return None, margin, "unknown"
     return value, margin, "ok"

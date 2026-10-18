@@ -98,6 +98,35 @@ class PinnedModel:
         self.stats["scored"] = self.stats.get("scored", 0) + len(candidates)
         return out
 
+    def score_candidates_cached(self, messages: list[dict], candidates: list[str]) -> list[float]:
+        """The same scores as `score_candidates`, with the prompt's key/value cache computed
+        once and cropped back to the prompt after every candidate (round 3.5). Agreement
+        with the uncached scores is checked on a development slice."""
+        torch = self._torch
+        ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
+                                                 return_tensors="pt", **self.template_kwargs)
+        plen = ids.shape[1]
+        with torch.no_grad():
+            first = self.model(ids, attention_mask=torch.ones_like(ids), use_cache=True)
+        cache = first.past_key_values
+        last = torch.log_softmax(first.logits[0, -1].float(), dim=-1)
+        out = []
+        for cand in candidates:
+            cid = self.tokenizer(cand, add_special_tokens=False)["input_ids"] + [self.tokenizer.eos_token_id]
+            total = float(last[cid[0]])
+            if len(cid) > 1:
+                step = torch.tensor([cid[:-1]], dtype=ids.dtype)
+                with torch.no_grad():
+                    o = self.model(step, past_key_values=cache, use_cache=True,
+                                   attention_mask=torch.ones((1, plen + len(cid) - 1), dtype=ids.dtype))
+                logp = torch.log_softmax(o.logits[0].float(), dim=-1)
+                total += float(sum(logp[i, t] for i, t in enumerate(cid[1:])))
+                cache.crop(plen)
+            out.append(total)
+        self.stats["scored"] = self.stats.get("scored", 0) + len(candidates)
+        self.stats["prompts"] = self.stats.get("prompts", 0) + 1
+        return out
+
     def generate_reasoning(self, messages: list[dict], seed: int) -> dict:
         """Qwen3 thinking mode with the sampling settings recommended for it (temperature
         0.6, top-p 0.95, top-k 20), seeded per call so every answer is reproducible. The
