@@ -217,3 +217,32 @@ wordings are used; (3) the prefix cache is checked on a small development slice:
 and decisions with and without the cache must agree (tolerance 1e-4 in log-probability,
 identical choices); (4) errors are also broken down by role and absence: giver vs
 receiver, "You" vs observed persons, truly absent vs present partner/object.
+
+## Implementation notes (before the timing run)
+
+- Code: `episodic_lab/wordings35.py`, `env35.py`, `cands35.py`, `encoder35.py`,
+  `analysis35.py`; `bench/m3/audit35.py`, `run_round35.py`, `collect_round35.py`;
+  workflow `round35.yml`, request `config/round35.json`; tests `tests/test_round35.py`.
+- Cache check tolerance: 1e-3 in log-probability (not 1e-4 as first written above): the
+  cached and uncached forward passes compute the same values along different float32
+  paths; the choices must be identical in every slot. Fixed before the timing run.
+- Disjoint texts: dev, cal and aud share the development wordings, so a few short
+  sentences coincided (5, 2, 2); a pair that would share a text with an earlier split is
+  regenerated with the next attempt number (`env35.split_pairs`), now 0 shared texts.
+  Holdout and reserve use other wordings and cannot share texts with the development
+  splits.
+- Round 3.3 goals on LM-written stores use unknown-aware operators (`analysis35.decide_env`:
+  the object's latest placing via the history operator; the giver as the unique possible
+  "gave" record, then `memory.latest`); on template stores they decide exactly like the
+  round 3.3 agent (tested).
+- The round 3.4 current-state baseline in the original-rules check reads the true events
+  (perfect reading), because the template parser cannot read the new wordings.
+- Decisions are taken in-process from stores rebuilt from the recorded encodings; the
+  memory boundary is the store content (the process isolation was shown in 3.3/3.4).
+- Model-free audit of dev, cal, aud (`audit35.py`): roundtrip, pair invariance, disjoint
+  texts and coverage all pass (coverage 1.0 in every slot). Baselines without a model
+  (rules built from the development wordings): complete records 0.73 / 0.71 / 0.69
+  (dev / cal / aud; actor 0.78, place 0.71-0.73, other slots 1.0). Holdout coverage is
+  checked only after the freeze.
+- Independent meaning check: sheet sent to Joe (`reviews/2026-10-18_r35_meaning_check_sheet.md`),
+  answer pending; the wordings are frozen only after it.
