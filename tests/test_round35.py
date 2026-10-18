@@ -245,3 +245,21 @@ class JobTests(unittest.TestCase):
             self.assertIn("missing:r35_encode_m_cal_1.json", (d / "CHECK.txt").read_text())
             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "other-commit")
             self.assertIn("provenance:commit", (d / "CHECK.txt").read_text())
+
+    def test_holdout_phase_decisions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "pins.json").write_text("{}")
+            req = {"phase": "encode", "models": ["m"], "splits": ["ho"], "chunks": 3,
+                   "frozen": {"model": "m", "taus": {s: 1.0 for s in SLOTS}}}
+            (d / "req.json").write_text(json.dumps(req))
+            for chunk in range(3):
+                self.run_job(d, "encode", "m", "ho", chunk, 3)
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
+            dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+            self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("YES", "PASS"))
+            (d / "r35_encode_m_ho_2.json").unlink()
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+            self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("UNDECIDABLE", "FAIL"))

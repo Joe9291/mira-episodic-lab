@@ -118,6 +118,10 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
                 for s, v in q["slots"].items():
                     ch = f"{v['chosen_correct'] / v['chosen']:.3f}" if v["chosen"] else "-"
                     L.append(f"| {s} | {v['correct']} | {v['unknown']} | {v['wrong']} | {v['single']} | {ch} |")
+                if split != "ho":
+                    fq = A.frame_quality(split, enc[(model, split)], t)
+                    L += ["", "By wording frame (distinct texts / complete records correct): " + "; ".join(
+                        f"{f} {n}/{ok}" for f, (n, ok) in fq.items())]
                 L += ["", "By role and absence: " + "; ".join(
                     f"{k} {v['correct']}/{v['unknown']}/{v['wrong']}" for k, v in sorted(q["roles"].items())), ""]
                 T = A.tasks(split, enc[(model, split)], t)

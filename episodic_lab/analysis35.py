@@ -89,6 +89,23 @@ def quality(encodings: dict, truth: dict, taus: dict) -> dict:
     return {"texts": n, "slots": per, "roles": roles, "complete_records": complete / n if n else None}
 
 
+def frame_quality(split: str, encodings: dict, taus: dict) -> dict:
+    """{wording frame: [distinct texts, complete records correct]} (development diagnosis)."""
+    frames = {}
+    for p in split_pairs(split):
+        for w in p["worlds"].values():
+            for e, c in zip(w["experiences"], w["truth_content"]):
+                frames.setdefault(e["frame"], {})[e["text"]] = c
+    out = {}
+    for frame, items in sorted(frames.items()):
+        ok = 0
+        for text, c in items.items():
+            content, unk, detail = decide_record(encodings[text], taus)
+            ok += all(detail[s]["status"] != "unknown" and detail[s]["value"] == truth_value(s, c) for s in SLOTS)
+        out[frame] = [len(items), ok]
+    return out
+
+
 def calibrate(encodings: dict, truth: dict) -> dict:
     """Per slot: the threshold with the highest acceptance rate subject to precision >= 0.99
     and >= 200 accepted values among the multi-value slots; ties to the smaller threshold;
