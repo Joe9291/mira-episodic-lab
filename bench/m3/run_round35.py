@@ -52,6 +52,11 @@ def probe_texts(per_frame: int = 4) -> list[str]:
     return sorted(t for f in sorted(frames) for t in sorted(frames[f])[:per_frame])
 
 
+def scorer_of(model):
+    """The prefix-reusing scorer if the model has it, else the prompt-cached one."""
+    return getattr(model, "score_candidates_prefixed", None) or model.score_candidates_cached
+
+
 class NullScores:
     """Scores without the note ("(no note)"), cached per (slot, surface) within the job."""
     def __init__(self, model, prompt: str = "p2"):
@@ -60,20 +65,21 @@ class NullScores:
     def __call__(self, slot: str, surfaces: list[str]) -> list[float]:
         todo = [s for s in dict.fromkeys(surfaces) if (slot, s) not in self.cache]
         if todo:
-            for s, x in zip(todo, self.model.score_candidates_cached(messages(slot, NULL_NOTE, self.prompt), todo)):
+            for s, x in zip(todo, scorer_of(self.model)(messages(slot, NULL_NOTE, self.prompt), todo)):
                 self.cache[(slot, s)] = x
         return [self.cache[(slot, s)] for s in surfaces]
 
 
-def cache_check(model, texts: list[str]) -> dict:
-    """Cached vs uncached scores on the same candidates: largest absolute difference and
-    whether every slot's best canonical value is the same."""
+def cache_check(model, texts: list[str], prompt: str = "p2") -> dict:
+    """Scores of the scorer used (prefix and prompt cache) vs uncached scores on the same
+    candidates: largest absolute difference and whether every slot's best canonical value
+    is the same."""
     worst, same = 0.0, True
     for text in texts:
         for slot in SLOTS:
             surf = candidates(slot, text)
-            a = model.score_candidates_cached(messages(slot, text), [s for s, _ in surf])
-            b = model.score_candidates(messages(slot, text), [s for s, _ in surf])
+            a = scorer_of(model)(messages(slot, text, prompt), [s for s, _ in surf])
+            b = model.score_candidates(messages(slot, text, prompt), [s for s, _ in surf])
             worst = max(worst, max(abs(x - y) for x, y in zip(a, b)))
             ra = ranking([(s, c, x) for (s, c), x in zip(surf, a)])[0]
             rb = ranking([(s, c, x) for (s, c), x in zip(surf, b)])[0]
@@ -116,12 +122,12 @@ def main() -> int:
         ntok = (lambda s: model.count_tokens(s) + 1)
         for text in texts:
             t = time.perf_counter()
-            encodings[text] = encode_text(model.score_candidates_cached, text, nulls, ntok, args.prompt)
+            encodings[text] = encode_text(scorer_of(model), text, nulls, ntok, args.prompt)
             seconds[text] = round(time.perf_counter() - t, 3)
         out.update(encodings=encodings, seconds=seconds, texts=len(texts))
-        if args.phase == "timing":
+        if args.phase in ("timing", "probe"):
             t = time.perf_counter()
-            out["cache_check"] = cache_check(model, texts[:10])
+            out["cache_check"] = cache_check(model, texts[:10] if args.phase == "timing" else texts[:3], args.prompt)
             out["cache_check"]["seconds"] = round(time.perf_counter() - t, 1)
             out["candidates_per_text"] = {text: sum(len(candidates(s, text)) for s in SLOTS) for text in texts}
         if model.weights_digest(recompute=True) != out["weights_sha256"]:

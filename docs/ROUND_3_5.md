@@ -303,3 +303,20 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    if both fail, as a separate measured decision": qwen2.5-0.5b failed in the timing run
    and probes 1-2, qwen3-0.6b in the timing run (0.10); this probe measures, the decision
    goes to Astra with the evidence.
+4. Probe 3 (GitHub 39154541100; 80 development texts; approved sum score unless noted):
+   qwen2.5-0.5b+p3 complete records 0.075; qwen2.5-1.5b+p2 0.000 (actor 77, action 75,
+   object 72 of 80, but the receiver 1/80); qwen2.5-1.5b+p3 0.713 (actor 79, receiver 59,
+   action 80, object 79, place 80, day 80 of 80). The per-token mean is not better; the
+   calibrated score fails for every variant (never "You"/"none"). So the worked examples
+   and the larger model together make the difference; the receiver is the remaining weak
+   slot (it names the narrator for own placings, or the actor of placings and sightings,
+   and misses "You" in some gave sentences; wrong answers have margins overlapping the
+   right ones, so a threshold alone will not fix it). Cost: 103 s per text (mean) for
+   qwen2.5-1.5b+p3, because the examples lengthen every prompt. Changes for probe 4: p4 =
+   p3 with an explicit receiver question (only given/handed/passed things have a
+   receiver; all other events: none), and the key/value cache of the shared prompt head
+   (system prompt + worked examples, identical for every note of a slot) reused across
+   notes (`models.score_candidates_prefixed`, one cache per slot prompt, used only when
+   the head is an exact token prefix); probes now include a cache check against the
+   uncached scores (3 texts, all slots). Decision record: the 0.5B models are dropped
+   for this round (failed in every measurement); qwen2.5-1.5b is the candidate model.

@@ -127,6 +127,50 @@ class PinnedModel:
         self.stats["prompts"] = self.stats.get("prompts", 0) + 1
         return out
 
+    def score_candidates_prefixed(self, messages: list[dict], candidates: list[str]) -> list[float]:
+        """Like `score_candidates_cached`, and in addition the key/value cache of everything
+        before the last chat turn (system prompt and worked examples, identical for every
+        note of a slot) is computed once and reused across calls; used only when that
+        prefix is an exact token prefix of the full prompt, otherwise falls back."""
+        torch = self._torch
+        ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
+                                                 return_tensors="pt", **self.template_kwargs)
+        head = self.tokenizer.apply_chat_template(messages[:-1], add_generation_prompt=False,
+                                                  return_tensors="pt", **self.template_kwargs)
+        hl = head.shape[1]
+        if len(messages) < 2 or hl >= ids.shape[1] or not torch.equal(ids[0, :hl], head[0]):
+            return self.score_candidates_cached(messages, candidates)
+        key = tuple(head[0].tolist())
+        store = self.__dict__.setdefault("_prefix_caches", {})   # one per slot prompt
+        if key not in store:
+            with torch.no_grad():
+                store[key] = self.model(head, attention_mask=torch.ones_like(head), use_cache=True).past_key_values
+        cache = store[key]
+        cache.crop(hl)
+        plen = ids.shape[1]
+        rest = ids[:, hl:]
+        with torch.no_grad():
+            first = self.model(rest, past_key_values=cache, use_cache=True,
+                               attention_mask=torch.ones((1, plen), dtype=ids.dtype))
+        last = torch.log_softmax(first.logits[0, -1].float(), dim=-1)
+        out = []
+        for cand in candidates:
+            cid = self.tokenizer(cand, add_special_tokens=False)["input_ids"] + [self.tokenizer.eos_token_id]
+            total = float(last[cid[0]])
+            if len(cid) > 1:
+                step = torch.tensor([cid[:-1]], dtype=ids.dtype)
+                with torch.no_grad():
+                    o = self.model(step, past_key_values=cache, use_cache=True,
+                                   attention_mask=torch.ones((1, plen + len(cid) - 1), dtype=ids.dtype))
+                logp = torch.log_softmax(o.logits[0].float(), dim=-1)
+                total += float(sum(logp[i, t] for i, t in enumerate(cid[1:])))
+                cache.crop(plen)
+            out.append(total)
+        cache.crop(hl)
+        self.stats["scored"] = self.stats.get("scored", 0) + len(candidates)
+        self.stats["prompts"] = self.stats.get("prompts", 0) + 1
+        return out
+
     def generate_reasoning(self, messages: list[dict], seed: int) -> dict:
         """Qwen3 thinking mode with the sampling settings recommended for it (temperature
         0.6, top-p 0.95, top-k 20), seeded per call so every answer is reproducible. The

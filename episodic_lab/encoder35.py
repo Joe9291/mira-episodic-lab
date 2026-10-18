@@ -45,18 +45,24 @@ EXAMPLES = [
     ("Day 6: you walked to Pine Lodge.",
      {"actor": "You", "partner": "none", "action": "went", "object": "none", "place": "Pine Lodge", "event_day": "6"}),
 ]
-PROMPTS = ("p2", "p3")
+PROMPTS = ("p2", "p3", "p4")
+# p4 = p3 with the receiver question made explicit about which events have a receiver
+# (development change after probe 3: the receiver was the only weak slot of qwen2.5-1.5b)
+Q_RECEIVER_P4 = ("Field 'receiver': only when the note says that something was GIVEN, handed or passed to "
+                 "someone - the person who got it; if the narrator (you / me) got it, answer: You. For every "
+                 "other event (hiding, leaving, putting, placing, seeing, meeting, going) answer: none.")
 
 
 def messages(slot: str, text: str, prompt: str = "p2") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
+    question = Q_RECEIVER_P4 if (prompt == "p4" and slot == "partner") else QUESTIONS[slot]
     turns = [{"role": "system", "content": SYSTEM}]
-    if prompt == "p3":
+    if prompt in ("p3", "p4"):
         for note, answers in EXAMPLES:
-            turns += [{"role": "user", "content": f"Note: {note}\n\nQuestion: {QUESTIONS[slot]}"},
+            turns += [{"role": "user", "content": f"Note: {note}\n\nQuestion: {question}"},
                       {"role": "assistant", "content": answers[slot]}]
-    return turns + [{"role": "user", "content": f"Note: {text}\n\nQuestion: {QUESTIONS[slot]}"}]
+    return turns + [{"role": "user", "content": f"Note: {text}\n\nQuestion: {question}"}]
 
 
 NULL_NOTE = "(no note)"

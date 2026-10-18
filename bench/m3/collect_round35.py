@@ -202,6 +202,12 @@ def main(request_path: str, dest: str, pins_path: str, commit: str | None = None
         elif req["phase"] == "probe":
             if verdict == "COMPLETE":
                 summary = probe_summary(req, enc)
+                checks = {name: d.get("cache_check") for name, d in reports.items()}
+                summary += ["Cache checks: " + "; ".join(
+                    f"{n}: max diff {c['max_abs_diff']:.2e}, same choices {c['same_choices']}" for n, c in checks.items() if c)]
+                if not all(c and c["ok"] for c in checks.values()):
+                    lines.append("FAILED cache_check")
+                    verdict = "INCOMPLETE"
         elif verdict == "COMPLETE":
             summary, decisions = encode_summary(req, enc)
     except Exception as exc:
