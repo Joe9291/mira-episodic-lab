@@ -1,0 +1,31 @@
+2m 4s nachgedacht
+
+baseline cannot answer.
+---END FILE docs/ROUND_3_5.md---
+
+APPROVE – für den Entwurf des Encoderpiloten und die definierte technische Qualifikation.
+
+Die beiden offenen Punkte aus Version 2 sind geschlossen. Ich sehe im vorgelegten Design keine verbleibende blockierende Änderung.
+
+Konkrete Gründe
+
+1. Der Formulierungs-Holdout ist jetzt sauber abgegrenzt. Entwicklung, Kalibrierung und Audit verwenden ausschließlich Entwicklungsformulierungen. Nach einer notwendigen Anpassung gelten sowohl die betroffenen Welten als auch die Formulierungsvorlagen als verbraucht. Neue Welten mit Reserveformulierungen erhalten den vorgesehenen Test auf neue Formulierungen. Bei ausgeschöpfter Reserve wird die Aussage ausdrücklich eingeschränkt.
+
+2. Encoderqualifikation und ursprünglicher Meilenstein werden korrekt getrennt. ENCODER_QUALIFIED bezeichnet eure technische Abnahme mit Fehlertoleranz. MILESTONE_ORIGINAL_RULES verlangt die unveränderten ursprünglichen Kriterien einschließlich der Interventionen. Damit wird aus einem hinreichend guten Encoder keine vermeintlich fehlerfreie Meilensteinerfüllung abgeleitet.
+
+3. Die Qualifikation erfasst mehrere unterschiedliche Fehlerquellen. Gemeinsam korrekte vollständige Datensätze, Genauigkeit pro Weltart und Ziel, Paarerfolg sowie Fehler unter speicherbasierten Entscheidungen werden getrennt geprüft. Unbekannte Werte zählen nicht als richtige Abwesenheit. Die Oracle-Kodierung hält die Referenz unabhängig von der Lesbarkeit neuer Formulierungen.
+
+4. Kalibrierung und Auswertung sind ausreichend festgelegt. Maximale Akzeptanz unter der Präzisionsbedingung, Mindestumfang, getrennte Kalibriergruppe, unbekannte Antworten bei Gleichstand und nicht bestandene Kriterien bei leerem Nenner verhindern die zuvor offenen Auswertungsprobleme. Die Einordnung als technische Abnahme ist angemessen.
+
+5. Die zusätzlichen Kontrollen sind sinnvoll. Menschliche Bedeutungsprüfung ergänzt den Parser-Roundtrip; Paarinvarianz und mindestens 30 unterschiedliche Texte pro Holdout-Rahmen stärken die Datenprüfung. Aufgezeichnete Oberflächenkandidaten machen die kanonische Zusammenfassung nachvollziehbar.
+
+6. Der Umfang bleibt für den nächsten Erkenntnisschritt passend. Der Frageparser bleibt fest, die Operatoren übernehmen die Schlussfolgerungen, und Kodierungen werden wiederverwendet. Der Timingvorlauf prüft die tatsächlichen Kosten vor der größeren Ausführung. Ob die sechs Stunden eingehalten werden, muss diese Messung zeigen.
+
+Die Freigabe betrifft das Design. Eine korrekte Implementierung und erfolgreiche Modellleistung sind damit noch nicht nachgewiesen.
+
+Verbesserungsideen – nicht blockierend
+
+- Singleton-Fälle als strukturell festgelegt ausweisen. Berichtet zusätzlich die Genauigkeit auf Fällen, in denen das Modell tatsächlich zwischen mindestens zwei kanonischen Werten entscheiden musste. Haltet dabei die Vorrangregel fest: Ein Slot ohne qualifizierendes tau bleibt unbekannt.
+- Nach einer Coverage-Reparatur die gesamte betroffene Konfiguration erneut prüfen. Änderungen am Kandidatengenerator können Scores und Margen verändern. Entwicklungsprüfung, Kalibrierung und Freeze sollten deshalb zur reparierten Konfiguration passen, bevor Reserveformulierungen verwendet werden.
+- Die Präfixcache-Verwendung gezielt überprüfen. Auf einem kleinen Entwicklungsausschnitt sollten Kandidatenreihenfolge sowie Bewertung mit und ohne Cache dieselben Scores beziehungsweise Entscheidungen liefern. Das prüft eine mögliche Implementierungsfehlerquelle.
+- Fehler nach Rolle und Abwesenheit aufschlüsseln. Neben Slotquoten sind insbesondere Geber/Empfänger, You gegenüber beobachteten Personen und tatsächlich fehlende gegenüber vorhandenen Partnern hilfreich. So bleibt ein mögliches Scheitern unmittelbar diagnostizierbar.

@@ -203,3 +203,17 @@ unsupported questions; then both combined; then context-dependent historical que
 (pairs with identical current, first and previous values but a different relevant
 intermediate event, e.g. "where was X immediately before event Y?"), which the cache
 baseline cannot answer.
+
+## Review of v3 and adopted ideas
+
+Astra APPROVE for v3 (`reviews/2026-10-18_r35v3_astra.txt`; the approval covers the
+design, not the implementation or the model's performance). Her non-blocking ideas,
+adopted: (1) slots with a single canonical candidate are reported as structurally fixed,
+and accuracy is reported separately on the slots where the model had to choose between at
+least two canonical values; precedence rule: a slot without a qualifying tau stays
+unknown, also for single-candidate cases; (2) after a coverage repair the whole affected
+configuration (development check, calibration, freeze) is redone before the reserve
+wordings are used; (3) the prefix cache is checked on a small development slice: scores
+and decisions with and without the cache must agree (tolerance 1e-4 in log-probability,
+identical choices); (4) errors are also broken down by role and absence: giver vs
+receiver, "You" vs observed persons, truly absent vs present partner/object.
