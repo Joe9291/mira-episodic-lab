@@ -62,14 +62,17 @@ def reference_decision(events: list[dict], kind: str, target: str, goal: str, op
     explore = options[0]
     mine = sorted((e for e in events if _is_target(e, kind, target)), key=lambda e: e["event_day"])
     days = [e["event_day"] for e in mine]
-    if not mine or len(set(days)) != len(days):
+    if not mine:
         return explore
+
+    def unique(day):  # a tie only matters at the positions the goal needs
+        return days.count(day) == 1
     if goal == "current":
-        return mine[-1]["place"]
+        return mine[-1]["place"] if unique(days[-1]) else explore
     if goal == "first":
-        return mine[0]["place"]
+        return mine[0]["place"] if unique(days[0]) else explore
     if goal == "previous":
-        return mine[-2]["place"] if len(mine) >= 2 else explore
+        return mine[-2]["place"] if len(mine) >= 2 and unique(days[-1]) and unique(days[-2]) else explore
     raise ValueError(goal)
 
 

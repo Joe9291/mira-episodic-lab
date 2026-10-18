@@ -11,7 +11,7 @@ import json
 import re
 
 from .env import PLACING, SELF, env_encode
-from .memory import Result, _day, _ok, match
+from .memory import Result, _day, _minus, _ok, match, possible, unknown
 
 _GOALS = [
     (re.compile(r"Find the (?P<t>[a-z]+ [a-z]+)\."), "object", "current"),
@@ -39,22 +39,55 @@ def target_records(records, kind: str, target: str) -> list:
     return match(records, person=target)
 
 
+def possible_target_records(records, kind: str, target: str) -> list:
+    """Records that are not certainly about the target but could be, because a field
+    that decides it is unknown (round 3.2 v4 semantics: declared unknowns, missing
+    always-present fields): an unknown object or action for an object, an unknown actor
+    or partner for a person."""
+    if kind == "object":
+        cand = [r for r in possible(records, obj=target) if r["action"] in PLACING or unknown(r, "action")]
+    else:
+        cand = possible(records, person=target)
+    return _minus(cand, target_records(records, kind, target))
+
+
 def history_place(records, kind: str, target: str, which: str) -> Result:
     """The target's episodes ordered by event day; the latest, the first or the one
-    before the latest. An undated record or two records on one day make the order, and
-    so the answer, ambiguous."""
+    before the latest. An undated record, or two records on one day at the asked position
+    (for "previous": at the latest or the one before), make the answer ambiguous. A possible record (one that could be about the target, see
+    possible_target_records) blocks the answer whenever it could take the asked position
+    or tie with it: undated, or not earlier than the latest / not later than the first /
+    not earlier than the one before the latest. Without any exact record but with
+    possible ones the evidence is insufficient."""
     hits = target_records(records, kind, target)
-    trace = [("history", [kind, target, which], [r["id"] for r in hits])]
+    maybe = possible_target_records(records, kind, target)
+    trace = [("history", [kind, target, which], [r["id"] for r in hits + maybe])]
     if not hits:
-        return Result(None, "no_observation", [], trace)
+        return Result(None, "insufficient_evidence" if maybe else "no_observation", [r["id"] for r in maybe], trace)
     days = [_day(r) for r in hits]
-    if None in days or len(set(days)) != len(days):
+    if None in days:
         return Result(None, "ambiguous", [r["id"] for r in hits], trace)
     ordered = sorted(hits, key=_day)
-    pos = {"current": -1, "first": 0, "previous": -2}[which]
     if which == "previous" and len(ordered) < 2:
-        return Result(None, "no_observation", [r["id"] for r in ordered], trace)
+        status = "insufficient_evidence" if maybe else "no_observation"
+        return Result(None, status, [r["id"] for r in ordered + maybe], trace)
+    pos = {"current": -1, "first": 0, "previous": -2}[which]
     chosen = ordered[pos]
+    # a tie decides only where it touches the asked position (latest; first; latest and
+    # the one before it)
+    needed = {"current": [-1], "first": [0], "previous": [-1, -2]}[which]
+    if any(days.count(_day(ordered[i])) > 1 for i in needed):
+        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+    border = _day(chosen)
+
+    def blocks(r):
+        d = _day(r)
+        if d is None:
+            return True
+        return d <= border if which == "first" else d >= border
+    blocking = [r for r in maybe if blocks(r)]
+    if blocking:
+        return Result(None, "ambiguous", [chosen["id"]] + [r["id"] for r in blocking], trace)
     return _ok(chosen["place"], [chosen["id"]], trace)
 
 

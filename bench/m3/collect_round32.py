@@ -243,11 +243,14 @@ def adoption(cells, complete: bool) -> tuple[str, str]:
     lm_pos = per_world(cells, "full+ops/lm-encoder", positive_score)
     fr = mean(lure_shares([r for c in d["conditions"].values() for r in c["cells"]["full+ops/lm-encoder"]["rows"]])["false_recall"]
               for d in cells.values())
-    adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
+    checks = [(acc["all_slots"] >= 0.95, f"all_slots {acc['all_slots']:.3f} {'>=' if acc['all_slots'] >= 0.95 else '<'} 0.95"),
+              (lm_pos >= ref_pos - 0.02, f"positives full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} "
+                                         f"({'within' if lm_pos >= ref_pos - 0.02 else 'more than'} 0.02 lower)"),
+              (fr <= 0.05, f"lure false recall {fr:.3f} {'<=' if fr <= 0.05 else '>'} 0.05")]
+    adopt = all(ok for ok, _ in checks)
     return ("ADOPT" if adopt else "KEEP"), (
-        f"LM encoder qualification for the tested round 3.2 templates (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
-        f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
-        f"recall {fr:.3f} <= 0.05 -> "
+        "LM encoder qualification for the tested round 3.2 templates (docs/ROUND_3_2.md): "
+        + "; ".join(f"{text}: {'PASS' if ok else 'FAIL'}" for ok, text in checks) + " -> "
         + ("ADOPT the LM encoder for the round 3.2 template episode formats (other formats, e.g. the round 3.3 "
            "environment with \"You\" and object-free events, need their own check)" if adopt
            else "keep the template encoder; limit stated") + ".")

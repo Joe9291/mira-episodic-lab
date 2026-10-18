@@ -1,0 +1,117 @@
+7m 32s nachgedacht
+
+5. Model: qwen2.5-0.5b and qwen3-0.6b both scored (cheap with candidate scoring); a larger model only if both fail, as a separate measured decision.
+Open questions to you: is span scoring a fair test of "the LM writes the memory" or too much help? What would you change in the qualification? Should the cache baseline and context-dependent historical queries come before the language interface?
+
+Zur Lesereihenfolge: Beim Auslesen dieser Schlusszeilen habe ich versehentlich bereits Teile von C gesehen. Meine Empfehlung kann deshalb keine blinde Vorabempfehlung sein. Ich habe sie anschließend anhand von A und B formuliert, bevor ich C vollständig gelesen habe.
+
+Ergebnisse: APPROVE für den Abschluss von 3.2 und 3.4 Schritt 1 – mit präziserer Deutung.
+
+Das gilt auf Grundlage des vorgelegten Berichts. Rohdaten und Ergebniscode habe ich hier nicht unabhängig überprüft.
+
+1. Der Umgang mit dem ungültigen ersten Lauf ist sauber. Die beschriebene Ursache passt zum beobachteten Replay-Fehler: Unterschiedliche Summationsreihenfolgen können knappe Rangfolgen verändern. Regressionstest gegen den alten Code, Prüfung unterschiedlicher Hash-Seeds und vollständige Wiederholung sind angemessen. Dass ihr die Tabellen des ersten Laufs verworfen habt, ist richtig. Für diese Reparatur sehe ich keinen weiteren Änderungsbedarf.
+
+2. Die symbolische Verarbeitung funktioniert im geprüften Aufgabenraum vollständig. struct3+ops und full+ops erreichen auf beiden Weltserien sämtliche Zielwerte. Restart-, Integritäts- und Interventionskontrollen ergänzen die reine Antwortgenauigkeit sinnvoll.
+
+Die tragfähige Aussage lautet: Mit korrekt strukturierten Ereignissen und den spezifizierten Selektions- und Auswertungsregeln funktioniert euer externes Ereignisgedächtnis auf diesem Templatebenchmark. Daraus folgt noch keine zuverlässige Verarbeitung frei formulierter Erfahrungen.
+
+3. Der Reader scheitert trotz hinreichender bereitgestellter Information. Der Vergleich struct3+reader gegen struct3+ops ist dafür besonders aussagekräftig: gleiche Auswahl, unterschiedliche Verarbeitung. Die Positivgenauigkeit des Readers liegt bei 0,51 beziehungsweise 0,56; einschließlich der negativen Aufgaben beträgt „accuracy covered“ sogar nur 0,38 beziehungsweise 0,42. Seine Lure-Fehlerrate von ungefähr 0,95 ist ein deutlicher Befund.
+
+Das rechtfertigt, die Schlussfolgerungen vorerst in den Operatoren zu belassen. Es belegt das Versagen dieses Readers unter dieser Schnittstelle, keine allgemeine Unfähigkeit von Sprachmodellen zu solchen Schlussfolgerungen.
+
+4. Der Selektionsvergleich ist wichtig, enthält aber mehrere Unterschiede. lex3+ops erreicht 0,69 beziehungsweise 0,66, die strukturierte Auswahl 1,00. Die strukturierte Variante liefert jedoch auch Vollständigkeitszertifizierung und nutzt fragebezogene Logik. Der Gewinn darf deshalb nicht vollständig als Verbesserung einer gewöhnlichen Top-3-Suche ausgelegt werden. Ein Teil entsteht durch die Möglichkeit, Vollständigkeit festzustellen und dadurch bestimmte Antworten überhaupt zuzulassen.
+
+5. Der LM-Encoder fällt eindeutig durch. Vollständig richtige Datensätze: 0,217. Positivgenauigkeit: 0,107 gegenüber 1,000. KEEP ist klar richtig.
+
+Die Fehlerrate von null bei Lures rettet ihn nicht: E5 beträgt nur 0,27 beziehungsweise 0,22; überwiegend kommt unknown. Das ist ein sinnvoller Umgang mit unbrauchbaren Feldern, aber keine erfolgreiche Gedächtnisleistung.
+
+Auch coverage = 1 und gold support = 1 dürfen hier nicht als korrekte inhaltliche Erfassung gelesen werden. Alle betreffenden Episoden können ausgewählt sein, während ihre gespeicherten Inhalte falsch oder unbekannt sind.
+
+Der Deutung „mostly format errors“ widerspreche ich als bereits feststehender Diagnose. Dafür fehlt eine quantifizierte Fehleranalyse:
+
+- Painted statt painted kann eine reine Normalisierungsfrage sein.
+- umbrella statt tiny umbrella kann identitätsrelevante Information verlieren.
+- Ein Wochentag statt des verlangten Ereignistags kann eine fehlende zeitliche Zuordnung bedeuten.
+- Eine wiederholte Person statt eines fehlenden Partners betrifft Rollen beziehungsweise Abwesenheit.
+
+Die 837 Partnernormalisierungen sollten außerdem getrennt nach hilfreichen und schädlichen Korrekturen ausgewiesen werden. Die hohe Zahl allein beantwortet diese Frage nicht.
+
+6. Runde 3.4 liefert den beabsichtigten zusätzlichen Beleg. Identischer Endzustand, aber unterschiedliche richtige historische Antwort: Damit reicht der aktuelle Zustand für diese Aufgabe nachweislich nicht aus. Die selektiven Eingriffe zeigen zusätzlich, dass die Antworten von den jeweils relevanten gespeicherten Ereignissen abhängen.
+
+Die Grenze bleibt: Für die drei festen Abfragearten könnte ein Register mit erstem, vorletztem und letztem Wert pro Entität die intakten Aufgaben ebenfalls lösen. Ihr habt die Notwendigkeit historischer Information gezeigt; die Notwendigkeit einer umfassenden Episodensammlung gegenüber solchen Zusammenfassungen bleibt offen. Ebenso bedeutet eine nach Speicherveränderung vorhergesagt falsche Antwort kausale Speicherabhängigkeit, keine Robustheit gegen falsche Erinnerungen.
+
+Meine Empfehlung aus A und B
+
+Als nächsten Schritt empfehle ich einen eng begrenzten Encoderpilot für die tatsächliche 3.3-/3.4-Umgebung. Frageparser und Operatoren bleiben dabei fest.
+
+Die Reihenfolge wäre:
+
+1. An bereits verwendeten Entwicklungsdaten quantifizieren, welche Fehler durch zulässige Normalisierung verschwinden und welche Informations- oder Rollenfehler bleiben.
+2. Die Behandlung unbekannter Felder in den Historienoperatoren vervollständigen.
+3. Einen verbesserten Encoder gegen die bestehende Variante prüfen: zunächst Datensatzqualität, anschließend Auswirkungen auf die Gedächtnisaufgaben.
+4. Erst nach erfolgreicher Encoderqualifikation den sprachlichen Frageparser als eigenen Versuch ergänzen.
+
+Das adressiert den deutlichsten offenen Engpass und hält Fehlerursachen zuordenbar. Eine weitere große Wiederholung der bereits bestandenen symbolischen Aufgaben bringt derzeit weniger Erkenntnis.
+
+Vorschlag C: REQUEST CHANGES vor dem vollständigen Lauf
+
+Die Richtung unterstütze ich. Folgende Punkte sollten vorher geändert beziehungsweise festgelegt werden.
+
+1. Span-Scoring ist fair – die Aussage darüber muss stimmen.
+
+Ja: Ein Modell, das aus einer Notiz die richtigen Werte und Rollen auswählt, kann sinnvoll die sprachliche Kodierung übernehmen. Kandidatenvorgaben und ein festes Schema sind legitime Bestandteile dieses Systems.
+
+Die passende Beschreibung wäre „LM-gestützte strukturierte Extraktion mit vorgegebenen Kandidaten“. „Das LM schreibt das Gedächtnis“ wäre ohne diese Ergänzung zu weit.
+
+Der Kandidatenraum braucht vorab eine überprüfte Obergrenze: Wie oft ist der richtige Wert überhaupt enthalten? Ein bis zwei Wörter reichen nur, wenn sämtliche vorgesehenen Werte so darstellbar sind. Abwesende optionale Felder müssen ebenfalls korrekt abbildbar sein, einschließlich objektfreier Ereignisse in der Zielumgebung.
+
+Außerdem benötigt ihr zwei verschiedene Möglichkeiten:
+
+- none: Das betreffende Feld ist tatsächlich nicht vorhanden.
+- unknown: Der Encoder kann es nicht zuverlässig bestimmen.
+
+Eine erzwungene Auswahl aus Textspannen erzeugt diese Unterscheidung noch nicht.
+
+2. Encoder und Frageparser getrennt entwickeln.
+
+Beide gleichzeitig auszutauschen erschwert die Diagnose erheblich. Ein falscher historischer Zielort könnte dann durch eine falsche Ereigniskodierung, eine falsch verstandene Frage oder deren Zusammenspiel entstehen.
+
+Zunächst daher: LM-Encoder mit festem Frageparser. Danach: LM-Frageparser mit korrektem Ereignisspeicher. Anschließend die Kombination. Für die Parserqualifikation gehören auch mehrdeutige und nicht unterstützte Fragen hinein, damit eine feste Typenliste nicht zur erzwungenen Fehlinterpretation führt.
+
+3. Unbekannte Felder sind eine Voraussetzung, kein optionaler Nachtrag.
+
+Deinem Punkt 3 stimme ich ausdrücklich zu. Die Historienoperatoren müssen mögliche relevante Ereignisse berücksichtigen, wenn Akteur, Objekt, Zeit oder Ort unbekannt sind. Ein unvollständiger Datensatz darf nicht stillschweigend aus der Historie verschwinden und dadurch eine sichere Antwort ermöglichen.
+
+Die Unsicherheitsausgabe des Encoders braucht ebenfalls eine festgelegte Regel. Der höchste Kandidatenscore allein sagt noch nicht, ob die Auswahl ausreichend zuverlässig ist.
+
+4. Die Qualifikation muss zum späteren Einsatz passen.
+
+Neue Welten und unbenutzte Formulierungen sind sinnvoll. Eine erfolgreiche Qualifikation auf 3.2 legitimiert aber noch keinen ungeprüften Wechsel zu 3.3/3.4: Dort treten andere Ereignisformen und Feldbelegungen auf.
+
+Ich würde die Zielumgebung direkt in die Qualifikation aufnehmen und die bestehenden Grenzen grundsätzlich behalten, aber genauer definieren:
+
+- all_slots ≥ 0,95 bedeutet gemeinsam korrekte vollständige Datensätze. Einzelne Slotquoten reichen dafür nicht.
+- Den maximalen Genauigkeitsverlust von 0,02 nach Zieltyp prüfen, damit gute aktuelle Antworten schlechte historische Antworten nicht verdecken. Historischen Paarerfolg separat ausweisen.
+- Neben Lure-FR weiterhin korrekte Zurückweisung, unknown und Formatfehler berichten.
+- Weltweise Ergebnisse und Streuung zeigen. Wiederholte Ereignisse und Bedingungen innerhalb derselben Welt sind keine unabhängigen Stichproben.
+- Modelle, Prompts, Normalisierung und Scoring auf Entwicklungsdaten festlegen; den endgültigen Holdout anschließend unverändert auswerten.
+
+Die Grenzwerte sind zunächst technische Abnahmeregeln. Für eine statistisch abgesicherte Nichtunterlegenheitsbehauptung wären zusätzlich passende Unsicherheitsintervalle auf Ebene unabhängiger Welten erforderlich.
+
+5. „Cheap with candidate scoring“ ist noch eine ungemessene Annahme.
+
+Die bisherigen Encoderzeilen summieren sich auf 7.200 Aufrufe und 5.772 Sekunden für 1.200 Datensätze. Daraus lässt sich die Laufzeit des neuen Verfahrens nicht direkt ableiten.
+
+Bei Kandidatenbewertung zählen Kandidatenanzahl, Sequenzlänge, Wiederverwendung gemeinsamer Präfixe und konkrete Implementierung. Zwei Modelle verdoppeln zudem einen wesentlichen Teil der Arbeit. Auf vier CPU-Kernen und 16 GB RAM erscheint ein begrenzter Versuch plausibel; die Einhaltung von sechs Stunden sollte vor dem Vollversuch an einem festen Entwicklungsausschnitt gemessen werden.
+
+Auch die Scoredefinition muss feststehen: insbesondere vollständige Antwortsequenz samt Abschluss sowie der Umgang mit unterschiedlich langen und überlappenden Kandidaten. Das vorhandene erfolgreiche S1-Verfahren ist ein guter Ausgangspunkt, aber noch keine Qualifikation für Rollenbindung und sämtliche Slots.
+
+Weitere Verbesserungsideen
+
+- Cache-Baseline kurz ergänzen. Sie schärft die Interpretation von 3.4. Dafür würde ich den Encoderpilot nicht durch eine neue große symbolische Runde verzögern.
+- Kontextabhängige historische Abfragen als nächsten stärkeren Gedächtnistest vorbereiten. Besonders aussagekräftig wäre ein Paar mit identischem aktuellem, erstem und vorletztem Wert, aber unterschiedlichem relevantem Zwischenereignis. Eine später gestellte Frage wie „Wo war X unmittelbar vor Ereignis Y?“ könnte dann diese bisherigen Zusammenfassungen unterscheiden. Für stärkere Gedächtnisbehauptungen bringt das mehr als zusätzliche Varianten derselben drei Abfragearten.
+- Einfache Extraktionskontrollen mitführen. Positions- oder Wortregeln zeigen, ob das LM über leicht ausnutzbare Oberflächenmerkmale hinaus beiträgt. Rollenwechsel und ähnliche Objektbezeichnungen sind dafür besonders hilfreich.
+- Kodierungen wiederverwenden. Jedes Ereignis pro Modell einmal kodieren und anschließend dieselbe Kodierung für Fragen und Speicherinterventionen verwenden. Das spart Rechenzeit und hält die Vergleiche sauber.
+- Den Qualifikationsbericht eindeutig formulieren. Statt 0.217 >= 0.95 sollte dort beispielsweise 0.217 < 0.95: FAIL stehen; ebenso für die anderen Einzelkriterien.
+
+Meine konkrete Reihenfolge bleibt: Encoderfehler aufschlüsseln → Unsicherheitssemantik schließen → Zielumgebung mit festem Parser qualifizieren → Frageparser separat prüfen → kombinieren. Die Cache-Kontrolle lässt sich als kleine Ergänzung einschieben; der kontextabhängige Historientest folgt als nächste Erweiterung des wissenschaftlichen Nachweises.

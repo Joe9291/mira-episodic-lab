@@ -70,6 +70,108 @@ class OperatorTests(unittest.TestCase):
         self.assertEqual(history_place(one, "person", "Ana Bell", "current").value, "Oak Mill")
 
 
+class UnknownFieldTests(unittest.TestCase):
+    """History operators with unknown fields (Astra, review of 3.4 step 1)."""
+
+    def store(self, rows):
+        s = EpisodeStore()
+        for i, (actor, action, obj, place, day, unk) in enumerate(rows):
+            s.append(f"r{i}", {"actor": actor, "partner": None, "action": action, "object": obj,
+                               "place": place, "event_day": day}, extra={"unknown": unk} if unk else None)
+        return s.records
+
+    def test_possible_records_block_only_where_they_could_take_the_position(self):
+        seen = lambda d, p: ("Ana Bell", "was", None, p, d, [])
+        unk = lambda d, p: (None, "was", None, p, d, ["actor"])
+        recs = self.store([seen(2, "Oak Mill"), seen(5, "Ash Mill"), seen(8, "Elm Mill"), unk(1, "Fir Mill")])
+        # an unknown-actor sighting on day 1 could be the FIRST sighting of Ana Bell ...
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "first").status, "ambiguous")
+        # ... but cannot change the latest or the one before it
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "current").value, "Elm Mill")
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "previous").value, "Ash Mill")
+        recs = self.store([seen(2, "Oak Mill"), seen(5, "Ash Mill"), unk(9, "Fir Mill")])
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "current").status, "ambiguous")
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "previous").status, "ambiguous")
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "first").value, "Oak Mill")
+        # an unknown day could be anywhere
+        recs = self.store([seen(2, "Oak Mill"), seen(5, "Ash Mill"), unk(None, "Fir Mill")])
+        self.assertTrue(all(history_place(recs, "person", "Ana Bell", w).status == "ambiguous"
+                            for w in GOAL_NAMES))
+        # unknown object of a placing; only possible records -> insufficient evidence
+        put = lambda d, o, p, u=(): ("You", "put", o, p, d, list(u))
+        recs = self.store([put(3, "red cup", "Oak Mill"), put(6, None, "Ash Mill", ["object"])])
+        self.assertEqual(history_place(recs, "object", "red cup", "current").status, "ambiguous")
+        self.assertEqual(history_place(recs, "object", "red cup", "first").value, "Oak Mill")
+        self.assertEqual(history_place(self.store([put(6, None, "Ash Mill", ["object"])]), "object", "red cup",
+                                       "current").status, "insufficient_evidence")
+        # an undeclared missing object (an object-free event) is no possible placing
+        recs = self.store([put(3, "red cup", "Oak Mill"), ("You", "went", None, "Ash Mill", 6, [])])
+        self.assertEqual(history_place(recs, "object", "red cup", "current").value, "Oak Mill")
+
+    def test_ties_matter_only_at_the_asked_position(self):
+        seen = lambda d, p: ("Ana Bell", "was", None, p, d, [])
+        recs = self.store([seen(2, "Oak Mill"), seen(2, "Fir Mill"), seen(5, "Ash Mill"), seen(8, "Elm Mill")])
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "current").value, "Elm Mill")
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "previous").value, "Ash Mill")
+        self.assertEqual(history_place(recs, "person", "Ana Bell", "first").status, "ambiguous")
+        from episodic_lab.history_reference import reference_decision
+        events = [dict(zip(("actor", "action", "object", "place", "event_day"), r[:5]), partner=None)
+                  for r in (seen(2, "Oak Mill"), seen(2, "Fir Mill"), seen(5, "Ash Mill"), seen(8, "Elm Mill"))]
+        opts = ["Zed Place"]
+        self.assertEqual([reference_decision(events, "person", "Ana Bell", g, opts) for g in ("current", "previous", "first")],
+                         ["Elm Mill", "Ash Mill", "Zed Place"])
+
+    def test_soundness_against_every_completion_of_the_unknowns(self):
+        """An ok answer must be the answer under EVERY completion of the unknown fields."""
+        import itertools
+        import random
+        P, O, L = ["Ana Bell", "Ben Cole"], ["red cup", "blue map"], ["Oak Mill", "Ash Mill", "Elm Mill"]
+        dom = {"actor": P + ["You"], "partner": [None] + P + ["You"], "action": ["hid", "put", "was", "went", "gave"],
+               "object": [None] + O, "place": L, "event_day": [1, 2, 3, 4, 5]}
+        rng = random.Random("hist-soundness")
+
+        def build(rows):
+            s = EpisodeStore()
+            for i, (c, u) in enumerate(rows):
+                s.append(f"t{i}", dict(c), extra={"unknown": u} if u else None)
+            return s.records
+
+        def answer(recs, kind, target, which):
+            r = history_place(recs, kind, target, which)
+            return r.value if r.status == "ok" else None
+        checked = 0
+        for _ in range(600):
+            rows = []
+            for _ in range(rng.randint(1, 4)):
+                act = rng.choice(dom["action"])
+                c = {"actor": rng.choice(P + ["You"]), "partner": rng.choice([None, None] + P), "action": act,
+                     "object": rng.choice(O) if act in ("hid", "put", "gave") else None,
+                     "place": rng.choice(L), "event_day": rng.randint(1, 4)}
+                if c["partner"] == c["actor"]:
+                    c["partner"] = None
+                unk = [f for f in dom if rng.random() < 0.12]
+                for f in unk:
+                    c[f] = None
+                rows.append((c, unk))
+            slots = [(i, f) for i, (_, u) in enumerate(rows) for f in u]
+            if not slots or len(slots) > 3:
+                continue
+            real = build(rows)
+            comps = []
+            for vals in itertools.product(*[dom[f] for _, f in slots]):
+                done = [(dict(c), []) for c, _ in rows]
+                for (i, f), v in zip(slots, vals):
+                    done[i][0][f] = v
+                comps.append(build(done))
+            for kind, target in (("object", rng.choice(O)), ("person", rng.choice(P))):
+                for which in GOAL_NAMES:
+                    given = answer(real, kind, target, which)
+                    if given is not None:
+                        checked += 1
+                        self.assertEqual({answer(c, kind, target, which) for c in comps}, {given}, (kind, which, rows))
+        self.assertGreater(checked, 300)
+
+
 class ReferenceTests(unittest.TestCase):
     def test_memory_side_and_reference_side_agree(self):
         for kind in KINDS:
