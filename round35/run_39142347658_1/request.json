@@ -1,0 +1,9 @@
+{
+ "schema": "episodic_lab.round35_request.v1",
+ "enabled": true,
+ "note": "Round 3.5 (docs/ROUND_3_5.md): LM-assisted structured extraction. Phase timing first (development slice, both models, cache check).",
+ "phase": "timing",
+ "models": ["qwen2.5-0.5b", "qwen3-0.6b"],
+ "splits": ["dev"],
+ "chunks": 1
+}
