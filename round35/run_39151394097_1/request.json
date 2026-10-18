@@ -1,0 +1,9 @@
+{
+ "schema": "episodic_lab.round35_request.v1",
+ "enabled": true,
+ "note": "Round 3.5 (docs/ROUND_3_5.md): development probe 1 (prompts p2, candidates c2), qwen2.5-0.5b, 80 stratified development texts.",
+ "phase": "probe",
+ "models": ["qwen2.5-0.5b"],
+ "splits": ["dev"],
+ "chunks": 1
+}
