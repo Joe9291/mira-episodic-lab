@@ -351,6 +351,28 @@ class CellTests(unittest.TestCase):
                                          (qtype, query, rows))
         self.assertGreater(checked, 500)
 
+    def test_encoder_error_categories(self):
+        sys.path.insert(0, str(ROOT / "bench" / "m3"))
+        from encoder_errors import classify, normalisation_applied
+        # Astra's counterexample: no partner in truth, reply "someone" (invalid) -> unknown,
+        # not a helpful normalisation and not correct
+        raw = {"actor": "Ana Bell", "partner": "someone"}
+        self.assertFalse(normalisation_applied(raw))
+        self.assertEqual(classify("partner", "someone", None, None, set(), "Ana Bell", ["partner"], False),
+                         ("unknown", "other"))
+        # the normalisation actually applied: helped / hid a role error
+        raw = {"actor": "Ana Bell", "partner": "Ana Bell"}
+        self.assertTrue(normalisation_applied(raw))
+        self.assertEqual(classify("partner", "Ana Bell", None, None, set(), "Ana Bell", [], True),
+                         ("correct", "partner_norm_ok"))
+        self.assertEqual(classify("partner", "Ana Bell", "Cal Dorr", None, set(), "Ana Bell", [], True),
+                         ("wrong", "partner_norm_bad"))
+        # reasons are kept for declared unknowns
+        self.assertEqual(classify("event_day", "Wednesday", 3, None, set(), "", ["event_day"]), ("unknown", "weekday"))
+        self.assertEqual(classify("object", "umbrella", "tiny umbrella", None, set(), "", ["object"]),
+                         ("unknown", "noun_only"))
+        self.assertEqual(classify("action", "Painted", "painted", None, set(), "", ["action"]), ("unknown", "case_only"))
+
     def test_env_object_location_with_an_undated_placing(self):
         from episodic_lab.env_agent import object_location
         s = EpisodeStore()

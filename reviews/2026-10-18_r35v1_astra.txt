@@ -1,0 +1,119 @@
+7m 8s nachgedacht
+
+Path(sys.argv[2]).write_text(json.dumps(res, indent=1, sort_keys=True) + "\n")
+---END FILE bench/m3/encoder_errors.py---
+
+REQUEST CHANGES. Die Richtung passt: Zielumgebung, fester Frageparser, getrennte Encoderqualifikation, wiederverwendete Kodierungen und Timingvorlauf adressieren die bisherigen Probleme. Vor der Umsetzung müssen jedoch die Schwellenwertwahl, die Behandlung gleichbedeutender Kandidaten und einige Auswertungsregeln präzisiert werden.
+
+1. Die Wahl des „größten tau“ optimiert in die falsche Richtung.
+
+Mit steigender Schwelle werden weniger Werte akzeptiert. Der größte Schwellenwert mit mindestens 99 % beobachteter Präzision kann deshalb fast alle Ausgaben verwerfen. Sind beispielsweise sämtliche Vorhersagen richtig, würde diese Regel trotzdem bevorzugt nur die mit dem höchsten Abstand behalten.
+
+Die Regel sollte lauten:
+
+> Wähle die Schwelle mit der höchsten Akzeptanzquote unter der Bedingung, dass die akzeptierten Werte mindestens 0,99 Präzision erreichen.
+
+
+
+Zusätzlich festlegen:
+
+- Ein leerer akzeptierter Satz erfüllt die Bedingung nicht.
+- Mindestumfang, Gleichstandsregel und Verhalten bei keiner geeigneten Schwelle sind definiert.
+- Präzision und Akzeptanzquote werden mindestens pro Slot ausgewiesen.
+
+Ja, ich bevorzuge eine separate Kalibriergruppe. Prompts, Normalisierung und Modell werden auf Entwicklungsdaten gewählt; anschließend wird tau auf einer davon getrennten Gruppe bestimmt. Trennt nach vollständigen Paaren beziehungsweise Welten und verhindert, dass identische Notizen über beide Gruppen verteilt werden. Eine zufällige Aufteilung einzelner Slots würde durch die wiederverwendeten Sätze zu viel Information teilen.
+
+Die 0,99 sind dabei eine beobachtete Kalibrierleistung, keine Garantie für neue Formulierungen.
+
+2. Kandidaten müssen vor der Margenberechnung auf kanonische Werte abgebildet werden.
+
+Die generische Spangenerierung kann mehrere Ausdrücke für denselben Wert liefern: etwa I, you und You, möglicherweise außerdem Objektbezeichnungen mit und ohne Artikel. Wenn die beiden besten Kandidaten dasselbe bedeuten, misst ihr mit ihrem Abstand keine Unsicherheit zwischen unterschiedlichen Antworten.
+
+Vorab braucht ihr deshalb einen Vertrag für:
+
+- Tokenisierung und Interpunktion;
+- kanonische Darstellung von Personen, Objekten und Zahlen;
+- Abbildung von I/you auf You;
+- Zusammenfassung gleichbedeutender Kandidaten;
+- Berechnung des Abstands zwischen verschiedenen kanonischen Werten.
+
+Falls mehrere sprachliche Varianten separat bewertet werden, muss auch deren Zusammenfassung feststehen.
+
+Zur offenen Frage: Spans von ein bis drei Wörtern, You/none und ein festes Aktionsinventar sind angemessene Hilfen für diesen Versuch. Ihr untersucht ausdrücklich strukturierte Extraktion in ein vorgegebenes Schema. Die Aktionsbeschreibungen dürfen dessen Bedeutung erläutern. Daraus folgt eine Aussage über dieses unterstützte Extraktionssystem.
+
+3. Die Fehleranalyse verwechselt stellenweise unbekannte Werte mit korrekter Abwesenheit.
+
+In classify() wird zuerst stored == truth geprüft. Beim Partner kann danach jeder nichtleere bereinigte Rohwert als partner_norm_ok gelten. Es fehlt die Prüfung, ob tatsächlich die betreffende Normalisierung angewandt wurde.
+
+Ein konkreter Gegenfall zur bisherigen Verarbeitung ist:
+
+- Wahrheit: kein Partner;
+- Rohantwort: someone;
+- gespeicherter Wert: None, weil die Antwort ungültig war;
+- Partner als unbekannt markiert.
+
+Das kann eure Analyse als hilfreiche Partnernormalisierung zählen. Tatsächlich wurde keine korrekte Abwesenheit extrahiert.
+
+Dazu passt eine ungeklärte Zahlendifferenz: 754 hilfreiche plus 120 schädliche Normalisierungen ergeben 874; der vorherige Bericht meldete 837 Anwendungen. Welche Zählung stimmt, lässt sich aus dem Paket nicht entscheiden.
+
+Bitte:
+
+- die gespeicherten invalid-/Unknown-Markierungen berücksichtigen;
+- tatsächliche Normalisierungsanwendungen von anderen Gründen für None trennen;
+- Partnerzahlen und den Anteil vollständig korrekter Datensätze erneut bestimmen.
+
+Die allgemeine Fehlerdiagnose bleibt plausibel. Die konkreten Partnerzahlen und davon abhängigen gemeinsamen Genauigkeiten sind noch nicht belastbar.
+
+Dieselbe Unterscheidung muss in P2 gelten: Ein unbekannter Partner zählt nicht als korrektes none, auch wenn beide im Wertfeld als None repräsentiert werden.
+
+4. Der Coverage-Audit darf keine Anpassungsschleife am endgültigen Holdout eröffnen.
+
+Die modellfreie Prüfung der Kandidatenabdeckung ist sinnvoll. Problematisch ist die Rücksprungregel „else the candidate generator is fixed first“, wenn dafür bereits die endgültigen Holdout-Formulierungen verwendet wurden. Dann wurde ein Bestandteil des Systems anhand dieser Testfälle entwickelt.
+
+Saubere Möglichkeiten sind:
+
+- Kandidatengenerator auf Entwicklungs- und separaten Auditfällen fertigstellen; den endgültigen Holdout anschließend ausschließlich prüfen.
+- Bei einer notwendigen Anpassung nach Holdout-Einsicht diesen Satz als Auditmaterial behandeln und einen neuen endgültigen Holdout festlegen.
+
+Für die Formulierungen fehlen außerdem zwei explizite Prüfungen:
+
+- Bedeutungserhalt: Jede Paraphrase muss dieselben Rollen, dieselbe Aktion und denselben zeitlichen Bezug ausdrücken. Kandidatenabdeckung allein prüft das nicht.
+- Paarinvarianz: Gemeinsame Ereignisse eines Paars erhalten dieselbe Formulierung; die Texte unterscheiden sich nur im vorgesehenen kritischen Ereignis. Der Wording-Hash darf die Welten nicht zusätzlich auseinanderziehen.
+
+Weist zudem die tatsächlich geprüften Fallzahlen pro Formulierungsrahmen aus. Die bloße Existenz dreier Holdout-Paraphrasen garantiert ihre ausreichende Verwendung noch nicht.
+
+5. Die Referenz und die P2-Metriken brauchen eindeutige Definitionen.
+
+Der bestehende Templateencoder kann neue Formulierungen möglicherweise nicht lesen. Für die Referenz sollte deshalb dieselbe zugrunde liegende Ereigniswelt über ihre kanonischen Texte beziehungsweise geprüften strukturierten Wahrheitsdaten kodiert werden. Ein schlechter werdender Referenzencoder darf die Qualifikationshürde nicht absenken.
+
+Zusätzlich festlegen:
+
+- Genauigkeit als Mittel über welche Einheiten und mit welchen Gewichten? Paare/Welten sind bereits richtig benannt; die konkrete Aggregation fehlt noch.
+- Die Erfolgsgrenze getrennt nach Weltart und Ziel prüfen, insbesondere Objekt- und Personenhistorie. Eine gemischte Quote kann ein schwächeres Teilgebiet verdecken.
+- „Confident-error rate“ ausdrücklich als falsche ok-Entscheidungen geteilt durch sämtliche ok-Entscheidungen definieren; die zugehörige Abdeckungsquote mitberichten.
+- Kein vollständig gültiger Lauf bedeutet keine Qualifikation. Den bisherigen Vollständigkeits- und Provenienzvertrag übernehmen.
+
+Die Trennung zwischen technischer Abnahme und statistischer Nichtunterlegenheitsbehauptung ist gut und sollte bleiben.
+
+6. Intakte Aufgaben und Speicherinterventionen getrennt bewerten.
+
+Der Entwurf erwähnt die Wiederverwendung der Kodierungen für Interventionen, sagt aber nicht eindeutig, welche Fälle in Erfolgsquote und „confident-error rate“ eingehen.
+
+Bei absichtlich vertauschten Erinnerungen kann eine sichere, gegenüber der ursprünglichen Welt falsche Antwort gerade die erwartete kausale Speicherabhängigkeit zeigen. Sie darf nicht unkommentiert als gewöhnlicher Encoderfehler in dieselbe Quote eingehen.
+
+Daher:
+
+- Encoderqualifikation und Erfolgsverlust auf intakten Speichern messen.
+- Interventionsantworten gegen die vorher festgelegte Interventionsreferenz prüfen.
+- Kausale Speichernutzung und faktische Richtigkeit separat berichten.
+
+Der gezeigte Historien-Diff behandelt mögliche zusätzliche Zielereignisse unter der bisherigen Repräsentation unbekannter Felder nachvollziehbar. Die gemeldeten Completion-Tests und unveränderten Schritt-1-Ergebnisse stützen diese Änderung; ich habe diese Tests nicht ausgeführt.
+
+Verbesserungsideen
+
+- Holdout erst nach erfolgreicher Entwicklung öffnen. Wenn Entwicklungs- und Kalibrierleistung die Abnahme offensichtlich verfehlen, spart ihr einen aussichtslosen Qualifikationslauf.
+- Slotabhängige Schwellen prüfen. Aktionsauswahl und Auswahl unter vielen Textspannen können unterschiedliche Margenverteilungen haben. Vergleicht auf Entwicklung, ob ein gemeinsames tau unnötig viele richtige Werte verwirft.
+- Timing um lange Fälle ergänzen. Der feste Ausschnitt sollte auch hohe Kandidatenzahlen abdecken. Berücksichtigt Modellladen, Auswertung und gegebenenfalls Collector-Replay im Zeitbudget.
+- Ähnliche Objekte tatsächlich gemeinsam vorkommen lassen. Zwei verschiedene Objekte mit demselben Hauptwort innerhalb einer Welt prüfen den Erhalt des Adjektivs wesentlich besser als ähnliche Bezeichnungen in getrennten Welten.
+- Paarerfolg zusätzlich als Freigabekriterium erwägen. Die separate Berichterstattung entspricht meiner Empfehlung. Wenn die Freigabe ausdrücklich bedeuten soll, dass auch das LM-System das historische Meilensteinziel erfüllt, braucht dieser zentrale Paarerfolg einen vorab festgelegten Grenzwert.
+- Den weiteren Kontexttest beibehalten. Gleicher aktueller, erster und vorletzter Wert bei unterschiedlichem relevantem Zwischenereignis ist eine sinnvolle nächste Erweiterung. Für den Encoderpilot muss sie noch nicht umgesetzt werden.
