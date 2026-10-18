@@ -172,3 +172,18 @@ no switch to Qwen3 without a measured reason: both pass S1). Expected on the tem
 benchmark: full+ops and struct3+ops near 1.0; the informative results are the reader vs
 operator difference at equal selection, the lex vs struct difference, the LM encoder
 and the restart test.
+
+## 8. Runs
+
+Run 1 (GitHub 39113777648, commit 9a946ec): VERDICT INCOMPLETE, encoder decision
+UNDECIDABLE. 13 of 15 world reports valid; in dev-m3 world 5 and pilot-m2 world 0 the
+collector could not replay the lex3 selections (diag_replay for lex3+reader and lex3+ops).
+Cause: BM25 summed its per-term scores in the iteration order of a Python set, which
+depends on the per-process hash seed; near-ties between notes could then fall
+differently in the job and in the collector. Fix: a fixed (sorted) term order. A test
+reproduces the failing case in subprocesses with different PYTHONHASHSEED values (it
+fails on the old code and passes now), and the selections and operator results of all
+deterministic cells over all 15 worlds are identical under three hash seeds. The
+collector worked as intended: it refused the unreplayable reports and the incomplete
+evaluation drew no encoder decision. The tables of run 1 were not used for anything;
+the whole round is re-run on the fixed code (run 2), and only run 2 is evaluated.

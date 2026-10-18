@@ -40,7 +40,7 @@ def bm25_top(records: list[dict], query: str, k: int = K, k1: float = 1.5, b: fl
     if not docs:
         return []
     n, avg = len(docs), sum(map(len, docs)) / len(docs)
-    terms = set(_WORD.findall(query.lower()))
+    terms = sorted(set(_WORD.findall(query.lower())))  # fixed order: float sums must not depend on hash seeds
     df = {t: sum(t in d for d in docs) for t in terms}
     scores = []
     for i, d in enumerate(docs):

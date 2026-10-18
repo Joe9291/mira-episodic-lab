@@ -368,6 +368,27 @@ class CellTests(unittest.TestCase):
         with self.assertRaises(StateChangedWhileAnswering):
             run_world(Sneaky(), world, questions)
 
+    def test_lexical_selection_does_not_depend_on_the_hash_seed(self):
+        # GitHub run 39113777648: BM25 summed its term scores in set order, so near-ties
+        # depended on PYTHONHASHSEED and the collector could not replay two worlds
+        import os
+        import subprocess
+        script = ("import json, sys\nsys.path.insert(0, sys.argv[1])\nsys.path.insert(0, sys.argv[1] + '/bench/m3')\n"
+                  "import collect_round32 as c\nfrom episodic_lab.questions import make_world\n"
+                  "world, qs = make_world('dev-m3', 5, order_both=True)[1]['low']\n"
+                  "raws, cell = c.replay('lex3+ops', world, qs)\n"
+                  "n_early = sum(e['block'] == 'early' for e in world['episodes'])\n"
+                  "recs = {'final': cell.store._records, 'phase1': [r for r in cell.store._records if r['seq'] < n_early]}\n"
+                  "print(json.dumps({ph: [cell.explain(q['text'], recs[ph])['selected'] for q in qs['public'][ph]] "
+                  "for ph in ('phase1', 'final')}))\n")
+        outs = set()
+        for seed in ("0", "2", "3"):
+            env = dict(os.environ, PYTHONHASHSEED=seed)
+            out = subprocess.run([sys.executable, "-c", script, str(ROOT)], capture_output=True, text=True, env=env)
+            self.assertEqual(out.returncode, 0, out.stderr)
+            outs.add(out.stdout)
+        self.assertEqual(len(outs), 1)
+
     def test_retrievers_return_presentation_order_and_at_most_k(self):
         world, questions = PAIR["low"]
         store = EpisodeStore()
