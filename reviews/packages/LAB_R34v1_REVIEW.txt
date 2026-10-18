@@ -1,0 +1,1147 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.4 STEP 1 v1 (history goals with an identical final state), one part
+
+Review request (Astra; Claude is lead reviewer). This is the round you proposed in your reviews of 3.3 and recommended to prioritise in your 3.2 v4 review. Please review design, code, tests and the local result before the GitHub run (config/round34.json "enabled": false). Answer APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 3.4 STEP 1 v1 REVIEW ===".
+
+STATE: lab main = 88139d2. Round 3.2 v4 (your APPROVE; your documentation ideas and the partner-normalisation count adopted, the broader completion tests put in docs/BACKLOG.md) is running on GitHub now. Round 3.4 tests green; mutation test 15/15 (three first survived and got tests; the final pass ran without any file being edited).
+
+WHAT THIS ROUND IMPLEMENTS (your four points)
+1. One store per world, written before any goal exists: the job encodes the world's experiences (and the baseline's state) first, derives the intervened stores from the encoded store, and only then draws the three goals; every goal of a world and intervention uses the same sealed store (collector check: one seal per world x intervention, all three goals present).
+2. Identical final state, checked: pairs differ only in the OLD episode about the target (object: "you put the X at P1", P1 differs; person: first sighting at Q1). Two later episodes about the target follow in both worlds. The collector verifies per pair: only the old episode differs; every object's last place and every person's last appearance are identical; decision texts identical; current and previous truths equal, first truths different; the baseline's state identical in A and B and equal to the environment's final state.
+3. Double dissociation: old_removed and old_swapped must change the first-goal decision as predicted and leave current and previous unchanged; last_removed must change the current decision as predicted and leave the first unchanged; irrelevant_removed changes nothing.
+4. Current-state-only baseline: same experiences, same template encoder, keeps one place per object and per person; answers the current goal like the episodic agent, explores for historical goals; its decisions are identical in A and B by construction (tested).
+Predictions come from an independent reference (episodic_lab/history_reference.py: own counterfactual on the generator's events, own decision rules; no store, operators or encoder); an injected encoding error in the old record changes the agent's first-goal decision but no prediction and not the current decision. Every decision (2 systems, 2 kinds x 40 pairs x 2 worlds, 6 interventions, 3 goals) in its own fresh isolated interpreter (3,360 cases).
+
+STATUS OF THE CRITERIA (honest account): written in docs/ROUND_3_4.md before the first run of the code. The unit test of the criteria then failed on availability: the person kind lacked a swap partner for old_swapped in 10 of 80 planned cases of the run series (87.5% < 90%). That was a generator gap; it was fixed in the generator (a guaranteed irrelevant episode of the same type at a place different from the old place in both worlds; 80/80 in both kinds); no criterion was changed; the doc records this. Mutation testing also found three weak spots (baseline answering historical goals, swap partner at the same place, the collector's own re-run of the integrity probes), each now covered by a test. The system is deterministic: the local run below shows the result; the GitHub run is a reproduction and integrity check, and a pass is expected by construction for a correct rule-based implementation (as the doc says).
+
+LOCAL RESULT (40 pairs per kind, collector incl. full re-run, about 6 minutes):
+# Round 3.4 step 1 summary (history goals, identical final state)
+
+40 pairs per kind; every decision in its own fresh isolated process; one episodic store per world written before any goal was drawn. Evaluation units are the pairs. Stored information: episodic store 14-14 records per world; state-only baseline 3-10 entries (one place per object and person).
+
+| kind | system | intervention | goal | n / planned | success | pair success | as predicted (informative, n) | unchanged vs intact |
+|---|---|---|---|---|---|---|---|---|
+| object | episodic | intact | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | intact | first | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | intact | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | irrelevant_removed | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | irrelevant_removed | first | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | irrelevant_removed | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | last_removed | current | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| object | episodic | last_removed | first | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | last_removed | previous | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| object | episodic | none | current | 80 / 80 | 0.20 | 0.20 | 1.00 (64) | 0.20 |
+| object | episodic | none | first | 80 / 80 | 0.23 | 0.00 | 1.00 (62) | 0.23 |
+| object | episodic | none | previous | 80 / 80 | 0.15 | 0.15 | 1.00 (68) | 0.15 |
+| object | episodic | old_removed | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | old_removed | first | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| object | episodic | old_removed | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | old_swapped | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | episodic | old_swapped | first | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| object | episodic | old_swapped | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| object | state_only | intact | current | 80 / 80 | 1.00 | 1.00 | - | - |
+| object | state_only | intact | first | 80 / 80 | 0.23 | 0.00 | - | - |
+| object | state_only | intact | previous | 80 / 80 | 0.15 | 0.15 | - | - |
+| person | episodic | intact | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | intact | first | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | intact | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | irrelevant_removed | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | irrelevant_removed | first | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | irrelevant_removed | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | last_removed | current | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| person | episodic | last_removed | first | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | last_removed | previous | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| person | episodic | none | current | 80 / 80 | 0.15 | 0.15 | 1.00 (68) | 0.15 |
+| person | episodic | none | first | 80 / 80 | 0.16 | 0.00 | 1.00 (67) | 0.16 |
+| person | episodic | none | previous | 80 / 80 | 0.23 | 0.23 | 1.00 (62) | 0.23 |
+| person | episodic | old_removed | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | old_removed | first | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| person | episodic | old_removed | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | old_swapped | current | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | episodic | old_swapped | first | 80 / 80 | 0.00 | 0.00 | 1.00 (80) | 0.00 |
+| person | episodic | old_swapped | previous | 80 / 80 | 1.00 | 1.00 | - | 1.00 |
+| person | state_only | intact | current | 80 / 80 | 1.00 | 1.00 | - | - |
+| person | state_only | intact | first | 80 / 80 | 0.16 | 0.00 | - | - |
+| person | state_only | intact | previous | 80 / 80 | 0.23 | 0.23 | - | - |
+
+Store integrity in the decision process: cut-off store refused True, changed store refused True.
+
+VERDICT COMPLETE - MILESTONE PASS
+
+Criteria (docs/ROUND_3_4.md, fixed before the first run of the code):
+
+- PASS availability: every planned case of intact, none, old_removed, last_removed, irrelevant_removed
+- PASS availability: old_swapped in >= 90% of planned cases
+- PASS informative cases >= 60% of planned (first goal: old_removed, old_swapped; current goal: last_removed)
+- PASS episodic intact: success 1.0 for all goals, pair success 1.0 for the first goal
+- PASS state_only: success 1.0 for the current goal, pair success 0.0 for the first goal
+- PASS episodic none: pair success 0.0 for the first goal
+- PASS old_removed, old_swapped: first goal as predicted >= 0.95 (informative); current and previous unchanged 1.0
+- PASS last_removed: current goal as predicted >= 0.95 (informative); first goal unchanged 1.0
+- PASS irrelevant_removed: success 1.0 for all goals
+
+---BEGIN FILE docs/ROUND_3_4.md---
+# Round 3.4 step 1 - history goals with an identical final state (v1)
+
+Uncertainty removed: round 3.3 asked only "where is X now?"; a memory that keeps nothing
+but the current state (latest place per object and person) would solve that as well.
+Episodic means that the history of single events is kept and can be used for a goal
+chosen later. This step tests exactly that, as Astra proposed in her reviews of round
+3.3 (`reviews/2026-10-17_r33_astra.txt`, `reviews/2026-10-17_r32v3_r33v2_astra.txt`):
+
+1. one store per world, written before any goal exists, used unchanged for different
+   goals chosen afterwards;
+2. paired worlds whose FINAL STATE is identical (every object's last place and every
+   person's last appearance), checked explicitly; they differ only in an OLD episode;
+3. changing the old episode changes the historical decision as predicted and leaves the
+   current decision unchanged; changing the latest episode does the opposite (double
+   dissociation);
+4. a current-state-only baseline with the same experiences, the same encoder and the
+   same decision rules for the goals it can answer, its stored information disclosed.
+
+Ends with one GitHub run. No model inference (the language interface - frozen LM encoder
+on held-out wordings - is the next step and keeps its limits stated until then).
+
+## Environment (episodic_lab/history_env.py)
+
+The round 3.3 world (6 places, 8 objects, 3 people plus "You", 14 days, one experience
+per day, the same sentence templates and distractors). Two kinds, 40 pairs each, series
+`hist-m34`:
+
+- **object**: the target object is placed three times: day d1 "you put the X at P1"
+  (the OLD, critical episode: P1 differs between world A and B), day d2 a person
+  hides/leaves/puts it at P2, day d3 another person at F (the latest). P1(A), P1(B), P2,
+  F are four different places. Distractors never involve the target object.
+- **person**: the target person is seen three times: day d1 at Q1 (critical, differs
+  between A and B), d2 at Q2, d3 at F. Distractor events that would involve the target
+  person become "you went to <place>".
+
+In both kinds one further day holds an irrelevant episode of the same type as the old one
+(another person puts another object somewhere / another person is seen somewhere) at a
+place that differs from the old place in both worlds: the swap partner of the
+old_swapped intervention.
+
+Goals, all three asked for every stored world (the store is written first; the goal is
+drawn afterwards and never seen while encoding):
+
+| goal | object kind | person kind | truth | A vs B |
+|---|---|---|---|---|
+| current | "Find the X." | "Find P." | latest place F | same |
+| first | "Go to where the X was first placed." | "Go to where you first saw P." | P1 / Q1 | different |
+| previous | "Go to where the X was before it was last placed." | "Go to where you saw P before you last saw them." | P2 / Q2 | same |
+
+Decision text as in 3.3 ("You are in the hall. Goal: ... You can go to: <six places>.").
+
+## Systems
+
+- **episodic** (episodic_lab/history_agent.py): the round 3.3 agent memory (append-only,
+  chained, sealed store, template encoder); the operators order the target's records by
+  event day (placings of the object / appearances of the person) and take the latest,
+  the first or the one before the latest; an undated record or two records on one day
+  make the answer ambiguous; no supported answer -> explore (first listed place).
+- **state_only** (baseline): reads the same experiences with the same encoder and keeps
+  only the current state: last place per object (placing events) and last appearance per
+  person. Stored information: one place per object and per person (disclosed per world).
+  Decides the current goal from it like the episodic agent; for a historical goal it has
+  no information and explores. Because the final state is identical in both worlds, its
+  state - and therefore every decision - is identical in A and B (checked).
+
+Every decision (system x world x intervention x goal) is taken by its own fresh isolated
+interpreter that receives only one store (or state file), its seal and the decision text.
+
+## Interventions (episodic memory only) and predictions
+
+Predictions come from an independent reference (episodic_lab/history_reference.py) that
+plans the interventions on the generator's structured events, applies them with its own
+code and decides with its own rules; it uses neither the store, nor the operators, nor
+the encoder. The memory side applies the same plan to the actually encoded store.
+
+| intervention | memory change | predicted change |
+|---|---|---|
+| intact | none | - |
+| none | empty memory | everything explores |
+| old_removed | the old episode (d1) deleted | first -> P2/Q2; current and previous unchanged |
+| old_swapped | the old episode exchanges its place with an irrelevant episode of the same type (another object's placing / another person's sighting) | first -> that place; current and previous unchanged |
+| last_removed | the latest episode (d3) deleted | current -> P2/Q2, previous -> P1/Q1; first unchanged |
+| irrelevant_removed | one episode mentioning neither target deleted | nothing changes |
+
+## Two results: VERDICT and MILESTONE
+
+VERDICT (COMPLETE / INCOMPLETE): schema, identity, provenance (request hash, the run's
+code commit); design (in every pair: identical final state of objects and people,
+identical decision texts, current and previous truths equal, first truths different, the
+baseline's state identical in A and B); one store per world and intervention, used for
+all three goals (same seal in every row of that world and intervention); the collector's
+full re-run reproduces every row; cut-off and changed stores refused.
+
+MILESTONE (PASS / FAIL), criteria fixed in this document BEFORE the first run of the code
+(locally or on GitHub; the system is deterministic, so a local run would reveal the
+result - the GitHub run then reproduces it); per kind:
+
+1. availability: every planned case of intact, none, old_removed, last_removed and
+   irrelevant_removed is available (80 per goal); old_swapped in >= 90% of the planned
+   cases; informative cases (prediction differs from the truth) >= 60% of the planned
+   cases for the first goal under old_removed and old_swapped and for the current goal
+   under last_removed;
+2. episodic, intact: success 1.0 for all three goals and pair success 1.0 for the first
+   goal;
+3. state_only: success 1.0 for the current goal and pair success 0.0 for the first goal;
+4. episodic, none: pair success 0.0 for the first goal;
+5. old_removed and old_swapped: first-goal action as predicted in >= 0.95 of the
+   informative cases; current- and previous-goal actions equal to the intact action of
+   the same world in 1.0 of the cases;
+6. last_removed: current-goal action as predicted in >= 0.95 of the informative cases;
+   first-goal action equal to the intact action in 1.0 of the cases;
+7. irrelevant_removed: success 1.0 for all three goals.
+
+Status note (v1, before the GitHub run): the unit test of the criteria (series
+`hist-test`) failed on availability, and a count of the planned interventions over the
+run series showed that the person kind lacked a swap partner in 10 of 80 planned cases
+(old_swapped available in 87.5% < 90%; a first local run was stopped before its end). This was a design gap of the generator, fixed
+there (the guaranteed same-type irrelevant episode above, now 80 of 80 in both kinds);
+no criterion was changed.
+
+## What a pass shows, and what it does not
+
+It shows, for the explicit agent memory: the store keeps event history that a
+current-state memory with the same experiences does not have; one store written before
+the goal serves different later goals; the old and the latest episode control different
+decisions (double dissociation), as predicted by an independent reference. The result is
+expected by construction for a correct rule-based implementation; the round checks that
+the implementation, the design (identical final state) and the evaluation hold. It does
+not show robustness to free wording, an LM's ability to write or use the memory, reports
+and corrections, or scale. Statistical statements, if any, treat pairs as units.
+---END FILE docs/ROUND_3_4.md---
+
+---BEGIN FILE episodic_lab/history_env.py---
+"""Round 3.4 step 1 environment: history goals with an identical final state
+(docs/ROUND_3_4.md). Re-uses the round 3.3 world (vocabulary, sentence templates,
+distractors) without changing it.
+
+A pair of worlds differs only in an OLD episode about the target (the first placing of
+the object / the first sighting of the person); two later episodes about the same target
+follow in both worlds, so the final state (every object's last place, every person's
+last appearance) is the same. Three goals are asked of the same stored experiences:
+current (same answer in A and B), first (different), previous (same).
+"""
+from __future__ import annotations
+
+from .env import PLACING, SELF, _distractor, _render, _vocab
+from .rng import HashRng
+
+HIST_SCHEMA = "episodic_lab.history_trial.v1"
+KINDS = ("object", "person")
+GOAL_NAMES = ("current", "first", "previous")
+GOALS = {
+    "object": {"current": "Find the {t}.", "first": "Go to where the {t} was first placed.",
+               "previous": "Go to where the {t} was before it was last placed."},
+    "person": {"current": "Find {t}.", "first": "Go to where you first saw {t}.",
+               "previous": "Go to where you saw {t} before you last saw them."},
+}
+DECISION = "You are in the hall. Goal: {goal} You can go to: {options}."
+
+
+def _mentions(ev: tuple, person: str) -> bool:
+    return ev[0] in ("placing", "seen", "gave") and ev[1] == person
+
+
+def generate_pair(seed: str, kind: str, length: int = 14) -> dict:
+    if kind not in KINDS:
+        raise ValueError(kind)
+    rng = HashRng(f"hist:{seed}:{kind}")
+    v = _vocab(rng)
+    obj, person, other = v["objects"][0], v["people"][0], v["people"][1]
+    p1a, p1b, p2, final = rng.sample(v["places"], 4)
+    events = [_distractor(rng, v, obj, {person}) for _ in range(length)]
+    if kind == "person":  # the target person appears only in the three target episodes
+        events = [("went", ev[-1]) if _mentions(ev, person) else ev for ev in events]
+    d1, d2, d3, dx = rng.sample(list(range(length)), 4)
+    d1, d2, d3 = sorted((d1, d2, d3))
+    # one irrelevant episode of the same type as the old one, at a place that differs from
+    # the old place in both worlds (the swap partner of the old_swapped intervention)
+    px = rng.choice([p for p in v["places"] if p not in (p1a, p1b)])
+    if kind == "object":
+        events[dx] = ("placing", other, rng.choice(PLACING), v["objects"][1], px)
+    else:
+        events[dx] = ("seen", other, px)
+    if kind == "object":
+        events[d1] = ("own_put", obj, None)                                    # old, critical
+        events[d2] = ("placing", person, rng.choice(PLACING), obj, p2)
+        events[d3] = ("placing", other, rng.choice(PLACING), obj, final)       # latest
+        target = obj
+    else:
+        events[d1] = ("seen", person, None)                                    # old, critical
+        events[d2] = ("seen", person, p2)
+        events[d3] = ("seen", person, final)                                   # latest
+        target = person
+    worlds = {}
+    for name, place in (("A", p1a), ("B", p1b)):
+        evs = list(events)
+        evs[d1] = evs[d1][:-1] + (place,)
+        rendered = [_render(day, ev) for day, ev in enumerate(evs, start=1)]
+        goals = {g: GOALS[kind][g].format(t=target) for g in GOAL_NAMES}
+        worlds[name] = {
+            "experiences": [{"text": t, "source": {"kind": "own_action" if c["actor"] == SELF else "observed",
+                                                   "by": None}} for t, c in rendered],
+            "truth_content": [dict(c, event_day=day) for day, (_, c) in enumerate(rendered, start=1)],
+            "decisions": {g: {"goal": goals[g], "options": list(v["places"]),
+                              "text": DECISION.format(goal=goals[g], options=", ".join(v["places"]))}
+                          for g in GOAL_NAMES},
+            "truth": truths(evs, kind, target),
+            "final_state": final_state(evs, v)}
+    return {"schema": HIST_SCHEMA, "seed": seed, "kind": kind, "target": target, "object": obj,
+            "person": person, "critical": d1, "middle": d2, "latest": d3, "worlds": worlds}
+
+
+def _target_places(events: list, kind: str, target: str) -> list:
+    """Places of the target's episodes in time order (the environment's own history)."""
+    if kind == "object":
+        return [ev[-1] for ev in events if (ev[0] == "placing" and ev[3] == target)
+                or (ev[0] == "own_put" and ev[1] == target)]
+    return [ev[-1] for ev in events if _mentions(ev, target)]
+
+
+def truths(events: list, kind: str, target: str) -> dict:
+    places = _target_places(events, kind, target)
+    return {"current": places[-1], "first": places[0], "previous": places[-2]}
+
+
+def final_state(events: list, v: dict) -> dict:
+    """Every object's last place and every person's last appearance (None if never)."""
+    objects = {o: None for o in v["objects"]}
+    people = {p: None for p in v["people"]}
+    for ev in events:
+        if ev[0] == "placing":
+            objects[ev[3]] = ev[4]
+            people[ev[1]] = ev[4]
+        elif ev[0] == "own_put":
+            objects[ev[1]] = ev[2]
+        elif ev[0] in ("seen", "gave"):
+            people[ev[1]] = ev[-1]
+    return {"objects": objects, "people": people}
+---END FILE episodic_lab/history_env.py---
+
+---BEGIN FILE episodic_lab/history_reference.py---
+"""Round 3.4 step 1 reference path (environment side), independent of the agent's memory.
+
+Interventions are planned from the generator's structured events (`truth_content`), the
+counterfactual is applied to those events by this module's own code, and the expected
+decision for every goal is computed by this module's own rules. Nothing here uses the
+memory store, its operators or the experience encoder.
+"""
+from __future__ import annotations
+
+from .env import PLACING
+
+INTERVENTIONS = ("intact", "none", "old_removed", "old_swapped", "last_removed", "irrelevant_removed")
+
+
+def _is_target(e: dict, kind: str, target: str) -> bool:
+    if kind == "object":
+        return e["object"] == target and e["action"] in PLACING
+    return target in (e["actor"], e["partner"])
+
+
+def _same_type_other(e: dict, kind: str, target: str) -> bool:
+    """An irrelevant episode of the same type as the old one (for the place swap)."""
+    if kind == "object":
+        return e["action"] in PLACING and e["object"] not in (target, None)
+    return e["action"] == "was" and target not in (e["actor"], e["partner"])
+
+
+def plan(pair: dict, world_name: str) -> dict:
+    """{intervention: spec or None (not applicable)}, by event position."""
+    ev = pair["worlds"][world_name]["truth_content"]
+    kind, target = pair["kind"], pair["target"]
+    old, latest = pair["critical"], pair["latest"]
+    relevant = {pair["critical"], pair["middle"], pair["latest"]}
+    specs = {"intact": {"op": "keep"}, "none": {"op": "clear"},
+             "old_removed": {"op": "remove", "i": old}, "last_removed": {"op": "remove", "i": latest}}
+    j = next((i for i, e in enumerate(ev) if i not in relevant and _same_type_other(e, kind, target)
+              and e["place"] != ev[old]["place"]), None)
+    specs["old_swapped"] = None if j is None else {"op": "swap", "field": "place", "i": old, "j": j}
+    k = next((i for i, e in enumerate(ev) if i not in relevant and e["object"] != pair["object"]
+              and pair["person"] not in (e["actor"], e["partner"])), None)
+    specs["irrelevant_removed"] = None if k is None else {"op": "remove", "i": k}
+    return specs
+
+
+def apply_to_events(spec: dict, events: list[dict]) -> list[dict]:
+    out = [dict(e) for e in events]
+    if spec["op"] == "keep":
+        return out
+    if spec["op"] == "clear":
+        return []
+    if spec["op"] == "swap":
+        f, i, j = spec["field"], spec["i"], spec["j"]
+        out[i][f], out[j][f] = events[j][f], events[i][f]
+        return out
+    if spec["op"] == "remove":
+        return [e for n, e in enumerate(out) if n != spec["i"]]
+    raise ValueError(spec["op"])
+
+
+def reference_decision(events: list[dict], kind: str, target: str, goal: str, options: list) -> str:
+    """Where an agent that remembers exactly these events should go for this goal."""
+    explore = options[0]
+    mine = sorted((e for e in events if _is_target(e, kind, target)), key=lambda e: e["event_day"])
+    days = [e["event_day"] for e in mine]
+    if not mine or len(set(days)) != len(days):
+        return explore
+    if goal == "current":
+        return mine[-1]["place"]
+    if goal == "first":
+        return mine[0]["place"]
+    if goal == "previous":
+        return mine[-2]["place"] if len(mine) >= 2 else explore
+    raise ValueError(goal)
+
+
+def predictions(pair: dict, world_name: str) -> dict:
+    """{intervention: {goal: predicted place} or None (not applicable)}."""
+    w = pair["worlds"][world_name]
+    out = {}
+    for name, spec in plan(pair, world_name).items():
+        if spec is None:
+            out[name] = None
+            continue
+        events = apply_to_events(spec, w["truth_content"])
+        out[name] = {g: reference_decision(events, pair["kind"], pair["target"], g, d["options"])
+                     for g, d in w["decisions"].items()}
+    return out
+---END FILE episodic_lab/history_reference.py---
+
+---BEGIN FILE episodic_lab/history_agent.py---
+"""Round 3.4 step 1 systems (docs/ROUND_3_4.md): the episodic agent (round 3.3 store and
+template encoder, history operators) and the current-state-only baseline.
+
+Both systems receive the goal only as decision text and parse it; neither sees the
+environment's truth. Without a supported answer both explore (first listed place).
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+
+from .env import PLACING, SELF, env_encode
+from .memory import Result, _day, _ok, match
+
+_GOALS = [
+    (re.compile(r"Find the (?P<t>[a-z]+ [a-z]+)\."), "object", "current"),
+    (re.compile(r"Go to where the (?P<t>[a-z]+ [a-z]+) was first placed\."), "object", "first"),
+    (re.compile(r"Go to where the (?P<t>[a-z]+ [a-z]+) was before it was last placed\."), "object", "previous"),
+    (re.compile(r"Find (?P<t>[A-Z][a-z]+ [A-Z][a-z]+)\."), "person", "current"),
+    (re.compile(r"Go to where you first saw (?P<t>[A-Z][a-z]+ [A-Z][a-z]+)\."), "person", "first"),
+    (re.compile(r"Go to where you saw (?P<t>[A-Z][a-z]+ [A-Z][a-z]+) before you last saw them\."), "person", "previous"),
+]
+
+
+def parse_goal(goal: str):
+    """Goal text -> (target kind, target, which) or None."""
+    for pattern, kind, which in _GOALS:
+        m = pattern.fullmatch(goal)
+        if m:
+            return kind, m.group("t"), which
+    return None
+
+
+# ----------------------------------------------------------------- episodic agent
+def target_records(records, kind: str, target: str) -> list:
+    if kind == "object":
+        return [r for r in match(records, obj=target) if r["action"] in PLACING]
+    return match(records, person=target)
+
+
+def history_place(records, kind: str, target: str, which: str) -> Result:
+    """The target's episodes ordered by event day; the latest, the first or the one
+    before the latest. An undated record or two records on one day make the order, and
+    so the answer, ambiguous."""
+    hits = target_records(records, kind, target)
+    trace = [("history", [kind, target, which], [r["id"] for r in hits])]
+    if not hits:
+        return Result(None, "no_observation", [], trace)
+    days = [_day(r) for r in hits]
+    if None in days or len(set(days)) != len(days):
+        return Result(None, "ambiguous", [r["id"] for r in hits], trace)
+    ordered = sorted(hits, key=_day)
+    pos = {"current": -1, "first": 0, "previous": -2}[which]
+    if which == "previous" and len(ordered) < 2:
+        return Result(None, "no_observation", [r["id"] for r in ordered], trace)
+    chosen = ordered[pos]
+    return _ok(chosen["place"], [chosen["id"]], trace)
+
+
+def decide(records, decision: dict) -> dict:
+    parsed = parse_goal(decision["goal"])
+    result = history_place(records, *parsed) if parsed else Result(None, "no_observation")
+    return _act(result, decision)
+
+
+def _act(result: Result, decision: dict) -> dict:
+    if result.status == "ok" and result.value in decision["options"]:
+        place, policy = result.value, "memory"
+    else:
+        place, policy = decision["options"][0], "explore"
+    text = (f"I remember: {result.value}. I go to {place}." if policy == "memory"
+            else f"I do not remember where. I search {place}.")
+    return {"action": {"go": place}, "answer": text, "policy": policy, "result": result.to_json()}
+
+
+# ----------------------------------------------------------------- current-state baseline
+def state_only_encode(experiences: list) -> dict:
+    """Reads the same experiences with the same encoder; keeps only the current state:
+    the last place per object (placing events) and the last appearance per person."""
+    state = {"objects": {}, "people": {}}
+    for exp in experiences:
+        c = env_encode(exp["text"])
+        if c["action"] in PLACING and c["object"]:
+            state["objects"][c["object"]] = c["place"]
+        for who in (c["actor"], c["partner"]):
+            if who and who != SELF:
+                state["people"][who] = c["place"]
+    return state
+
+
+def state_digest(state: dict) -> str:
+    return hashlib.sha256(json.dumps(state, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def state_decide(state: dict, decision: dict) -> dict:
+    parsed = parse_goal(decision["goal"])
+    trace = [("state", list(parsed) if parsed else None, [])]
+    result = Result(None, "no_observation", [], trace)
+    if parsed and parsed[2] == "current":
+        kind, target, _ = parsed
+        place = state["objects" if kind == "object" else "people"].get(target)
+        if place is not None:
+            result = _ok(place, [], trace)
+    # a historical goal: the current state holds no history, so there is no answer
+    return _act(result, decision)
+---END FILE episodic_lab/history_agent.py---
+
+---BEGIN FILE bench/m3/run_round34.py---
+"""Round 3.4 step 1 job: history goals with an identical final state (docs/ROUND_3_4.md).
+
+Experience phase (this process): for each world the episodic store is written ONCE
+(sealed) before any goal is drawn; every intervention is derived from that encoded store
+and written as a new sealed store; the state-only baseline reads the same experiences
+and writes its state file (with its digest). Decision phase: every case (system x world
+x intervention x goal) is decided by a new isolated interpreter that receives only one
+store or state file, its seal and the decision text. Predictions come from the
+independent reference (episodic_lab/history_reference.py). No model inference.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from episodic_lab.env import SELF  # noqa: E402
+from episodic_lab.env_agent import derive_variant, materialize, write_store  # noqa: E402
+from episodic_lab.history_agent import state_digest, state_only_encode  # noqa: E402
+from episodic_lab.history_env import GOAL_NAMES, KINDS, generate_pair  # noqa: E402
+from episodic_lab.history_reference import INTERVENTIONS, plan, predictions  # noqa: E402
+
+SCHEMA = "episodic_lab.round34.v1"
+DECIDE = ("import json, sys\nsys.path.insert(0, sys.argv[1])\n"
+          "item = json.loads(sys.argv[2])\n"
+          "if item['system'] == 'episodic':\n"
+          "    from episodic_lab.memory import EpisodeStore\n"
+          "    from episodic_lab.history_agent import decide\n"
+          "    store = EpisodeStore(item['store'], expect=item['seal'])\n"
+          "    out = decide(store.records, item['decision'])\n"
+          "else:\n"
+          "    from episodic_lab.history_agent import state_decide, state_digest\n"
+          "    state = json.loads(open(item['store'], encoding='utf-8').read())\n"
+          "    if state_digest(state) != item['seal']:\n"
+          "        raise SystemExit('state file changed')\n"
+          "    out = state_decide(state, item['decision'])\n"
+          "print(json.dumps(out))\n")
+
+
+def canonical_sha256(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def fresh_decision(item: dict, workdir: Path):
+    """One new isolated interpreter for one case; None if it refuses or fails."""
+    script = workdir / "decide.py"
+    if not script.exists():
+        script.write_text(DECIDE)
+    out = subprocess.run([sys.executable, "-I", str(script), str(ROOT), json.dumps(item)],
+                         capture_output=True, text=True)
+    return json.loads(out.stdout) if out.returncode == 0 else None
+
+
+def _source(content: dict) -> dict:
+    return {"kind": "own_action" if content["actor"] == SELF else "observed", "by": None}
+
+
+def _seal_key(seal) -> str:
+    return seal if isinstance(seal, str) else f"{seal['count']}:{seal['head']}"
+
+
+def run(series: str, pairs_per_kind: int, workdir: Path) -> dict:
+    rows, pair_hashes, probe, stored = [], {}, None, {}
+    for kind in KINDS:
+        for i in range(pairs_per_kind):
+            seed = f"{series}-{i}"
+            pair = generate_pair(seed, kind)
+            pair_hashes[f"{kind}:{seed}"] = canonical_sha256(pair)
+            for world in ("A", "B"):
+                w = pair["worlds"][world]
+                tag = f"{kind}_{i}_{world}"
+                # 1. experience phase: everything is stored before any goal is drawn
+                encoded = write_store(workdir / f"{tag}_encoded.jsonl", w["experiences"])
+                state = state_only_encode(w["experiences"])
+                state_path = workdir / f"{tag}_state.json"
+                state_path.write_text(json.dumps(state, sort_keys=True))
+                stored[f"{kind}:{seed}:{world}"] = {"records": len(encoded.records),
+                                                    "state_entries": len(state["objects"]) + len(state["people"])}
+                specs, preds = plan(pair, world), predictions(pair, world)
+                stores = {}
+                for name in INTERVENTIONS:
+                    if specs[name] is None:
+                        continue
+                    contents = derive_variant(specs[name], encoded.records)
+                    path = workdir / f"{tag}_{name}.jsonl"
+                    stores[name] = (path, materialize(path, contents, [_source(c) for c in contents]).seal(),
+                                    len(contents))
+                # 2. decision phase: goals drawn now, one fresh process per case
+                for goal in GOAL_NAMES:
+                    decision = w["decisions"][goal]
+                    truth = w["truth"][goal]
+                    base = {"kind": kind, "seed": seed, "world": world, "goal": goal, "truth": truth}
+                    item = {"system": "state_only", "store": str(state_path), "seal": state_digest(state),
+                            "decision": decision}
+                    d = fresh_decision(item, workdir)
+                    if d is None:
+                        raise RuntimeError(f"state-only decision failed: {tag} {goal}")
+                    rows.append(dict(base, system="state_only", intervention="intact", available=True,
+                                     seal=item["seal"], action=d["action"]["go"], policy=d["policy"],
+                                     answer=d["answer"], result=d["result"], success=d["action"]["go"] == truth,
+                                     predicted=None, as_predicted=None))
+                    for name in INTERVENTIONS:
+                        row = dict(base, system="episodic", intervention=name)
+                        if name not in stores:
+                            rows.append(dict(row, available=False))
+                            continue
+                        path, seal, n = stores[name]
+                        item = {"system": "episodic", "store": str(path), "seal": seal, "decision": decision}
+                        probe = probe or item
+                        d = fresh_decision(item, workdir)
+                        if d is None:
+                            raise RuntimeError(f"decision process failed: {tag} {name} {goal}")
+                        pred = preds[name][goal]
+                        rows.append(dict(row, available=True, seal=_seal_key(seal), records=n,
+                                         predicted=pred, action=d["action"]["go"], policy=d["policy"],
+                                         answer=d["answer"], result=d["result"],
+                                         success=d["action"]["go"] == truth, as_predicted=d["action"]["go"] == pred))
+    lines = Path(probe["store"]).read_text().splitlines()
+    (workdir / "cut.jsonl").write_text("\n".join(lines[:-1]) + "\n")
+    changed = json.loads(lines[0])
+    changed["place"] = changed["place"] + "x"
+    (workdir / "changed.jsonl").write_text("\n".join([json.dumps(changed, sort_keys=True)] + lines[1:]) + "\n")
+    refused = {name: fresh_decision(dict(probe, store=str(workdir / f"{name}.jsonl")), workdir) is None
+               for name in ("cut", "changed")}
+    return {"rows": rows, "pair_hashes": pair_hashes, "stored": stored, "refused": refused,
+            "summary": summarise(rows)}
+
+
+def summarise(rows: list) -> dict:
+    """Per kind, system, intervention and goal; the intact action of the same world and
+    goal is the reference for 'unchanged'."""
+    intact = {(r["kind"], r["seed"], r["world"], r["goal"]): r["action"]
+              for r in rows if r["system"] == "episodic" and r["intervention"] == "intact" and r["available"]}
+    out = {}
+    groups = {}
+    for r in rows:
+        groups.setdefault((r["kind"], r["system"], r["intervention"], r["goal"]), []).append(r)
+    for (kind, system, name, goal), all_rows in sorted(groups.items()):
+        sub = [r for r in all_rows if r["available"]]
+        key = f"{kind}:{system}:{name}:{goal}"
+        if not sub:
+            out[key] = {"n": 0, "n_planned": len(all_rows)}
+            continue
+        by_pair = {}
+        for r in sub:
+            by_pair.setdefault(r["seed"], []).append(r["success"])
+        v = {"n": len(sub), "n_planned": len(all_rows),
+             "success": sum(r["success"] for r in sub) / len(sub),
+             "pair_success": sum(len(x) == 2 and all(x) for x in by_pair.values()) / len(by_pair),
+             "memory_branch": sum(r["policy"] == "memory" for r in sub) / len(sub)}
+        if system == "episodic":
+            informative = [r for r in sub if r["predicted"] != r["truth"]]
+            v.update(as_predicted=sum(r["as_predicted"] for r in sub) / len(sub),
+                     n_informative=len(informative),
+                     as_predicted_informative=(sum(r["as_predicted"] for r in informative) / len(informative)
+                                               if informative else None),
+                     unchanged=sum(r["action"] == intact[(r["kind"], r["seed"], r["world"], r["goal"])]
+                                   for r in sub) / len(sub))
+        out[key] = v
+    return out
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--series", default="hist-m34")
+    ap.add_argument("--pairs", type=int, default=40)
+    ap.add_argument("--request", default="config/round34.json")
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+    out = {"schema": SCHEMA, "series": args.series, "pairs_per_kind": args.pairs, "status": "ERROR",
+           "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
+                          "request_sha256": hashlib.sha256(Path(args.request).read_bytes()).hexdigest()}}
+    with tempfile.TemporaryDirectory() as tmp:
+        out.update(run(args.series, args.pairs, Path(tmp)))
+    out["status"] = "OK"
+    Path(args.out).write_text(json.dumps(out, indent=1, sort_keys=True) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+---END FILE bench/m3/run_round34.py---
+
+---BEGIN FILE bench/m3/collect_round34.py---
+"""Collector of round 3.4 step 1 (docs/ROUND_3_4.md). Two separate results:
+
+VERDICT (COMPLETE / INCOMPLETE): schema, identity, provenance (request hash, the run's
+code commit); the design (identical final state, identical decision texts, current and
+previous truths equal and first truths different in every pair; the state-only
+baseline's state identical in A and B and equal to the environment's final state); one
+store per world and intervention for all three goals; the collector's re-run of the whole
+deterministic job reproduces every row; cut-off and changed stores refused.
+
+MILESTONE (PASS / FAIL): the criteria of docs/ROUND_3_4.md, fixed before the first run.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round34  # noqa: E402
+from episodic_lab.history_agent import state_only_encode  # noqa: E402
+from episodic_lab.history_env import GOAL_NAMES, KINDS, generate_pair  # noqa: E402
+
+FULLY_AVAILABLE = ("intact", "none", "old_removed", "last_removed", "irrelevant_removed")
+MIN_AVAILABLE = 0.9
+MIN_INFORMATIVE = 0.6
+
+
+def criteria(s: dict, pairs: int) -> list[tuple[str, bool]]:
+    planned = 2 * pairs
+
+    def g(kind, system, name, goal):
+        return s.get(f"{kind}:{system}:{name}:{goal}", {"n": 0, "n_planned": 0})
+
+    def every(fn):
+        return all(fn(k) for k in KINDS)
+    out = [
+        ("availability: every planned case of intact, none, old_removed, last_removed, irrelevant_removed",
+         every(lambda k: all(g(k, "episodic", n, q)["n"] == planned == g(k, "episodic", n, q)["n_planned"]
+                             for n in FULLY_AVAILABLE for q in GOAL_NAMES))),
+        (f"availability: old_swapped in >= {MIN_AVAILABLE:.0%} of planned cases",
+         every(lambda k: all(g(k, "episodic", "old_swapped", q)["n"] >= MIN_AVAILABLE * planned for q in GOAL_NAMES))),
+        (f"informative cases >= {MIN_INFORMATIVE:.0%} of planned (first goal: old_removed, old_swapped; current goal: last_removed)",
+         every(lambda k: all(g(k, "episodic", n, q).get("n_informative", 0) >= MIN_INFORMATIVE * planned
+                             for n, q in (("old_removed", "first"), ("old_swapped", "first"), ("last_removed", "current"))))),
+        ("episodic intact: success 1.0 for all goals, pair success 1.0 for the first goal",
+         every(lambda k: all(g(k, "episodic", "intact", q).get("success") == 1.0 for q in GOAL_NAMES)
+               and g(k, "episodic", "intact", "first").get("pair_success") == 1.0)),
+        ("state_only: success 1.0 for the current goal, pair success 0.0 for the first goal",
+         every(lambda k: g(k, "state_only", "intact", "current").get("success") == 1.0
+               and g(k, "state_only", "intact", "first").get("pair_success") == 0.0)),
+        ("episodic none: pair success 0.0 for the first goal",
+         every(lambda k: g(k, "episodic", "none", "first").get("pair_success") == 0.0)),
+        ("old_removed, old_swapped: first goal as predicted >= 0.95 (informative); current and previous unchanged 1.0",
+         every(lambda k: all((g(k, "episodic", n, "first").get("as_predicted_informative") or 0) >= 0.95
+                             and g(k, "episodic", n, "current").get("unchanged") == 1.0
+                             and g(k, "episodic", n, "previous").get("unchanged") == 1.0
+                             for n in ("old_removed", "old_swapped")))),
+        ("last_removed: current goal as predicted >= 0.95 (informative); first goal unchanged 1.0",
+         every(lambda k: (g(k, "episodic", "last_removed", "current").get("as_predicted_informative") or 0) >= 0.95
+               and g(k, "episodic", "last_removed", "first").get("unchanged") == 1.0)),
+        ("irrelevant_removed: success 1.0 for all goals",
+         every(lambda k: all(g(k, "episodic", "irrelevant_removed", q).get("success") == 1.0 for q in GOAL_NAMES))),
+    ]
+    return out
+
+
+def design_problems(series: str, pairs: int) -> list:
+    p = []
+    for kind in KINDS:
+        for i in range(pairs):
+            pair = generate_pair(f"{series}-{i}", kind)
+            a, b = pair["worlds"]["A"], pair["worlds"]["B"]
+            diff = [j for j, (x, y) in enumerate(zip(a["experiences"], b["experiences"])) if x != y]
+            ok = (diff == [pair["critical"]] and a["final_state"] == b["final_state"]
+                  and a["decisions"] == b["decisions"]
+                  and a["truth"]["current"] == b["truth"]["current"]
+                  and a["truth"]["previous"] == b["truth"]["previous"]
+                  and a["truth"]["first"] != b["truth"]["first"])
+            sa, sb = state_only_encode(a["experiences"]), state_only_encode(b["experiences"])
+            final = {part: {k: v for k, v in a["final_state"][part].items() if v is not None}
+                     for part in ("objects", "people")}
+            if not ok or sa != sb or sa != final:
+                p.append(f"pair_design:{kind}:{i}")
+    return p
+
+
+def one_store_per_world(rows: list) -> bool:
+    """Every available world x intervention has exactly one store (seal) and all three goals."""
+    seals, goals = {}, {}
+    for r in rows:
+        if r["system"] == "episodic" and r["available"]:
+            key = (r["kind"], r["seed"], r["world"], r["intervention"])
+            seals.setdefault(key, set()).add(r["seal"])
+            goals.setdefault(key, set()).add(r["goal"])
+    return bool(seals) and all(len(s) == 1 for s in seals.values()) and all(g == set(GOAL_NAMES) for g in goals.values())
+
+
+def main(request_path: str, result_path: str, dest: str, commit: str | None = None) -> int:
+    req = json.loads(Path(request_path).read_text())
+    data = json.loads(Path(result_path).read_text())
+    problems = []
+    if data.get("schema") != run_round34.SCHEMA:
+        problems.append("schema")
+    if (data.get("series"), data.get("pairs_per_kind"), data.get("status")) != (req["series"], req["pairs_per_kind"], "OK"):
+        problems.append("identity_or_status")
+    prov = data.get("provenance") or {}
+    if prov.get("request_sha256") != hashlib.sha256(Path(request_path).read_bytes()).hexdigest():
+        problems.append("provenance:request")
+    if not isinstance(prov.get("code_commit"), str) or (commit and prov["code_commit"] != commit):
+        problems.append("provenance:commit")
+    problems += design_problems(req["series"], req["pairs_per_kind"])
+    with tempfile.TemporaryDirectory() as tmp:
+        again = run_round34.run(req["series"], req["pairs_per_kind"], Path(tmp))
+    if json.dumps(again["rows"], sort_keys=True) != json.dumps(data.get("rows"), sort_keys=True):
+        problems.append("rerun_rows_differ")
+    if (again["summary"] != data.get("summary") or again["pair_hashes"] != data.get("pair_hashes")
+            or again["stored"] != data.get("stored")):
+        problems.append("rerun_summary_hashes_or_stored_differ")
+    if not one_store_per_world(again["rows"]):
+        problems.append("one_store_per_world")
+    if data.get("refused") != {"cut": True, "changed": True} or again["refused"] != data.get("refused"):
+        problems.append("store_integrity")
+    verdict = "COMPLETE" if not problems else "INCOMPLETE"
+    results = criteria(again["summary"], req["pairs_per_kind"])
+    milestone = "PASS" if verdict == "COMPLETE" and all(ok for _, ok in results) else "FAIL"
+    lines = [f"FAILED {x}" for x in problems] or ["OK schema, provenance, design, one store per world, re-run and store integrity"]
+    lines += ["", f"VERDICT {verdict}", ""] + [f"{'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
+    lines += ["", f"MILESTONE {milestone}"]
+    s = again["summary"]
+    rec = [v["records"] for v in again["stored"].values()]
+    ent = [v["state_entries"] for v in again["stored"].values()]
+    md = ["# Round 3.4 step 1 summary (history goals, identical final state)", "",
+          f"{req['pairs_per_kind']} pairs per kind; every decision in its own fresh isolated process; one "
+          "episodic store per world written before any goal was drawn. Evaluation units are the pairs. "
+          f"Stored information: episodic store {min(rec)}-{max(rec)} records per world; state-only baseline "
+          f"{min(ent)}-{max(ent)} entries (one place per object and person).", "",
+          "| kind | system | intervention | goal | n / planned | success | pair success | as predicted (informative, n) | unchanged vs intact |",
+          "|---|---|---|---|---|---|---|---|---|"]
+    for key, v in s.items():
+        kind, system, name, goal = key.split(":")
+        if not v.get("n"):
+            md.append(f"| {kind} | {system} | {name} | {goal} | 0 / {v['n_planned']} | - | - | - | - |")
+            continue
+        inf = "-" if v.get("as_predicted_informative") is None else f"{v['as_predicted_informative']:.2f} ({v['n_informative']})"
+        unch = "-" if "unchanged" not in v else f"{v['unchanged']:.2f}"
+        md.append(f"| {kind} | {system} | {name} | {goal} | {v['n']} / {v['n_planned']} | {v['success']:.2f} | "
+                  f"{v['pair_success']:.2f} | {inf} | {unch} |")
+    md += ["", f"Store integrity in the decision process: cut-off store refused {data.get('refused', {}).get('cut')}, "
+           f"changed store refused {data.get('refused', {}).get('changed')}.", "",
+           f"VERDICT {verdict} - MILESTONE {milestone}", "",
+           "Criteria (docs/ROUND_3_4.md, fixed before the first run of the code):", ""]
+    md += [f"- {'PASS' if ok else 'FAIL'} {text}" for text, ok in results]
+    d = Path(dest)
+    (d / "CHECK.txt").write_text("\n".join(lines) + "\n")
+    (d / "SUMMARY.md").write_text("\n".join(md) + "\n")
+    (d / "VERDICT").write_text(verdict + "\n")
+    (d / "MILESTONE").write_text(milestone + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(*sys.argv[1:5]))
+---END FILE bench/m3/collect_round34.py---
+
+---BEGIN FILE .github/workflows/round34.yml---
+name: round34
+# Round 3.4 step 1 history goals (docs/ROUND_3_4.md), no model inference; runs only if
+# config/round34.json says "enabled": true. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round34.json"
+permissions:
+  contents: write
+concurrency:
+  group: round34
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: plan
+        run: python3 -c "import json;print('enabled=' + ('true' if json.load(open('config/round34.json')).get('enabled') is True else 'false'))" >> "$GITHUB_OUTPUT"
+      - name: Run, check and store
+        if: steps.plan.outputs.enabled == 'true'
+        run: |
+          set -e
+          series=$(python3 -c "import json;print(json.load(open('config/round34.json'))['series'])")
+          pairs=$(python3 -c "import json;print(json.load(open('config/round34.json'))['pairs_per_kind'])")
+          mkdir -p out
+          python3 bench/m3/run_round34.py --series "$series" --pairs "$pairs" --request config/round34.json --out out/round34.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r . "$RUNNER_TEMP/code"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round34/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp "$RUNNER_TEMP/code/out/round34.json" "$dest/"
+          cp "$RUNNER_TEMP/code/config/round34.json" "$dest/request.json"
+          python3 "$RUNNER_TEMP/code/bench/m3/collect_round34.py" "$RUNNER_TEMP/code/config/round34.json" "$dest/round34.json" "$dest" "${GITHUB_SHA}" || { echo INCOMPLETE > "$dest/VERDICT"; echo FAIL > "$dest/MILESTONE"; }
+          verdict=$(cat "$dest/VERDICT")
+          milestone=$(cat "$dest/MILESTONE")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} verdict ${verdict} milestone ${milestone}" > "$dest/RUN.txt"
+          git add round34
+          git commit --quiet -m "Round 3.4 results, run ${GITHUB_RUN_ID}, ${verdict}, milestone ${milestone}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+          [ "$verdict" = COMPLETE ] && [ "$milestone" = PASS ]
+---END FILE .github/workflows/round34.yml---
+
+---BEGIN FILE tests/test_round34.py---
+"""Round 3.4 step 1: history goals with an identical final state, current-state baseline,
+independent reference, one store per world, collector with verdict and milestone."""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "bench" / "m3"))
+
+import collect_round34  # noqa: E402
+import run_round34  # noqa: E402
+from episodic_lab import env_agent  # noqa: E402
+from episodic_lab.env_agent import derive_variant, write_store  # noqa: E402
+from episodic_lab.history_agent import (decide, history_place, parse_goal, state_decide,  # noqa: E402
+                                        state_only_encode)
+from episodic_lab.history_env import GOAL_NAMES, KINDS, generate_pair  # noqa: E402
+from episodic_lab.history_reference import apply_to_events, plan, predictions  # noqa: E402
+from episodic_lab.memory import EpisodeStore  # noqa: E402
+
+SERIES, N = "hist-test", 3
+ORIGINAL = env_agent.env_encode
+
+
+class DesignTests(unittest.TestCase):
+    def test_pairs_identical_final_state_and_truth_pattern(self):
+        self.assertEqual(collect_round34.design_problems(SERIES, 10), [])
+
+    def test_baseline_state_cannot_tell_the_worlds_apart(self):
+        for kind in KINDS:
+            for i in range(6):
+                pair = generate_pair(f"{SERIES}-{i}", kind)
+                a, b = (state_only_encode(pair["worlds"][w]["experiences"]) for w in "AB")
+                self.assertEqual(a, b)
+                for goal in GOAL_NAMES:
+                    da, db = (state_decide(a, pair["worlds"][w]["decisions"][goal])["action"] for w in "AB")
+                    self.assertEqual(da, db)
+
+    def test_goal_texts_parse(self):
+        for kind in KINDS:
+            pair = generate_pair(f"{SERIES}-0", kind)
+            for goal, d in pair["worlds"]["A"]["decisions"].items():
+                self.assertEqual(parse_goal(d["goal"]), (kind, pair["target"], goal))
+
+
+class OperatorTests(unittest.TestCase):
+    def store(self, rows):
+        s = EpisodeStore()
+        for i, (day, place) in enumerate(rows):
+            s.append(f"r{i}", {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
+                               "place": place, "event_day": day})
+        return s.records
+
+    def test_order_and_ambiguity(self):
+        recs = self.store([(5, "Oak Mill"), (2, "Ash Mill"), (9, "Elm Mill")])
+        self.assertEqual([history_place(recs, "object", "red cup", w).value for w in ("first", "previous", "current")],
+                         ["Ash Mill", "Oak Mill", "Elm Mill"])
+        self.assertEqual(history_place(self.store([(5, "Oak Mill"), (None, "Ash Mill")]), "object", "red cup",
+                                       "first").status, "ambiguous")
+        self.assertEqual(history_place(self.store([(5, "Oak Mill"), (5, "Ash Mill")]), "object", "red cup",
+                                       "current").status, "ambiguous")
+        one = self.store([(5, "Oak Mill")])
+        self.assertEqual(history_place(one, "object", "red cup", "previous").status, "no_observation")
+        self.assertEqual(history_place(one, "person", "Ana Bell", "current").value, "Oak Mill")
+
+
+class ReferenceTests(unittest.TestCase):
+    def test_memory_side_and_reference_side_agree(self):
+        for kind in KINDS:
+            for i in range(4):
+                pair = generate_pair(f"{SERIES}-{i}", kind)
+                for name in "AB":
+                    w = pair["worlds"][name]
+                    store = write_store(None, w["experiences"])
+                    for spec in plan(pair, name).values():
+                        if spec is not None:
+                            self.assertEqual(derive_variant(spec, store.records),
+                                             apply_to_events(spec, w["truth_content"]))
+
+    def test_every_planned_swap_changes_the_first_goal_only(self):
+        for kind in KINDS:
+            for i in range(10):
+                pair = generate_pair(f"{SERIES}-{i}", kind)
+                for name in "AB":
+                    pred = predictions(pair, name)
+                    self.assertIsNotNone(pred["old_swapped"])
+                    self.assertNotEqual(pred["old_swapped"]["first"], pred["intact"]["first"])
+                    self.assertEqual({g: pred["old_swapped"][g] for g in ("current", "previous")},
+                                     {g: pred["intact"][g] for g in ("current", "previous")})
+
+    def test_an_encoding_error_cannot_change_a_prediction(self):
+        pair = generate_pair(f"{SERIES}-1", "object")
+        w = pair["worlds"]["A"]
+        old_text = w["experiences"][pair["critical"]]["text"]
+        before = predictions(pair, "A")
+
+        def faulty(text):
+            c = ORIGINAL(text)
+            return dict(c, place="Wrong Place") if text == old_text else c
+        with mock.patch.object(env_agent, "env_encode", faulty):
+            store = write_store(None, w["experiences"])
+        self.assertEqual(predictions(pair, "A"), before)
+        self.assertEqual(store.records[pair["critical"]]["place"], "Wrong Place")
+        first = decide(store.records, w["decisions"]["first"])["action"]["go"]
+        current = decide(store.records, w["decisions"]["current"])["action"]["go"]
+        self.assertNotEqual(first, before["intact"]["first"])
+        self.assertEqual(current, before["intact"]["current"])  # the old episode does not control "current"
+
+
+class JobTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.calls = 0
+        original = run_round34.fresh_decision
+
+        def counting(item, workdir):
+            cls.calls += 1
+            return original(item, workdir)
+        cls.tmp = tempfile.TemporaryDirectory()
+        with mock.patch.object(run_round34, "fresh_decision", counting):
+            cls.result = run_round34.run(SERIES, N, Path(cls.tmp.name))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.cleanup()
+
+    def test_one_fresh_process_per_case_and_one_store_per_world(self):
+        cases = sum(r["available"] for r in self.result["rows"])
+        self.assertEqual(self.calls, cases + 2)  # plus the cut-off and changed-store probes
+        self.assertTrue(collect_round34.one_store_per_world(self.result["rows"]))
+        rows = json.loads(json.dumps(self.result["rows"]))
+        r = next(x for x in rows if x["system"] == "episodic" and x["available"] and x["goal"] == "first")
+        r["seal"] = "other"
+        self.assertFalse(collect_round34.one_store_per_world(rows))
+
+    def test_baseline_answers_only_the_current_goal(self):
+        rows = [r for r in self.result["rows"] if r["system"] == "state_only"]
+        self.assertTrue(all(r["policy"] == ("memory" if r["goal"] == "current" else "explore") for r in rows))
+
+    def test_criteria_pass_and_detect_failures(self):
+        s = self.result["summary"]
+        self.assertTrue(all(ok for _, ok in collect_round34.criteria(s, N)), collect_round34.criteria(s, N))
+        for key, field, value in (("object:state_only:intact:first", "pair_success", 0.5),
+                                  ("person:episodic:old_removed:current", "unchanged", 0.9),
+                                  ("object:episodic:last_removed:first", "unchanged", 0.9),
+                                  ("person:episodic:old_swapped:first", "as_predicted_informative", 0.5),
+                                  ("object:episodic:irrelevant_removed:previous", "success", 0.9),
+                                  ("person:episodic:intact:first", "n", 1),
+                                  ("object:episodic:none:first", "pair_success", 0.5)):
+            bad = json.loads(json.dumps(s))
+            bad[key][field] = value
+            self.assertFalse(all(ok for _, ok in collect_round34.criteria(bad, N)), key)
+
+    def test_collector_verdict_and_milestone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            req = d / "req.json"
+            req.write_text(json.dumps({"series": SERIES, "pairs_per_kind": N}))
+            data = dict(self.result, schema=run_round34.SCHEMA, series=SERIES, pairs_per_kind=N, status="OK",
+                        provenance={"code_commit": "c1",
+                                    "request_sha256": hashlib.sha256(req.read_bytes()).hexdigest()})
+
+            def collect(x, commit="c1"):
+                (d / "r.json").write_text(json.dumps(x))
+                collect_round34.main(str(req), str(d / "r.json"), str(d), commit)
+                return ((d / "VERDICT").read_text().strip(), (d / "MILESTONE").read_text().strip(),
+                        (d / "CHECK.txt").read_text())
+            verdict, milestone, check = collect(data)
+            self.assertEqual((verdict, milestone), ("COMPLETE", "PASS"), check)
+            for change, reason in (
+                    (lambda x: next(r for r in x["rows"] if r["available"]).update(action="Nowhere"), "rerun_rows_differ"),
+                    (lambda x: x["stored"].update(extra={"records": 1, "state_entries": 1}),
+                     "rerun_summary_hashes_or_stored_differ"),
+                    (lambda x: x["provenance"].update(request_sha256="0"), "provenance:request"),
+                    (lambda x: x.update(schema="other"), "schema"),
+                    (lambda x: x.update(refused={"cut": True, "changed": False}), "store_integrity")):
+                bad = json.loads(json.dumps(data))
+                change(bad)
+                verdict, milestone, check = collect(bad)
+                self.assertIn(reason, check)
+                self.assertEqual((verdict, milestone), ("INCOMPLETE", "FAIL"))
+            self.assertIn("provenance:commit", collect(data, "c2")[2])
+            # the collector's own re-run of the integrity probes must agree with the stored flags
+            real_run = run_round34.run
+            with mock.patch.object(collect_round34.run_round34, "run",
+                                   lambda *a: dict(real_run(*a), refused={"cut": True, "changed": False})):
+                self.assertIn("store_integrity", collect(data)[2])
+            with mock.patch.object(collect_round34, "criteria", lambda s, n: [("forced failure", False)]):
+                self.assertEqual(collect(data)[:2], ("COMPLETE", "FAIL"))
+
+    def test_design_failure_is_reported(self):
+        with mock.patch.object(collect_round34, "generate_pair",
+                               lambda seed, kind: _broken(generate_pair(seed, kind))):
+            self.assertTrue(collect_round34.design_problems(SERIES, 2))
+
+
+def _broken(pair):
+    pair["worlds"]["B"]["final_state"]["objects"][pair["object"]] = "Elsewhere Place"
+    return pair
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_round34.py---
+
+=== END OF LAB ROUND 3.4 STEP 1 v1 REVIEW ===
