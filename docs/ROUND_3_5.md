@@ -244,5 +244,12 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
   (rules built from the development wordings): complete records 0.73 / 0.71 / 0.69
   (dev / cal / aud; actor 0.78, place 0.71-0.73, other slots 1.0). Holdout coverage is
   checked only after the freeze.
-- Independent meaning check: sheet sent to Joe (`reviews/2026-10-18_r35_meaning_check_sheet.md`),
-  answer pending; the wordings are frozen only after it.
+- Independent meaning check: Joe checked all 50 sentences of the sheet
+  (`reviews/2026-10-18_r35_meaning_check_sheet.md`) on 2026-10-18: "Passt" (all match).
+  Claude's own cross-check, independent of the inverse parsers: every template rendered
+  with all three placing verbs contains the person, the object, the place and the day
+  exactly once and no other number; every own placing and "went" sentence names the agent
+  (you / I / your), every "gave" sentence the receiver (you / me); 0 problems; and a manual
+  reading of all 50 sentences for roles (giver/receiver, passives) and time reference.
+  Wordings FROZEN: `episodic_lab/wordings35.py` SHA-256
+  d0efe7670f275e9d41fe2ca367d52b63286df4648283618cedb0219ae6a6756a.
