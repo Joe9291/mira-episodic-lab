@@ -1,4 +1,4 @@
-# Round 3.5 - LM-assisted structured extraction for the action environment (design v2)
+# Round 3.5 - LM-assisted structured extraction for the action environment (design v3)
 
 Uncertainty removed: can a small language model, used only as an extraction interface
 (no reasoning; the operators keep that), write the episodic store of the round 3.3/3.4
@@ -12,7 +12,8 @@ down, uncertainty semantics of the history operators closed (both done, section 
 this encoder pilot in the TARGET environment with the goal parser fixed; the language
 goal/question parser is a later, separate round; then both combined; then
 context-dependent historical queries. v2 answers Astra's review of v1
-(`reviews/2026-10-18_r35v1_astra.txt`).
+(`reviews/2026-10-18_r35v1_astra.txt`), v3 her review of v2
+(`reviews/2026-10-18_r35v2_astra.txt`).
 
 ## 0. Done before this design (development data, no new run)
 
@@ -36,9 +37,8 @@ all episodes), object or action differing only in letter case 147 / 170, action 
 base form 177, weekday instead of the event day 246 (strongly frame-dependent: "N was at
 N on day D and ..." 65/211, "Day D: at N, ..." 91/199, "On day D, ..." 20/186, "Earlier,
 on day D, ..." 0/84). Partner normalisation applied 837 times (= the collector's count):
-it helped 717 times (711 stored as a correct "no partner"; in 6 further cases the partner
-was also declared unknown, so they do not count as correct) and hid a role error 120
-times. Records with every
+717 normalisation cases with a truly absent partner (711 of them correct, 6 still declared
+unknown and therefore not correct) and 120 cases in which it hid a role error. Records with every
 slot correct, per world: as stored min 0.025 / median 0.212 / max 0.350; after lossless
 normalisation only (case, base form, helpful partner normalisation; a declared unknown
 partner never counts) min 0.138 / median 0.362 / max 0.600. Diagnosis: the free slot
@@ -68,18 +68,27 @@ target and another adjective ("tiny umbrella" / "striped umbrella"), placed in
 distractor episodes, so that dropping the adjective is a real binding error.
 
 Wordings: per event type (observed placing, own placing, gave, seen, went) the current
-template plus 3 development paraphrases and 3 holdout paraphrases, written before any
-model run (`episodic_lab/wordings35.py`), including frames that were hard in 3.2 (day in
-the middle or at the end, the second person in different positions, the object before
-the verb). Checks, all model-free and done on development + audit before freezing:
+template plus 3 development paraphrases, 3 holdout paraphrases and 3 reserve paraphrases,
+all written before any model run (`episodic_lab/wordings35.py`), including frames that
+were hard in 3.2 (day in the middle or at the end, the second person in different
+positions, the object before the verb, passive roles such as "B was given the box by
+A"). Use of the wording sets (Astra): development, calibration and audit worlds use
+ONLY the template and the development paraphrases; the holdout and reserve paraphrases
+are never used for the choice of model, prompts, normalisation, candidate generator or
+thresholds. Checks, all model-free:
 - meaning preservation: every paraphrase is generated from the structured event, and a
   per-paraphrase exact inverse parser must return exactly that event (roles, action,
   object, place, day) for every generated sentence;
 - pair invariance: the wording of an episode is chosen by a hash of (pair seed, episode
   position), not of the world, so the two worlds of a pair differ only in the critical
   episode's place (checked like the 3.3/3.4 pair design);
-- usage: the number of episodes per wording frame and split is reported; every holdout
-  frame must occur at least 30 times in the holdout.
+- independent meaning check (Astra): a generator and its inverse parser can share a wrong
+  role assumption, so one rendered example of EVERY template (development, holdout and
+  reserve) is checked by a person (Joe) against the structured event (roles, action,
+  object, place, day) before freezing;
+- usage: per wording frame and split, both the number of episode occurrences and the
+  number of distinct texts (= model evaluations, since encodings are shared) are
+  reported; every holdout frame must have at least 30 distinct texts in the holdout.
 
 ## 2. Encoder: candidates, canonical values, scores, uncertainty
 
@@ -103,6 +112,11 @@ Canonicalisation contract (fixed before any model run):
 - margin: best canonical value's score minus the score of the best DIFFERENT canonical
   value.
 
+Edge cases (fixed): equal scores of the two best canonical values give margin 0, which
+is always "unknown"; a slot with only one canonical candidate is accepted (there is no
+alternative) and counted separately; a rate with an empty denominator (e.g. no decision
+taken from memory) is undefined and never passes a criterion.
+
 Uncertainty ("unknown", different from "none"): a slot whose margin is below its
 threshold tau_slot is stored as None and declared unknown; a missing value of an
 always-present slot is also unknown. Threshold rule (Astra): on the calibration split,
@@ -115,16 +129,19 @@ per-slot rule is compared on development with one common tau (reported). The 0.9
 observed calibration performance, not a guarantee for new wordings.
 
 Each distinct sentence is encoded once per model; paired worlds and memory interventions
-reuse the encodings. Every recorded encoding keeps the scores of all canonical values,
-so the collector re-derives choice, margin and unknown flag exactly.
+reuse the encodings. Every recorded encoding keeps the score of every scored surface
+candidate and its canonical value (so the max-merging is auditable), and the collector
+re-derives choice, margin and unknown flag exactly.
 
 ## 3. Controls (model-free) and the reference
 
 - Candidate coverage: share of slots whose true canonical value is among the candidates;
-  must be 1.0 on development and audit before freezing. The holdout is only CHECKED after
-  freezing; if its coverage is below 1.0, that holdout becomes audit material, the fix is
-  logged, and a new holdout series is generated - no fix is made against the final
-  holdout.
+  must be 1.0 on development and audit (development wordings) before freezing. The
+  holdout is only CHECKED after freezing. If its coverage is below 1.0, the holdout
+  worlds AND the holdout paraphrases count as consumed (audit material); after the logged
+  fix, the qualification uses new holdout worlds with the reserve paraphrases. If the
+  reserve paraphrases are consumed as well, the result may only be claimed as transfer
+  to new worlds with already known wordings, and is labelled so.
 - Extraction baselines without a model: (a) position rules (first name-like span = actor,
   last name-like span = place, first number = day, word after "the" = object), (b) a
   word-list rule for the action; they show whether the LM adds anything beyond surface
@@ -157,9 +174,7 @@ success loss are measured on INTACT stores only:
 2. memory tasks with the fixed goal parser and the round 3.3/3.4 decision rules, per world
    kind and goal (3.3 hidden, moved, giver; 3.4 object and person x current, first,
    previous): success = mean over pairs of the mean over the pair's two worlds; LM system
-   >= reference - 0.02 in EVERY kind x goal cell; pair success >= 0.95 in every cell
-   (Astra's idea, adopted as a release criterion so that a pass also means the historical
-   milestone with the LM system);
+   >= reference - 0.02 in EVERY kind x goal cell; pair success >= 0.95 in every cell;
 3. confident-error rate = wrong decisions taken from memory / all decisions taken from
    memory, per kind x goal, <= 0.05, with the coverage (decisions taken from memory / all)
    reported next to it;
@@ -169,12 +184,20 @@ Memory interventions on the LM-written stores are evaluated separately against t
 pre-registered intervention reference (action as predicted on informative cases) and
 reported as causal memory use, never mixed into the success or error rates above.
 
+Results: ENCODER_QUALIFIED (YES / NO / UNDECIDABLE) = the technical qualification by the
+3.5 criteria above; it does NOT imply the milestone of rounds 3.3/3.4, whose rules are
+stricter (intact success 1.0, pair success 1.0, the intervention criteria). Separately,
+the collector applies the ORIGINAL 3.3 and 3.4 milestone rules unchanged to the LM system
+on the holdout worlds and reports MILESTONE_ORIGINAL_RULES (PASS / FAIL); only that result
+may be described as the milestone with the LM system.
+
 Completeness contract as in rounds 3.2-3.4: schema, provenance (request hash, the run's
 code commit), every planned report present and valid, the collector re-derives every
 encoder decision from the recorded scores and re-runs operators and decisions; an
 incomplete run gives no qualification (decision UNDECIDABLE).
 
-Pass -> the LM extraction may write the store of later rounds for these episode forms.
+ENCODER_QUALIFIED YES -> the LM extraction may write the store of later rounds for these
+episode forms (with the wording claim the holdout supports, see section 3).
 Then round 3.6: the goal/question parser by the same method, including ambiguous and
 unsupported questions; then both combined; then context-dependent historical queries
 (pairs with identical current, first and previous values but a different relevant

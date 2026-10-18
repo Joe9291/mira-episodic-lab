@@ -1,0 +1,61 @@
+6m 26s nachgedacht
+
+Path(sys.argv[2]).write_text(json.dumps(res, indent=1, sort_keys=True) + "\n")
+---END FILE bench/m3/encoder_errors.py---
+
+REQUEST CHANGES – noch zwei eng begrenzte Punkte im Holdout-Vertrag und in der Ergebnisdeutung.
+
+Die wesentlichen Änderungen aus dem vorherigen Review sind umgesetzt:
+
+- Die Schwellenwahl maximiert jetzt die Akzeptanz unter einer Präzisionsbedingung; Kalibrierung ist getrennt, leere Mengen qualifizieren nicht.
+- Die Marge wird zwischen verschiedenen kanonischen Werten berechnet. Die Zusammenfassung per Maximum ist als festgelegte, anschließend empirisch geprüfte Regel vertretbar.
+- Unbekannte Slots zählen ausdrücklich nicht als korrektes none. Auch der gezeigte Analysecode berücksichtigt jetzt den Invaliditätsstatus.
+- Die Referenz verwendet strukturierte Wahrheitsdaten; Erfolgsgrenzen gelten für jede Kombination aus Weltart und Ziel.
+- Intakte Aufgaben und Speicherinterventionen werden getrennt bewertet. Vollständigkeit und Provenienz sind Voraussetzungen der Qualifikation.
+
+Die Normalisierungszahlen sind jetzt rechnerisch konsistent: 837 = 711 korrekt + 6 unbekannt + 120 Rollenfehler. Die korrigierte Fehleranalyse stützt weiterhin die Entscheidung, den alten Encoder zu ersetzen. Die berichteten Ergebnisse habe ich nicht erneut ausgeführt.
+
+1. Neue Weltseeds stellen einen verbrauchten Formulierungs-Holdout nicht wieder her.
+
+Die Aufteilung nach Paaren und die Prüfung auf identische Texte sind sinnvoll. Für den beanspruchten Transfer auf neue Formulierungen braucht es zusätzlich eine eindeutige Zuordnung der Vorlagen.
+
+Bitte ausdrücklich festlegen, dass die drei Holdout-Paraphrasen nicht für Modell-, Prompt-, Normalisierungswahl oder Schwellenkalibrierung verwendet werden. Unterschiedliche vollständige Sätze können dieselbe bereits verwendete Formulierungsvorlage enthalten; Textdisjunktheit allein verhindert das nicht.
+
+Außerdem reicht die beschriebene Reparaturregel noch nicht:
+
+> Abdeckung unter 1,0 → Holdout wird Auditmaterial → Generator wird repariert → neue Holdout-Serie.
+
+
+
+Wenn die neue Serie dieselben Paraphrasen mit anderen Namen, Orten und Tagen verwendet, wurde der Kandidatengenerator inzwischen anhand dieser Formulierungen entwickelt. Die Aussage „auf Formulierungen, auf denen das System nie entwickelt wurde“ wäre dann nicht mehr gedeckt.
+
+Legt für diesen Fall eine der beiden Möglichkeiten fest:
+
+- Nach der Anpassung einen neuen Holdout mit neuen Welten und neuen Formulierungsvorlagen verwenden.
+- Dieselben Vorlagen weiterverwenden und das Ergebnis ausdrücklich als Transfer auf neue Welten bei bereits bekannten Formulierungen ausweisen.
+
+Ein modellfreier Coverage-Audit ist legitim. Entscheidend ist, welche Anpassungen seine Ergebnisse auslösen und welche Generalisierungsbehauptung danach noch geprüft wird.
+
+2. Die neue Encoderqualifikation impliziert nicht den ursprünglichen Meilenstein-PASS.
+
+Die Formulierung, ein bestandener Pilot bedeute damit auch den historischen Meilenstein mit dem LM-System, geht zu weit.
+
+Der ursprüngliche 3.4-Test verlangte bei intaktem Speicher Erfolg 1,0 für alle Ziele und Paarerfolg 1,0 für das erste Ziel. Eure neuen Grenzen erlauben Fehler.
+
+Konkretes Beispiel für eine Zelle mit 40 Paaren:
+
+- Eine falsche Antwort unter 80 Weltantworten ergibt 0,9875 Erfolg: Die neue 0,98-Grenze wird erfüllt.
+- Ein dadurch gescheitertes Paar ergibt 0,975 Paarerfolg: Die neue 0,95-Grenze wird ebenfalls erfüllt.
+- Der ursprüngliche Meilensteintest wäre damit nicht bestanden.
+
+Zusätzlich werden die Interventionen im Pilot berichtet, aber nicht als Freigabekriterien verlangt. Auch daraus folgt kein vollständiger ursprünglicher Meilenstein-PASS.
+
+Die neuen Schwellen können bleiben. Führt dafür eine eigene Entscheidung wie ENCODER_QUALIFIED ein und beschreibt sie als technische Qualifikation nach den 3.5-Kriterien. MILESTONE PASS nach den ursprünglichen Regeln sollte eine gesonderte Prüfung dieser Regeln voraussetzen.
+
+Verbesserungsideen
+
+- Roundtrip-Prüfung durch einen unabhängigen Bedeutungscheck ergänzen. Ein Generator und sein inverser Parser können dieselbe falsche Rollenannahme teilen. Beispielsweise ist in „B was given the box by A“ A der Geber. Prüft jede Vorlage einmal gezielt auf solche sprachlichen Rollen; der erfolgreiche Roundtrip allein garantiert das nicht.
+- „717-mal geholfen“ genauer benennen. Präziser wäre: „717 Normalisierungsfälle bei tatsächlich fehlendem Partner; davon 711 korrekt und sechs weiterhin unbekannt.“ Das passt unmittelbar zu eurer korrigierten Statuslogik.
+- Eindeutige Texte und Episodenvorkommen getrennt zählen. Bei gemeinsam genutzten Kodierungen können 30 Episodenvorkommen deutlich weniger als 30 Modellbewertungen bedeuten. Berichtet beide Zahlen pro Formulierungsrahmen, einschließlich akzeptierter Werte bei der Kalibrierung.
+- Grenzfälle der Auswertung festlegen. Dazu gehören gleiche Kandidatenscores, nur ein kanonischer Kandidat und keine speicherbasierten Entscheidungen im Nenner der Fehlerrate. Eine undefinierte Rate darf keinen Abnahmetest bestehen.
+- Die Zusammenfassung der Varianten auditierbar machen. Neben kanonischen Scores möglichst auch die Zuordnung der bewerteten Oberflächenvarianten erhalten, damit sich die Maximumsbildung nachvollziehen lässt.
