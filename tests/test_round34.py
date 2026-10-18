@@ -83,6 +83,17 @@ class ReferenceTests(unittest.TestCase):
                             self.assertEqual(derive_variant(spec, store.records),
                                              apply_to_events(spec, w["truth_content"]))
 
+    def test_every_planned_swap_changes_the_first_goal_only(self):
+        for kind in KINDS:
+            for i in range(10):
+                pair = generate_pair(f"{SERIES}-{i}", kind)
+                for name in "AB":
+                    pred = predictions(pair, name)
+                    self.assertIsNotNone(pred["old_swapped"])
+                    self.assertNotEqual(pred["old_swapped"]["first"], pred["intact"]["first"])
+                    self.assertEqual({g: pred["old_swapped"][g] for g in ("current", "previous")},
+                                     {g: pred["intact"][g] for g in ("current", "previous")})
+
     def test_an_encoding_error_cannot_change_a_prediction(self):
         pair = generate_pair(f"{SERIES}-1", "object")
         w = pair["worlds"]["A"]
@@ -128,6 +139,10 @@ class JobTests(unittest.TestCase):
         r["seal"] = "other"
         self.assertFalse(collect_round34.one_store_per_world(rows))
 
+    def test_baseline_answers_only_the_current_goal(self):
+        rows = [r for r in self.result["rows"] if r["system"] == "state_only"]
+        self.assertTrue(all(r["policy"] == ("memory" if r["goal"] == "current" else "explore") for r in rows))
+
     def test_criteria_pass_and_detect_failures(self):
         s = self.result["summary"]
         self.assertTrue(all(ok for _, ok in collect_round34.criteria(s, N)), collect_round34.criteria(s, N))
@@ -171,6 +186,11 @@ class JobTests(unittest.TestCase):
                 self.assertIn(reason, check)
                 self.assertEqual((verdict, milestone), ("INCOMPLETE", "FAIL"))
             self.assertIn("provenance:commit", collect(data, "c2")[2])
+            # the collector's own re-run of the integrity probes must agree with the stored flags
+            real_run = run_round34.run
+            with mock.patch.object(collect_round34.run_round34, "run",
+                                   lambda *a: dict(real_run(*a), refused={"cut": True, "changed": False})):
+                self.assertIn("store_integrity", collect(data)[2])
             with mock.patch.object(collect_round34, "criteria", lambda s, n: [("forced failure", False)]):
                 self.assertEqual(collect(data)[:2], ("COMPLETE", "FAIL"))
 
