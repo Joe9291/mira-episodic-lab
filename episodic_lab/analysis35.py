@@ -16,7 +16,7 @@ from __future__ import annotations
 import statistics
 
 from .cands35 import NONE, SELF, SLOTS, ranking, truth_value
-from .encoder35 import decide_record
+from .encoder35 import decide_record, view
 from .env import PLACING, parse_goal
 from .env35 import KINDS35, split_pairs
 from .env_reference import plan as env_plan, predictions as env_predictions
@@ -56,7 +56,7 @@ def role(slot: str, content: dict) -> str:
     return "-"
 
 
-def quality(encodings: dict, truth: dict, taus: dict) -> dict:
+def quality(encodings: dict, truth: dict, taus: dict, mode: str = "sum") -> dict:
     """Per slot correct/unknown/wrong over distinct texts, single-value slots separately,
     by role; complete records with every slot correct."""
     per = {s: {"correct": 0, "unknown": 0, "wrong": 0, "single": 0, "chosen_correct": 0, "chosen": 0} for s in SLOTS}
@@ -67,7 +67,7 @@ def quality(encodings: dict, truth: dict, taus: dict) -> dict:
         if text not in truth:
             continue
         n += 1
-        content, unk, detail = decide_record(enc, taus)
+        content, unk, detail = decide_record(enc, taus, mode)
         ok_all = True
         for s in SLOTS:
             want = truth_value(s, truth[text])
@@ -89,7 +89,7 @@ def quality(encodings: dict, truth: dict, taus: dict) -> dict:
     return {"texts": n, "slots": per, "roles": roles, "complete_records": complete / n if n else None}
 
 
-def frame_quality(split: str, encodings: dict, taus: dict) -> dict:
+def frame_quality(split: str, encodings: dict, taus: dict, mode: str = "sum") -> dict:
     """{wording frame: [distinct texts, complete records correct]} (development diagnosis)."""
     frames = {}
     for p in split_pairs(split):
@@ -100,13 +100,13 @@ def frame_quality(split: str, encodings: dict, taus: dict) -> dict:
     for frame, items in sorted(frames.items()):
         ok = 0
         for text, c in items.items():
-            content, unk, detail = decide_record(encodings[text], taus)
+            content, unk, detail = decide_record(encodings[text], taus, mode)
             ok += all(detail[s]["status"] != "unknown" and detail[s]["value"] == truth_value(s, c) for s in SLOTS)
         out[frame] = [len(items), ok]
     return out
 
 
-def calibrate(encodings: dict, truth: dict) -> dict:
+def calibrate(encodings: dict, truth: dict, mode: str = "sum") -> dict:
     """Per slot: the threshold with the highest acceptance rate subject to precision >= 0.99
     and >= 200 accepted values among the multi-value slots; ties to the smaller threshold;
     None if no threshold qualifies (the slot is then always unknown)."""
@@ -116,7 +116,7 @@ def calibrate(encodings: dict, truth: dict) -> dict:
         for text, enc in encodings.items():
             if text not in truth:
                 continue
-            value, margin, n = ranking([tuple(x) for x in enc[s]])
+            value, margin, n = ranking(view(enc[s], mode))
             if n >= 2:
                 items.append((margin, value == truth_value(s, truth[text])))
         best = None
@@ -209,15 +209,15 @@ def state_from_truth(events: list[dict]) -> dict:
 
 
 # ----------------------------------------------------------------- tasks
-def lm_rows(world: dict, encodings: dict, taus: dict) -> list[tuple[dict, list]]:
-    return [decide_record(encodings[e["text"]], taus)[:2] for e in world["experiences"]]
+def lm_rows(world: dict, encodings: dict, taus: dict, mode: str = "sum") -> list[tuple[dict, list]]:
+    return [decide_record(encodings[e["text"]], taus, mode)[:2] for e in world["experiences"]]
 
 
 def oracle_rows(world: dict) -> list[tuple[dict, list]]:
     return [({k: c[k] for k in FIELDS}, []) for c in world["truth_content"]]
 
 
-def tasks(split: str, encodings: dict, taus: dict) -> dict:
+def tasks(split: str, encodings: dict, taus: dict, mode: str = "sum") -> dict:
     """Intact decisions of the LM system and the reference per pair/world/goal, plus the
     intervention rows in the round 3.3 / 3.4 formats (for the original milestone rules)."""
     from .history_agent import state_decide
@@ -225,7 +225,7 @@ def tasks(split: str, encodings: dict, taus: dict) -> dict:
     for p in split_pairs(split):
         kind, seed = p["kind"], p["seed"]
         for wname, w in p["worlds"].items():
-            lm = lm_rows(w, encodings, taus)
+            lm = lm_rows(w, encodings, taus, mode)
             ref = oracle_rows(w)
             if p["family"] == "env":
                 goals = {"find": w["decision"]}

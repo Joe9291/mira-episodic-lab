@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from episodic_lab.cands35 import CANDIDATE_VERSION, SLOTS, candidates, ranking  # noqa: E402
-from episodic_lab.encoder35 import PROMPT_VERSION, encode_text, messages  # noqa: E402
+from episodic_lab.encoder35 import NULL_NOTE, PROMPT_VERSION, encode_text, messages  # noqa: E402
 from episodic_lab.env35 import KINDS35, split_pairs  # noqa: E402
 
 SCHEMA = "episodic_lab.round35_encode.v1"
@@ -50,6 +50,19 @@ def probe_texts(per_frame: int = 4) -> list[str]:
             for e in w["experiences"]:
                 frames.setdefault(e["frame"], set()).add(e["text"])
     return sorted(t for f in sorted(frames) for t in sorted(frames[f])[:per_frame])
+
+
+class NullScores:
+    """Scores without the note ("(no note)"), cached per (slot, surface) within the job."""
+    def __init__(self, model):
+        self.model, self.cache = model, {}
+
+    def __call__(self, slot: str, surfaces: list[str]) -> list[float]:
+        todo = [s for s in dict.fromkeys(surfaces) if (slot, s) not in self.cache]
+        if todo:
+            for s, x in zip(todo, self.model.score_candidates_cached(messages(slot, NULL_NOTE), todo)):
+                self.cache[(slot, s)] = x
+        return [self.cache[(slot, s)] for s in surfaces]
 
 
 def cache_check(model, texts: list[str]) -> dict:
@@ -95,9 +108,11 @@ def main() -> int:
         texts = (timing_texts() if args.phase == "timing" else probe_texts() if args.phase == "probe"
                  else split_texts(args.split)[args.chunk::args.chunks])
         encodings, seconds = {}, {}
+        nulls = NullScores(model)
+        ntok = (lambda s: model.count_tokens(s) + 1)
         for text in texts:
             t = time.perf_counter()
-            encodings[text] = encode_text(model.score_candidates_cached, text)
+            encodings[text] = encode_text(model.score_candidates_cached, text, nulls, ntok)
             seconds[text] = round(time.perf_counter() - t, 3)
         out.update(encodings=encodings, seconds=seconds, texts=len(texts))
         if args.phase == "timing":

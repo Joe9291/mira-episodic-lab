@@ -37,22 +37,51 @@ def messages(slot: str, text: str) -> list[dict]:
             {"role": "user", "content": f"Note: {text}\n\nQuestion: {QUESTIONS[slot]}"}]
 
 
-def encode_text(scorer, text: str) -> dict:
-    """{slot: [[surface, canonical, score], ...]} with `scorer(messages, surfaces) -> scores`."""
+NULL_NOTE = "(no note)"
+MODES = ("sum", "mean", "pmi")
+
+
+def encode_text(scorer, text: str, null_scorer=None, ntokens=None) -> dict:
+    """{slot: [[surface, canonical, score, null_score, tokens], ...]}: `score` is the total
+    log-probability of the complete answer after the slot question about this note (the
+    approved definition); `null_score` the same with the note replaced by "(no note)"
+    (for a calibrated comparison, development measurement), `tokens` the answer's token
+    count including the end-of-turn token. Without null_scorer/ntokens those are None."""
     out = {}
     for slot in SLOTS:
         cands = candidates(slot, text)
-        scores = scorer(messages(slot, text), [s for s, _ in cands])
-        out[slot] = [[s, c, float(x)] for (s, c), x in zip(cands, scores)]
+        surf = [s for s, _ in cands]
+        scores = scorer(messages(slot, text), surf)
+        nulls = null_scorer(slot, surf) if null_scorer else [None] * len(surf)
+        toks = [ntokens(s) for s in surf] if ntokens else [None] * len(surf)
+        out[slot] = [[s, c, float(x), None if n is None else float(n), t]
+                     for (s, c), x, n, t in zip(cands, scores, nulls, toks)]
     return out
 
 
-def decide_record(encoding: dict, taus: dict) -> tuple[dict, list, dict]:
+def view(entries: list, mode: str = "sum") -> list[tuple]:
+    """(surface, canonical, score) under a scoring mode: "sum" = total log-probability (the
+    approved definition), "mean" = per answer token, "pmi" = minus the score without the
+    note (development comparisons)."""
+    out = []
+    for x in entries:
+        if mode == "sum":
+            out.append((x[0], x[1], x[2]))
+        elif mode == "mean":
+            out.append((x[0], x[1], x[2] / x[4]))
+        elif mode == "pmi":
+            out.append((x[0], x[1], x[2] - x[3]))
+        else:
+            raise ValueError(mode)
+    return out
+
+
+def decide_record(encoding: dict, taus: dict, mode: str = "sum") -> tuple[dict, list, dict]:
     """(record content, declared unknown slots, per-slot detail) from a recorded encoding.
     taus[slot] = threshold or None (no qualifying threshold: always unknown)."""
     content, unknown, detail = {}, [], {}
     for slot in SLOTS:
-        value, margin, status = decide([tuple(x) for x in encoding[slot]], taus.get(slot))
+        value, margin, status = decide(view(encoding[slot], mode), taus.get(slot))
         detail[slot] = {"value": value, "margin": margin, "status": status}
         if status == "unknown":
             content[slot] = None
@@ -62,6 +91,6 @@ def decide_record(encoding: dict, taus: dict) -> tuple[dict, list, dict]:
     return content, unknown, detail
 
 
-def margins(encoding: dict) -> dict:
+def margins(encoding: dict, mode: str = "sum") -> dict:
     """{slot: (best canonical value, margin or None for a single value)} - for calibration."""
-    return {slot: ranking([tuple(x) for x in encoding[slot]])[:2] for slot in SLOTS}
+    return {slot: ranking(view(encoding[slot], mode))[:2] for slot in SLOTS}

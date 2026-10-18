@@ -273,3 +273,14 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    development slice (4 distinct texts per development frame, 80 texts) for quick
    iterations, qwen2.5-0.5b only (the faster model; qwen3-0.6b was not better on the
    timed texts); both models again in the full development run.
+2. Probe 1 (GitHub 39151394097; p2, c2; qwen2.5-0.5b; 80 stratified development texts):
+   complete records 0.000. The model answers "You" for nearly every actor and receiver
+   (actor of observed persons 0/32, givers 0/16; receiver "none" 0/64) and the object
+   without its adjective. Diagnosis: the approved score (total log-probability of the
+   answer) prefers short, primed answers ("You", one-word nouns): a length and prior
+   bias, not missing information. Next probe records, for the same prompts and
+   candidates, two additional development measurements per candidate: the score without
+   the note ("(no note)", cached per slot and surface) and the answer's token count, so
+   that the approved sum score can be compared with a per-token mean and a calibrated
+   (pointwise mutual information) score on the same encodings. A switch away from the
+   approved score definition would be a design change and goes to Astra first.

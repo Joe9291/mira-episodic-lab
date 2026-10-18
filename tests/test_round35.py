@@ -125,6 +125,8 @@ def fake_scorer(truth, prefer=None):
         text = msgs[1]["content"].split("Note: ", 1)[1].split("\n\nQuestion: ")[0]
         q = msgs[1]["content"].split("\n\nQuestion: ")[1]
         slot = next(s for s, qq in QUESTIONS.items() if qq == q)
+        if text not in truth:          # the prompt without a note: no preference
+            return [-1.0] * len(surfaces)
         want = truth_value(slot, truth[text])
         out = []
         for i, s in enumerate(surfaces):
@@ -151,6 +153,9 @@ class FakeModel:
 
     def score_candidates(self, msgs, surfaces):
         return self.scorer(msgs, surfaces)
+
+    def count_tokens(self, text):
+        return len(text.split())
 
 
 class AnalysisTests(unittest.TestCase):
@@ -260,7 +265,10 @@ class JobTests(unittest.TestCase):
             self.assertEqual(r["candidate_version"], "c2")
             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
             self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
-            self.assertIn("complete records 1.000", (d / "SUMMARY.md").read_text())
+            summary = (d / "SUMMARY.md").read_text()
+            self.assertIn("scoring sum: complete records 1.000", summary)
+            self.assertIn("scoring pmi", summary)
+            self.assertTrue(all(len(x) == 5 and x[4] >= 2 for enc in r["encodings"].values() for x in enc["actor"]))
 
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:

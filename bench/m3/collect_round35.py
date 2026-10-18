@@ -94,34 +94,40 @@ def timing_summary(req: dict, reports: dict) -> list[str]:
 
 
 def probe_summary(req: dict, enc: dict) -> list[str]:
-    """Development probe: quality with the best value (tau 0), per wording frame, examples."""
+    """Development probe: quality with the best value (tau 0) under each scoring mode the
+    encodings allow (sum = the approved definition; mean and pmi = development
+    comparisons), per wording frame, and examples."""
     from episodic_lab.cands35 import ranking, truth_value
+    from episodic_lab.encoder35 import view
     truth = A.truths("dev")
     frame = {e["text"]: e["frame"] for p in A.split_pairs("dev") for w in p["worlds"].values() for e in w["experiences"]}
     L = ["# Round 3.5 development probe", ""]
     for model in req["models"]:
         e = enc[(model, "dev")]
-        q = A.quality(e, truth, {s: 0.0 for s in SLOTS})
-        L += [f"## {model}: complete records {q['complete_records']:.3f} ({q['texts']} texts)", "",
-              "| slot | correct | wrong |", "|---|---|---|"]
-        L += [f"| {s} | {v['correct']} | {v['wrong'] + v['unknown']} |" for s, v in q["slots"].items()]
-        L += ["", "By role: " + "; ".join(f"{k} {v['correct']}/{v['wrong'] + v['unknown']}" for k, v in sorted(q["roles"].items())), ""]
-        per = {}
-        for text, x in e.items():
-            ok = all(ranking([tuple(y) for y in x[s]])[0] == truth_value(s, truth[text]) for s in SLOTS)
-            per.setdefault(frame[text], [0, 0])
-            per[frame[text]][0] += 1
-            per[frame[text]][1] += ok
-        L += ["By frame (texts/complete): " + "; ".join(f"{f} {n}/{k}" for f, (n, k) in sorted(per.items())), "",
-              "Examples of wrong slots:", ""]
-        shown = {}
-        for text, x in sorted(e.items()):
-            for s in SLOTS:
-                v = ranking([tuple(y) for y in x[s]])[0]
-                if v != truth_value(s, truth[text]) and shown.get(s, 0) < 4:
-                    shown[s] = shown.get(s, 0) + 1
-                    L.append(f"- {s}: \"{text}\" -> {v!r} (true {truth_value(s, truth[text])!r})")
-        L.append("")
+        first = next(iter(e.values()))["actor"][0]
+        modes = ["sum"] + (["mean", "pmi"] if len(first) >= 5 and first[3] is not None and first[4] else [])
+        for mode in modes:
+            q = A.quality(e, truth, {s: 0.0 for s in SLOTS}, mode)
+            L += [f"## {model}, scoring {mode}: complete records {q['complete_records']:.3f} ({q['texts']} texts)", "",
+                  "| slot | correct | wrong |", "|---|---|---|"]
+            L += [f"| {s} | {v['correct']} | {v['wrong'] + v['unknown']} |" for s, v in q["slots"].items()]
+            L += ["", "By role: " + "; ".join(f"{k} {v['correct']}/{v['wrong'] + v['unknown']}" for k, v in sorted(q["roles"].items())), ""]
+            per = {}
+            for text, x in e.items():
+                ok = all(ranking(view(x[s], mode))[0] == truth_value(s, truth[text]) for s in SLOTS)
+                per.setdefault(frame[text], [0, 0])
+                per[frame[text]][0] += 1
+                per[frame[text]][1] += ok
+            L += ["By frame (texts/complete): " + "; ".join(f"{f} {n}/{k}" for f, (n, k) in sorted(per.items())), "",
+                  "Examples of wrong slots:", ""]
+            shown = {}
+            for text, x in sorted(e.items()):
+                for s in SLOTS:
+                    v = ranking(view(x[s], mode))[0]
+                    if v != truth_value(s, truth[text]) and shown.get(s, 0) < 3:
+                        shown[s] = shown.get(s, 0) + 1
+                        L.append(f"- {s}: \"{text}\" -> {v!r} (true {truth_value(s, truth[text])!r})")
+            L.append("")
     return L
 
 
