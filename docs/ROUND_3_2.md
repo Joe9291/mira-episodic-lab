@@ -3,9 +3,11 @@
 Uncertainty removed: does an explicit episodic memory work as an agent memory (survives a
 restart, answers from its own records, abstains correctly and only where it may), and
 does a gain come from what is selected or from how it is processed? Ends with one run;
-round 3.3 (action environment with causal interventions) starts from its result and is
-prepared in parallel. Reviews: `reviews/2026-10-17_r32_astra.txt` (v1),
-`reviews/2026-10-17_r32v2_astra.txt` (v2), `reviews/2026-10-17_r32v3_r33v2_astra.txt` (v3).
+round 3.3 (action environment with causal interventions) was prepared in parallel and
+has meanwhile run on its own (model-free; docs/ROUND_3_3.md). Reviews: `reviews/2026-10-17_r32_astra.txt` (v1),
+`reviews/2026-10-17_r32v2_astra.txt` (v2), `reviews/2026-10-17_r32v3_r33v2_astra.txt` (v3),
+`reviews/2026-10-18_r32v4_astra.txt` (v4: APPROVE; her documentation and normalisation-count
+ideas adopted before the run, the broader completion tests noted for later).
 
 Basis: round 3.1/3.1b (docs/ROUND_3_1.md). Direct and instructed step-by-step answers of
 both small readers fail at comparison, conjunctive matching with abstention, linking and
@@ -141,7 +143,7 @@ never stops the run. A reply for the second person that repeats the first person
 as "no second person" (a declared normalisation; a wrong partner is then a slot error
 measured by the partner slot accuracy, like any valid but wrong value). S1
 qualified person, place, object and day; the second person and the action are measured
-here for the first time. Adoption rule for round 3.3 (fixed now): all_slots (share of
+here for the first time. Qualification rule for the LM encoder on the tested round 3.2 templates (fixed now): all_slots (share of
 episodes with every slot right) >= 0.95 AND the full+ops/lm-encoder cell within 0.02 of
 full+ops on positive final items AND its lure false recall <= 0.05. "Positive final
 items" = E2, E3a, E3b, E4, E7 of the final test, the two A/B orientations of an E3a pair

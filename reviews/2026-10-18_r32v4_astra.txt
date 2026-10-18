@@ -1,0 +1,36 @@
+4m 43s nachgedacht
+
+Teil 1:
+
+__all__ = ["CELLS", "LMEncoder", "Result", "bm25_top", "match", "slot_accuracy", "struct_select"]
+---END FILE episodic_lab/cells.py---
+
+Teil 2:
+
+def edit(f):
+---END DIFF---
+
+APPROVE für Runde 3.2 v4 im beschriebenen Umfang.
+
+Die beiden offenen Freigabepunkte sind im vorgelegten Code behoben. Ich sehe keinen verbleibenden Grund, diesen geplanten Lauf aufzuhalten.
+
+1. Unbekannte Werte werden konsistent dargestellt. Ungültige Encoderantworten werden zu None, ihre Unsicherheit bleibt über extra.unknown erhalten, und die Rohantwort bleibt separat prüfbar. Die Unterscheidung zwischen „unbekannt“ und „in dieser Episode nicht vorhanden“ ist insbesondere für Partner und objektfreie Ereignisse sinnvoll.
+
+2. Die Operatoren berücksichtigen mögliche zusätzliche Treffer. Unbekannte Akteure, Partner und Objekte können jetzt zeitliche und relationale Antworten infrage stellen. could_be_latest() verbindet die Regeln für Operatoren und Auswahlzertifizierung. Die zuvor genannten Gegenbeispiele sind damit adressiert. Zugleich bleiben Antworten möglich, wenn die unbekannte Information das Ergebnis nicht verändern kann.
+
+3. Die neuen Tests prüfen eine geeignete allgemeine Eigenschaft. Eine definitive Antwort muss unter jeder geprüften Vervollständigung unbekannter Felder bestehen bleiben. Hinzu kommt die Übereinstimmung zwischen zertifizierter Auswahl und vollständigem Speicher. Das ist eine deutlich stärkere Absicherung als ausschließlich einzelne Fehlerbeispiele. Es bleibt eine Prüfung endlich vieler Fälle, kein allgemeiner Korrektheitsbeweis.
+
+4. Unvollständige Ergebnisse erlauben keine Übernahmeempfehlung mehr. ENCODER_DECISION trennt ADOPT, KEEP und UNDECIDABLE. Fehlende oder ungültige Weltberichte sowie ein falscher Codecommit sperren die Entscheidung. Der Test mit einem guten und einem fehlenden Bericht trifft genau das zuvor bestehende Problem.
+
+5. Auswertung und Geltungsbereich sind ausreichend festgelegt. E3a-Gewichtung, Aggregation über Welten, getrennte Entwicklungs-/Pilotberichte und die Bedeutung von „accuracy covered“ sind nachvollziehbar. Eine Encoderübernahme gilt ausdrücklich nur für die geprüften Vorlagen. Die begrenzte Aussagekraft positiver Antworten aus unzertifizierten Teilmengen ist ebenfalls offengelegt.
+
+Meine Freigabe beruht auf der statischen Prüfung beider Anhänge. Die berichteten Tests, Mutationsprüfungen und GitHub-Ergebnisse habe ich nicht selbst ausgeführt oder extern verifiziert.
+
+Zum gemeldeten Ergebnis von 3.3: Laut Paket ist damit der freigegebene funktionale Meilenstein-3-Test des expliziten, modellfreien Gedächtniskerns bestanden. Die berichtete unveränderte Wiederholung unter v4 ist eine sinnvolle zusätzliche Regressionskontrolle. Eine Qualifikation des LM-Encoders für diese Umgebung folgt daraus weiterhin nicht.
+
+Verbesserungsideen – keine zusätzlichen Freigabebedingungen
+
+- Dokumentation aktualisieren: Formulierungen wie „3.3 starts from its result“ und „Adoption rule for round 3.3“ passen nicht mehr zum abgeschlossenen 3.3-Lauf. Die Übernahmeentscheidung sollte durchgehend als Qualifikation für die geprüften 3.2-Vorlagen bezeichnet werden.
+- Die Vervollständigungstests später gezielt verbreitern: Einige größere Speicher bei weiterhin begrenzter Zahl unbekannter Felder würden Auswahlbudget, Gleichstände und mehrstufige Verknüpfungen zusätzlich prüfen, ohne die kombinatorischen Kosten stark zu erhöhen.
+- Normalisierung sichtbar ausweisen: Wie häufig die Partnerantwort dem Akteur entspricht und deshalb zu „kein zweiter Beteiligter“ normalisiert wird, wäre eine hilfreiche zusätzliche Encoderkennzahl. Die jetzige deklarierte Regel ist für diesen Lauf akzeptabel.
+- 3.2 nach diesem Lauf abschließen und 3.4 priorisieren: Das übernommene Design mit identischem Endzustand und später gewähltem historischem Ziel bleibt der nächste aussagekräftige Schritt. Derselbe gespeicherte Verlauf sollte sowohl aktuelle als auch historische Ziele bedienen; Eingriffe in die ältere Episode sollen gezielt die historische Entscheidung verändern. Die Baseline mit ausschließlich aktuellem Zustandswissen macht den zusätzlichen Nutzen der erhaltenen Episodeninformation prüfbar.

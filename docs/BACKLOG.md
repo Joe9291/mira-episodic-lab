@@ -12,3 +12,7 @@ named; until then the limit stated here applies when reading results.
 | Astra, M2 round 1 | P1/P2/C1 frozen-weights check against the state after each encoding block | M4 | not applicable before M4 |
 | Astra, pilot v1 round 2 (2) | v0-v1 comparison restricted to the common original items, separating the instruction change from the added E3a orientations | v1 analysis | - |
 | Astra, pilot v1 round 2 (3) | Operationalise "pair score clearly above 0.5" (margin and decision rule) | protocol 1.0 | qualitative wording in exploratory reports only |
+
+- (Astra, review of 3.2 v4) Broaden the completion (soundness) tests: some larger stores
+  with still few unknown fields, to exercise the selection budget, ties and multi-stage
+  links without a large combinatorial cost.

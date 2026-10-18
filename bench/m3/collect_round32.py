@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from episodic_lab.cells import CELLS, SLOT_QUESTIONS, diagnose, postprocess, slot_accuracy  # noqa: E402
+from episodic_lab.cells import CELLS, INVALID, SLOT_QUESTIONS, _clean, diagnose, postprocess, slot_accuracy  # noqa: E402
 from episodic_lab.memory import STATUSES, answer_query, misbind, parse_question, regex_encode  # noqa: E402
 from episodic_lab.questions import make_world  # noqa: E402
 from episodic_lab.runner import retention, run_world  # noqa: E402
@@ -235,7 +235,7 @@ def adoption(cells, complete: bool) -> tuple[str, str]:
     """(decision, text). The adoption rule is evaluated only on the complete, fully
     validated set of planned world reports; otherwise it is not decidable."""
     if not complete:
-        return "UNDECIDABLE", ("Adoption rule (docs/ROUND_3_2.md): NOT DECIDABLE - the evaluation is incomplete "
+        return "UNDECIDABLE", ("LM encoder qualification for the tested round 3.2 templates (docs/ROUND_3_2.md): NOT DECIDABLE - the evaluation is incomplete "
                                f"({len(cells)} valid world reports); partial tables above are diagnostic only.")
     every = [c for d in cells.values() for c in d["conditions"].values()]
     acc = slot_accuracy([(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]])
@@ -245,7 +245,7 @@ def adoption(cells, complete: bool) -> tuple[str, str]:
               for d in cells.values())
     adopt = acc["all_slots"] >= 0.95 and lm_pos >= ref_pos - 0.02 and fr <= 0.05
     return ("ADOPT" if adopt else "KEEP"), (
-        f"Adoption rule (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
+        f"LM encoder qualification for the tested round 3.2 templates (docs/ROUND_3_2.md): all_slots {acc['all_slots']:.3f} >= 0.95; positives "
         f"full+ops/lm-encoder {lm_pos:.3f} vs full+ops {ref_pos:.3f} (at most 0.02 lower); lure false "
         f"recall {fr:.3f} <= 0.05 -> "
         + ("ADOPT the LM encoder for the round 3.2 template episode formats (other formats, e.g. the round 3.3 "
@@ -303,9 +303,14 @@ def table(cells, complete: bool = True) -> str:
     pairs = [(r["lm"], r["truth"]) for c in every for r in c["encoder"]["records"]]
     acc = slot_accuracy(pairs) if pairs else {}
     invalid = sum(bool(r["invalid"]) for c in every for r in c["encoder"]["records"])
+    # declared normalisation: a second-person reply repeating the first person -> "no second person"
+    normalised = sum(_clean(r["raw"]["partner"], "person") not in (None, INVALID)
+                     and _clean(r["raw"]["partner"], "person") == _clean(r["raw"]["actor"], "person")
+                     for c in every for r in c["encoder"]["records"])
     L += ["## LM encoder (slot filling) vs template truth (valid worlds)", "",
-          "| " + " | ".join(acc) + " | records with invalid slots |", "|" + "---|" * (len(acc) + 1),
-          "| " + " | ".join(f"{v:.3f}" for v in acc.values()) + f" | {invalid}/{len(pairs)} |", "",
+          "| " + " | ".join(acc) + " | records with invalid slots | partner normalised to none |",
+          "|" + "---|" * (len(acc) + 2),
+          "| " + " | ".join(f"{v:.3f}" for v in acc.values()) + f" | {invalid}/{len(pairs)} | {normalised}/{len(pairs)} |", "",
           adoption(cells, complete)[1],
           "", "## Controls (valid worlds)", "",
           f"- misbound store + operators: E2 {mean(c['misbound']['summary']['E2']['accuracy'] for c in every):.2f}, "

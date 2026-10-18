@@ -451,6 +451,7 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(decision, "ADOPT")
         self.assertIn("truncated refused 2/2", summary)
         self.assertNotIn("acc|cov", summary)
+        self.assertIn("partner normalised to none |", summary)
 
     def test_declared_unknowns_are_replayed(self):
         # an LM encoder with invalid slots: the collector must rebuild the same records
