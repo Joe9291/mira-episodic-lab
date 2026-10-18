@@ -1,9 +1,9 @@
 {
  "schema": "episodic_lab.round35_request.v1",
  "enabled": true,
- "note": "Round 3.5 (docs/ROUND_3_5.md): development probe 5 - qwen2.5-1.5b with p3 and p5 (receiver as a narrator question, seven examples), head cache, 80 stratified development texts.",
+ "note": "Round 3.5 (docs/ROUND_3_5.md): development probe 6 - qwen2.5-1.5b with p6 and p7 (more receiver examples; p6 rewords the receiver question), head cache, 80 stratified development texts.",
  "phase": "probe",
- "models": ["qwen2.5-1.5b+p3", "qwen2.5-1.5b+p5"],
+ "models": ["qwen2.5-1.5b+p6", "qwen2.5-1.5b+p7"],
  "splits": ["dev"],
  "chunks": 1
 }

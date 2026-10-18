@@ -336,3 +336,12 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    requires Apache-2.0; qwen2.5-3b (unused, too large in float32 for the runner) is
    removed from the pins and the pin request. No run result is affected: the failures
    were in the tests only; the round 3.5 runs record and verify their own provenance.
+7. Probe 5 (GitHub 39171013100; qwen2.5-1.5b, head cache, cache checks OK): p3 reproduces
+   probe 3 exactly (0.713), p5 reaches complete records 0.750 with every slot perfect
+   (actor, action, object, place, day 80/80; "You" receivers 16/16) except absent
+   receivers (44/64): "You" for 20 notes in which the narrator acts (own placings, "went"
+   sentences) or watches a placing. The score gap You - none of these wrong answers
+   (0.07-1.89) overlaps only the lowest right "You" gap (1.83; others 3.1-7.2). Probe 6
+   compares two prompts with three more worked examples of exactly these kinds (receiver
+   "none"): p6 also rewords the receiver question ("You only if another person gave ...
+   to the narrator"), p7 keeps the p5 question.

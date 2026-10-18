@@ -45,7 +45,7 @@ EXAMPLES = [
     ("Day 6: you walked to Pine Lodge.",
      {"actor": "You", "partner": "none", "action": "went", "object": "none", "place": "Pine Lodge", "event_day": "6"}),
 ]
-PROMPTS = ("p2", "p3", "p4", "p5")
+PROMPTS = ("p2", "p3", "p4", "p5", "p6", "p7")
 # p4 = p3 with the receiver question made explicit about which events have a receiver
 # (development change after probe 3: the receiver was the only weak slot of qwen2.5-1.5b)
 Q_RECEIVER_P4 = ("Field 'receiver': only when the note says that something was GIVEN, handed or passed to "
@@ -66,17 +66,36 @@ EXAMPLES_P5 = EXAMPLES + [
 ]
 
 
+# p6 / p7 (development change after probe 5, where the only errors were "You" for absent
+# receivers in own placings, "went" and placings by others): three more worked examples of
+# exactly those kinds with receiver "none"; p6 also rewords the receiver question
+# ("only if another person gave ... to the narrator"), p7 keeps the p5 question
+Q_RECEIVER_P6 = ("Field 'receiver': answer You only if another person gave, handed or passed something to the "
+                 "narrator (you / me) in this note. In every other case answer: none.")
+EXAMPLES_P6 = EXAMPLES_P5 + [
+    ("On day 4, you put the red bell at Fern Hall.",
+     {"actor": "You", "partner": "none", "action": "put", "object": "red bell", "place": "Fern Hall", "event_day": "4"}),
+    ("You visited Rook Tower on day 3.",
+     {"actor": "You", "partner": "none", "action": "went", "object": "none", "place": "Rook Tower", "event_day": "3"}),
+    ("You saw that Tom Reed put the red bell at Fern Hall on day 7.",
+     {"actor": "Tom Reed", "partner": "none", "action": "put", "object": "red bell", "place": "Fern Hall", "event_day": "7"}),
+]
+
+
 def messages(slot: str, text: str, prompt: str = "p2") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
     question = QUESTIONS[slot]
     if slot == "partner" and prompt == "p4":
         question = Q_RECEIVER_P4
-    if slot == "partner" and prompt == "p5":
+    if slot == "partner" and prompt in ("p5", "p7"):
         question = Q_RECEIVER_P5
+    if slot == "partner" and prompt == "p6":
+        question = Q_RECEIVER_P6
+    examples = {"p3": EXAMPLES, "p4": EXAMPLES, "p5": EXAMPLES_P5, "p6": EXAMPLES_P6, "p7": EXAMPLES_P6}.get(prompt, [])
     turns = [{"role": "system", "content": SYSTEM}]
-    if prompt in ("p3", "p4", "p5"):
-        for note, answers in (EXAMPLES_P5 if prompt == "p5" else EXAMPLES):
+    if examples:
+        for note, answers in examples:
             turns += [{"role": "user", "content": f"Note: {note}\n\nQuestion: {question}"},
                       {"role": "assistant", "content": answers[slot]}]
     return turns + [{"role": "user", "content": f"Note: {text}\n\nQuestion: {question}"}]
