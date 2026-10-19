@@ -1,0 +1,14 @@
+{
+ "schema": "episodic_lab.round36_request.v1",
+ "enabled": true,
+ "note": "Round 3.6 development probe 3 (docs/ROUND_3_6.md, log item 5): q4 letter intent + written-target question plus recorded factor slots (answerable, kind, when) and content-free label scores for offline decoder comparisons; q5 with balanced per-slot examples, q6 without.",
+ "phase": "probe",
+ "models": [
+  "qwen2.5-1.5b+q5",
+  "qwen2.5-1.5b+q6"
+ ],
+ "splits": [
+  "dev"
+ ],
+ "chunks": 1
+}
