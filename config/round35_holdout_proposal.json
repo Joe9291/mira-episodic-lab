@@ -1,0 +1,12 @@
+{
+ "schema": "episodic_lab.round35_request.v1",
+ "enabled": false,
+ "note": "Round 3.5 HOLDOUT qualification (docs/ROUND_3_5.md), frozen configuration proposed after development: qwen2.5-1.5b, prompt p8, candidates c2, sum score, joint role decoding and structurally fixed slots, thresholds from the calibration split. To be copied to config/round35.json only after Astra's approval and the post-freeze holdout coverage check.",
+ "phase": "encode",
+ "models": ["qwen2.5-1.5b+p8"],
+ "splits": ["ho"],
+ "chunks": 12,
+ "decoding": {"joint_roles": true, "structural_slots": true, "receiver_differs_from_actor": false},
+ "frozen": {"model": "qwen2.5-1.5b+p8",
+            "taus": {"actor": 0.0, "partner": 0.0, "action": 0.0, "object": 0.0, "place": 0.0, "event_day": "structural"}}
+}
