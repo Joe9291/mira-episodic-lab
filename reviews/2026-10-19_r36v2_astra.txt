@@ -1,0 +1,65 @@
+4m 5s nachgedacht
+
+placings) are unsupported here and counted separately.
+---END FILE docs/ROUND_3_6.md---
+
+REQUEST CHANGES – drei klar begrenzte Punkte im Prüfvertrag bleiben. Am gewählten Aufbau würde ich festhalten.
+
+Die wesentlichen Änderungen aus v1b sind übernommen: Absicht vor Zielauflösung, vollständige Spezifikationen bei unbekannten Zielen, explizite Fehlernenner, identische Fragen innerhalb eines Weltpaares und getrennte Auswertungseinheiten. Auch die Kontrollfamilien und die Kennzeichnung der späteren Kombination passen jetzt zum Ziel.
+
+Ich habe die Datei vollständig statisch geprüft; die berichtete Generatorprüfung habe ich nicht selbst ausgeführt.
+
+1. Die Objektinvariante muss auf die passenden Weltarten begrenzt werden.
+
+Abschnitt 1 verlangt für jeden Zielgegenstand genau drei Platzierungseinträge und kein Auftreten in anderen Ereignissen. Beim Fragetyp giver muss derselbe Zielgegenstand aber gerade in einem Gebeereignis vorkommen.
+
+Wörtlich angewendet würde der angekündigte Audit deshalb gültige Giver-Welten verwerfen. Die erneute Generierung könnte diesen Widerspruch nicht beheben.
+
+Beschränkt die Drei-Einträge-Invariante ausdrücklich auf die historischen Zielgegenstände der entsprechenden object-Welten. Entsprechend gilt die Personeninvariante für die historischen person-Welten. Für die übrigen Weltarten gelten ihre jeweils benötigten Bedingungen. Diese Fallunterscheidung muss auch im Audit stehen.
+
+2. Die Zielkalibrierung braucht eine Regel für falsch weitergeleitete unsupported-Fragen.
+
+Ihr kalibriert tau_target auf Fragen, deren vorhergesagte Absicht als unterstützt akzeptiert wurde. Darunter können Gold-unsupported-Fragen sein. Diese besitzen laut Goldvertrag jedoch keinen Zielwert; die vorgeschriebene Prüfung „entschiedener Wert entspricht Goldziel“ ist dann undefiniert.
+
+Meine Empfehlung:
+
+- Zielkalibrierung nur auf Fragen mit definiertem Goldziel durchführen; Gold-unsupported ausschließen.
+- Falsch weitergeleitete unsupported-Fragen weiterhin als Absichtsfehler und in der vollständigen Ausgangsbewertung berücksichtigen.
+- Die Auditforderung von mindestens 300 Fällen auf unterschiedliche kalibrierungsfähige Fragetexte beziehen: definiertes Goldziel und mindestens zwei zulässige Zielwerte einschließlich none, geprüft unter der Goldabsicht. Die Zahl einzelner Kandidaten reicht dafür nicht.
+
+Außerdem ist der Satz „kein Schwellenwert qualifiziert → jede Frage CLARIFY“ zu pauschal:
+
+- Fehlt tau_intent, erhalten alle Fragen CLARIFY(low_confidence).
+- Fehlt nur tau_target, bleibt eine akzeptierte unsupported-Absicht weiterhin REFUSE.
+- Unterstützte Fragen folgen weiterhin den Zweigen 3a/3b.
+
+Die Entscheidungstabelle selbst gibt diese Unterscheidung bereits weitgehend vor; der Kalibrierungsvertrag muss dazu passen.
+
+3. Die erste Regel der deterministischen Baseline ist zu weit gefasst.
+
+„Zeitpräposition + Teilsatz mit eigenem Subjekt und Ereignisverb → REFUSE“ erfasst auch diese ausdrücklich unterstützte Entwicklungsfrage:
+
+> Go to the place the {o} was in before it was last put somewhere.
+
+
+
+„Before it was last put somewhere“ besitzt ein Subjekt und ein Ereignisverb, bezeichnet hier aber gerade die zulässige previous-Relation.
+
+Die Regel muss Bezüge auf die letzte relevante Zielbeobachtung von den zusätzlich ausgeschlossenen Referenzereignissen unterscheiden. Sonst schwächt die Baseline ihre eigene Vergleichsfunktion.
+
+Auch ihre Informationsbasis muss präzisiert werden: Die Regelliste enthält beispielsweise initially, second-to-last und whose, die in der Wortlauttabelle erst bei Holdout beziehungsweise Reserve vorkommen. Das passt nicht ohne Erklärung zur Aussage „nur aus Template und Entwicklungsformulierungen aufgebaut“. Eine vorab festgelegte allgemeinsprachliche Grammatik ist legitim; dokumentiert dann diese Herkunft ausdrücklich.
+
+Was ich darüber hinaus akzeptiere
+
+Die erweiterten Kalibrierungsdaten mit vorgeschaltetem Mindestmengenaudit sind angemessen. Die Auditmenge garantiert zwar noch keinen qualifizierenden Schwellenwert, aber dafür existiert eine Ablehnungsregel.
+
+Die Kriterien mit Fehlergrenzen unter akzeptierten Parses und zusätzlichen Grenzen für falsches OK auf beiden Kontrollklassen schließen die frühere Lücke. Ebenso akzeptiere ich die bewusst strenge Aufgabenschwelle und die Kennzeichnung als beobachtete technische Bestehenskriterien.
+
+Die Akteurfragen als unsupported einzuordnen und die 17 bekannten Extraktionsfehler weiterhin als Entwicklungsfälle zu behandeln, ist korrekt.
+
+Verbesserungsideen – keine zusätzlichen Freigabehürden
+
+- Kalibrierungsfluss sichtbar machen: je Slot unterschiedliche Texte → grundsätzlich geeignete Fälle → nach akzeptierter Absicht verbleibende Fälle → durch die Schwelle akzeptierte Fälle.
+- Familien zusätzlich gleichgewichtet auswerten. Nach Deduplikation zählt eine konstante Pronomenfrage nur einmal, während andere Familien viele Texte liefern. Ein zusätzliches Makromittel über Familien macht diesen Unterschied sichtbar.
+- Rückfrage und Begründung getrennt bewerten. CLARIFY(low_confidence) kann bei einer Gold-mehrdeutigen Frage die richtige Handlung sein, belegt aber noch keine richtige Erkennung ihrer Mehrdeutigkeit.
+- Gezielte Tests für die drei Korrekturen vorsehen: Giver-Welt passiert den passenden Audit; Gold-unsupported wird irrtümlich als unterstützt akzeptiert; nur die Zielschwelle fehlt; unterstützte previous-Frage enthält einen vollständigen „before …“-Teilsatz.

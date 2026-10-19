@@ -1,4 +1,4 @@
-# Round 3.6 - LM-assisted goal/question parsing (design v2)
+# Round 3.6 - LM-assisted goal/question parsing (design v3)
 
 Uncertainty removed: can the same small language model, used the same way as in round 3.5b
 (scores for given candidates, schema-constrained decoding, thresholds from a calibration
@@ -13,6 +13,12 @@ v2 answers Astra's review of v1b (reviews/2026-10-19_r36v1_astra.txt): a complet
 table (section 3), fixed frequencies, text separation and pairing (section 2), complete
 specifications and denominators for every criterion (section 5), the time semantics bound
 to the operators (section 1), actor questions as unsupported controls, Q1-Q4 as decided.
+v3 answers her review of v2 (reviews/2026-10-19_r36v2_astra.txt): the generator conditions
+per world kind (section 1), the target calibration only on texts with a defined gold target
+and the behaviour with missing thresholds (section 3), the baseline's temporal-clause rule
+and its information basis (section 3); planned tests for these: a giver world passes its
+audit, a gold-unsupported text accepted as supported, only tau_target missing, a supported
+previous question with a full "before ..." clause.
 
 ## 1. Question specification and time semantics
 
@@ -25,15 +31,22 @@ Gold specification of every question: `intent` (one of seven supported types or
   mentioning the target person, same positions; giver: the unique person who gave the agent
   the target object, then that person's latest record. The target of object types and of
   giver is an object (adjective + noun), of person types a person (first + last name).
-- Binding of the wordings to this meaning: in the generator every target object has exactly
-  three placing records, never two consecutive ones at the same place, and occurs in no
-  other event; every target person of the history kinds has exactly three records (all
-  "seen"). Under these conditions "latest placing / where it is now", "first placing /
-  where it started", "the placing before the latest / before its last move / its previous
-  spot / second-to-last place" and the person counterparts denote the same record. This is
-  a property of THIS generator, not a claim about the wordings in general; the model-free
-  audit checks the three conditions for every world of every split (a violation is a
-  problem, the world is regenerated before any run).
+- Binding of the wordings to this meaning, by world kind (v3: the conditions apply only to
+  the kind whose goals need them; checked on all five 3.5 splits, 210 worlds per kind):
+  - object (history): the target object has exactly three placing records, never two
+    consecutive ones at the same place, and occurs in no other event;
+  - person (history): the target person has exactly three records, all "seen";
+  - hidden / moved (goal object_current only): the target object has one / two placing
+    records with a unique latest day and occurs in no other event;
+  - giver (goal giver only): the target object occurs in exactly one event, a "gave" to the
+    agent, and the giver has at least one record with a unique latest day;
+  - every not-in-memory target (all kinds): absent from both worlds of the pair.
+  Under the history conditions "latest placing / where it is now", "first placing / where
+  it started", "the placing before the latest / before its last move / its previous spot /
+  second-to-last place" and the person counterparts denote the same record. This is a
+  property of THIS generator, not a claim about the wordings in general; the model-free
+  audit checks exactly these per-kind conditions for every world of every split (a
+  violation is a problem; the world is regenerated before any run).
 - Outcomes: OK(intent, target) -> the operator answers; with no observation of the target
   the agent says it does not remember and explores. CLARIFY(reason) -> a clarification
   question, no movement; reasons no_referent (semantic) and low_confidence (model
@@ -59,9 +72,12 @@ Gold specification of every question: `intent` (one of seven supported types or
 Worlds: the round 3.5 generator (env35 kinds hidden, moved, giver, object, person; pairs
 differing in one critical episode) with new seeds `r36-{split}-{index}`; splits dev, cal,
 aud, ho, res with 10, 30, 5, 40, 40 pairs per kind (cal enlarged from 10 so that every
-calibrated slot reaches >= 200 multi-value decisions after deduplication; the model-free
-audit checks >= 300 multi-value target candidates and >= 300 distinct intent texts on cal
-before any run).
+calibrated slot can reach >= 200 multi-value decisions after deduplication; the model-free
+audit checks on cal, before any run: >= 300 distinct intent-calibratable texts (every
+text with a gold intent) and >= 300 distinct target-calibratable texts - a defined gold
+target (gold-OK and gold-ambiguous texts; gold-unsupported texts have none) and >= 2
+admissible values including `none` under the GOLD intent; a number of single candidates
+does not count).
 Questions per world pair - the SAME question texts and gold specifications in worlds A
 and B (the world difference changes the answer, not the question): the pair's goals (1 for
 hidden/moved/giver, 3 for object/person) and three controls, each a minimal contrast to a
@@ -109,9 +125,11 @@ worlds are never used in development.
 
 The ambiguous wordings with a pronoun keep their family's constant text; for the
 ambiguous families the intent in brackets is the gold intent. Meaning check: Joe checked
-the v1b table (four corrections before review, see the log); the new control wordings of
-v2 (ownership, who-did, the reserve and development family fill-ins) go to Joe before the
-implementation.
+the v1b table (four corrections by Claude's cross-check before review: "gave me" -> "gave
+you" twice, the colour question replaced by an ownership question, "today" removed); the control wordings of
+v2 were checked by Joe and cross-checked by Claude (2026-10-19, all 27 kept; hard
+negatives on purpose: "before they gave you", "after X handed you", "How often did you see
+X?", "Where was the {noun} placed first?").
 Model-free audit (before any model run): roundtrip of every question to its gold
 specification with its wording's exact inverse; disjoint texts as specified; the
 generator conditions of section 1; candidate coverage of every gold target (must be 1.0 on
@@ -141,28 +159,40 @@ Decision table (decoder q1), in this order:
 Every question therefore has exactly one outcome. A clear unsupported question needs no
 target, so a missing referent never turns it into CLARIFY (step 2 precedes step 3).
 Calibration (same steps as the application, in this order): tau_intent over all distinct
-cal texts with >= 2 intent labels (all of them), correctness = decided label equals the
-gold intent (ambiguous texts included with their gold intent); tau_target over the distinct
-cal texts whose intent is ACCEPTED as a supported type with tau_intent, with >= 2 values
-among admissible + none, correctness = decided value equals the gold target (`none` for
-ambiguous texts). Rule as in 3.5: the threshold with the highest acceptance subject to
-precision >= 0.99 and >= 200 accepted values; none qualifies -> the slot is always
-unknown (every question CLARIFY). The structural rule of 3.5 is not used.
+cal texts (every text has >= 2 intent labels), correctness = decided label equals the gold
+intent (ambiguous texts with their gold intent, unsupported texts with `unsupported`);
+tau_target over the distinct cal texts that have a defined gold target (gold-OK and
+gold-ambiguous; gold-unsupported texts are EXCLUDED) and whose intent is ACCEPTED as a
+supported type with tau_intent, with >= 2 values among admissible + none, correctness =
+decided value equals the gold target (`none` for ambiguous texts). A gold-unsupported text
+whose intent is accepted as supported counts as an intent error (calibration of
+tau_intent, outcome evaluation, error cause "wrong intent"), never in the target
+calibration. Rule as in 3.5: the threshold with the highest acceptance subject to
+precision >= 0.99 and >= 200 accepted values; the structural rule of 3.5 is not used.
+Missing thresholds follow the decision table: no tau_intent -> every question
+CLARIFY(low_confidence); no tau_target only -> an accepted unsupported intent is still
+REFUSE, a supported intent without admissible target is still CLARIFY(no_referent), every
+other supported question CLARIFY(low_confidence).
+Calibration flow reported per slot (Astra's idea): distinct texts -> calibratable texts ->
+texts left after the accepted intent -> texts accepted by the threshold.
 Error causes are logged per question (Astra's idea): gold target not among the
 candidates, wrong intent, wrong target, low confidence (intent / target), understood but
 no observation.
-Baseline (Astra's idea: a small grammar, not single key words), built from the template
-and development wordings only, rules in this precedence: (1) event-relative - a temporal
-preposition (before / after) followed by a clause with its own subject and event verb
-("before they gave you", "after X handed you") -> REFUSE; (2) giver - (gave / handed /
-passed / got ... from / came from) with the agent as receiver, or "giver" -> giver; (3)
-other unsupported markers - why / for what reason; how many / how often; will / going to /
-tomorrow / next; belong / own / whose; "who" or "which person" followed by an action verb
--> REFUSE; (4) time - first / originally / initially / earliest / start out / land in
-first -> first; before + (last / latest / most recent) / previous / prior / second-to-last
-/ one ... back -> previous; otherwise current; (5) referent - a two-token lower-case span
-after a determiner -> object type, a two-token capitalised name -> person type, otherwise
-CLARIFY. Controls
+Baseline (Astra's idea: a small grammar, not single key words). Information basis: the
+template and the DEVELOPMENT wordings only - word lists contain only words that occur
+there; it was not tuned on holdout or reserve wordings, and the holdout will show what it
+misses (e.g. "originally", "prior", "whose" are not in it). Rules in this precedence:
+(1) temporal clause - "before" / "after" followed by a clause with a verb: if the clause
+is about the target's OWN latest record (a placing or seeing verb - put, placed, moved,
+saw, seen - together with a recency word - last, latest, now) it marks `previous` ("before
+it was last put somewhere", "before you last saw them", "before the {o} was put where it is
+now"); any other such clause (an event of another kind or another person: "before they
+gave you", "after X handed you") -> REFUSE (event-relative); (2) giver - gave / got ...
+from / handed with the agent as receiver -> giver; (3) other unsupported markers - why;
+how many; will / tomorrow; belong; "who" followed by an action verb -> REFUSE; (4) time -
+first / start out -> first; before + last / latest -> previous; otherwise current; (5)
+referent - a two-token lower-case span after a determiner -> object type, a two-token
+capitalised name -> person type, otherwise CLARIFY. Controls
 as in 3.5: uniform and random scores through the same decoder.
 
 ## 4. Store conditions
@@ -190,6 +220,11 @@ On the holdout, distinct question texts unless stated otherwise:
    (gold specification) - 0.02, pair success >= 0.95, confident-error rate <= 0.05.
    Deliberately strict: with 80 world decisions per cell two wrong decisions already give
    0.975 and FAIL against a perfect reference.
+Reported besides the criteria (Astra's ideas): a macro mean over control families (a
+constant pronoun text counts once after deduplication, other families with many texts);
+for gold-ambiguous texts the handling (CLARIFY of any reason, criterion 4) separately from
+the recognition of the ambiguity (CLARIFY(no_referent)) - CLARIFY(low_confidence) is the
+right action but no evidence of recognised ambiguity.
 Results: PARSER_QUALIFIED (YES / NO / UNDECIDABLE) and, separately,
 PARSER_MILESTONE_ORIGINAL_RULES (the original 3.3/3.4 rules on the correct store with the
 LM parser), with the baseline, the controls, the error causes, class diagnostics per type,
@@ -202,7 +237,7 @@ reserve only by the logged procedure of 3.5b.
 
 ## 6. Order
 
-Joe's meaning check of the new control wordings -> implementation (questions, generator
+Meaning checks (done) -> implementation (questions, generator
 extension, candidates, decoder q1, baseline, analysis, collector, tests incl. mutation
 proof with the 3.5b protocol) -> model-free audit -> timing slice and development probes on
 dev -> dev/cal run -> calibration -> review and freeze -> holdout coverage check -> one
