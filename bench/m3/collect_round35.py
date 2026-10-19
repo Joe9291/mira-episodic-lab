@@ -143,8 +143,8 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
             taus = {s: cal[s]["tau"] for s in SLOTS}
             decisions[model] = {"taus": taus, "calibration": cal}
             L += ["Thresholds (calibration split): " + "; ".join(
-                f"{s} tau={'none' if cal[s]['tau'] is None else round(cal[s]['tau'], 4)} acceptance "
-                f"{cal[s]['acceptance']:.3f} precision {'-' if cal[s]['precision'] is None else round(cal[s]['precision'], 4)} "
+                f"{s} tau={cal[s]['tau'] if not isinstance(cal[s]['tau'], float) else round(cal[s]['tau'], 4)} acceptance "
+                f"{'-' if cal[s]['acceptance'] is None else round(cal[s]['acceptance'], 3)} precision {'-' if cal[s]['precision'] is None else round(cal[s]['precision'], 4)} "
                 f"({cal[s]['accepted']}/{cal[s]['items']})" for s in SLOTS), ""]
         if req.get("frozen"):
             taus = req["frozen"]["taus"]
@@ -188,6 +188,7 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
 
 def main(request_path: str, dest: str, pins_path: str, commit: str | None = None) -> int:
     req = json.loads(Path(request_path).read_text())
+    A.DECODING.update({"receiver_differs_from_actor": False, "structural_slots": False}, **req.get("decoding", {}))
     dest = Path(dest)
     enc, reports, problems = load(req, request_path, pins_path, dest, commit)
     verdict = "COMPLETE" if not problems else "INCOMPLETE"

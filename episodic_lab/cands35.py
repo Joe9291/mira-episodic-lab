@@ -28,6 +28,7 @@ from __future__ import annotations
 import re
 
 CANDIDATE_VERSION = "c2"
+STRUCTURAL = "structural"   # threshold of a slot that had only single-value cases in calibration
 SELF = "You"
 NONE = "none"
 SLOTS = ("actor", "partner", "action", "object", "place", "event_day")
@@ -138,6 +139,8 @@ def decide(scored: list[tuple[str, object, float]], tau: float | None):
         return None, None, "unknown"
     if n == 1:
         return (value, None, "single") if tau is not None else (None, None, "unknown")
+    if tau == STRUCTURAL:   # the slot never needed a choice in calibration: a choice is unknown
+        return None, margin, "unknown"
     if tau is None or margin <= 0 or margin < tau:
         return None, margin, "unknown"
     return value, margin, "ok"

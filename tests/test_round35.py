@@ -286,6 +286,34 @@ class JobTests(unittest.TestCase):
             r = self.run_job(d, "probe", "m+p3")
             self.assertEqual((r["status"], r["prompt_version"], r["model"]), ("OK", "p3", "m+p3"))
 
+    def test_decoding_options(self):
+        from episodic_lab.cands35 import STRUCTURAL
+        from episodic_lab.encoder35 import decide_record
+        enc = {s: [["x", "v", 0.0, None, 1]] for s in SLOTS}
+        enc["actor"] = [["You", "You", 0.0, None, 1], ["Ana Bell", "Ana Bell", -2.0, None, 2]]
+        enc["partner"] = [["You", "You", 0.0, None, 1], ["none", "none", -1.0, None, 1]]
+        taus = {s: 0.0 for s in SLOTS}
+        try:
+            self.assertEqual(decide_record(enc, taus)[0]["partner"], "You")
+            A.DECODING["receiver_differs_from_actor"] = True
+            self.assertIsNone(decide_record(enc, taus)[0]["partner"])          # "none": absent
+            self.assertEqual(decide_record(enc, taus)[1], [])
+        finally:
+            A.DECODING["receiver_differs_from_actor"] = False
+        # a structurally fixed slot: single values accepted, a choice is unknown
+        from episodic_lab.cands35 import decide
+        self.assertEqual(decide([("3", 3, -0.1)], STRUCTURAL)[2], "single")
+        self.assertEqual(decide([("3", 3, -0.1), ("4", 4, -2.0)], STRUCTURAL)[2], "unknown")
+        truth = {f"t{i}": {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
+                           "place": "Oak Mill", "event_day": 1} for i in range(5)}
+        enc5 = {t: {s: [["x", "v", 0.0, None, 1]] for s in SLOTS} for t in truth}
+        try:
+            A.DECODING["structural_slots"] = True
+            self.assertEqual(A.calibrate(enc5, truth)["event_day"]["tau"], STRUCTURAL)
+        finally:
+            A.DECODING["structural_slots"] = False
+        self.assertIsNone(A.calibrate(enc5, truth)["event_day"]["tau"])
+
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)

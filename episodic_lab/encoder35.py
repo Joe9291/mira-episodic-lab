@@ -45,7 +45,7 @@ EXAMPLES = [
     ("Day 6: you walked to Pine Lodge.",
      {"actor": "You", "partner": "none", "action": "went", "object": "none", "place": "Pine Lodge", "event_day": "6"}),
 ]
-PROMPTS = ("p2", "p3", "p4", "p5", "p6", "p7")
+PROMPTS = ("p2", "p3", "p4", "p5", "p6", "p7", "p8")
 # p4 = p3 with the receiver question made explicit about which events have a receiver
 # (development change after probe 3: the receiver was the only weak slot of qwen2.5-1.5b)
 Q_RECEIVER_P4 = ("Field 'receiver': only when the note says that something was GIVEN, handed or passed to "
@@ -82,17 +82,28 @@ EXAMPLES_P6 = EXAMPLES_P5 + [
 ]
 
 
+# p8 = p7 plus two worked examples for the actor errors of the development run ("you met X"
+# and "you watched X leave ...": the actor is X)
+EXAMPLES_P8 = EXAMPLES_P6 + [
+    ("You met Tom Reed at Fern Hall on day 2.",
+     {"actor": "Tom Reed", "partner": "none", "action": "was", "object": "none", "place": "Fern Hall", "event_day": "2"}),
+    ("Day 7: at Rook Tower, you watched Mara Lind leave the green box.",
+     {"actor": "Mara Lind", "partner": "none", "action": "left", "object": "green box", "place": "Rook Tower", "event_day": "7"}),
+]
+
+
 def messages(slot: str, text: str, prompt: str = "p2") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
     question = QUESTIONS[slot]
     if slot == "partner" and prompt == "p4":
         question = Q_RECEIVER_P4
-    if slot == "partner" and prompt in ("p5", "p7"):
+    if slot == "partner" and prompt in ("p5", "p7", "p8"):
         question = Q_RECEIVER_P5
     if slot == "partner" and prompt == "p6":
         question = Q_RECEIVER_P6
-    examples = {"p3": EXAMPLES, "p4": EXAMPLES, "p5": EXAMPLES_P5, "p6": EXAMPLES_P6, "p7": EXAMPLES_P6}.get(prompt, [])
+    examples = {"p3": EXAMPLES, "p4": EXAMPLES, "p5": EXAMPLES_P5, "p6": EXAMPLES_P6, "p7": EXAMPLES_P6,
+                "p8": EXAMPLES_P8}.get(prompt, [])
     turns = [{"role": "system", "content": SYSTEM}]
     if examples:
         for note, answers in examples:
@@ -143,9 +154,13 @@ def view(entries: list, mode: str = "sum") -> list[tuple]:
 def decide_record(encoding: dict, taus: dict, mode: str = "sum") -> tuple[dict, list, dict]:
     """(record content, declared unknown slots, per-slot detail) from a recorded encoding.
     taus[slot] = threshold or None (no qualifying threshold: always unknown)."""
+    from .analysis35 import DECODING
     content, unknown, detail = {}, [], {}
     for slot in SLOTS:
-        value, margin, status = decide(view(encoding[slot], mode), taus.get(slot))
+        entries = encoding[slot]
+        if slot == "partner" and DECODING.get("receiver_differs_from_actor") and detail.get("actor", {}).get("status") != "unknown":
+            entries = [x for x in entries if x[1] != detail["actor"]["value"]]
+        value, margin, status = decide(view(entries, mode), taus.get(slot))
         detail[slot] = {"value": value, "margin": margin, "status": status}
         if status == "unknown":
             content[slot] = None

@@ -1,9 +1,10 @@
 {
  "schema": "episodic_lab.round35_request.v1",
  "enabled": true,
- "note": "Round 3.5 (docs/ROUND_3_5.md): full development and calibration encoding with the configuration chosen on the probes (qwen2.5-1.5b, prompt p7, candidates c2, sum score), 8 chunks per split.",
+ "note": "Round 3.5 (docs/ROUND_3_5.md): development run 2 - qwen2.5-1.5b, prompt p8, decoding proposals (receiver differs from actor; structurally fixed slots) as a measurement, development and calibration splits, 8 chunks each.",
  "phase": "encode",
- "models": ["qwen2.5-1.5b+p7"],
+ "models": ["qwen2.5-1.5b+p8"],
  "splits": ["dev", "cal"],
- "chunks": 8
+ "chunks": 8,
+ "decoding": {"receiver_differs_from_actor": true, "structural_slots": true}
 }

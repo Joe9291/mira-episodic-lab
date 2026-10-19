@@ -353,3 +353,25 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    the approved sum score, the shared prompt-head cache. The 0.95 on 80 probe texts is
    not a result; the full development and calibration runs decide whether the holdout is
    opened.
+9. Development and calibration run (GitHub 39181386497; qwen2.5-1.5b+p7, 8 chunks per
+   split, complete): best value (tau 0) complete records dev 0.849, cal 0.869; action,
+   object, place, day almost perfect; errors concentrated in two places: the receiver
+   "You" when the NARRATOR is the actor (own placings, "went": 81 of 82 receiver errors on
+   dev) and the actor of "You met X" (seen:dev:1, 30 errors). With the thresholds,
+   everything failed for two reasons: (a) a rule gap - the day is a single-candidate slot
+   in every note, so calibration has no multi-value cases, no threshold qualifies, and
+   the precedence rule makes every day unknown (complete records 0); (b) the receiver's
+   threshold (1.59) accepts only 60%. The holdout stays closed (criteria not met on dev or
+   cal). Development decisions below use the development split only.
+   Proposals for Astra (design changes, measured here only): (1) decoding constraint
+   "receiver differs from actor" - the receiver's choice excludes the chosen actor's value
+   (a generic two-role constraint, like the declared normalisation of 3.2; applied in
+   calibration and decision alike); (2) structurally fixed slots - a slot with only
+   single-value cases in calibration accepts single values, and any choice in that slot
+   stays unknown (closes the gap; the precedence rule still holds for slots whose
+   calibration fails on real choices). Offline on the recorded p7 encodings, with both:
+   receiver tau 0, dev complete records 0.933 (receiver 749/750), the remaining failures
+   are the actor of "You met X" (40 unknown, 7 wrong) and, through it, giver and person
+   cells. Next development run: p8 = p7 + two worked examples ("You met X ...", "you
+   watched X leave ...", development wordings), with both decoding proposals switched on
+   in the request (measurement).

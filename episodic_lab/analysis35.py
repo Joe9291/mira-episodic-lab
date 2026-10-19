@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import statistics
 
-from .cands35 import NONE, SELF, SLOTS, ranking, truth_value
+from .cands35 import NONE, SELF, SLOTS, STRUCTURAL, ranking, truth_value
 from .encoder35 import decide_record, view
 from .env import PLACING, parse_goal
 from .env35 import KINDS35, split_pairs
@@ -26,6 +26,11 @@ from .history_reference import plan as hist_plan, predictions as hist_prediction
 from .memory import EpisodeStore, Result, latest, match, possible, unknown
 
 FIELDS = ("actor", "partner", "action", "object", "place", "event_day")
+# decoding options (development proposals, set by the collector from the request):
+#   receiver_differs_from_actor - the receiver's choice excludes the chosen actor's value
+#   structural_slots            - a slot with only single-value cases in calibration accepts
+#                                 single values (its rare choices stay unknown)
+DECODING = {"receiver_differs_from_actor": False, "structural_slots": False}
 MIN_ACCEPTED = 200
 PRECISION = 0.99
 
@@ -116,7 +121,11 @@ def calibrate(encodings: dict, truth: dict, mode: str = "sum") -> dict:
         for text, enc in encodings.items():
             if text not in truth:
                 continue
-            value, margin, n = ranking(view(enc[s], mode))
+            entries = enc[s]
+            if s == "partner" and DECODING.get("receiver_differs_from_actor"):   # same rule as decide_record
+                actor = ranking(view(enc["actor"], mode))[0]
+                entries = [e for e in entries if e[1] != actor]
+            value, margin, n = ranking(view(entries, mode))
             if n >= 2:
                 items.append((margin, value == truth_value(s, truth[text])))
         best = None
@@ -128,6 +137,10 @@ def calibrate(encodings: dict, truth: dict, mode: str = "sum") -> dict:
             rate = len(acc) / len(items)
             if prec >= PRECISION and (best is None or rate > best[1]):
                 best = (tau, rate, prec, len(acc))
+        if not items:   # proposal v4: a slot with only single-value cases is structurally fixed
+            out[s] = {"tau": STRUCTURAL if DECODING.get("structural_slots") else None, "acceptance": None,
+                      "precision": None, "accepted": 0, "items": 0}
+            continue
         out[s] = {"tau": best[0] if best else None, "acceptance": best[1] if best else 0.0,
                   "precision": best[2] if best else None, "accepted": best[3] if best else 0, "items": len(items)}
     return out
