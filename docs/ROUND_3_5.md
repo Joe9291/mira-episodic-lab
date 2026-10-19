@@ -345,3 +345,11 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    compares two prompts with three more worked examples of exactly these kinds (receiver
    "none"): p6 also rewords the receiver question ("You only if another person gave ...
    to the narrator"), p7 keeps the p5 question.
+8. Probe 6 (GitHub 39177280797; qwen2.5-1.5b, head cache, cache checks OK): p6
+   (reworded receiver question + three examples) 0.750 - the absent receivers improve
+   (60/64) but every "You" receiver is lost (0/16); p7 (the p5 question + the same three
+   examples) 0.950: every slot perfect except 4 absent receivers (60/64), "You"
+   receivers 16/16. Chosen for the development run: qwen2.5-1.5b with p7, candidates c2,
+   the approved sum score, the shared prompt-head cache. The 0.95 on 80 probe texts is
+   not a result; the full development and calibration runs decide whether the holdout is
+   opened.

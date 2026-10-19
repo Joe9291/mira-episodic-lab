@@ -1,9 +1,9 @@
 {
  "schema": "episodic_lab.round35_request.v1",
  "enabled": true,
- "note": "Round 3.5 (docs/ROUND_3_5.md): development probe 6 - qwen2.5-1.5b with p6 and p7 (more receiver examples; p6 rewords the receiver question), head cache, 80 stratified development texts.",
- "phase": "probe",
- "models": ["qwen2.5-1.5b+p6", "qwen2.5-1.5b+p7"],
- "splits": ["dev"],
- "chunks": 1
+ "note": "Round 3.5 (docs/ROUND_3_5.md): full development and calibration encoding with the configuration chosen on the probes (qwen2.5-1.5b, prompt p7, candidates c2, sum score), 8 chunks per split.",
+ "phase": "encode",
+ "models": ["qwen2.5-1.5b+p7"],
+ "splits": ["dev", "cal"],
+ "chunks": 8
 }
