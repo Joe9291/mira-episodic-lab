@@ -474,3 +474,31 @@ closed.
    config/round35.json = the proposal with "enabled": true (12 chunks; holdout notes have
    about 10% more candidates than development notes, about 2.7 h per chunk expected).
 
+13. HOLDOUT RESULT (GitHub 39221095580, commit 4809114, request sha256 33b7f369..., all 12
+   chunks OK, collector VERDICT COMPLETE, freeze checks passed): ENCODER_QUALIFIED = NO,
+   MILESTONE_ORIGINAL_RULES = FAIL. The holdout worlds and holdout paraphrases are consumed.
+   - Records (2,974 distinct texts): complete records 0.959 (criterion >= 0.95 met); place
+     and day 1.000, object 0.998, actor 0.993, receiver 0.991, action 0.977; no declared
+     unknowns (all thresholds 0).
+   - Tasks: hidden, moved and every history cell 1.000 except object:first 0.988 (one
+     confident error, rate 0.013 <= 0.05); giver:find 0.938, pair success 0.925 - the two
+     failed criteria (success >= reference - 0.02, pair success >= 0.95). The giver
+     failures are not confident: the agent did not find the giver and explored.
+   - Error mechanisms (bench/m3/cases35.py and the per-frame breakdown):
+     (a) "It was day d when you set the X down at P." -> action "left" instead of "put"
+         (69 of 231 texts of that frame; task-neutral, both are placings);
+     (b) the object "heavy X" read as "X" (6 of 189 "heavy" objects; on dev already 1 of
+         48 with the smallest correct margin of every adjective, 0.12 - a warning visible
+         before the freeze that was not acted on); this caused 2 giver worlds (explore)
+         and the one confident error (first placement of "heavy ledger" not recognised);
+     (c) "the X came to you from Y" -> receiver "none" (9 of 75; 3 giver worlds explore);
+     (d) "you saw X put ..." -> receiver "You" (17 of 232; task-neutral);
+     (e) passive "... by X, and you saw it" -> actor "You" (13 of 246); "P was where you
+         went" -> actor = the place name (5 of 180).
+   - Controls: uniform scores decide only the day (complete records 0.000), random scores
+     0.299 of the slots correct; position/word-list baseline 0.647.
+   - The original 3.3/3.4 rules fail where they demand perfection (intact success and
+     pair success 1.0, swap/removal predictions >= 0.95, irrelevant removal 1.0).
+   By the design (section 3) a further qualification needs a logged development fix and
+   new worlds with the reserve paraphrases (the last unused wording set); the holdout
+   wordings and worlds are now development/audit material.
