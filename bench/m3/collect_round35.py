@@ -26,6 +26,7 @@ import run_round34  # noqa: E402
 import run_round35  # noqa: E402
 from episodic_lab import analysis35 as A  # noqa: E402
 from episodic_lab.cands35 import SLOTS  # noqa: E402
+from episodic_lab.encoder35 import DECODER_VERSION  # noqa: E402
 from episodic_lab.env35 import SIZES  # noqa: E402
 
 JOB_HOURS = 5.5   # usable part of the 6-hour job limit
@@ -33,6 +34,17 @@ JOB_HOURS = 5.5   # usable part of the 6-hour job limit
 
 def sha256_file(path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+ROOT = Path(__file__).resolve().parents[2]
+# the round 3.5 code a frozen configuration is bound to (its SHA-256 is part of the request)
+FROZEN_CODE = ("episodic_lab/wordings35.py", "episodic_lab/env35.py", "episodic_lab/cands35.py",
+               "episodic_lab/encoder35.py", "episodic_lab/analysis35.py", "episodic_lab/models.py",
+               "bench/m3/run_round35.py", "bench/m3/collect_round35.py")
+
+
+def code_hashes() -> dict:
+    return {p: sha256_file(ROOT / p) for p in FROZEN_CODE}
 
 
 def planned(req: dict) -> list[tuple[str, str, int]]:
@@ -141,21 +153,36 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
         if "cal" in req["splits"]:
             cal = A.calibrate(enc[(model, "cal")], truth["cal"])
             taus = {s: cal[s]["tau"] for s in SLOTS}
-            decisions[model] = {"taus": taus, "calibration": cal}
+            decisions[model] = {"taus": taus, "calibration": cal, "decoder_version": DECODER_VERSION,
+                                "decoding": dict(A.DECODING)}
             L += ["Thresholds (calibration split): " + "; ".join(
                 f"{s} tau={cal[s]['tau'] if not isinstance(cal[s]['tau'], float) else round(cal[s]['tau'], 4)} acceptance "
                 f"{'-' if cal[s]['acceptance'] is None else round(cal[s]['acceptance'], 3)} precision {'-' if cal[s]['precision'] is None else round(cal[s]['precision'], 4)} "
-                f"({cal[s]['accepted']}/{cal[s]['items']})" for s in SLOTS), ""]
+                f"({cal[s]['accepted']}/{cal[s]['items']}; basis {cal[s]['basis']}, single-value cases {cal[s]['singles']}"
+                f"{'' if cal[s]['single_precision'] is None else ' precision ' + str(round(cal[s]['single_precision'], 4))})"
+                for s in SLOTS), ""]
         if req.get("frozen"):
             taus = req["frozen"]["taus"]
         for split in req["splits"]:
             for label, t in (("best value (tau 0)", zero),) + ((("thresholds", taus),) if taus else ()):
                 q = A.quality(enc[(model, split)], truth[split], t)
                 L += [f"### {split}, {label}: complete records {q['complete_records']:.3f} ({q['texts']} texts)", "",
-                      "| slot | correct | unknown | wrong | single-value | accuracy where chosen |", "|---|---|---|---|---|---|"]
+                      "| slot | correct | unknown | wrong | single-value (from text / from schema) | accuracy where chosen |",
+                      "|---|---|---|---|---|---|"]
                 for s, v in q["slots"].items():
                     ch = f"{v['chosen_correct'] / v['chosen']:.3f}" if v["chosen"] else "-"
-                    L.append(f"| {s} | {v['correct']} | {v['unknown']} | {v['wrong']} | {v['single']} | {ch} |")
+                    L.append(f"| {s} | {v['correct']} | {v['unknown']} | {v['wrong']} | {v['single']} "
+                             f"({v['single_text']} / {v['single_schema']}) | {ch} |")
+                if label == "thresholds":
+                    ctl = []
+                    for kind in ("uniform", "random"):
+                        qc = A.quality(A.rescored(enc[(model, split)], kind), truth[split], t)
+                        det = sum(v["correct"] + v["wrong"] for v in qc["slots"].values())
+                        cor = sum(v["correct"] for v in qc["slots"].values())
+                        ctl.append(f"{kind} scores: complete records {qc['complete_records']:.3f}, slots decided "
+                                   f"{det}/{qc['texts'] * len(SLOTS)}, of these correct {cor / det if det else 0:.3f}")
+                    L += ["", "Schema-constrained controls (same candidates, decoder and thresholds, model scores "
+                          "replaced): " + "; ".join(ctl)]
                 if split != "ho":
                     fq = A.frame_quality(split, enc[(model, split)], t)
                     L += ["", "By wording frame (distinct texts / complete records correct): " + "; ".join(
@@ -192,6 +219,12 @@ def main(request_path: str, dest: str, pins_path: str, commit: str | None = None
                       **req.get("decoding", {}))
     dest = Path(dest)
     enc, reports, problems = load(req, request_path, pins_path, dest, commit)
+    frozen = req.get("frozen")
+    if frozen is not None and frozen.get("decoder_version") != DECODER_VERSION:   # frozen decoder = code's decoder
+        problems.append(f"decoder_version:{frozen.get('decoder_version')}:{DECODER_VERSION}")
+    if frozen is not None and frozen.get("code_sha256") != code_hashes():   # frozen code = running code
+        problems.append("code_sha256:" + ",".join(p for p in FROZEN_CODE
+                                                  if (frozen.get("code_sha256") or {}).get(p) != code_hashes()[p]))
     verdict = "COMPLETE" if not problems else "INCOMPLETE"
     lines = [f"FAILED {p}" for p in problems] or ["OK every planned report present, valid and from this run"]
     summary, decisions = [], {}

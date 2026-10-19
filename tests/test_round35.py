@@ -304,15 +304,24 @@ class JobTests(unittest.TestCase):
         from episodic_lab.cands35 import decide
         self.assertEqual(decide([("3", 3, -0.1)], STRUCTURAL)[2], "single")
         self.assertEqual(decide([("3", 3, -0.1), ("4", 4, -2.0)], STRUCTURAL)[2], "unknown")
-        truth = {f"t{i}": {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
-                           "place": "Oak Mill", "event_day": 1} for i in range(5)}
-        enc5 = {t: {s: [["x", "v", 0.0, None, 1]] for s in SLOTS} for t in truth}
+        def single_day(n, day_value=1):
+            truth = {f"t{i}": {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
+                               "place": "Oak Mill", "event_day": 1} for i in range(n)}
+            enc = {t: {s: [["x", "v", 0.0, None, 1]] for s in SLOTS} for t in truth}
+            for e in enc.values():
+                e["event_day"] = [[str(day_value), day_value, -0.1, None, 1]] if day_value is not None else []
+            return enc, truth
         try:
             A.DECODING["structural_slots"] = True
-            self.assertEqual(A.calibrate(enc5, truth)["event_day"]["tau"], STRUCTURAL)
+            cal = A.calibrate(*single_day(200))["event_day"]
+            self.assertEqual((cal["tau"], cal["basis"], cal["singles"], cal["items"]), (STRUCTURAL, "single_only", 200, 0))
+            self.assertIsNone(A.calibrate(*single_day(199))["event_day"]["tau"])           # too little evidence
+            self.assertIsNone(A.calibrate(*single_day(200, 2))["event_day"]["tau"])        # single values wrong
+            cal = A.calibrate(*single_day(200, None))["event_day"]                         # no evaluable case
+            self.assertEqual((cal["tau"], cal["basis"], cal["singles"]), (None, "none", 0))
         finally:
             A.DECODING["structural_slots"] = False
-        self.assertIsNone(A.calibrate(enc5, truth)["event_day"]["tau"])
+        self.assertIsNone(A.calibrate(*single_day(200))["event_day"]["tau"])
 
     def test_joint_role_decoding(self):
         from episodic_lab.encoder35 import decide_record
@@ -334,6 +343,41 @@ class JobTests(unittest.TestCase):
             # own placing: actor You, receiver must differ -> none
             r = decide_record(enc({"You": -0.1, "Ana Bell": -3.0}, {"You": -0.1, "none": -0.5}, {"put": 0.0, "was": -4.0}), taus)[0]
             self.assertEqual((r["actor"], r["partner"]), ("You", None))
+            # regression (review B1, first point): "was" and "went" tie -> the action is unknown and
+            # its narrator constraint must not apply: actor You stays possible and wins
+            r, unk, det = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -3.0},
+                                            {"was": 0.0, "went": 0.0}), taus)
+            self.assertEqual(det["action"]["status"], "unknown")
+            self.assertEqual((r["actor"], r["partner"]), ("You", None))
+            # ... and a "was" below its threshold is not accepted either: same outcome
+            r, unk, det = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -3.0},
+                                            {"was": 0.0, "went": -0.5}), dict(taus, action=1.0))
+            self.assertEqual((det["action"]["status"], r["actor"]), ("unknown", "You"))
+            # while an accepted "was" excludes the narrator (the actor becomes a single value from the schema)
+            r, unk, det = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -3.0},
+                                            {"was": 0.0, "went": -0.5}), taus)
+            self.assertEqual((r["actor"], det["actor"]["status"], det["actor"]["origin"]), ("Dorran Vesk", "single", "schema"))
+            self.assertEqual((det["object"]["status"], det["object"]["origin"]), ("single", "text"))
+            # regression (review B1, second point): two equally good feasible pairs (You, none) and
+            # (Ada Stone, You) with different components -> both components unknown
+            r, unk, det = decide_record(enc({"You": -1.0, "Ada Stone": -1.0}, {"none": -1.0, "You": -1.0},
+                                            {"gave": 0.0, "was": -4.0}), taus)
+            self.assertEqual(sorted(x for x in unk if x in ("actor", "partner")), ["actor", "partner"])
+            self.assertEqual((det["actor"]["margin"], det["partner"]["margin"]), (0.0, 0.0))
+            # tied pairs that share the actor: the actor stays decided, only the receiver is unknown
+            r, unk, det = decide_record(enc({"You": -0.1, "Ada Stone": -3.0}, {"Tom Reed": -1.0, "Ben Cole": -1.0},
+                                            {"gave": 0.0, "was": -4.0}), taus)
+            self.assertEqual((r["actor"], "partner" in unk, "actor" in unk), ("You", True, False))
+            # the pair-level margin, not the margin after filtering by the chosen counterpart:
+            # pairs (You, Ada) 0.0 and (Ada, You) -0.15; d1 filtered the competitor away and
+            # accepted both slots as single values, d2 keeps margin 0.15 (unknown at tau 0.2)
+            e = enc({"You": 0.0, "Ada Stone": -0.1}, {"Ada Stone": 0.0, "You": -0.05}, {"gave": 0.0, "was": -4.0})
+            r, unk, det = decide_record(e, taus)
+            self.assertAlmostEqual(det["actor"]["margin"], 0.15)
+            self.assertAlmostEqual(det["partner"]["margin"], 0.15)
+            self.assertEqual((r["actor"], r["partner"]), ("You", "Ada Stone"))
+            r, unk, det = decide_record(e, dict(taus, actor=0.2, partner=0.2))
+            self.assertEqual(sorted(x for x in unk if x in ("actor", "partner")), ["actor", "partner"])
         finally:
             A.DECODING["joint_roles"] = False
 
@@ -342,7 +386,8 @@ class JobTests(unittest.TestCase):
             d = Path(tmp)
             (d / "pins.json").write_text("{}")
             req = {"phase": "encode", "models": ["m"], "splits": ["ho"], "chunks": 3,
-                   "frozen": {"model": "m", "taus": {s: 1.0 for s in SLOTS}}}
+                   "frozen": {"model": "m", "decoder_version": "d2", "code_sha256": collect_round35.code_hashes(),
+                              "taus": {s: 1.0 for s in SLOTS}}}
             (d / "req.json").write_text(json.dumps(req))
             for chunk in range(3):
                 self.run_job(d, "encode", "m", "ho", chunk, 3)
@@ -350,6 +395,14 @@ class JobTests(unittest.TestCase):
             self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
             dec = json.loads((d / "DECISIONS.json").read_text())["m"]
             self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("YES", "PASS"))
+            # the frozen decoder version and code hashes must match the running code
+            with mock.patch.object(collect_round35, "DECODER_VERSION", "d9"), \
+                    mock.patch.object(collect_round35, "code_hashes", lambda: {p: "0" for p in collect_round35.FROZEN_CODE}):
+                collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            check = (d / "CHECK.txt").read_text()
+            self.assertIn("FAILED decoder_version:d2:d9", check)
+            self.assertIn("FAILED code_sha256:episodic_lab/wordings35.py", check)
+            self.assertEqual(json.loads((d / "DECISIONS.json").read_text())["m"]["ENCODER_QUALIFIED"], "UNDECIDABLE")
             (d / "r35_encode_m_ho_2.json").unlink()
             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
             dec = json.loads((d / "DECISIONS.json").read_text())["m"]

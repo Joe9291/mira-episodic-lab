@@ -390,3 +390,60 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    cal 0.996, every 3.5 criterion met on dev AND cal, thresholds all 0 (day structural);
    p7 gives 0.995 / 0.995, also all criteria met. The joint decoding replaces proposal
    (1). These decoding rules are design changes and go to Astra before the holdout.
+11. Review of the development result (Astra, 2026-10-19, reviews/2026-10-19_r35dev_astra.txt):
+   A (1.5B model) APPROVE; B2 (structurally fixed slots) APPROVE; B1 (joint role decoding)
+   and C (frozen configuration) REQUEST CHANGES - the decoder d1 used the provisional best
+   action for its action-dependent constraint before the action's own decision, and its
+   slot margins (after filtering by the chosen counterpart) could hide a second, equally
+   good role pair. Decoder d2 (episodic_lab/encoder35.py, DECODER_VERSION):
+   - decisions in a fixed order (action, actor, receiver, object, place, day); the action
+     is decided first with its own rule; the narrator constraint applies only to an
+     ACCEPTED "was" (an unknown action keeps the roles of every other possible action);
+   - actor and receiver margins over ALL feasible role pairs: per actor value the best joint
+     score over the feasible receivers, margins between these values; likewise for the
+     receiver. Equally good best pairs leave their differing components unknown;
+   - one function (`slot_view`/`decide_slot`) for calibration and application: calibration
+     runs slot by slot in the decision order, and a later slot sees the earlier slots
+     decided with their calibrated thresholds;
+   - B2 implemented with the distinction asked for: basis "multi" / "single_only" / "none";
+     a slot is STRUCTURAL only with basis "single_only", >= 200 single values and their
+     precision >= 0.99 (a tightening: the same evidence bar as a threshold); "none" (no
+     evaluable case) gives no threshold;
+   - single values report their origin: from the note's candidates ("text") or left by the
+     role constraints ("schema");
+   - regression tests: tied action with the "was" constraint; "was" below its threshold;
+     tied joint pairs with different components (both unknown) and with a shared actor
+     (only the receiver unknown); a d1-overstated margin (competitor filtered away).
+     Mutation check: provisional action, non-maximal pair score, dropped differ constraint,
+     wrong origin, dropped single precision - each killed.
+   Offline recomputation on the recorded p8 encodings (run 39186450732, no model calls):
+   thresholds unchanged (action, actor, receiver, object, place 0.0 with acceptance 1.0 and
+   precision >= 0.997 on 748 multi-value cases each; day STRUCTURAL: 748 single values from
+   the text, precision 1.0); dev complete records 0.999, cal 0.996, every 3.5 criterion met
+   on dev and cal (best value and thresholds) - identical to d1. Per role slot, d2 changed
+   no value and no status; 831 of 2,996 role margins became smaller (receiver 619, actor
+   212; the receiver of own placings no longer profits from the filtered "You"); the
+   smallest role margin is 0.48. No single value came from the schema on dev/cal.
+   Schema-constrained controls (same candidates, decoder and thresholds; model scores
+   replaced): uniform scores decide only the day (750/4,500 slots, complete records 0.000);
+   random scores decide every slot with 0.30 correct (complete records 0.001 dev / 0.000
+   cal) - the result is carried by the model's scores, not by candidates and decoder.
+
+## Frozen configuration for the holdout (proposal v2, after review 11)
+
+config/round35_holdout_proposal.json (not enabled). Model qwen2.5-1.5b at the pinned
+revision, prompt p8, candidates c2, score = sum log-probability, decoder d2 with joint
+roles and structurally fixed slots, thresholds actor/receiver/action/object/place 0.0 and
+day STRUCTURAL - recomputed with d2 on the calibration split of run 39186450732 (code
+e582343). The request binds the code: `frozen.decoder_version` must equal the code's
+DECODER_VERSION and `frozen.code_sha256` the SHA-256 of the eight round 3.5 code files
+(wordings35, env35, cands35, encoder35, analysis35, models, run_round35, collect_round35);
+the collector reports any mismatch as INCOMPLETE (ENCODER_QUALIFIED UNDECIDABLE), so a
+code change after the freeze cannot pass unnoticed. Request hash and code commit: in the
+review package.
+
+Role of the calibration split: it was planned as an untouched threshold split; it has been
+used as development evidence (runs 9 and 10, the decoder proposals were checked on it), so
+its numbers are development values. The thresholds still come from it alone; the unused
+holdout (ho, 40 pairs per kind) is the only independent test. The reserve split stays
+closed.

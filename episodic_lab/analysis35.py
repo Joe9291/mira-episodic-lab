@@ -16,7 +16,7 @@ from __future__ import annotations
 import statistics
 
 from .cands35 import NONE, SELF, SLOTS, STRUCTURAL, ranking, truth_value
-from .encoder35 import decide_record, joint_roles, view
+from .encoder35 import DECISION_ORDER, decide_record, decide_slot, slot_view
 from .env import PLACING, parse_goal
 from .env35 import KINDS35, split_pairs
 from .env_reference import plan as env_plan, predictions as env_predictions
@@ -66,7 +66,8 @@ def role(slot: str, content: dict) -> str:
 def quality(encodings: dict, truth: dict, taus: dict, mode: str = "sum") -> dict:
     """Per slot correct/unknown/wrong over distinct texts, single-value slots separately,
     by role; complete records with every slot correct."""
-    per = {s: {"correct": 0, "unknown": 0, "wrong": 0, "single": 0, "chosen_correct": 0, "chosen": 0} for s in SLOTS}
+    per = {s: {"correct": 0, "unknown": 0, "wrong": 0, "single": 0, "single_text": 0,
+                 "single_schema": 0, "chosen_correct": 0, "chosen": 0} for s in SLOTS}
     roles = {}
     complete = 0
     n = 0
@@ -86,6 +87,7 @@ def quality(encodings: dict, truth: dict, taus: dict, mode: str = "sum") -> dict
             per[s][st] += 1
             if d["status"] == "single":
                 per[s]["single"] += 1
+                per[s]["single_" + d["origin"]] += 1
             else:
                 per[s]["chosen"] += 1
                 per[s]["chosen_correct"] += st == "correct"
@@ -114,39 +116,70 @@ def frame_quality(split: str, encodings: dict, taus: dict, mode: str = "sum") ->
 
 
 def calibrate(encodings: dict, truth: dict, mode: str = "sum") -> dict:
-    """Per slot: the threshold with the highest acceptance rate subject to precision >= 0.99
-    and >= 200 accepted values among the multi-value slots; ties to the smaller threshold;
-    None if no threshold qualifies (the slot is then always unknown)."""
+    """Per slot, in DECISION_ORDER and with the same decision steps as decide_record (a later
+    slot sees the earlier slots decided with their calibrated thresholds): the threshold with
+    the highest acceptance rate subject to precision >= 0.99 and >= 200 accepted values among
+    the multi-value cases; ties to the smaller threshold; None if no threshold qualifies (the
+    slot is then always unknown).
+    basis: "multi" (multi-value cases exist), "single_only" (every evaluable case had one value:
+    with structural_slots the slot is STRUCTURAL if >= 200 single values with precision >= 0.99,
+    else None) or "none" (no evaluable case: None)."""
+    usable = [(enc, truth[text]) for text, enc in encodings.items() if text in truth]
+    details = [{} for _ in usable]
     out = {}
-    for s in SLOTS:
-        items = []
-        for text, enc in encodings.items():
-            if text not in truth:
-                continue
-            entries = enc[s]
-            if DECODING.get("joint_roles") and s in ("actor", "partner"):   # same rule as decide_record
-                entries = joint_roles(enc, ranking(view(enc["action"], mode))[0], mode)[s]
-            elif s == "partner" and DECODING.get("receiver_differs_from_actor"):
-                actor = ranking(view(enc["actor"], mode))[0]
-                entries = [e for e in entries if e[1] != actor]
-            value, margin, n = ranking(view(entries, mode))
+    for s in DECISION_ORDER:
+        items, singles = [], []
+        for (enc, t), det in zip(usable, details):
+            value, margin, n = ranking(slot_view(enc, s, det, mode))
             if n >= 2:
-                items.append((margin, value == truth_value(s, truth[text])))
-        best = None
-        for tau in sorted({m for m, _ in items if m > 0} | {0.0}):
-            acc = [ok for m, ok in items if m > 0 and m >= tau]
-            if len(acc) < MIN_ACCEPTED:
-                continue
-            prec = sum(acc) / len(acc)
-            rate = len(acc) / len(items)
-            if prec >= PRECISION and (best is None or rate > best[1]):
-                best = (tau, rate, prec, len(acc))
-        if not items:   # proposal v4: a slot with only single-value cases is structurally fixed
-            out[s] = {"tau": STRUCTURAL if DECODING.get("structural_slots") else None, "acceptance": None,
-                      "precision": None, "accepted": 0, "items": 0}
-            continue
-        out[s] = {"tau": best[0] if best else None, "acceptance": best[1] if best else 0.0,
-                  "precision": best[2] if best else None, "accepted": best[3] if best else 0, "items": len(items)}
+                items.append((margin, value == truth_value(s, t)))
+            elif n == 1:
+                singles.append(value == truth_value(s, t))
+        sprec = sum(singles) / len(singles) if singles else None
+        base = {"items": len(items), "singles": len(singles), "single_precision": sprec}
+        if not items:
+            ok = (DECODING.get("structural_slots") and len(singles) >= MIN_ACCEPTED and sprec >= PRECISION)
+            out[s] = {"tau": STRUCTURAL if ok else None, "acceptance": None, "precision": None, "accepted": 0,
+                      "basis": "single_only" if singles else "none", **base}
+        else:
+            best = None
+            for tau in sorted({m for m, _ in items if m > 0} | {0.0}):
+                acc = [ok for m, ok in items if m > 0 and m >= tau]
+                if len(acc) < MIN_ACCEPTED:
+                    continue
+                prec = sum(acc) / len(acc)
+                rate = len(acc) / len(items)
+                if prec >= PRECISION and (best is None or rate > best[1]):
+                    best = (tau, rate, prec, len(acc))
+            out[s] = {"tau": best[0] if best else None, "acceptance": best[1] if best else 0.0,
+                      "precision": best[2] if best else None, "accepted": best[3] if best else 0,
+                      "basis": "multi", **base}
+        for (enc, _), det in zip(usable, details):
+            det[s] = decide_slot(enc, s, det, out[s]["tau"], mode)
+    return {s: out[s] for s in SLOTS}
+
+
+def rescored(encodings: dict, kind: str) -> dict:
+    """Schema-constrained controls: the same candidates and the same decoder, the model's
+    scores replaced by "uniform" (all equal: only what candidates and constraints determine)
+    or "random" (deterministic pseudo-random scores per text, slot and surface)."""
+    import hashlib
+    out = {}
+    for text, enc in encodings.items():
+        new = {}
+        for slot, entries in enc.items():
+            rows = []
+            for x in entries:
+                if kind == "uniform":
+                    sc = 0.0
+                elif kind == "random":
+                    h = hashlib.sha256(f"{text}|{slot}|{x[0]}".encode()).digest()
+                    sc = -10.0 * int.from_bytes(h[:8], "big") / 2 ** 64
+                else:
+                    raise ValueError(kind)
+                rows.append([x[0], x[1], sc] + list(x[3:]))
+            new[slot] = rows
+        out[text] = new
     return out
 
 

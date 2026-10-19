@@ -1,0 +1,96 @@
+7m 53s nachgedacht
+
+Teil 1
+
+}
+---END FILE config/round35_holdout_proposal.json---
+
+Teil 2
+
+return checks
+---END FILE episodic_lab/analysis35.py---
+
+REQUEST CHANGES – den Abschlusstest mit dem vorliegenden Decoder noch nicht freigeben.
+
+Entscheidung	Urteil	Grund
+
+A: größeres Modell	APPROVE	Der Wechsel ist durch Leistungs- und Laufzeitmessungen begründet.
+B1: gemeinsame Rollendekodierung	REQUEST CHANGES	Die Unsicherheitsbehandlung berücksichtigt nicht alle Alternativen.
+B2: strukturell bestimmte Slots	APPROVE	Für den belegten Tagesfall ist die Regel angemessen.
+C: eingefrorene Konfiguration	REQUEST CHANGES	Nach der Decoderkorrektur müssen Kalibrierung und Abnahme erneut berechnet werden.
+
+
+Meine Bewertung beruht auf dem gezeigten Code und den berichteten Messungen; ich habe keine Versuche ausgeführt.
+
+A: Der Wechsel auf 1,5B ist gerechtfertigt.
+
+Besonders aussagekräftig ist der Vergleich mit demselben Beispielprompt p3: 0,075 vollständig korrekte Datensätze beim 0,5B-Modell gegenüber 0,713 beim 1,5B-Modell. Zusammen mit den weiteren Entwicklungsversuchen reicht das für die praktische Modellwahl. Qwen3 wurde weniger umfassend optimiert; eine allgemeine Überlegenheit des gewählten Modells ist daraus nicht abzuleiten.
+
+Auch das Rechenbudget erscheint plausibel: 2.974 Texte × 35 Sekunden ergeben rund 29 Stunden aufsummierte Encodingzeit, bei zwölf gleich großen Chunks etwa 2,4 Stunden pro Chunk. Start, Auswertung und Laufzeitschwankungen brauchen zusätzlichen Spielraum. Die berichteten vollständigen Entwicklungsdurchläufe stützen die Machbarkeit.
+
+B1: Schemaeinschränkungen sind legitim, die aktuelle Unsicherheitsberechnung braucht zwei Korrekturen.
+
+Die Einschränkungen passen zum ausdrücklich begrenzten Aufgabenraum. Die neue Systembezeichnung benennt diese zusätzliche Hilfe angemessen. Der starke Gewinn ist damit ein Ergebnis des Gesamtsystems aus Modell, Beispielen, Kandidaten und Decoder.
+
+Erstens: Die Aktion wird für Einschränkungen verwendet, bevor ihre Unsicherheit ausgewertet wurde.
+
+In decide_record() steht sinngemäß:
+
+action = ranking(...)[0]
+restricted = joint_roles(encoding, action, mode)
+
+Erst danach wird mit decide() festgestellt, ob die Aktion überhaupt akzeptiert wird. calibrate() verwendet ebenfalls diesen vorläufigen Bestwert.
+
+Ein konkreter Gegenfall: was und went haben denselben höchsten Score. Die Aktion muss nach eurer Gleichstandsregel unbekannt bleiben. Trotzdem kann der vorläufig gewählte Wert was bereits You als Akteur ausschließen und dadurch einen anderen Akteur sicher erscheinen lassen.
+
+Korrektur: Aktionsabhängige Einschränkungen erst anwenden, wenn die Aktion nach ihrer tatsächlichen Entscheidungsregel akzeptiert wurde. Bei unbekannter Aktion müssen die mit anderen möglichen Aktionen vereinbaren Rollen erhalten bleiben. Kalibrierung und Anwendung müssen denselben Ablauf verwenden.
+
+Zweitens: Bedingte Slotmargen können eine gemeinsame Mehrdeutigkeit verbergen.
+
+joint_roles() wählt zunächst ein Rollenpaar und filtert anschließend jeden Slot anhand des gewählten Gegenparts. Dadurch verschwinden möglicherweise gerade die Kandidaten, die ein anderes nahezu gleich gutes Paar bilden.
+
+Beispielsweise können die zulässigen Paare
+
+- Akteur You, Empfänger none;
+- Akteur Ada Stone, Empfänger You
+
+denselben gemeinsamen Score erreichen. Der aktuelle Code entscheidet den Gleichstand zunächst anhand der Zeichenketten. Nach dem anschließenden Filtern können trotzdem beide Slots positive Margen erhalten und akzeptiert werden.
+
+Das ist ein künstlicher Sicherheitsgewinn durch die Auswahlreihenfolge.
+
+Eine saubere Lösung sind Margen über alle zulässigen Rollenpaare:
+
+- Für jeden Akteur den besten gemeinsamen Score über sämtliche zulässigen Empfänger bestimmen.
+- Die Akteurmarge zwischen diesen Werten berechnen.
+- Für den Empfänger entsprechend verfahren.
+
+Damit bleiben konkurrierende gemeinsame Erklärungen sichtbar. Bei gleich guten besten Paaren müssen zumindest deren unterschiedliche Komponenten unbekannt bleiben.
+
+B2: Die Tagesregel schließt die tatsächliche Lücke.
+
+Wenn sämtliche geprüften Kalibrierfälle genau einen Tageskandidaten enthalten und die Kandidatenabdeckung stimmt, braucht dieses Feld keine gelernte Auswahl zwischen mehreren Werten. Einzelwerte anzunehmen und spätere Mehrfachkandidaten als unbekannt zu behandeln, ist eine klare, konservative Regel.
+
+Diese Fälle sollten weiterhin als strukturell bestimmt ausgewiesen werden. Sie belegen die Zuverlässigkeit des Gesamtextraktors; das Modell musste dabei keine Tagesalternativen unterscheiden.
+
+Bei der Implementierung sollte „keine Mehrfachfälle“ ausdrücklich von „keine auswertbaren Fälle“ unterschieden werden. Der Zweig if not items allein trennt diese Situationen noch nicht.
+
+C: Nach der Korrektur erneut berechnen und einfrieren.
+
+Die gespeicherten Oberflächenscores reichen für die beiden Decoderkorrekturen aus. Dafür sind keine weiteren Modellaufrufe erforderlich.
+
+Danach sollten erneut bestimmt werden:
+
+1. die Kalibrierung mit dem korrigierten Entscheidungsablauf;
+2. sämtliche Entwicklungs- und Kalibrierkriterien;
+3. die daraus folgende Konfiguration samt Code- und Anfragehash.
+
+Die Nullschwellen sind grundsätzlich mit eurer Auswahlregel vereinbar: Sie akzeptieren jede eindeutig beste Auswahl. Ob sie nach der Korrektur bestehen bleiben, muss die Neuberechnung zeigen.
+
+Die Nutzung der bereits ausgewerteten Kalibriergruppe ist offen dokumentiert. Ihre Ergebnisse sind inzwischen Teil der Entwicklungsevidenz. Der unverbrauchte Holdout bleibt der entscheidende unabhängige Test. Die berichteten 0,999 beziehungsweise 0,996 sind deshalb aussichtsreiche Entwicklungswerte.
+
+Verbesserungsideen – getrennt von den notwendigen Korrekturen
+
+- Baselines mit denselben Schemaeinschränkungen auswerten. Das zeigt, welchen zusätzlichen Beitrag die Modellwerte gegenüber Kandidaten und Decoder leisten. Die vorhandene Gegenüberstellung mit und ohne Joint-Decoding ist bereits hilfreich.
+- Zwei gezielte Regressionstests ergänzen: unbekannte Aktion bei aktionsabhängiger Rollenbeschränkung sowie gleich gute gemeinsame Rollenpaare mit unterschiedlichen Komponenten.
+- Strukturelle Eindeutigkeit nach Ursprung aufschlüsseln: bereits durch Textkandidaten bestimmt oder erst durch Schemaeinschränkungen entstanden.
+- Die Freeze-Dokumentation aktualisieren. Neben p8, c2 und dem Summenscore sollten auch die endgültige Decoderversion, Schwellen und die tatsächlich geänderte Rolle der Kalibriergruppe eindeutig dokumentiert sein.
