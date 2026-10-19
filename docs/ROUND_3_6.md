@@ -323,3 +323,15 @@ Implementation notes (2026-10-19):
    examples (target "none" once), q6 without. The decision table q1 and its sum score stay
    the approved decoder; a factorised decoder or a prior-corrected score would be a design
    change and goes to Astra before any use.
+6. Probe 3 (GitHub 39319562259): q5 49/69, q6 48/69 right. Offline comparison on the same
+   encodings (q1 decoder with sum or prior-corrected intent; factorised decoder with sum or
+   prior-corrected factors): no variant above 49/69; unsupported questions accepted as OK in
+   7-11 of 12 by every variant that keeps the supported types (the factorised q6 decoder
+   refuses 9/12 but then fails most supported questions). Conclusion after six prompt
+   variants and four decoders: the limit is the model's ability to separate unsupported
+   questions, not the prompt; the criterion "false OK <= 0.02 among unsupported" is out of
+   reach with qwen2.5-1.5b. No further prompt iteration on this model.
+7. Next development step (realistic within the constraints - free runner, float32 memory,
+   Apache-2.0): one probe with Qwen3-1.7B (the largest Apache-2.0 model that fits in float32;
+   Qwen3 support exists in models.py), prompts q4 and q5. A model change is a decision for
+   Astra before any use beyond development (as in round 3.5).
