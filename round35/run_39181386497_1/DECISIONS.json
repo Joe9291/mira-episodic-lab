@@ -1,0 +1,62 @@
+{
+ "qwen2.5-1.5b+p7": {
+  "calibration": {
+   "action": {
+    "acceptance": 1.0,
+    "accepted": 748,
+    "items": 748,
+    "precision": 1.0,
+    "tau": 0.0
+   },
+   "actor": {
+    "acceptance": 0.9491978609625669,
+    "accepted": 710,
+    "items": 748,
+    "precision": 0.9901408450704225,
+    "tau": 0.7481309198046802
+   },
+   "event_day": {
+    "acceptance": 0.0,
+    "accepted": 0,
+    "items": 0,
+    "precision": null,
+    "tau": null
+   },
+   "object": {
+    "acceptance": 1.0,
+    "accepted": 748,
+    "items": 748,
+    "precision": 0.9986631016042781,
+    "tau": 0.0
+   },
+   "partner": {
+    "acceptance": 0.6002673796791443,
+    "accepted": 449,
+    "items": 748,
+    "precision": 0.9910913140311804,
+    "tau": 1.588241987832589
+   },
+   "place": {
+    "acceptance": 1.0,
+    "accepted": 748,
+    "items": 748,
+    "precision": 1.0,
+    "tau": 0.0
+   }
+  },
+  "criteria": {
+   "cal:best value (tau 0)": false,
+   "cal:thresholds": false,
+   "dev:best value (tau 0)": false,
+   "dev:thresholds": false
+  },
+  "taus": {
+   "action": 0.0,
+   "actor": 0.7481309198046802,
+   "event_day": null,
+   "object": 0.0,
+   "partner": 1.588241987832589,
+   "place": 0.0
+  }
+ }
+}
