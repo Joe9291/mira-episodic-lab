@@ -1,0 +1,136 @@
+# Round 3.6 - LM-assisted goal/question parsing (design v1, draft for review)
+
+Uncertainty removed: can the same small language model, used the same way as in round 3.5b
+(scores for given candidates, schema-constrained decoding, thresholds from a calibration
+split, frozen before a blind holdout), turn FREE-LANGUAGE goals and questions into the
+structured question specification the fixed memory operators use - and recognise questions
+it must not answer from memory (ambiguous, unsupported) - on wordings it was not developed
+on? Name of the system: "LM-assisted question parsing with given candidates".
+Order (Astra, reviews/2026-10-19_r35b_reserve_astra.txt): the parser is first checked
+against correct question specifications and with a CORRECT store, so that parser errors
+stay identifiable; d3 stays frozen; the combination with the LM-written store follows as a
+separate step (section 5).
+
+## 1. The question specification (what the parser must produce)
+
+A parse is either a question for the memory or one of two refusals:
+- `ok`: {qtype, target}. qtype is one of the seven goals of rounds 3.3/3.4:
+  object_current ("Find the X."), object_first, object_previous, person_current
+  ("Find X."), person_first, person_previous, giver ("Find the person who gave you the X.");
+  target is an object (adjective + noun) or a person (first + last name), as in the schema.
+- `ambiguous`: the question has no resolvable referent in the schema's terms: a pronoun
+  without antecedent ("Where is it now?", "Find them."), a bare noun ("Find the ledger.";
+  objects are adjective + noun and same-noun objects exist), a first name only ("Find
+  Ilsen."). Response: a clarification question, no movement.
+- `unsupported`: the question is clear but outside what the memory operators answer: why,
+  how many, future, other attributes, and event-relative history ("Where was X right before
+  they gave you the Y?" - the subject of a later round). Response: "I cannot answer that
+  from memory", no movement.
+Distinct from both (Astra's idea): a well-formed `ok` question whose target the memory has
+never observed (an object or person that does not occur in the world). The parser must
+return `ok`; the operator returns no_observation; the agent says it does not remember and
+explores. Four outcomes are therefore scored separately: memory answer, no knowledge,
+clarification, refusal.
+
+## 2. Data, worlds and wordings
+
+Worlds: the round 3.5 generator (env35: hidden, moved, giver, object, person kinds; pairs
+differing in one critical episode) with new seeds `r36-{split}-{index}` and the splits dev,
+cal, aud, ho, res (sizes as in 3.5: 10, 10, 5, 40, 40 pairs per kind). Every world gets its
+answerable goals (1 for the 3.3 kinds, 3 for the history kinds) and three control
+questions: one not-in-memory question (an object or person of the vocabulary absent from the
+world), one ambiguous and one unsupported question.
+Wordings: per question type the template (the existing goal sentence) plus 3 development,
+3 holdout and 3 reserve paraphrases; ambiguous and unsupported questions as families with
+the same split structure. Draft (to be checked by Joe for meaning, see section 6):
+
+| type | development | holdout | reserve |
+|---|---|---|---|
+| object_current | Where is the {o} now? / Take me to the {o}. / I need the {o} - where is it? | Where can I find the {o} at the moment? / Go get the {o}. / Which place has the {o} right now? | Locate the {o}. / Where would I find the {o} today? / Head to wherever the {o} is. |
+| object_first | Where was the {o} put the very first time? / Take me to the first place the {o} was put. / Where did the {o} start out? | Where was the {o} originally placed? / Go to the {o}'s first location. / Before all the moving, where was the {o} put? | Where did the {o} get placed first? / Show me where the {o} was put initially. / Which place did the {o} land in first? |
+| object_previous | Where was the {o} before its last move? / Go to the place the {o} was in before it was last put somewhere. / Where had the {o} been just before it was last placed? | Where was the {o} prior to the latest placing? / Take me to the {o}'s previous spot. / Before the {o} was put where it is now, where was it? | Where did the {o} sit before its most recent placing? / Go to the {o}'s second-to-last place. / One move back, where was the {o}? |
+| person_current | Where is {x} now? / Go to {x}. / Take me to where {x} was last seen. | Where can I meet {x}? / Head to {x}'s last known spot. / Where did you see {x} most recently? | Find where {x} is. / Where was {x} last spotted? / Go wherever {x} was last. |
+| person_first | Where did you see {x} for the first time? / Go to the place where {x} first appeared. / Where was {x} when you first saw them? | Take me to where you originally saw {x}. / Where did you first come across {x}? / Go to {x}'s earliest known place. | Where did {x} first show up? / Head to the first place you saw {x}. / Your first sighting of {x} - where was it? |
+| person_previous | Where did you see {x} before the last time? / Go to where {x} was seen before the latest sighting. / Where was {x} the time before you last saw them? | Take me to {x}'s previous location. / Before the most recent sighting, where was {x}? / Where did you see {x} one time before the last? | Where was {x} seen just before the last sighting? / Go back one sighting: where was {x}? / Where did {x} appear before their latest appearance? |
+| giver | Who gave you the {o}? Go to them. / Go to the person you got the {o} from. / Find whoever handed you the {o}. | Take me to the one who gave me the {o}. / Where is the person the {o} came from? / Go find the giver of the {o}. | The {o} - who gave it to you? Find them. / Locate the person who passed you the {o}. / Where is whoever gave me the {o}? |
+| ambiguous | Where is it now? / Find the {noun}. / Go to {first}. | Where did they put it first? / Take me to the {noun}. / Where is {first} now? | Find it. / Where was the {noun} placed first? / Locate {first}. |
+| unsupported | Why did {x} put the {o} there? / How many times was the {o} moved? / Where will the {o} be tomorrow? | What colour is the {o}? / How often did you see {x}? / Where was {x} right before they gave you the {o}? | Who will take the {o} next? / Why was the {o} hidden? / Where was the {o} just before you met {x}? |
+
+Rules as in 3.5: development uses only template and development wordings; holdout and
+reserve wordings are never used in development; every question text parses back to its
+generating specification with its wording's exact inverse (model-free audit); question
+texts are disjoint across splits.
+
+## 3. Parser: candidates, scores, decoding
+
+- Slots: qtype (labels: the seven types and "unsupported", each with a one-line
+  description) and target (candidate spans of the question: capitalised 1-3 token spans for
+  persons, lower-case spans after a determiner for objects, plus "none").
+- The model (qwen2.5-1.5b, pinned) scores every candidate as the complete answer to a fixed
+  slot question; prompt development on development data only (worked examples allowed, as
+  p8 in 3.5); sum log-probability; recorded scores, decisions model-free afterwards.
+- Schema-constrained decoding (named rules, as F1/F2 in 3.5b): an object type needs an
+  object target of exactly two tokens, a person type a person target of exactly two tokens
+  (first + last name); qtype and target are chosen jointly over the feasible pairs, with
+  pair-level margins as in d2; "unsupported" needs no target. If the best feasible
+  analysis has no admissible target (only "none", a bare noun or a first name), the parse
+  is `ambiguous`.
+- Thresholds per slot from the calibration split (precision >= 0.99 with >= 200 accepted
+  values, as in 3.5); an unknown slot gives `ambiguous` (clarify), never a guessed answer.
+- Deterministic baseline (Astra's idea): a rule parser with the same schema rules and word
+  lists built from the template and development wordings only (first/originally -> first,
+  before/previous -> previous, gave/got from -> giver, why/how many/will -> unsupported,
+  pronoun or partial name -> ambiguous). It shows what the model adds beyond the rules.
+  Controls as in 3.5: uniform and random scores through the same decoder.
+
+## 4. Criteria (technical, fixed before any run)
+
+On the holdout, with the CORRECT store (oracle records from the structured truth):
+1. answerable questions: exact specification (qtype and target) >= 0.95; confident misparse
+   (an `ok` specification that is wrong) <= 0.02;
+2. ambiguous and unsupported questions: each recognised (clarify / refuse) >= 0.90;
+   answerable questions wrongly refused or sent to clarification <= 0.05;
+3. not-in-memory questions: parsed `ok` with the right target >= 0.95 (the agent then
+   says it does not remember);
+4. tasks per kind x goal: success >= reference (perfect specification) - 0.02, pair
+   success >= 0.95, confident-error rate <= 0.05; the original 3.3/3.4 milestone rules on
+   the oracle store with the LM parser reported separately (PARSER_MILESTONE_ORIGINAL_RULES).
+Results: PARSER_QUALIFIED (YES / NO / UNDECIDABLE) and PARSER_MILESTONE_ORIGINAL_RULES
+(PASS / FAIL), reported per criterion, with the baseline, the controls, class diagnostics
+(per question type, wording, outcome) and Wilson intervals over world pairs.
+Completeness contract, freeze binding (decoder version, code hashes of the import closure,
+checked before plan, in every job and by the collector), one holdout run, reserve only by
+the logged procedure of 3.5b - all as in 3.5/3.5b.
+
+## 5. Combination (separate step after PARSER_QUALIFIED)
+
+The same holdout worlds in four combinations (Astra's table): correct store + correct
+specification (reference); d3 store + correct specification (extraction effects); correct
+store + LM parser (parser effects); d3 store + LM parser (joint behaviour). The notes of
+the new worlds must be encoded by the frozen d3 system; their WORDINGS are known (all
+three note wording sets are consumed), so this step can only claim "transfer to new worlds
+with known note wordings and unseen question wordings" and is labelled so. The 17 wrong
+reserve records of 3.5b stay regression cases; questions about actors of observed
+placings (the concentrated 3.5b error class) are counted separately.
+
+## 6. Before any model run
+
+- Joe's meaning check of the wording table (every sentence: does it ask what its type
+  says; are the ambiguous ones really unclear and the unsupported ones really outside
+  "where is / was X"?).
+- Model-free audit: roundtrip, disjoint texts, candidate coverage of every true target
+  (must be 1.0 on dev/cal/aud), the baseline on dev/cal/aud.
+- Cost estimate: questions are short (about 10-25 candidates in two slots); a timing slice
+  on development data decides the chunking.
+
+## Open design questions for the review
+
+Q1 Ambiguity at the question level (a bare noun or first name is always `ambiguous`), as
+   proposed; or resolved against memory (a bare noun with exactly one matching object in
+   the store is answered)? The second is closer to natural use but mixes parser and memory
+   behaviour and needs a new operator; I propose the first for 3.6 and the second later.
+Q2 Are the unsupported families right, in particular event-relative history ("right before
+   they gave you ...") - unsupported now, the subject of the round after the combination?
+Q3 Criteria thresholds as proposed (0.95 / 0.02 / 0.90 / 0.05)?
+Q4 Combination as a separate step with the "known note wordings" label, or skip it in
+   favour of the context-dependent historical queries?
