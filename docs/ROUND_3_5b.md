@@ -131,3 +131,24 @@ checks). The reserve is consumed.
 - Post-run analysis (bench/m3/post35b.py, docs/ROUND_3_5b_post_res.md): paired change
   table, intervals, class findings with affected records; no decision consequences (no
   wrong or non-memory decision).
+
+## Review of the reserve result (Astra, 2026-10-19, reviews/2026-10-19_r35b_reserve_astra.txt)
+
+(1) Result, claim and limits APPROVE; (2) the handling of point 4 APPROVE (the conditional
+approval was read correctly); (3) next step: round 3.6, the question parser.
+The approved core claim: "The pre-frozen whole system of model scores, text-based
+candidates and schema-constrained decoder passes the fixed extraction and memory checks on
+new worlds with reserve wordings of this environment not used in development."
+Limits stated by the review, adopted: F2 carries the decisive task gain (F2 alone already
+meets the criteria; F1 improves record quality) - neither general receiver recognition
+nor the necessity of both rules is shown; 40/40 is no proof of a success probability >=
+0.95 (Wilson intervals are per cell, not joint; several goals share worlds, 720 decisions
+are not 720 independent repetitions); no uncertainty statement about language forms beyond
+three reserve paraphrases per event type of one generator; the total hides concentrated
+errors (observed placings "You noticed ... that X put ...": 205 of 219 records complete,
+about 93.6% - harmless for the tested tasks, possibly relevant for later questions about
+actors); zero wrong decisions at full coverage show no reliable uncertainty detection (no
+abstention happened at all). The reserve is now development and audit material.
+Adopted idea: the 17 wrong reserve records are fixed regression cases
+(tests/fixtures/r35b_reserve_errors.json; the test checks that d3 with the recorded
+scores reproduces exactly these records).

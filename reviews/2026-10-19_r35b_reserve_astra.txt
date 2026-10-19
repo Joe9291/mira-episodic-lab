@@ -1,0 +1,64 @@
+2m 52s nachgedacht
+
+## 4. Decision consequences (d3)
+---END FILE docs/ROUND_3_5b_post_res.md---
+
+(1) Ergebnis, Aussage und Grenzen: APPROVE
+
+Der Bericht ist rechnerisch konsistent:
+
+- d3: 2.957 von 2.974 Datensätzen vollständig richtig, also rund 99,43 %. Vier Akteur-, zehn Empfänger- und drei Aktionsfehler ergeben die ausgewiesenen 17 fehlerhaften Datensätze.
+- Gegenüber d2 werden 44 Datensätze korrigiert: neun durch F1 und 35 durch F2. Die Vergleichstabelle weist keine Verschlechterungen aus.
+- Die fünf korrigierten Giver-Entscheidungen betreffen drei Weltpaare. Dazu passen d2 mit 75/80 richtigen Entscheidungen und 37/40 erfolgreichen Paaren sowie d3 mit jeweils vollständigem Erfolg.
+- Alle neun Aufgabenzellen und die 17 ursprünglichen Kontrollen bestehen laut Auswertung. Relevant sind dabei auch die Eingriffe am Gedächtnis und die Zustandsbaseline: Sie liefern einen Funktionsnachweis über die reine Extraktionsgenauigkeit hinaus.
+
+Die belastbare Kernaussage lautet für mich:
+
+> Das vorab eingefrorene Gesamtsystem aus Modell-Scores, textbasierten Kandidaten und schemabeschränktem Decoder besteht die festgelegten Extraktions- und Gedächtnisprüfungen auf neuen Welten mit zuvor nicht zur Entwicklung verwendeten Reserveformulierungen dieser Umgebung.
+
+
+
+Diese Aussage ist durch folgende Grenzen eingeschränkt:
+
+- F2 trägt den entscheidenden Aufgabengewinn. F2 allein besteht bereits die Kriterien; F1 verbessert zusätzlich die Datensatzqualität. Der Lauf belegt deshalb weder allgemeine Empfängererkennung noch die Notwendigkeit beider Regeln für den Aufgaben-PASS.
+- 40/40 ist kein Nachweis einer Erfolgswahrscheinlichkeit von mindestens 95 %. Das angegebene Wilson-Intervall [0.912, 1.000] passt zu 40 erfolgreichen Paaren. Die Intervalle gelten einzeln pro Zelle, nicht gemeinsam für alle neun. Mehrere Fragen verwenden dieselben Welten; 720 Entscheidungen sind keine 720 unabhängigen Wiederholungen.
+- Die Intervalle erfassen keine allgemeine Unsicherheit über beliebige neue Sprachformen. Getestet wurden drei Reserveformulierungen je Ereignistyp innerhalb eines festen Generators.
+- Der Gesamtwert verdeckt konzentrierte Fehler: Beim beobachteten Platzieren sind nur 205/219 Datensätze, rund 93,6 %, vollständig richtig. Diese Fehler waren für die geprüften Aufgaben folgenlos. Für spätere Fragen nach handelnden Personen können sie relevant werden.
+- Null beobachtete Fehlentscheidungen bei voller Abdeckung belegt keine verlässliche Unsicherheitserkennung. Im Reserve-Lauf wurde überhaupt nicht abstainiert.
+
+Die Trennung bleibt richtig: 3.5 bleibt NO/FAIL; 3.5b erreicht YES/PASS. Die Reserve ist jetzt Entwicklungs- und Auditmaterial.
+
+(2) Behandlung meines Punkts 4: APPROVE
+
+Das dokumentierte Verfahren erfüllt die verlangte Korrektur: vorhandener Projekt-Bytecode ausgeschlossen, neue leere Cachepfade, frische Prozesse, bestandene Baseline vor und nach den Mutationen, identische Wiederherstellung der Dateien und fachliche Assertions als erforderlicher KILL-Nachweis.
+
+Der gefundene Überlebende erklärt konkret, warum der alte Nachweis unzureichend war: Der Freeze-Test hatte eine fehlende Verhaltensprüfung verdeckt. Der beschriebene neue Regressionstest adressiert den richtigen Unterschied – eine nicht akzeptierte Aktion darf die nachfolgende Rollenentscheidung nicht einschränken.
+
+Deine Auslegung meiner bedingten Freigabe war korrekt. Nach der dokumentierten Reihenfolge wurde die Bedingung vor der Reserveöffnung erfüllt. Ein zusätzlicher Test auf bekannten beziehungsweise synthetischen Fällen verändert weder die eingefrorene Produktionskonfiguration noch die Reserveblindheit. Eine weitere ausdrückliche Rückfrage hatte ich nicht verlangt.
+
+Diese Beurteilung stützt sich auf den Bericht. Mutationsskript, vollständiges Ergebnis-JSON und externe Laufartefakte sind hier nur referenziert; ich habe sie nicht unabhängig nachgeprüft.
+
+(3) Nächster Schritt: Ich empfehle Runde 3.6, den Frageparser.
+
+Der Reservebericht prüft bereits LM-Extraktion, Gedächtnisverarbeitung und Aufgabenhandlung gemeinsam. Ein weiterer umfangreicher Lauf mit bestehender Frageverarbeitung und lediglich neuen Welten würde hauptsächlich Replikation liefern. Neue Seeds machen die inzwischen bekannten Reserveformulierungen auch nicht erneut blind.
+
+Falls die spätere Anwendung einen anderen technischen Ablauf als der Collector verwendet, lohnt vorher ein kleiner Integrationstest mit bekannten Fällen. Dafür sehe ich keinen Bedarf an einer weiteren Forschungsrunde mit großem Encoder-Lauf.
+
+Den neuen Frageparser würde ich zunächst gegen korrekte Fragespezifikationen prüfen: Entität, Abfragetyp, Zeitbezug sowie mehrdeutige und nicht unterstützte Fragen. Für die Aufgabenprüfung zunächst einen korrekten Store verwenden. So bleiben Parserfehler identifizierbar; d3 bleibt währenddessen eingefroren. Anschließend folgt die gemeinsame Prüfung beider Komponenten.
+
+Verbesserungsideen – keine weiteren Änderungen für die Anerkennung von 3.5b erforderlich
+
+- Kombinierte Fehler sauber zuordnen. Für den späteren gemeinsamen Test dieselben Fälle in vier Kombinationen auswerten:
+
+  Store	Frageinterpretation	Zweck
+
+  Korrekt	Korrekt	Referenz
+  d3	Korrekt	Extraktionsfolgen
+  Korrekt	Neuer Parser	Parserfolgen
+  d3	Neuer Parser	Gemeinsames Verhalten
+
+- Eine starke deterministische Parserbaseline ergänzen. Rauschen, Gleichstände und Wortlisten sind nützliche Kontrollen. Ein einfacher Parser mit denselben Schemaregeln würde besser zeigen, welchen zusätzlichen Beitrag das Sprachmodell tatsächlich liefert – bei geringem Rechenaufwand.
+
+- Die 17 Fehler als feste Entwicklungsfälle übernehmen. Besonders die Unterscheidung zwischen Erzähler und beobachtetem Akteur sollte bei neuen Fragentypen gezielt geprüft werden. Diese Fälle eignen sich nach Verbrauch der Reserve als Regressionstests.
+
+- Mehrdeutigkeit und fehlendes Wissen getrennt bewerten. Eine eindeutig verstandene Frage kann im Store unbeantwortbar sein. Das sollte ein anderes Ergebnis liefern als eine unklare oder vom System nicht unterstützte Frage.

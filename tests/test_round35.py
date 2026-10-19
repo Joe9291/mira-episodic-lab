@@ -520,3 +520,26 @@ class JobTests(unittest.TestCase):
             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
             dec = json.loads((d / "DECISIONS.json").read_text())["m"]
             self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("UNDECIDABLE", "FAIL"))
+
+
+class ReserveErrorRegression(unittest.TestCase):
+    """The 17 wrong records of the round 3.5b reserve run as fixed development cases
+    (Astra's idea): with the recorded scores, decoder d3 and the frozen thresholds must
+    reproduce exactly these records. A decoder change that alters them must update this
+    fixture deliberately (and say which cases it fixes or breaks)."""
+
+    def test_reserve_errors_reproduce(self):
+        fx = json.loads((ROOT / "tests" / "fixtures" / "r35b_reserve_errors.json").read_text())
+        self.assertEqual(len(fx["cases"]), 17)
+        from episodic_lab.encoder35 import decide_record
+        saved = dict(A.DECODING)
+        try:
+            A.DECODING.update(A.DECODING_OFF, **fx["decoding"])
+            for c in fx["cases"]:
+                content, unk, det = decide_record(c["encoding"], fx["taus"])
+                self.assertEqual(content, c["d3_record"], c["text"])
+                self.assertEqual(sorted(s for s in SLOTS if det[s]["value"] != truth_value(s, c["truth"])),
+                                 sorted(c["wrong"]), c["text"])
+        finally:
+            A.DECODING.clear()
+            A.DECODING.update(saved)
