@@ -420,7 +420,8 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    thresholds unchanged (action, actor, receiver, object, place 0.0 with acceptance 1.0 and
    precision >= 0.997 on 748 multi-value cases each; day STRUCTURAL: 748 single values from
    the text, precision 1.0); dev complete records 0.999, cal 0.996, every 3.5 criterion met
-   on dev and cal (best value and thresholds) - identical to d1. Per role slot, d2 changed
+   on dev and cal (best value and thresholds), original 3.3/3.4 rules (17 checks) pass on
+   dev and cal - identical to d1. Per role slot, d2 changed
    no value and no status; 831 of 2,996 role margins became smaller (receiver 619, actor
    212; the receiver of own placings no longer profits from the filtered "You"); the
    smallest role margin is 0.48. No single value came from the schema on dev/cal.
