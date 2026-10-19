@@ -1,0 +1,81 @@
+4m 12s nachgedacht
+
+Teil 1 – letzte zwei nicht-leere Zeilen vor der Endmarke:
+
+}
+---END FILE config/round35b_reserve_proposal.json---
+
+Teil 2 – letzte zwei nicht-leere Zeilen vor der Endmarke:
+
+(d / "r35_encode_m_ho_2.json").unlink()
+---END DIFF---
+
+Gesamturteil: REQUEST CHANGES wegen einer begrenzten Lücke im Nachweis der Mutationsprüfung. Decoder, Versuchsplan und Reserve-Konfiguration sind fachlich freigabefähig. Die Reserve sollte bis zur Klärung dieses Punkts geschlossen bleiben.
+
+Ich habe beide Anhänge vollständig statisch geprüft. Tests, Neuberechnungen und Prüfsummenabgleich habe ich nicht selbst ausgeführt.
+
+1. Vier Berichtskorrekturen: APPROVE
+
+Die korrigierten Angaben sind konsistent:
+
+- Giver: 74 richtige Gedächtnisentscheidungen und sechs Fallbacks ergeben 80 Entscheidungen; mit einem zufällig richtigen Fallback insgesamt 75 richtige.
+- Akteurfehler: \(13+5+2=20\), einschließlich der beiden verkürzten Namen.
+- 122 fehlerhafte Datensätze mit jeweils genau einem falschen Feld ergeben 122 Feldfehler. Diese beiden Zählungen werden jetzt sauber unterschieden.
+- „Keine unbekannten Felder beobachtet“ ist die richtige Aussage. Schwelle null verhindert unbekannte Ergebnisse bei Gleichständen oder leeren zulässigen Mengen nicht.
+
+Auch die Einordnung des „heavy“-Befunds passt: diagnostisch relevant, aber kein nachträglich eingeführtes Ablehnungskriterium. Das ursprüngliche NO/FAIL bleibt bestehen.
+
+2. Decoder d3: APPROVE
+
+Im gezeigten Diff entsprechen die Änderungen genau F1 und F2:
+
+- F1 filtert kanonische Objektwerte auf genau zwei Tokens oder "none". Eine falsche zulässige Objektbezeichnung kann weiterhin gewinnen.
+- F2 wirkt innerhalb der zulässigen Rollenpaare. Dadurch bleiben die gemeinsamen Scores und Margen maßgeblich; es gibt kein nachträgliches Überschreiben des Empfängers.
+- Eine unbekannte Aktion aktiviert F2 nicht.
+- Bei akzeptiertem "gave" verhindern Empfänger You und Akteur≠Empfänger gemeinsam das inkonsistente Paar (You, You).
+
+Die Einschränkung des Forschungsanspruchs ist ausdrücklich richtig: Der Empfänger eines Gebeereignisses stammt hier aus dem Schema. Das Ergebnis belegt keine allgemeine Empfängererkennung.
+
+3. Inhalt der Tests: APPROVE
+
+Die neuen Tests treffen relevante Fehler: ausgeschaltete Regeln reproduzieren die Ausgangsprobleme; "none" bleibt erhalten; drei Tokens sind ausgeschlossen; eine unentschiedene Aktion aktiviert F2 nicht; und der Konflikt um Akteur You wird über die Paarbedingungen gelöst.
+
+Auch die Reserve-Integration wird sinnvoll geprüft: fehlender Chunk führt zu UNDECIDABLE/FAIL, Vergleichsdekodierungen werden ausgegeben und die primäre Decoder-Konfiguration anschließend wiederhergestellt. Die 144 grünen Tests sind dabei ein berichteter Befund.
+
+4. Mutationsprüfung und Bytecode-Abhilfe: REQUEST CHANGES
+
+Die Aussage „Bytecode deaktiviert durch python -B“ ist technisch zu weitgehend. -B verhindert das Schreiben neuer .pyc-Dateien; vorhandene Dateien können weiterhin gelesen werden. Die gewöhnliche Gültigkeitsprüfung verwendet Zeitstempel und Dateigröße – genau die Eigenschaften des beschriebenen Problems. Damit schließt die dokumentierte Abhilfe diesen Fehlerweg allein noch nicht aus. 
+
+Vor der Reserveöffnung braucht es deshalb einen nachvollziehbaren Nachweis:
+
+- Start ohne vorhandenen Projekt-Bytecode, anschließend -B und ein frischer Prozess für jeden Prüflauf.
+- Unveränderte Ausgangsversion besteht unter demselben Verfahren.
+- Jeder der elf Mutanten scheitert an einer passenden fachlichen Testassertion. Ein Freeze-Prüfsummenfehler oder Importfehler allein zählt dafür nicht.
+- Nach Wiederherstellung stimmen die Produktionsdateien wieder mit dem vorgeschlagenen Freeze überein.
+
+Falls diese Bereinigung bereits erfolgt ist, genügt ihre dokumentierte Bestätigung mit den entsprechenden Ergebnissen. Andernfalls ist eine saubere Wiederholung nötig. Dafür wird keine Reserve benötigt.
+
+5. Collector und vier Verbesserungsideen: APPROVE
+
+Die Vergleichsdekodierungen verwenden dieselben Encodings und Schwellen. d3 bleibt das vorab festgelegte primäre Ergebnis; die Vergleiche ändern dessen Entscheidung nicht. Das Sichern und Wiederherstellen von A.DECODING ist korrekt.
+
+Schemaherkunft, Klassenbefunde mit Nennern und richtige Fallbacks werden nun sichtbar. Zwei Darstellungsgrenzen bleiben: Bei Frames werden falsche Felder gezählt; die Fehlerliste einer Welt zeigt außerdem noch keine eindeutige kausale Zuordnung zur Entscheidung. Beides beeinträchtigt die Qualifikationsentscheidung nicht.
+
+6. Offline-Neuberechnung und Deutung: APPROVE
+
+Die erneute Kalibrierung mit d3 ist für diese Entwicklungsiteration angemessen. Dev und Cal bleiben Entwicklungsdaten. Der verbrauchte Holdout wird zutreffend als Auditmaterial behandelt; dessen 0,964 ist kein unabhängiger Qualifikationsnachweis.
+
+Die Kontrollen zeigen sinnvoll, dass Schema und Textstruktur bereits einen Teil der Felder bestimmen. Schwelle null bedeutet weiterhin keine statistische Zuverlässigkeitsgarantie für jede akzeptierte Vorhersage.
+
+7. Freeze und einmalige Reserveöffnung: Konfiguration APPROVE; Öffnung derzeit REQUEST CHANGES
+
+Modell, Prompt, Kandidaten, Score, Decoderoptionen, Schwellen und Codebindung sind konkret festgelegt. Die unveränderten Kriterien, der vorgeschaltete modellfreie Audit und die Stopregel sind angemessen.
+
+Nach Behebung von Punkt 4 darf genau diese Konfiguration den vorgesehenen Reserve-Audit und anschließend den einmaligen Reserve-Lauf durchlaufen. Scheitert der Audit, gilt die Reserve gemäß eurem Plan als verbraucht. Schwellen, Regeln und primärer Decoder bleiben danach unverändert; die Vergleichsdekodierungen dienen der Diagnose.
+
+Verbesserungsideen – keine weiteren Freigabehürden
+
+- Bei Klassenbefunden ausdrücklich Texte / falsche Felder / unbekannte Felder schreiben; zusätzlich die Zahl betroffener Datensätze ausgeben.
+- Entscheidungsfolgen um die tatsächlich verwendeten Erinnerungen und den Operatorstatus ergänzen. Die übrigen Weltfehler zunächst als mögliche Einflussfaktoren kennzeichnen.
+- Für d2, F1, F2 und d3 eine gepaarte Änderungstabelle ausgeben: Welche konkreten Fälle werden korrigiert, welche verschlechtert? Das erklärt den Zusatznutzen besser als vier Gesamtquoten.
+- Nach dem Lauf Unsicherheitsintervalle auf Ebene der Weltpaare ergänzen, ohne die eingefrorenen Bestehenskriterien zu ändern. Ein PASS bei 40 Paaren pro Typ bleibt ein begrenzter Nachweis für diese Umgebung.

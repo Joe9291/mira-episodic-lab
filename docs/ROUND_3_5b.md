@@ -60,3 +60,39 @@ right or wrong.
 Stop rule: if the reserve result is NO, round 3.5 ends with the reported results, the LM
 extraction does not write the stores of later rounds, and the next step is round 3.6 (the
 goal/question parser) with structured input (Astra's preferred alternative B).
+
+## Review of d3 and the mutation proof
+
+Astra, 2026-10-19 (reviews/2026-10-19_r35b_d3_astra.txt): report corrections, decoder d3,
+test contents, collector, offline recomputation and the freeze configuration APPROVE; the
+mutation proof REQUEST CHANGES (python -B only stops WRITING bytecode; stale compiled files
+can still be read) - the reserve may be audited and opened with exactly this configuration
+once a clean proof exists. Clean proof (bench/m3/mutation35b.py, result
+docs/ROUND_3_5b_mutation.json, RESULT PASS): no __pycache__ in the repository before and
+after; every test run a fresh process with -B, PYTHONDONTWRITEBYTECODE=1 and its own new
+empty PYTHONPYCACHEPREFIX (checked: no .pyc written); the freeze-binding test excluded; a
+kill counts only as a FAILING substantive assertion. Baseline (20 tests) passes before
+and after; after every mutant the file is restored byte-identically; the production files
+match the proposed freeze.
+Finding: under this protocol the mutant "calibration ignores the earlier slots'
+thresholds" SURVIVED - in the earlier proof it had been counted as killed only because the
+freeze-binding test fails for every code change. The code was right; a test was missing.
+Added: test_calibration_uses_earlier_calibrated_thresholds (the action has no qualifying
+threshold -> unknown -> the narrator constraint stays inactive -> the actor stays a real
+choice; with threshold 0 the actor would become a single value). Rerun: all 11 mutants
+killed by substantive assertions, none by an error. The decoder, the collector and the
+freeze are unchanged (tests are not part of the frozen code).
+Non-blocking ideas (not in the frozen code, done after the run as separate analysis):
+class findings as texts / wrong fields / unknown fields plus affected records; decision
+consequences with the memories used and the operator status; a paired change table d2 /
+F1 / F2 / d3; uncertainty intervals over world pairs (criteria unchanged).
+
+## Reserve coverage check and opening
+
+Post-freeze, model-free (bench/m3/audit35.py --reserve, 2026-10-19,
+docs/ROUND_3_5b_reserve_audit.json): no problems (roundtrip, pair invariance, disjoint
+texts across dev/cal/aud/ho/res, >= 30 distinct texts per reserve frame); candidate
+coverage 1.0 for every slot on res (2,974 distinct texts); every true object of all five
+splits has exactly two tokens (F1 never excludes a true value); position/word-list
+baseline on res: all slots 0.504. Opened with config/round35.json = the reserve proposal
+with "enabled": true (unchanged otherwise).

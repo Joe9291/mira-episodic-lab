@@ -1,0 +1,171 @@
+{
+ "start_pycache": [],
+ "tests": 20,
+ "baseline_before": {
+  "rc": 0,
+  "ran": 20,
+  "fail": [],
+  "error": [],
+  "assertions": []
+ },
+ "mutants": [
+  {
+   "mutant": "d2: provisional action instead of the decided one",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_calibration_uses_earlier_calibrated_thresholds",
+    "test_decoder_d3_schema_rules",
+    "test_joint_role_decoding"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('single_only', 0, 200, None) != ('multi', 200, 0, 0.0)",
+    "AssertionError: Tuples differ: ('unknown', 'You', 'single') != ('unknown', None, 'ok')"
+   ]
+  },
+  {
+   "mutant": "d2: non-maximal pair score",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_joint_role_decoding"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('You', 'You') != ('Juno Brack', 'You')"
+   ]
+  },
+  {
+   "mutant": "d2: actor != receiver dropped",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoder_d3_schema_rules",
+    "test_joint_role_decoding"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('You', 'You') != ('Ada Stone', 'You')",
+    "AssertionError: Tuples differ: ('You', 'You') != ('Juno Brack', 'You')"
+   ]
+  },
+  {
+   "mutant": "d2: wrong origin label",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_joint_role_decoding"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('single', 'schema') != ('single', 'text')"
+   ]
+  },
+  {
+   "mutant": "F2 without an accepted action",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoder_d3_schema_rules"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('unknown', 'You', 'single') != ('unknown', None, 'ok')"
+   ]
+  },
+  {
+   "mutant": "F2 off",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoder_d3_schema_rules"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('heavy ledger', None, 'Ada Stone') != ('heavy ledger', 'You', 'Ada Stone')"
+   ]
+  },
+  {
+   "mutant": "F1 drops none",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoder_d3_schema_rules"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: (None, 'unknown') != ('none', 'single')"
+   ]
+  },
+  {
+   "mutant": "F1 admits >= 2 tokens",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoder_d3_schema_rules"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: 'heavy ledger there' != 'heavy ledger'"
+   ]
+  },
+  {
+   "mutant": "F1 off",
+   "file": "episodic_lab/encoder35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoder_d3_schema_rules"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('ledger', 'You', 'Ada Stone') != ('heavy ledger', 'You', 'Ada Stone')"
+   ]
+  },
+  {
+   "mutant": "B2 without the single-value precision",
+   "file": "episodic_lab/analysis35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_decoding_options"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: 'structural' is not None"
+   ]
+  },
+  {
+   "mutant": "calibration ignores the earlier slots' thresholds",
+   "file": "episodic_lab/analysis35.py",
+   "killed": true,
+   "restored": true,
+   "failing_tests": [
+    "test_calibration_uses_earlier_calibrated_thresholds"
+   ],
+   "errors": [],
+   "assertion": [
+    "AssertionError: Tuples differ: ('single_only', 0, 200, None) != ('multi', 200, 0, 0.0)"
+   ]
+  }
+ ],
+ "baseline_after": {
+  "rc": 0,
+  "ran": 20,
+  "fail": [],
+  "error": [],
+  "assertions": []
+ },
+ "freeze_check": [],
+ "end_pycache": [],
+ "RESULT": "PASS"
+}

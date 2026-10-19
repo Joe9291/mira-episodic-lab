@@ -325,6 +325,31 @@ class JobTests(unittest.TestCase):
             A.DECODING["structural_slots"] = False
         self.assertIsNone(A.calibrate(*single_day(200))["event_day"]["tau"])
 
+    def test_calibration_uses_earlier_calibrated_thresholds(self):
+        """Calibration runs in the decision order with the EARLIER slots decided by THEIR
+        calibrated thresholds (same procedure as application). Here the action has no
+        qualifying threshold ("was" ahead but always wrong) -> unknown -> the narrator
+        constraint stays inactive -> the actor is a real choice (You vs Ada Stone). Deciding
+        the action with threshold 0 instead would accept "was", exclude You and leave the
+        actor a single value."""
+        truth = {f"t{i}": {"actor": "You", "partner": None, "action": "went", "object": None,
+                           "place": "Oak Mill", "event_day": 1} for i in range(200)}
+        enc = {}
+        for t in truth:
+            e = {s: [["x", "v", 0.0, None, 1]] for s in SLOTS}
+            e["action"] = [["was", "was", 0.0, None, 1], ["went", "went", -1.0, None, 1]]
+            e["actor"] = [["You", "You", 0.0, None, 1], ["Ada Stone", "Ada Stone", -1.0, None, 1]]
+            e["partner"] = [["none", "none", 0.0, None, 1]]
+            enc[t] = e
+        try:
+            A.DECODING.update(joint_roles=True, structural_slots=True)
+            cal = A.calibrate(enc, truth)
+            self.assertIsNone(cal["action"]["tau"])
+            self.assertEqual((cal["actor"]["basis"], cal["actor"]["items"], cal["actor"]["singles"], cal["actor"]["tau"]),
+                             ("multi", 200, 0, 0.0))
+        finally:
+            A.DECODING.update(A.DECODING_OFF)
+
     def test_decoder_d3_schema_rules(self):
         """Round 3.5b: F1 object values adjective + noun (or none); F2 an accepted "gave" has
         the receiver You, inside the feasible role pairs; an unknown action keeps every receiver."""
