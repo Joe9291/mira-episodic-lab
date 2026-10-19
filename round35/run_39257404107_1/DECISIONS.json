@@ -1,0 +1,11 @@
+{
+ "qwen2.5-1.5b+p8": {
+  "ENCODER_QUALIFIED": "YES",
+  "MILESTONE_ORIGINAL_RULES": "PASS",
+  "consequences": [],
+  "criteria": {
+   "res:best value (tau 0)": true,
+   "res:thresholds": true
+  }
+ }
+}
