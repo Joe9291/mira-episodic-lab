@@ -3,6 +3,8 @@
   python3 bench/m3/audit35.py            development, calibration and audit splits
   python3 bench/m3/audit35.py --frozen   additionally the holdout (only AFTER the freeze;
                                          a failure consumes the holdout, see the doc)
+  python3 bench/m3/audit35.py --reserve  round 3.5b: additionally the reserve (only AFTER the
+                                         3.5b freeze; model-free, no performance data)
 
 Checks: disjoint episode texts across splits; meaning roundtrip (every sentence parses
 back to its generating event with its template's exact inverse); pair invariance (the
@@ -91,8 +93,8 @@ def audit(splits: list[str]) -> dict:
         out["texts"][split] = n
         if any(v < 1.0 for v in out["coverage"][split].values()):
             out["problems"].append(f"coverage:{split}")
-        if split == "ho" and any(v[1] < 30 for v in out["usage"][split].values()):
-            out["problems"].append("usage:ho")
+        if split in ("ho", "res") and any(v[1] < 30 for v in out["usage"][split].values()):
+            out["problems"].append(f"usage:{split}")
     names = list(texts)
     for i, a in enumerate(names):
         for b in names[i + 1:]:
@@ -104,9 +106,10 @@ def audit(splits: list[str]) -> dict:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--frozen", action="store_true")
+    ap.add_argument("--reserve", action="store_true")
     ap.add_argument("--out")
     args = ap.parse_args()
-    res = audit(["dev", "cal", "aud"] + (["ho"] if args.frozen else []))
+    res = audit(["dev", "cal", "aud"] + (["ho"] if args.frozen or args.reserve else []) + (["res"] if args.reserve else []))
     print(json.dumps({k: res[k] for k in ("problems", "texts", "coverage", "baseline")}, indent=1))
     if args.out:
         Path(args.out).write_text(json.dumps(res, indent=1, sort_keys=True) + "\n")

@@ -57,6 +57,9 @@ def main(argv: list[str]) -> int:
         print(json.dumps({"decoder_version": decoder_version(), "code_sha256": code_hashes()}, indent=1))
         return 0
     req = json.loads(Path(argv[0]).read_text())
+    if req.get("enabled") is not True:   # a disabled request starts no job (a finished freeze may be outdated)
+        print("freeze check: request not enabled, nothing to check")
+        return 0
     problems = check(req.get("frozen"))
     for p in problems:
         print(f"FROZEN MISMATCH {p}")

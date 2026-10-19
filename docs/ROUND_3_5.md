@@ -478,12 +478,17 @@ closed.
    chunks OK, collector VERDICT COMPLETE, freeze checks passed): ENCODER_QUALIFIED = NO,
    MILESTONE_ORIGINAL_RULES = FAIL. The holdout worlds and holdout paraphrases are consumed.
    - Records (2,974 distinct texts): complete records 0.959 (criterion >= 0.95 met); place
-     and day 1.000, object 0.998, actor 0.993, receiver 0.991, action 0.977; no declared
-     unknowns (all thresholds 0).
+     and day 1.000, object 0.998, actor 0.993, receiver 0.991, action 0.977. 122 records
+     are wrong, each in exactly one slot (deduplicated texts; 122 slot errors). No unknown
+     record field was observed (thresholds 0 still give unknown for ties, for an empty
+     feasible set and for several candidates of a structural slot - none occurred).
    - Tasks: hidden, moved and every history cell 1.000 except object:first 0.988 (one
      confident error, rate 0.013 <= 0.05); giver:find 0.938, pair success 0.925 - the two
-     failed criteria (success >= reference - 0.02, pair success >= 0.95). The giver
-     failures are not confident: the agent did not find the giver and explored.
+     failed criteria (success >= reference - 0.02, pair success >= 0.95). Of the 80 giver
+     world decisions 74 came from memory (all right) and 6 were fallbacks (the giver not
+     found -> exploration); 1 of the 6 explorations happened to reach the right place
+     (r35-ho-6 B), 5 were wrong. (Corrected after Astra's review: the first report said 5
+     fallbacks.)
    - Error mechanisms (bench/m3/cases35.py and the per-frame breakdown):
      (a) "It was day d when you set the X down at P." -> action "left" instead of "put"
          (69 of 231 texts of that frame; task-neutral, both are placings);
@@ -494,7 +499,11 @@ closed.
      (c) "the X came to you from Y" -> receiver "none" (9 of 75; 3 giver worlds explore);
      (d) "you saw X put ..." -> receiver "You" (17 of 232; task-neutral);
      (e) passive "... by X, and you saw it" -> actor "You" (13 of 246); "P was where you
-         went" -> actor = the place name (5 of 180).
+         went" -> actor = the place name (5 of 180);
+     (f) the two-part name "Halsey Tellin" shortened to "Halsey" (2: one placing, one
+         giving; added after Astra's review - with (e) the 20 actor errors).
+     The original criteria stay unchanged; the "heavy" signal (1 error in 48 on dev)
+     violated no pre-registered class criterion - it leads to the class diagnostics of 3.5b.
    - Controls: uniform scores decide only the day (complete records 0.000), random scores
      0.299 of the slots correct; position/word-list baseline 0.647.
    - The original 3.3/3.4 rules fail where they demand perfection (intact success and
@@ -502,3 +511,8 @@ closed.
    By the design (section 3) a further qualification needs a logged development fix and
    new worlds with the reserve paraphrases (the last unused wording set); the holdout
    wordings and worlds are now development/audit material.
+14. Review of the holdout result (Astra, 2026-10-19, reviews/2026-10-19_r35holdout_astra.txt):
+   NO / FAIL confirmed; count corrections (6 fallbacks of which 1 accidentally right; the
+   two missing actor errors; 122 deduplicated records; thresholds 0 can still give
+   unknown) - done in item 13. Round 3.5 stays NO / FAIL permanently. The continuation is
+   round 3.5b with its own protocol: docs/ROUND_3_5b.md.

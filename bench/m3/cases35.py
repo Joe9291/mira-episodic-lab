@@ -34,8 +34,7 @@ def record(enc, taus, text, truth):
 def main(run_dir: str, split: str = "ho") -> int:
     run = Path(run_dir)
     req = json.loads((run / "request.json").read_text())
-    A.DECODING.update({"receiver_differs_from_actor": False, "structural_slots": False, "joint_roles": False},
-                      **req.get("decoding", {}))
+    A.DECODING.update(A.DECODING_OFF, **req.get("decoding", {}))
     taus = req["frozen"]["taus"]
     enc = {}
     for f in sorted(run.glob(f"r35_encode_*_{split}_*.json")):

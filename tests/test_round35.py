@@ -325,6 +325,43 @@ class JobTests(unittest.TestCase):
             A.DECODING["structural_slots"] = False
         self.assertIsNone(A.calibrate(*single_day(200))["event_day"]["tau"])
 
+    def test_decoder_d3_schema_rules(self):
+        """Round 3.5b: F1 object values adjective + noun (or none); F2 an accepted "gave" has
+        the receiver You, inside the feasible role pairs; an unknown action keeps every receiver."""
+        from episodic_lab.encoder35 import decide_record
+        def enc(actor, partner, action, obj):
+            e = {s: [["x", "v", 0.0, None, 1]] for s in SLOTS}
+            for slot, vals in (("actor", actor), ("partner", partner), ("action", action), ("object", obj)):
+                e[slot] = [[k, k, v, None, 1] for k, v in vals.items()]
+            return e
+        taus = {s: 0.0 for s in SLOTS}
+        e = enc({"Ada Stone": 0.0, "You": -3.0}, {"none": 0.0, "You": -0.5}, {"gave": 0.0, "was": -4.0},
+                {"ledger": 0.0, "heavy ledger": -0.2, "none": -5.0, "the heavy ledger": -9.0})
+        try:
+            A.DECODING.update(joint_roles=True, structural_slots=True)
+            r, unk, det = decide_record(e, taus)                      # d2: the errors of the holdout
+            self.assertEqual((r["object"], r["partner"]), ("ledger", None))
+            A.DECODING.update(object_two_tokens=True, gave_receiver_self=True)
+            r, unk, det = decide_record(e, taus)                      # d3
+            self.assertEqual((r["object"], r["partner"], r["actor"]), ("heavy ledger", "You", "Ada Stone"))
+            self.assertEqual((det["partner"]["status"], det["partner"]["origin"]), ("single", "schema"))
+            r, unk, det = decide_record(dict(e, object=[["none", "none", 0.0, None, 1], ["ledger", "ledger", 1.0, None, 1]]), taus)
+            self.assertIsNone(r["object"])                            # "none" stays, a bare noun never wins
+            self.assertEqual((det["object"]["value"], det["object"]["status"]), ("none", "single"))
+            r, unk, det = decide_record(dict(e, object=[["heavy ledger there", "heavy ledger there", 0.0, None, 1],
+                                                        ["heavy ledger", "heavy ledger", -0.5, None, 1]]), taus)
+            self.assertEqual(r["object"], "heavy ledger")             # exactly two tokens, not three
+            # unknown action ("gave" and "put" tie): F2 inactive, the receiver stays open
+            r, unk, det = decide_record(dict(e, action=[["gave", "gave", 0.0, None, 1], ["put", "put", 0.0, None, 1]]), taus)
+            self.assertEqual((det["action"]["status"], r["partner"], det["partner"]["status"]), ("unknown", None, "ok"))
+            # F2 inside the feasible pairs: actor You and receiver You can never both hold;
+            # with "gave" accepted and the actor "You" far ahead, the pair (You, You) is excluded
+            r, unk, det = decide_record(enc({"You": 0.0, "Ada Stone": -2.0}, {"You": 0.0, "none": -0.1},
+                                            {"gave": 0.0, "was": -4.0}, {"heavy ledger": 0.0}), taus)
+            self.assertEqual((r["actor"], r["partner"]), ("Ada Stone", "You"))
+        finally:
+            A.DECODING.update(A.DECODING_OFF)
+
     def test_joint_role_decoding(self):
         from episodic_lab.encoder35 import decide_record
         def enc(actor, partner, action):
@@ -393,15 +430,45 @@ class JobTests(unittest.TestCase):
         out = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True, check=True).stdout
         self.assertEqual(set(out.split()) - set(freeze35.FROZEN_CODE), set())
         self.assertEqual(freeze35.check(None), [])
-        cfg = json.loads((root / "config" / "round35_holdout_proposal.json").read_text())
+        cfg = json.loads((root / "config" / "round35b_reserve_proposal.json").read_text())   # the active freeze
         self.assertEqual(freeze35.check(cfg["frozen"]), [], "the proposed freeze must match the code")
+
+    def test_reserve_qualification_phase(self):
+        """Round 3.5b: the reserve is a qualification split with comparisons, class
+        diagnostics and error consequences."""
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "pins.json").write_text("{}")
+            req = {"phase": "encode", "models": ["m"], "splits": ["res"], "chunks": 2,
+                   "decoding": {"joint_roles": True, "structural_slots": True, "object_two_tokens": True,
+                                "gave_receiver_self": True},
+                   "frozen": {"model": "m", "decoder_version": freeze35.decoder_version(),
+                              "code_sha256": freeze35.code_hashes(), "taus": {s: 1.0 for s in SLOTS}}}
+            (d / "req.json").write_text(json.dumps(req))
+            for chunk in range(2):
+                self.run_job(d, "encode", "m", "res", chunk, 2)
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
+            dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+            self.assertIn(dec["ENCODER_QUALIFIED"], ("YES", "NO"))
+            self.assertIn("consequences", dec)
+            summary = (d / "SUMMARY.md").read_text()
+            for part in ("Comparison decodings", "- d2 (no schema rules F1/F2):", "- F1 only:", "- F2 only:",
+                         "Class diagnostics", "adjective:heavy", "Original round 3.3 / 3.4 milestone rules on the LM system (res)"):
+                self.assertIn(part, summary)
+            self.assertEqual(A.DECODING["object_two_tokens"], True)   # comparisons restore the frozen decoding
+            (d / "r35_encode_m_res_1.json").unlink()
+            collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+            dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+            self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("UNDECIDABLE", "FAIL"))
+        A.DECODING.update(A.DECODING_OFF)
 
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)
             (d / "pins.json").write_text("{}")
             req = {"phase": "encode", "models": ["m"], "splits": ["ho"], "chunks": 3,
-                   "frozen": {"model": "m", "decoder_version": "d2", "code_sha256": freeze35.code_hashes(),
+                   "frozen": {"model": "m", "decoder_version": freeze35.decoder_version(), "code_sha256": freeze35.code_hashes(),
                               "taus": {s: 1.0 for s in SLOTS}}}
             (d / "req.json").write_text(json.dumps(req))
             for chunk in range(3):
@@ -421,7 +488,7 @@ class JobTests(unittest.TestCase):
                 self.assertNotIn("encodings", r)
             self.run_job(d, "encode", "m", "ho", 0, 3)   # restore the valid chunk report
             check = (d / "CHECK.txt").read_text()
-            self.assertIn("FAILED decoder_version:d2:d9", check)
+            self.assertIn(f"FAILED decoder_version:{freeze35.decoder_version()}:d9", check)
             self.assertIn("FAILED code_sha256:episodic_lab/__init__.py,episodic_lab/wordings35.py", check)
             self.assertEqual(json.loads((d / "DECISIONS.json").read_text())["m"]["ENCODER_QUALIFIED"], "UNDECIDABLE")
             (d / "r35_encode_m_ho_2.json").unlink()

@@ -1,0 +1,64 @@
+7m 26s nachgedacht
+
+- FAIL irrelevant_removed: success 1.0 for all goals
+---END FILE SUMMARY.md---
+
+Meine Empfehlung: Runde 3.5b mit F1 und F2 und genau einer Qualifikation auf der unveränderten Reserve. Der Ergebnisbericht benötigt zuvor einige Zählkorrekturen.
+
+Frage	Urteil
+
+Q1: Ergebnisbericht und Fehleranalyse	REQUEST CHANGES zur Vollständigkeit; NO und FAIL sind korrekt begründet.
+Q2: F1 und F2	APPROVE als ausdrücklich benannte Schema-Regeln.
+Q3: weiteres Vorgehen	APPROVE für den beschriebenen Versuchsplan 3.5b.
+
+
+Die Bewertung beruht auf dem vorgelegten Bericht; Rohdaten und Auswertung habe ich nicht erneut ausgeführt.
+
+Q1: Das negative Ergebnis stimmt, die Fehlerbilanz noch nicht vollständig.
+
+Der Record-Grenzwert wird erreicht. Die Geberaufgabe verfehlt jedoch beide vorgeschriebenen Grenzen: 0,938 statt mindestens 0,98 Einzelgenauigkeit und 0,925 statt mindestens 0,95 Paarerfolg. Damit ist ENCODER_QUALIFIED NO zwingend. Auch MILESTONE_ORIGINAL_RULES FAIL folgt aus den aufgeführten Prüfungen.
+
+Drei Angaben müssen korrigiert beziehungsweise vervollständigt werden:
+
+1. Sechs Fallback-Entscheidungen, nicht fünf. Bei 40 Geberpaaren sind es 80 Weltentscheidungen. Coverage 0,925 bedeutet 74 Entscheidungen aus dem Gedächtnis und sechs andere Entscheidungen. Bei null Fehlern unter den Gedächtnisentscheidungen und insgesamt 75 richtigen Antworten war offenbar eine der sechs Explorationsentscheidungen zufällig richtig. Fünf waren falsch. Trennt deshalb Fallback-Anzahl und falsche Fallback-Antworten.
+
+2. Zwei Akteurfehler fehlen in der Erklärung. Die Tabelle enthält 20, Mechanismus (e) erklärt aber nur 13 + 5 = 18. Die Rollenaufteilung weist zusätzlich einen falschen Geber und insgesamt 14 statt 13 falsche beobachtete Personen aus. Diese beiden Fälle gehören in die Analyse. Außerdem ergeben die Slotfehler insgesamt 122; überprüft die Formulierung „122 falsche Records“ anhand deduplizierter Datensätze und weist mögliche Mehrfachfehler aus.
+
+3. „Schwellen 0 enthalten sich nie“ ist falsch. Beobachtet wurden keine unbekannten Record-Felder. Gleichstände, fehlende zulässige Kandidaten und Mehrfachkandidaten eines strukturellen Slots können weiterhin unknown ergeben. Genau diese Behandlung war Bestandteil von d2.
+
+Die Offenlegung zu „heavy“ ist sinnvoll. Ein Fehler unter 48 Entwicklungsfällen war ein Hinweis auf eine schwache Klasse. Er verletzte aber kein vorab festgelegtes klassenbezogenes Abnahmekriterium. Daraus folgt eine bessere künftige Diagnostik; die ursprünglichen Kriterien sollten unverändert dokumentiert bleiben.
+
+Q2: Beide Regeln sind akzeptabel – mit klar begrenzter Aussage.
+
+F1: APPROVE. Wenn Objektkennungen im festgelegten Schema immer aus Adjektiv und Hauptwort bestehen, ist die Beschränkung auf zwei Wörter eine legitime Typvorgabe. Sie sollte auf kanonischen Objektwerten wirken: „the heavy ledger“ wird zu „heavy ledger“ und bleibt zulässig; none bleibt für tatsächlich objektfreie Ereignisse erhalten.
+
+Die Regel muss allgemein gelten, unabhängig von „heavy“ oder bestimmten Objektnamen. Sie garantiert noch keine richtige Auswahl: Nach Entfernung eines nackten Hauptworts kann auch ein anderer falscher Kandidat gewinnen. Das muss die Reserve zeigen.
+
+F2: APPROVE für diese Umgebung. Ja, F2 entfernt die Empfängerextraktion bei akzeptierten gave-Ereignissen tatsächlich aus der Modellaufgabe. Ihr benennt diese Einschränkung korrekt. Für einen schemaabhängigen Extraktor ist das vertretbar; ein Erfolg wäre kein Nachweis allgemeiner Empfängererkennung.
+
+Entscheidend ist die Generatorinvariante, dass hier jede Übergabe an den Agenten geht. Die Regel sollte gemeinsam mit actor != receiver in die zulässigen Rollenpaare eingehen. Ein nachträgliches Überschreiben des Empfängerfelds könnte sonst ein widersprüchliches Paar erzeugen. Bei unbekannter Aktion bleibt die Einschränkung inaktiv.
+
+Die übrigen Fehler müssen weiterhin vollständig im Record-Kriterium zählen. „Aufgabenneutral“ bedeutet hier neutral für die geprüften Fragen. Eine Verwechslung von left und put bleibt eine ungenaue Ereignisspeicherung.
+
+Q3: Ich bevorzuge 3.5b gegenüber B und C.
+
+Die zwei Regeln sind eng, nachvollziehbar und ohne neue Entwicklungsencodings prüfbar. Das macht diesen Schritt wirtschaftlicher als eine weitere Promptsuche. Die bisherige Reserve wurde vor den Ergebnissen festgelegt; sie kann die neue Konfiguration unabhängig prüfen.
+
+Dafür gilt:
+
+- 3.5 bleibt dauerhaft NO/FAIL. 3.5b erhält ein eigenes Protokoll und Ergebnis.
+- Genau F1 und F2 werden umgesetzt; Abnahmegrenzen bleiben unverändert.
+- Entwicklungsdiagnostik und Rekalibrierung verwenden bereits bekannte Daten. Reserve-Leistungsdaten bleiben bis nach dem Freeze geschlossen.
+- Reserveformulierungen und Welten werden gemäß dem vorab festgelegten Verfahren verwendet.
+- Nach einem negativen Reservenergebnis greift die angekündigte Stopregel. Dann bevorzuge ich Alternative B, also den Frageparser mit strukturiertem Input weiterzuprüfen.
+
+Die Reservenutzung nach einem Leistungsfehlschlag ist eine neue Versuchsiteration. Die ursprüngliche Reparaturregel war ausdrücklich für Coveragefehler beschrieben. Die Offenlegung als Runde 3.5b ist deshalb wichtig und angemessen.
+
+Die Freigabe betrifft diesen Plan. Ein Decoder d3 und seine endgültige eingefrorene Konfiguration liegen hier noch nicht als geprüfte Implementierung vor.
+
+Verbesserungsideen
+
+- d2 auf denselben Reserveencodings mitauswerten. Dafür braucht ihr keine zusätzlichen Modellaufrufe. So lässt sich unterscheiden, ob d3 auf denselben Fällen verbessert oder die Reserveformulierungen bereits für d2 leichter sind. d3 bleibt der vorab festgelegte primäre Decoder; d2 dient als Vergleich. Optional sind F1 allein und F2 allein ebenfalls offline auswertbar.
+- Schemaabhängige Felder getrennt ausweisen. Insbesondere: Wie viele Empfängerwerte wurden durch F2 festgelegt, und wie gut sind die verbleibenden tatsächlichen Modellentscheidungen? Das macht den zusätzlichen Hilfsumfang sichtbar.
+- Klassendiagnostik mit Nennern berichten. Fehlerquote, Enthaltung und Fallzahl pro Adjektiv, Rahmen und Rolle sind aussagekräftiger als die kleinste Marge allein. Ein Minimum ist eine Suchhilfe, keine Zuverlässigkeitsgarantie.
+- Fehlerfolgen systematisch verfolgen. Für jeden relevanten Fehler: falsches Record-Feld → Operatorstatus → Gedächtnisentscheidung oder Fallback → richtige oder falsche Aktion. Das würde auch die derzeit fehlende sechste Fallback-Entscheidung sauber erklären.

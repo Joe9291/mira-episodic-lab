@@ -164,22 +164,28 @@ def _best_per_value(entries: list, mode: str) -> dict:
 #        chosen counterpart (rejected in review: hides joint ambiguity, uses an undecided action)
 #   d2 - the action is decided first by its own rule; the narrator constraint of "was" applies
 #        only to an accepted action; actor and receiver margins over ALL feasible role pairs
-DECODER_VERSION = "d2"
+#   d3 - d2 plus two optional schema rules of this environment (round 3.5b, request options):
+#        object_two_tokens - object values are adjective + noun (two tokens) or "none";
+#        gave_receiver_self - an ACCEPTED "gave" has the receiver You (a feasibility
+#        condition of the role pairs, together with actor != receiver). Both options off = d2.
+DECODER_VERSION = "d3"
 DECISION_ORDER = ("action", "actor", "partner", "object", "place", "event_day")
 
 
-def role_views(encoding: dict, accepted_action, mode: str = "sum") -> dict:
+def role_views(encoding: dict, accepted_action, mode: str = "sum", gave_receiver_self: bool = False) -> dict:
     """Pair-level scores under the schema's role constraints (receiver differs from actor;
     a person seen - an ACCEPTED action "was" - is never the narrator; with an unknown action
     no action-dependent constraint applies). For every actor value: the best joint score
     actor + receiver over all feasible receivers; likewise for every receiver value. Margins
     between these keep competing joint explanations visible: two equally good best pairs
-    leave their differing components with margin 0 (unknown)."""
+    leave their differing components with margin 0 (unknown). With gave_receiver_self, an
+    accepted "gave" admits only pairs whose receiver is You (d3, round 3.5b)."""
     A = _best_per_value(encoding["actor"], mode)
     R = _best_per_value(encoding["partner"], mode)
 
     def ok(a, r):
-        return a != r and not (accepted_action == "was" and a == SELF_VALUE)
+        return (a != r and not (accepted_action == "was" and a == SELF_VALUE)
+                and not (gave_receiver_self and accepted_action == "gave" and r != SELF_VALUE))
     ja, jr = {}, {}
     for a, sa in A.items():
         for r, sr in R.items():
@@ -200,8 +206,11 @@ def slot_view(encoding: dict, slot: str, detail: dict, mode: str = "sum") -> lis
     from .analysis35 import DECODING
     if DECODING.get("joint_roles") and slot in ("actor", "partner"):
         act = detail["action"]
-        return role_views(encoding, act["value"] if act["status"] != "unknown" else None, mode)[slot]
+        return role_views(encoding, act["value"] if act["status"] != "unknown" else None, mode,
+                          bool(DECODING.get("gave_receiver_self")))[slot]
     scored = view(encoding[slot], mode)
+    if slot == "object" and DECODING.get("object_two_tokens"):   # canonical values: adjective + noun, or none
+        scored = [x for x in scored if x[1] == NONE or len(str(x[1]).split()) == 2]
     if slot == "partner" and DECODING.get("receiver_differs_from_actor") and detail["actor"]["status"] != "unknown":
         scored = [x for x in scored if x[1] != detail["actor"]["value"]]
     return scored

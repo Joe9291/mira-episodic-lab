@@ -1,0 +1,68 @@
+{
+ "schema": "episodic_lab.round35_request.v1",
+ "enabled": false,
+ "note": "Round 3.5b RESERVE qualification (docs/ROUND_3_5b.md): qwen2.5-1.5b, prompt p8, candidates c2, sum score, decoder d3 = d2 + the two named schema rules F1 (object values adjective + noun or none) and F2 (an accepted 'gave' has the receiver You, inside the feasible role pairs), structurally fixed slots, thresholds recalibrated with d3 on the calibration split of run 39186450732. New worlds with the reserve paraphrases, used once. Bound to the code by decoder_version and code_sha256 (bench/m3/freeze35.py). To be copied to config/round35.json only after Astra's approval and the post-freeze reserve coverage check.",
+ "phase": "encode",
+ "models": [
+  "qwen2.5-1.5b+p8"
+ ],
+ "splits": [
+  "res"
+ ],
+ "chunks": 12,
+ "decoding": {
+  "joint_roles": true,
+  "structural_slots": true,
+  "receiver_differs_from_actor": false,
+  "object_two_tokens": true,
+  "gave_receiver_self": true
+ },
+ "frozen": {
+  "model": "qwen2.5-1.5b+p8",
+  "prompt_version": "p8",
+  "candidate_version": "c2",
+  "score": "sum",
+  "decoder_version": "d3",
+  "calibration": {
+   "run": 39186450732,
+   "code_commit": "e5823436f4800d65eff19fc6f361b1d48a428346",
+   "split": "cal",
+   "recomputed_offline_with": "d3"
+  },
+  "taus": {
+   "actor": 0.0,
+   "partner": 0.0,
+   "action": 0.0,
+   "object": 0.0,
+   "place": 0.0,
+   "event_day": "structural"
+  },
+  "code_sha256": {
+   "episodic_lab/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "episodic_lab/wordings35.py": "d0efe7670f275e9d41fe2ca367d52b63286df4648283618cedb0219ae6a6756a",
+   "episodic_lab/env35.py": "bff192184aca40744129be8f7f08088ae97824fd1bd13b3875012b4bb5c3f33e",
+   "episodic_lab/cands35.py": "6d21ed3a12d19c01acedc34261440101e5918cc1699b895ee4a92b4289add63a",
+   "episodic_lab/encoder35.py": "f9c20af0fd03a30509f8c13f8d51e39c80e3651692181529c8ee1471a022b63a",
+   "episodic_lab/analysis35.py": "7ad446fb88efe1eaa6eed3cbe1728d1050fae2c76266716893d024aacafae3cf",
+   "episodic_lab/models.py": "6702199f75eada4d699fb444b5a6d1f892679c73f39b79a67736fab19c9fe441",
+   "episodic_lab/env.py": "f87baa0ea3a4c4d047af9b4cb2c8df91f678f2d78393d53b0b54f10bd5549298",
+   "episodic_lab/env_agent.py": "bb498039967254c8c837e2511186d65a8e686a603ee292a8c8bf38a5477b5602",
+   "episodic_lab/env_reference.py": "4dc00bfa71910e74dc88a7120d6a934ce17a1b8a8b782d12e03c59f2c1a2a8b1",
+   "episodic_lab/history_agent.py": "e64a3c36901de7ade67fbad02b442ae636473dcd881f384ffb7c380ea56cfbb1",
+   "episodic_lab/history_env.py": "16683b8802c5095d7010a0f48adaacd67fcf7db7b42f89a9ba3b11b3c7d297dd",
+   "episodic_lab/history_reference.py": "b4838556140c51b1453258cdb37ce0cb75cd681f2428da415ed0cdec86db81b8",
+   "episodic_lab/memory.py": "4bee97f1f69901e952875ece06ffdabfa82d15cca958d1489ed54e07483e8b38",
+   "episodic_lab/questions.py": "a39a9185b9ecd068d6a8bbe825b52ff429f199e1504e12ed0c1e5f1e7087253a",
+   "episodic_lab/rng.py": "4c807caf9a5da36c0fb97e0771567dcbf483135f8129369301b598c17b74f5c8",
+   "episodic_lab/symbolic.py": "e402bdb3b49147b1b25da261f8704a9ba9ce149245920538834e2afdde3fb73c",
+   "episodic_lab/world.py": "fc688ff240a977a849c4e7686f7d54fbc099c9f46b38766a50f8126440a10142",
+   "bench/m3/freeze35.py": "c07ebae9052ca424544e2d4721bf65e0521a10cc9efc21595e743c76b3d5cd2c",
+   "bench/m3/run_round35.py": "804d31d76a6c3cdcbb7b9317f80e2701bb88953621e6b2db0b612302810c5929",
+   "bench/m3/collect_round35.py": "a124a10e510327c75b2acd64b969a3edf04a3614aa395fe021ad2bdec9f30716",
+   "bench/m3/run_round33.py": "8c2eb965ca7ac67ac352228296f7457ce98b9d52a602bcd564d72a885420afea",
+   "bench/m3/collect_round33.py": "2ca90d49f0b4979ba2d104e9564a62055dcde5ff42ba94b9edff8df2ada39bd8",
+   "bench/m3/run_round34.py": "968bdc9664fffa911528a4f59dc58dcee086ad9f943b35d74bcbce8924dc1f4a",
+   "bench/m3/collect_round34.py": "8dd1e036fd90dce1486325d5a27f87350f379b8ddde42016f24fb04a44e78f62"
+  }
+ }
+}

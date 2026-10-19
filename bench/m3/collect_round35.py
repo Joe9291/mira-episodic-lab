@@ -5,8 +5,10 @@ decision is re-derived from the recorded scores.
 Phases (config/round35.json "phase"):
   timing  cost per text, model loading, extrapolation to every split, cache check
   encode  for the listed splits; with "cal": thresholds per slot and the holdout gate;
-          with "ho": ENCODER_QUALIFIED and MILESTONE_ORIGINAL_RULES with the frozen
-          configuration given in the request ("frozen": {"model", "taus"})
+          with a qualification split ("ho" in round 3.5, "res" in round 3.5b):
+          ENCODER_QUALIFIED and MILESTONE_ORIGINAL_RULES with the frozen configuration given
+          in the request ("frozen": {"model", "decoder_version", "taus", "code_sha256"}),
+          plus comparison decodings, class diagnostics and error consequences (3.5b)
 """
 from __future__ import annotations
 
@@ -31,6 +33,10 @@ from episodic_lab.encoder35 import DECODER_VERSION  # noqa: E402
 from episodic_lab.env35 import SIZES  # noqa: E402
 
 JOB_HOURS = 5.5   # usable part of the 6-hour job limit
+QUALIFICATION = ("ho", "res")   # splits on which a frozen configuration qualifies (once each)
+COMPARISONS = {"d2 (no schema rules F1/F2)": {"object_two_tokens": False, "gave_receiver_self": False},
+               "F1 only": {"object_two_tokens": True, "gave_receiver_self": False},
+               "F2 only": {"object_two_tokens": False, "gave_receiver_self": True}}
 
 
 def sha256_file(path) -> str:
@@ -134,6 +140,26 @@ def probe_summary(req: dict, enc: dict) -> list[str]:
     return L
 
 
+def comparisons(split: str, enc: dict, truth: dict, taus: dict) -> list[str]:
+    """Comparison decodings on the same encodings and thresholds (not the primary result)."""
+    L = ["Comparison decodings (same encodings and thresholds; the primary result is the frozen decoding above):", ""]
+    saved = dict(A.DECODING)
+    try:
+        for name, opts in COMPARISONS.items():
+            A.DECODING.update(opts)
+            q = A.quality(enc, truth, taus)
+            c = A.cells(A.tasks(split, enc, taus)["intact"])
+            met = all(ok for _, ok in A.encoder_qualified(q, c))
+            weak = "; ".join(f"{k} {v['success_lm']:.3f}/{v['pair_success']:.3f}" for k, v in c.items()
+                             if v["success_lm"] < 1 or v["pair_success"] < 1) or "every cell 1.000"
+            L.append(f"- {name}: complete records {q['complete_records']:.3f}; 3.5 criteria {'met' if met else 'NOT met'}; "
+                     f"cells below 1 (success/pair): {weak}")
+    finally:
+        A.DECODING.clear()
+        A.DECODING.update(saved)
+    return L + [""]
+
+
 def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
     L, decisions = ["# Round 3.5 encode run", ""], {}
     truth = {s: A.truths(s) for s in req["splits"]}
@@ -174,10 +200,13 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
                                    f"{det}/{qc['texts'] * len(SLOTS)}, of these correct {cor / det if det else 0:.3f}")
                     L += ["", "Schema-constrained controls (same candidates, decoder and thresholds, model scores "
                           "replaced): " + "; ".join(ctl)]
-                if split != "ho":
-                    fq = A.frame_quality(split, enc[(model, split)], t)
-                    L += ["", "By wording frame (distinct texts / complete records correct): " + "; ".join(
-                        f"{f} {n}/{ok}" for f, (n, ok) in fq.items())]
+                fq = A.frame_quality(split, enc[(model, split)], t)
+                L += ["", "By wording frame (distinct texts / complete records correct): " + "; ".join(
+                    f"{f} {n}/{ok}" for f, (n, ok) in fq.items())]
+                if label == "thresholds":
+                    cd = A.class_diagnostics(split, enc[(model, split)], t)
+                    L += ["", "Class diagnostics (texts / wrong / unknown / smallest correct margin): " + "; ".join(
+                        f"{k} {v[0]}/{v[1]}/{v[2]}/{'-' if v[3] is None else round(v[3], 2)}" for k, v in cd.items())]
                 L += ["", "By role and absence: " + "; ".join(
                     f"{k} {v['correct']}/{v['unknown']}/{v['wrong']}" for k, v in sorted(q["roles"].items())), ""]
                 T = A.tasks(split, enc[(model, split)], t)
@@ -193,21 +222,30 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
                 L += ["", f"3.5 criteria on {split} ({label}): {'all met' if passed else 'NOT met'}", ""]
                 L += [f"- {'PASS' if ok else 'FAIL'} {text}" for text, ok in checks if not ok][:20] + [""]
                 decisions.setdefault(model, {}).setdefault("criteria", {})[f"{split}:{label}"] = passed
-                if split == "ho" and req.get("frozen") and label == "thresholds":
+                if split in QUALIFICATION and req.get("frozen") and label == "thresholds":
                     s33 = run_round33.summarise(T["rows33"])
                     s34 = run_round34.summarise(T["rows34"])
-                    orig = collect_round33.criteria(s33, SIZES["ho"]) + collect_round34.criteria(s34, SIZES["ho"])
+                    orig = collect_round33.criteria(s33, SIZES[split]) + collect_round34.criteria(s34, SIZES[split])
                     decisions[model]["ENCODER_QUALIFIED"] = "YES" if passed else "NO"
                     decisions[model]["MILESTONE_ORIGINAL_RULES"] = "PASS" if all(ok for _, ok in orig) else "FAIL"
-                    L += ["Original round 3.3 / 3.4 milestone rules on the LM system (holdout):", ""]
+                    L += [f"Original round 3.3 / 3.4 milestone rules on the LM system ({split}):", ""]
                     L += [f"- {'PASS' if ok else 'FAIL'} {text}" for text, ok in orig] + [""]
+                    L += comparisons(split, enc[(model, split)], truth[split], t)
+                    cons = A.consequences(split, enc[(model, split)], t)
+                    decisions[model]["consequences"] = cons
+                    L += [f"Error consequences ({len(cons)} world decisions wrong or not from memory; "
+                          f"{sum(not x['right'] for x in cons)} wrong):", ""]
+                    for x in cons:
+                        L.append(f"- {x['kind']} {x['seed']} {x['world']} {x['goal']}: policy {x['policy']}, action "
+                                 f"{x['action']} ({'right' if x['right'] else 'wrong'}, true {x['truth']}); "
+                                 f"faults: {' || '.join(x['faults']) or 'none'}")
+                    L.append("")
     return L, decisions
 
 
 def main(request_path: str, dest: str, pins_path: str, commit: str | None = None) -> int:
     req = json.loads(Path(request_path).read_text())
-    A.DECODING.update({"receiver_differs_from_actor": False, "structural_slots": False, "joint_roles": False},
-                      **req.get("decoding", {}))
+    A.DECODING.update(A.DECODING_OFF, **req.get("decoding", {}))
     dest = Path(dest)
     enc, reports, problems = load(req, request_path, pins_path, dest, commit)
     problems += freeze35.check(req.get("frozen"))   # frozen decoder and code = running decoder and code
@@ -234,7 +272,7 @@ def main(request_path: str, dest: str, pins_path: str, commit: str | None = None
     except Exception as exc:
         verdict = "INCOMPLETE"
         lines.append(f"FAILED summary {type(exc).__name__}: {exc}")
-    if req["phase"] == "encode" and "ho" in req["splits"]:
+    if req["phase"] == "encode" and any(x in req["splits"] for x in QUALIFICATION):
         for model in req["models"]:
             d = decisions.setdefault(model, {})
             if verdict != "COMPLETE":

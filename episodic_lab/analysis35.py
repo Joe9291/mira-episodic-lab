@@ -32,7 +32,10 @@ FIELDS = ("actor", "partner", "action", "object", "place", "event_day")
 #                                 single values (its rare choices stay unknown)
 #   joint_roles                 - actor and receiver chosen jointly under the role constraints
 #                                 (receiver differs from actor; a person seen is not the narrator)
-DECODING = {"receiver_differs_from_actor": False, "structural_slots": False, "joint_roles": False}
+#   object_two_tokens, gave_receiver_self - round 3.5b schema rules (decoder d3, see encoder35)
+DECODING = {"receiver_differs_from_actor": False, "structural_slots": False, "joint_roles": False,
+            "object_two_tokens": False, "gave_receiver_self": False}
+DECODING_OFF = dict(DECODING)
 MIN_ACCEPTED = 200
 PRECISION = 0.99
 
@@ -112,6 +115,71 @@ def frame_quality(split: str, encodings: dict, taus: dict, mode: str = "sum") ->
             content, unk, detail = decide_record(encodings[text], taus, mode)
             ok += all(detail[s]["status"] != "unknown" and detail[s]["value"] == truth_value(s, c) for s in SLOTS)
         out[frame] = [len(items), ok]
+    return out
+
+
+def class_diagnostics(split: str, encodings: dict, taus: dict, mode: str = "sum") -> dict:
+    """Per value class, with denominators (round 3.5b): {class: [texts, wrong slots, unknown
+    slots, smallest margin of a correct choice or None]} for the object adjective, the
+    wording frame and the role of each slot (distinct texts). A small minimum margin is a
+    search aid, not a reliability guarantee."""
+    out = {}
+    seen = set()
+    for p in split_pairs(split):
+        for w in p["worlds"].values():
+            for e, c in zip(w["experiences"], w["truth_content"]):
+                if e["text"] in seen:
+                    continue
+                seen.add(e["text"])
+                det = decide_record(encodings[e["text"]], taus, mode)[2]
+                keys = [f"frame:{e['frame']}"] + [f"role:{s}:{role(s, c)}" for s in SLOTS]
+                if c["object"]:
+                    keys.append(f"adjective:{c['object'].split()[0]}")
+                wrong = sum(det[s]["status"] != "unknown" and det[s]["value"] != truth_value(s, c) for s in SLOTS)
+                unk = sum(det[s]["status"] == "unknown" for s in SLOTS)
+                margins = [det[s]["margin"] for s in SLOTS if det[s]["status"] == "ok"
+                           and det[s]["value"] == truth_value(s, c) and det[s]["margin"] is not None]
+                for k in keys:
+                    if k.startswith("role:"):
+                        sl = k.split(":")[1]
+                        w_, u_ = (det[sl]["status"] != "unknown" and det[sl]["value"] != truth_value(sl, c),
+                                  det[sl]["status"] == "unknown")
+                        m_ = [det[sl]["margin"]] if (det[sl]["status"] == "ok" and not w_) else []
+                    elif k.startswith("adjective:"):
+                        d = det["object"]
+                        w_, u_ = d["status"] != "unknown" and d["value"] != c["object"], d["status"] == "unknown"
+                        m_ = [d["margin"]] if (d["status"] == "ok" and not w_) else []
+                    else:
+                        w_, u_, m_ = wrong, unk, margins
+                    v = out.setdefault(k, [0, 0, 0, None])
+                    v[0] += 1
+                    v[1] += int(w_)
+                    v[2] += int(u_)
+                    if m_:
+                        v[3] = min(m_) if v[3] is None else min(v[3], min(m_))
+    return dict(sorted(out.items()))
+
+
+def consequences(split: str, encodings: dict, taus: dict, mode: str = "sum") -> list[dict]:
+    """Error consequences (round 3.5b): for every world and goal whose LM decision is wrong
+    or not taken from memory: the wrong or unknown record fields of that world -> the
+    policy (memory or fallback) -> the action and whether it is right."""
+    out = []
+    by = {(p["kind"], p["seed"]): p for p in split_pairs(split)}
+    for r in tasks(split, encodings, taus, mode)["intact"]:
+        if r["lm_action"] == r["truth"] and r["lm_policy"] == "memory":
+            continue
+        w = by[(r["kind"], r["seed"])]["worlds"][r["world"]]
+        faults = []
+        for i, (e, c) in enumerate(zip(w["experiences"], w["truth_content"])):
+            det = decide_record(encodings[e["text"]], taus, mode)[2]
+            for s in SLOTS:
+                if det[s]["status"] == "unknown" or det[s]["value"] != truth_value(s, c):
+                    faults.append(f"note {i} {s}: {det[s]['value'] if det[s]['status'] != 'unknown' else '?'} "
+                                  f"(true {truth_value(s, c)}) | {e['text']}")
+        out.append({"kind": r["kind"], "seed": r["seed"], "world": r["world"], "goal": r["goal"],
+                    "policy": r["lm_policy"], "action": r["lm_action"], "truth": r["truth"],
+                    "right": r["lm_action"] == r["truth"], "faults": faults})
     return out
 
 

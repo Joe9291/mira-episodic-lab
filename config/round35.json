@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round35_request.v1",
- "enabled": true,
- "note": "Round 3.5 HOLDOUT qualification (docs/ROUND_3_5.md, 'Frozen configuration'): qwen2.5-1.5b, prompt p8, candidates c2, sum score, decoder d2 (action decided first, narrator constraint only for an accepted 'was', actor/receiver margins over all feasible role pairs), structurally fixed slots, thresholds recomputed with d2 on the calibration split of run 39186450732. Bound to the code by decoder_version and code_sha256 of the complete local import closure (bench/m3/freeze35.py; checked before the workflow plan, in every encode job before the model loads, and by the collector). To be copied to config/round35.json only after Astra's approval and the post-freeze holdout coverage check.",
+ "enabled": false,
+ "note": "DONE: round 3.5 holdout run 39221095580 (ENCODER_QUALIFIED NO, MILESTONE_ORIGINAL_RULES FAIL), disabled afterwards; the freeze below belongs to code commit 4809114. Round 3.5 HOLDOUT qualification (docs/ROUND_3_5.md, 'Frozen configuration'): qwen2.5-1.5b, prompt p8, candidates c2, sum score, decoder d2 (action decided first, narrator constraint only for an accepted 'was', actor/receiver margins over all feasible role pairs), structurally fixed slots, thresholds recomputed with d2 on the calibration split of run 39186450732. Bound to the code by decoder_version and code_sha256 of the complete local import closure (bench/m3/freeze35.py; checked before the workflow plan, in every encode job before the model loads, and by the collector). To be copied to config/round35.json only after Astra's approval and the post-freeze holdout coverage check.",
  "phase": "encode",
  "models": [
   "qwen2.5-1.5b+p8"
