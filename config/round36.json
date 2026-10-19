@@ -1,9 +1,14 @@
 {
  "schema": "episodic_lab.round36_request.v1",
  "enabled": true,
- "note": "Round 3.6 development probe (docs/ROUND_3_6.md): qwen2.5-1.5b with prompt q1 (no examples) and q2 (worked examples), 2 development texts per development wording; timing and cache check included.",
+ "note": "Round 3.6 development probe 2 (docs/ROUND_3_6.md, log item 3): intent as multiple choice with letters A-H, target question for the complete object / full name written in the request; q3 with worked examples, q4 without.",
  "phase": "probe",
- "models": ["qwen2.5-1.5b+q1", "qwen2.5-1.5b+q2"],
- "splits": ["dev"],
+ "models": [
+  "qwen2.5-1.5b+q3",
+  "qwen2.5-1.5b+q4"
+ ],
+ "splits": [
+  "dev"
+ ],
  "chunks": 1
 }

@@ -55,7 +55,7 @@ def cache_check(model, texts: list[str], prompt: str) -> dict:
     worst, same = 0.0, True
     for text in texts:
         for slot in SLOTS:
-            surf = candidates(slot, text)
+            surf = candidates(slot, text, prompt)
             a = scorer_of(model)(messages(slot, text, prompt), [s for s, _ in surf])
             b = model.score_candidates(messages(slot, text, prompt), [s for s, _ in surf])
             worst = max(worst, max(abs(x - y) for x, y in zip(a, b)))

@@ -90,7 +90,22 @@ QUESTIONS = {
                "is about, exactly as written. If the request names no complete object or person (only 'it', "
                "'them', a bare noun or a first name), answer: none."),
 }
-PROMPTS = ("q1", "q2")
+PROMPTS = ("q1", "q2", "q3", "q4")
+# q3 / q4 (development change after probe 1: "unsupported" almost never chosen, long label
+# strings compete with different lengths under the sum score, the target of giver questions
+# answered "none"): the intent as a multiple choice with equally short letter answers A-H
+# (canonical value = the label); the target question asks for the complete object or full
+# name WRITTEN in the request. q3 with the worked examples of q2, q4 without.
+LETTER_PROMPTS = ("q3", "q4")
+LETTERS = "ABCDEFGH"
+LETTER_OF = dict(zip(INTENTS, LETTERS))
+Q_INTENT_LETTERS = ("Which option describes the request? "
+                    + " ".join(f"{LETTER_OF[k]}) {v}." for k, v in INTENT_DESCRIPTIONS.items())
+                    + " Answer with the letter only.")
+Q_TARGET_V2 = ("Which complete object (adjective and noun, for example 'green box') or full name (first and last "
+               "name, for example 'Mara Lind') is written in the request? Answer with it exactly as written. "
+               "If the request contains no complete object and no full name (only 'it', 'them', a bare noun "
+               "or a first name), answer: none.")
 # q2 = q1 plus worked examples as earlier chat turns (development: names, places and objects
 # outside the world vocabulary; every intent and both control kinds)
 EXAMPLES_Q2 = [
@@ -108,15 +123,22 @@ EXAMPLES_Q2 = [
 def messages(slot: str, text: str, prompt: str = "q1") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
+    question = QUESTIONS[slot]
+    if prompt in LETTER_PROMPTS:
+        question = Q_INTENT_LETTERS if slot == "intent" else Q_TARGET_V2
     turns = [{"role": "system", "content": SYSTEM}]
-    for req, answers in {"q2": EXAMPLES_Q2}.get(prompt, []):
-        turns += [{"role": "user", "content": f"Request: {req}\n\nQuestion: {QUESTIONS[slot]}"},
-                  {"role": "assistant", "content": answers[slot]}]
-    return turns + [{"role": "user", "content": f"Request: {text}\n\nQuestion: {QUESTIONS[slot]}"}]
+    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2}.get(prompt, []):
+        answer = LETTER_OF[answers[slot]] if (slot == "intent" and prompt in LETTER_PROMPTS) else answers[slot]
+        turns += [{"role": "user", "content": f"Request: {req}\n\nQuestion: {question}"},
+                  {"role": "assistant", "content": answer}]
+    return turns + [{"role": "user", "content": f"Request: {text}\n\nQuestion: {question}"}]
 
 
-def candidates(slot: str, text: str) -> list[tuple[str, str]]:
+def candidates(slot: str, text: str, prompt: str = "q1") -> list[tuple[str, str]]:
+    """[(surface scored by the model, canonical value)]."""
     if slot == "intent":
+        if prompt in LETTER_PROMPTS:
+            return [(LETTER_OF[k], k) for k in INTENTS]
         return [(k, k) for k in INTENTS]
     return target_candidates(text)
 
@@ -126,7 +148,7 @@ def encode_question(scorer, text: str, ntokens=None, prompt: str = "q1") -> dict
     of the complete answer after the slot question)."""
     out = {}
     for slot in SLOTS:
-        cands = candidates(slot, text)
+        cands = candidates(slot, text, prompt)
         scores = scorer(messages(slot, text, prompt), [s for s, _ in cands])
         out[slot] = [[s, c, float(x), None, ntokens(s) if ntokens else None] for (s, c), x in zip(cands, scores)]
     return out

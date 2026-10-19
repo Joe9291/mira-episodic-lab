@@ -298,3 +298,14 @@ Implementation notes (2026-10-19):
 
 1. Model-free audit (dev group, docs/ROUND_3_6_audit_dev.json): no problems; coverage 1.0 on
    dev, cal, aud; calibration counts 490 / 348; rule baseline 208/208, 490/490, 72/72.
+2. Probe 1 (GitHub 39310171530, 69 development texts, best value): q1 46/69 right, q2
+   (worked examples) 42/69; about 11 s per question. Errors: unsupported questions almost
+   never recognised (q1 0/12 refused, 11 accepted as OK) - the intent was scored as long
+   label strings ("object_current", "unsupported") whose lengths differ under the sum
+   score; "Where is X now?" / "Go to X." read as object questions; giver questions answered
+   with target "none" (the target question asked what the request is "about"). Ambiguous
+   questions were handled 5/5 by both.
+3. Development change: prompts q3 / q4 - the intent as a multiple choice with equally short
+   letter answers A-H (canonical value = the label), the target question asks for the
+   complete object or full name WRITTEN in the request; q3 with the worked examples, q4
+   without. Probe 2 compares both.

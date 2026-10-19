@@ -211,11 +211,16 @@ class FakeModel:
         return "w"
 
     def _score(self, msgs, surfaces):
+        from episodic_lab.parser36 import LETTER_OF
         last = msgs[-1]["content"]
-        text = re.match(r"Request: (.*)\n\nQuestion: Field '(\w+)'", last, re.S)
-        req, field = text.group(1), text.group(2)
+        req, question = re.match(r"Request: (.*)\n\nQuestion: (.*)", last, re.S).groups()
         g = GOLD[req]
-        want = g["intent"] if field == "intent" else (g["target"] if g["outcome"] == "OK" else NONE)
+        if question.startswith("Which option"):
+            want = LETTER_OF[g["intent"]]
+        elif question.startswith("Field 'intent'"):
+            want = g["intent"]
+        else:
+            want = g["target"] if g["outcome"] == "OK" else NONE
         canon = (lambda s: " ".join(w[:-2] if w.endswith("'s") else w for w in s.split()))
         return [0.0 if canon(s) == want else -5.0 for s in surfaces]
 
@@ -242,9 +247,12 @@ class JobTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)
             (d / "pins.json").write_text("{}")
-            (d / "req.json").write_text(json.dumps({"phase": "probe", "models": ["m+q1"], "splits": ["dev"], "chunks": 1}))
-            r = self.run_job(d, "probe", "m+q1")
-            self.assertEqual((r["status"], r["prompt_version"]), ("OK", "q1"), r.get("error"))
+            (d / "req.json").write_text(json.dumps({"phase": "probe", "models": ["m+q1", "m+q3"], "splits": ["dev"],
+                                                    "chunks": 1}))
+            for variant in ("m+q1", "m+q3"):
+                r = self.run_job(d, "probe", variant)
+                self.assertEqual((r["status"], r["prompt_version"]), ("OK", variant[2:]), r.get("error"))
+            self.assertEqual(sorted({x[0] for x in next(iter(r["encodings"].values()))["intent"]}), list("ABCDEFGH"))
             collect_round36.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
             self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
         with tempfile.TemporaryDirectory() as tmp:
