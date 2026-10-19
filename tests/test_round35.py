@@ -461,7 +461,12 @@ class JobTests(unittest.TestCase):
         current = {"decoder_version": freeze35.decoder_version(), "code_sha256": freeze35.code_hashes()}
         self.assertEqual(freeze35.check(current), [])
         cfg = json.loads((root / "config" / "round35b_reserve_proposal.json").read_text())
-        self.assertEqual(freeze35.check(cfg["frozen"]), ["code_sha256:episodic_lab/env35.py"])
+        problems = freeze35.check(cfg["frozen"])   # decoder d3 unchanged; only files changed since b400189
+        self.assertEqual(len(problems), 1)
+        changed = set(problems[0].split(":", 1)[1].split(","))
+        # env35.py: seed prefix for round 3.6; models.py: prefix-cache fix for chat templates (round 3.6,
+        # scores unchanged) - both documented in docs/ROUND_3_6.md
+        self.assertLessEqual(changed, {"episodic_lab/env35.py", "episodic_lab/models.py"})
 
     def test_reserve_qualification_phase(self):
         """Round 3.5b: the reserve is a qualification split with comparisons, class
