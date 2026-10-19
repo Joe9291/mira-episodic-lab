@@ -16,7 +16,7 @@ from __future__ import annotations
 import statistics
 
 from .cands35 import NONE, SELF, SLOTS, STRUCTURAL, ranking, truth_value
-from .encoder35 import decide_record, view
+from .encoder35 import decide_record, joint_roles, view
 from .env import PLACING, parse_goal
 from .env35 import KINDS35, split_pairs
 from .env_reference import plan as env_plan, predictions as env_predictions
@@ -30,7 +30,9 @@ FIELDS = ("actor", "partner", "action", "object", "place", "event_day")
 #   receiver_differs_from_actor - the receiver's choice excludes the chosen actor's value
 #   structural_slots            - a slot with only single-value cases in calibration accepts
 #                                 single values (its rare choices stay unknown)
-DECODING = {"receiver_differs_from_actor": False, "structural_slots": False}
+#   joint_roles                 - actor and receiver chosen jointly under the role constraints
+#                                 (receiver differs from actor; a person seen is not the narrator)
+DECODING = {"receiver_differs_from_actor": False, "structural_slots": False, "joint_roles": False}
 MIN_ACCEPTED = 200
 PRECISION = 0.99
 
@@ -122,7 +124,9 @@ def calibrate(encodings: dict, truth: dict, mode: str = "sum") -> dict:
             if text not in truth:
                 continue
             entries = enc[s]
-            if s == "partner" and DECODING.get("receiver_differs_from_actor"):   # same rule as decide_record
+            if DECODING.get("joint_roles") and s in ("actor", "partner"):   # same rule as decide_record
+                entries = joint_roles(enc, ranking(view(enc["action"], mode))[0], mode)[s]
+            elif s == "partner" and DECODING.get("receiver_differs_from_actor"):
                 actor = ranking(view(enc["actor"], mode))[0]
                 entries = [e for e in entries if e[1] != actor]
             value, margin, n = ranking(view(entries, mode))

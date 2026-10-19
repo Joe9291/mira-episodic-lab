@@ -188,7 +188,8 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
 
 def main(request_path: str, dest: str, pins_path: str, commit: str | None = None) -> int:
     req = json.loads(Path(request_path).read_text())
-    A.DECODING.update({"receiver_differs_from_actor": False, "structural_slots": False}, **req.get("decoding", {}))
+    A.DECODING.update({"receiver_differs_from_actor": False, "structural_slots": False, "joint_roles": False},
+                      **req.get("decoding", {}))
     dest = Path(dest)
     enc, reports, problems = load(req, request_path, pins_path, dest, commit)
     verdict = "COMPLETE" if not problems else "INCOMPLETE"

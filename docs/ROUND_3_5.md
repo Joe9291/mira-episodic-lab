@@ -375,3 +375,18 @@ receiver, "You" vs observed persons, truly absent vs present partner/object.
    cells. Next development run: p8 = p7 + two worked examples ("You met X ...", "you
    watched X leave ...", development wordings), with both decoding proposals switched on
    in the request (measurement).
+10. Development and calibration run 2 (GitHub 39186450732; qwen2.5-1.5b+p8, decoding
+   proposals "receiver differs from actor" and "structurally fixed slots" on): dev
+   complete records 0.945 (best value) / 0.920 (thresholds), cal 0.957 / 0.901; the
+   receiver is solved (dev 748-750/750), the remaining errors are the actor: "You met X"
+   (36 of 40 dev errors; the extra worked example did not help), "you saw X at P" (2) and
+   "You got ... from X" (2) - the model names the grammatical subject "You". Criteria not
+   met (giver and person cells). Offline, on the recorded encodings of both runs (no new
+   model run): proposal (3) joint role decoding - actor and receiver chosen jointly under
+   the schema's role constraints (the receiver differs from the actor; a person seen,
+   action "was", is never the narrator - the narrator's own movements are "went"), each
+   slot then decided within its feasible values with the usual margin and threshold.
+   Result with joint roles + structurally fixed slots: p8 dev complete records 0.999,
+   cal 0.996, every 3.5 criterion met on dev AND cal, thresholds all 0 (day structural);
+   p7 gives 0.995 / 0.995, also all criteria met. The joint decoding replaces proposal
+   (1). These decoding rules are design changes and go to Astra before the holdout.

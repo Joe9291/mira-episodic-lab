@@ -10,7 +10,7 @@ is logged in docs/ROUND_3_5.md).
 """
 from __future__ import annotations
 
-from .cands35 import ACTIONS, NONE, SLOTS, candidates, decide, ranking
+from .cands35 import ACTIONS, NONE, SELF as SELF_VALUE, SLOTS, candidates, decide, ranking
 
 # p2 (development change after the timing slice, logged in docs/ROUND_3_5.md): questions
 # state the schema's roles explicitly (who is reported, who received something, objects
@@ -151,13 +151,44 @@ def view(entries: list, mode: str = "sum") -> list[tuple]:
     return out
 
 
+def _best_per_value(entries: list, mode: str) -> dict:
+    best = {}
+    for _, c, s in view(entries, mode):
+        if c not in best or s > best[c]:
+            best[c] = s
+    return best
+
+
+def joint_roles(encoding: dict, action, mode: str = "sum") -> dict:
+    """Joint choice of actor and receiver under the schema's role constraints (development
+    proposal): the receiver differs from the actor; a person seen ("was") is never the
+    narrator. Returns {slot: entries restricted to the values feasible given the other
+    slot's joint choice}, so that the usual decision (choice, margin, threshold) applies to
+    each slot within its feasible set."""
+    A = _best_per_value(encoding["actor"], mode)
+    R = _best_per_value(encoding["partner"], mode)
+
+    def ok(a, r):
+        return a != r and not (action == "was" and a == SELF_VALUE)
+    pairs = [(sa + sr, str(a), str(r), a, r) for a, sa in A.items() for r, sr in R.items() if ok(a, r)]
+    if not pairs:
+        return {"actor": [], "partner": []}
+    _, _, _, a_star, r_star = max(pairs, key=lambda p: (p[0], p[1], p[2]))
+    return {"actor": [x for x in encoding["actor"] if ok(x[1], r_star)],
+            "partner": [x for x in encoding["partner"] if ok(a_star, x[1])]}
+
+
 def decide_record(encoding: dict, taus: dict, mode: str = "sum") -> tuple[dict, list, dict]:
     """(record content, declared unknown slots, per-slot detail) from a recorded encoding.
     taus[slot] = threshold or None (no qualifying threshold: always unknown)."""
     from .analysis35 import DECODING
     content, unknown, detail = {}, [], {}
+    restricted = {}
+    if DECODING.get("joint_roles"):
+        action = ranking(view(encoding["action"], mode))[0]
+        restricted = joint_roles(encoding, action, mode)
     for slot in SLOTS:
-        entries = encoding[slot]
+        entries = restricted.get(slot, encoding[slot])
         if slot == "partner" and DECODING.get("receiver_differs_from_actor") and detail.get("actor", {}).get("status") != "unknown":
             entries = [x for x in entries if x[1] != detail["actor"]["value"]]
         value, margin, status = decide(view(entries, mode), taus.get(slot))

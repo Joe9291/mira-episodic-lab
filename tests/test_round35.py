@@ -314,6 +314,29 @@ class JobTests(unittest.TestCase):
             A.DECODING["structural_slots"] = False
         self.assertIsNone(A.calibrate(enc5, truth)["event_day"]["tau"])
 
+    def test_joint_role_decoding(self):
+        from episodic_lab.encoder35 import decide_record
+        def enc(actor, partner, action):
+            e = {s: [["x", "v", 0.0, None, 1]] for s in SLOTS}
+            e["actor"] = [[k, k, v, None, 1] for k, v in actor.items()]
+            e["partner"] = [[k, k, v, None, 1] for k, v in partner.items()]
+            e["action"] = [[k, k, v, None, 1] for k, v in action.items()]
+            return e
+        taus = {s: 0.0 for s in SLOTS}
+        try:
+            A.DECODING["joint_roles"] = True
+            # "You got the key from Juno": actor You slightly ahead, receiver You far ahead -> (Juno, You)
+            r = decide_record(enc({"You": -0.5, "Juno Brack": -1.0}, {"You": -0.2, "none": -3.0}, {"gave": 0.0, "was": -4.0}), taus)[0]
+            self.assertEqual((r["actor"], r["partner"]), ("Juno Brack", "You"))
+            # "You met Dorran": a person seen is never the narrator
+            r = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -1.0}, {"was": 0.0, "went": -3.0}), taus)[0]
+            self.assertEqual((r["actor"], r["partner"]), ("Dorran Vesk", None))
+            # own placing: actor You, receiver must differ -> none
+            r = decide_record(enc({"You": -0.1, "Ana Bell": -3.0}, {"You": -0.1, "none": -0.5}, {"put": 0.0, "was": -4.0}), taus)[0]
+            self.assertEqual((r["actor"], r["partner"]), ("You", None))
+        finally:
+            A.DECODING["joint_roles"] = False
+
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)
