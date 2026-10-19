@@ -1,13 +1,14 @@
 {
  "schema": "episodic_lab.round36_request.v1",
  "enabled": true,
- "note": "Round 3.6 development probe 5 (docs/ROUND_3_6.md, log items 8-9): Qwen3-1.7B with q7 (q5 examples + two imperatives, slots of the decision table only); prefix cache fixed for the Qwen3 chat template (the job's cache check compares with uncached scores).",
- "phase": "probe",
+ "note": "Round 3.6 development and calibration run (docs/ROUND_3_6.md, log item 10): Qwen3-1.7B with q7, decision table q1 (sum score), thresholds from cal, dev/cal criteria and the rule baseline beside it.",
+ "phase": "encode",
  "models": [
   "qwen3-1.7b+q7"
  ],
  "splits": [
-  "dev"
+  "dev",
+  "cal"
  ],
- "chunks": 1
+ "chunks": 4
 }

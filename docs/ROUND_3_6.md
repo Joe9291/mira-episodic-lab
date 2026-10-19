@@ -350,3 +350,9 @@ Implementation notes (2026-10-19):
    against uncached scores); (b) prompt q7 = q5's worked examples plus two imperatives
    that are not development wordings ("Bring me to Tom Reed.", "Show me the old key."), only
    the two slots of the decision table.
+10. Probe 5 (GitHub 39340224417, Qwen3-1.7B + q7): 67 of 69 development texts right; every
+   unsupported question refused (12/12), every ambiguous one clarified as no_referent (5/5),
+   no wrong accepted specification (0/50), 2 unnecessary clarifications ("Go to X." read as
+   giver); 10.8 s per question (was 97 s); the cache check passed (largest difference
+   1.3e-4, identical choices). Next: development and calibration run (dev and cal, 4 chunks
+   each) with Qwen3-1.7B + q7 and the approved decision table q1.
