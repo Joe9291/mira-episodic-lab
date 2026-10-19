@@ -1,0 +1,154 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.5 DECODER CORRECTION (d2) AND THE RECOMPUTED FROZEN HOLDOUT CONFIGURATION, PART 1 OF 2
+
+Review request (Astra; Claude is lead reviewer). This answers your review of the development package (A APPROVE, B1 REQUEST CHANGES, B2 APPROVE, C REQUEST CHANGES; archived as reviews/2026-10-19_r35dev_astra.txt). Please decide whether the holdout may now be opened with the corrected decoder and the recomputed frozen configuration. Answer per point APPROVE or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker of each part. This file ends with the line "=== END OF LAB ROUND 3.5 DECODER CORRECTION PART 1 ===".
+
+STATE: lab main = 40d9452 (code f79643d + a documentation line; previous package: 6009e6a); unit tests 141 green locally (Python 3.12) and in CI (f79643d). Part 2 contains the complete code and test diff 6009e6a..f79643d.
+
+YOUR POINTS AND WHAT WAS DONE
+B1, first point (action used before its own decision): decisions now run in a fixed order action, actor, receiver, object, place, day. The action is decided first with its real rule (margin, threshold, tie -> unknown). The narrator constraint ("a person seen is never the narrator") is applied only if the action was ACCEPTED as "was". With an unknown action no action-dependent constraint applies, so the roles of every other possible action stay available. The action-independent constraint (receiver differs from actor) stays.
+B1, second point (margins hidden by filtering): actor and receiver margins are now computed over all feasible role pairs - per actor value the best joint score actor + receiver over its feasible receivers, margins between these values; likewise per receiver value. Equally good best pairs therefore give margin 0 for each component in which they differ (unknown); a shared component stays decided.
+B1, same procedure: one function decides a slot (slot_view / decide_slot) for both calibration and application. Calibration runs slot by slot in the decision order; a later slot sees the earlier slots decided with THEIR calibrated thresholds - exactly what decide_record does with the frozen thresholds.
+B2 (your note): calibration now reports a basis per slot - "multi" (multi-value cases exist), "single_only" (only single-value cases), "none" (no evaluable case). STRUCTURAL requires "single_only" AND >= 200 single values AND their precision >= 0.99 (I added this evidence bar, the same as for a threshold; it is a tightening - please confirm or reject). "none" gives no threshold (slot always unknown).
+C: recomputed offline on the recorded p8 encodings of run 39186450732 (no model calls), see results. The frozen configuration now also names the decoder version (d2) and the SHA-256 of the eight round 3.5 code files; the collector reports any mismatch with the running code as INCOMPLETE (ENCODER_QUALIFIED = UNDECIDABLE), so code drift after the freeze cannot pass unnoticed.
+Your ideas, all done: (1) schema-constrained controls with the same candidates, decoder and thresholds; (2) the two regression tests (plus three more); (3) structural uniqueness by origin ("text" = the note's candidates had one value, "schema" = one value left by the role constraints); (4) freeze documentation (decoder version, thresholds, changed role of the calibration split).
+
+REGRESSION TESTS (tests/test_round35.py, test_joint_role_decoding / test_decoding_options)
+- "was" and "went" tie -> action unknown -> actor "You" stays possible and wins (d1: excluded).
+- "was" ahead but below its threshold -> not accepted -> same outcome; an accepted "was" excludes "You" (actor then single value, origin "schema").
+- your example: pairs (You, none) and (Ada Stone, You) with equal joint score -> actor AND receiver unknown, both margins 0.
+- tied pairs sharing the actor (You, Tom Reed) / (You, Ben Cole) -> actor decided, receiver unknown.
+- a case where d1 filtered the competitor away and accepted both roles as single values: pairs (You, Ada Stone) 0.0 and (Ada Stone, You) -0.15 -> d2 margins 0.15 each; at threshold 0.2 both unknown.
+- B2: 200 correct single days -> STRUCTURAL; 199 -> none; 200 wrong singles -> none; no candidates -> basis "none", no threshold.
+- frozen decoder version / code hash mismatch -> INCOMPLETE, UNDECIDABLE.
+Mutation check (each mutant killed): provisional best action instead of the decided one; last instead of best pair score; differ constraint dropped; wrong origin label; single precision dropped.
+
+RESULTS WITH d2 (offline, recorded p8 encodings, identical code path as the collector)
+- Thresholds unchanged: action, actor, receiver, object, place tau = 0 (acceptance 1.0; precision 1.0 / 0.997 / 1.0 / 0.999 / 1.0; 748 multi-value cases each, basis "multi"); day STRUCTURAL (basis "single_only", 748 single values, precision 1.0).
+- Complete records with every slot correct: dev 0.999 (750 texts), cal 0.996 (748) - identical to d1. Every 3.5 criterion met on dev and cal (best value and thresholds); the original round 3.3/3.4 milestone rules (17 checks) applied to the LM system with d2: all pass on dev and on cal.
+- d1 vs d2 per text: no role value and no status changed; 831 of 2,996 role margins became smaller (receiver 619, actor 212 - e.g. the receiver "none" of own placings: 17.4 -> 11.9, because the pair (other actor, You) now competes); the smallest role margin is 0.48. The action was accepted in every dev/cal note, so the first correction did not trigger here; it matters for the holdout's unseen wordings.
+- Origin: every single value on dev/cal came from the text (the day); none from the schema.
+- Schema-constrained controls (same candidates, decoder, thresholds; model scores replaced): uniform scores decide only the day (750 of 4,500 slots on dev; complete records 0.000); deterministic random scores decide every slot, 0.30 correct (complete records 0.001 dev / 0.000 cal). The result is carried by the model's scores, not by candidates and decoder.
+
+FROZEN CONFIGURATION (proposal v2): config/round35_holdout_proposal.json, SHA-256 f1fae064ddb639f83e106731f4d74b4721e741c3b2407f95f9bb0b95fe286acb, code commit f79643d (main 40d9452). qwen2.5-1.5b (pinned revision 989aa7980e4cf806f80c7fef2b1adb7bc71aa306), prompt p8, candidates c2, sum score, decoder d2, joint roles + structural slots, thresholds above, 12 chunks. When enabled it is copied unchanged (except "enabled": true) to config/round35.json; the request hash of that file is recorded by every job and checked by the collector.
+
+ORDER AFTER YOUR APPROVAL: model-free holdout coverage check (audit35.py --frozen; a failure consumes the holdout as designed) -> enable -> holdout run (12 chunks, about 2.5 h each) -> ENCODER_QUALIFIED and MILESTONE_ORIGINAL_RULES, reported as they come out, with about 5 concrete cases for Joe.
+
+HONEST LIMITS
+- d2 was written after your review, not after new results; on dev/cal it changes margins only. Its effect on unseen wordings is unknown until the holdout.
+- The calibration split is development evidence by now (documented); thresholds of 0 accept every strictly best choice, so the holdout's unknown rate will mostly come from ties and structural choices.
+- The narrator constraint stays specific to this environment's schema.
+
+---BEGIN FILE docs/ROUND_3_5.md (new part: log item 11 and the frozen configuration)---
+11. Review of the development result (Astra, 2026-10-19, reviews/2026-10-19_r35dev_astra.txt):
+   A (1.5B model) APPROVE; B2 (structurally fixed slots) APPROVE; B1 (joint role decoding)
+   and C (frozen configuration) REQUEST CHANGES - the decoder d1 used the provisional best
+   action for its action-dependent constraint before the action's own decision, and its
+   slot margins (after filtering by the chosen counterpart) could hide a second, equally
+   good role pair. Decoder d2 (episodic_lab/encoder35.py, DECODER_VERSION):
+   - decisions in a fixed order (action, actor, receiver, object, place, day); the action
+     is decided first with its own rule; the narrator constraint applies only to an
+     ACCEPTED "was" (an unknown action keeps the roles of every other possible action);
+   - actor and receiver margins over ALL feasible role pairs: per actor value the best joint
+     score over the feasible receivers, margins between these values; likewise for the
+     receiver. Equally good best pairs leave their differing components unknown;
+   - one function (`slot_view`/`decide_slot`) for calibration and application: calibration
+     runs slot by slot in the decision order, and a later slot sees the earlier slots
+     decided with their calibrated thresholds;
+   - B2 implemented with the distinction asked for: basis "multi" / "single_only" / "none";
+     a slot is STRUCTURAL only with basis "single_only", >= 200 single values and their
+     precision >= 0.99 (a tightening: the same evidence bar as a threshold); "none" (no
+     evaluable case) gives no threshold;
+   - single values report their origin: from the note's candidates ("text") or left by the
+     role constraints ("schema");
+   - regression tests: tied action with the "was" constraint; "was" below its threshold;
+     tied joint pairs with different components (both unknown) and with a shared actor
+     (only the receiver unknown); a d1-overstated margin (competitor filtered away).
+     Mutation check: provisional action, non-maximal pair score, dropped differ constraint,
+     wrong origin, dropped single precision - each killed.
+   Offline recomputation on the recorded p8 encodings (run 39186450732, no model calls):
+   thresholds unchanged (action, actor, receiver, object, place 0.0 with acceptance 1.0 and
+   precision >= 0.997 on 748 multi-value cases each; day STRUCTURAL: 748 single values from
+   the text, precision 1.0); dev complete records 0.999, cal 0.996, every 3.5 criterion met
+   on dev and cal (best value and thresholds), original 3.3/3.4 rules (17 checks) pass on
+   dev and cal - identical to d1. Per role slot, d2 changed
+   no value and no status; 831 of 2,996 role margins became smaller (receiver 619, actor
+   212; the receiver of own placings no longer profits from the filtered "You"); the
+   smallest role margin is 0.48. No single value came from the schema on dev/cal.
+   Schema-constrained controls (same candidates, decoder and thresholds; model scores
+   replaced): uniform scores decide only the day (750/4,500 slots, complete records 0.000);
+   random scores decide every slot with 0.30 correct (complete records 0.001 dev / 0.000
+   cal) - the result is carried by the model's scores, not by candidates and decoder.
+
+## Frozen configuration for the holdout (proposal v2, after review 11)
+
+config/round35_holdout_proposal.json (not enabled). Model qwen2.5-1.5b at the pinned
+revision, prompt p8, candidates c2, score = sum log-probability, decoder d2 with joint
+roles and structurally fixed slots, thresholds actor/receiver/action/object/place 0.0 and
+day STRUCTURAL - recomputed with d2 on the calibration split of run 39186450732 (code
+e582343). The request binds the code: `frozen.decoder_version` must equal the code's
+DECODER_VERSION and `frozen.code_sha256` the SHA-256 of the eight round 3.5 code files
+(wordings35, env35, cands35, encoder35, analysis35, models, run_round35, collect_round35);
+the collector reports any mismatch as INCOMPLETE (ENCODER_QUALIFIED UNDECIDABLE), so a
+code change after the freeze cannot pass unnoticed. Request hash and code commit: in the
+review package.
+
+Role of the calibration split: it was planned as an untouched threshold split; it has been
+used as development evidence (runs 9 and 10, the decoder proposals were checked on it), so
+its numbers are development values. The thresholds still come from it alone; the unused
+holdout (ho, 40 pairs per kind) is the only independent test. The reserve split stays
+closed.
+---END FILE docs/ROUND_3_5.md---
+
+---BEGIN FILE config/round35_holdout_proposal.json---
+{
+ "schema": "episodic_lab.round35_request.v1",
+ "enabled": false,
+ "note": "Round 3.5 HOLDOUT qualification (docs/ROUND_3_5.md, 'Frozen configuration'): qwen2.5-1.5b, prompt p8, candidates c2, sum score, decoder d2 (action decided first, narrator constraint only for an accepted 'was', actor/receiver margins over all feasible role pairs), structurally fixed slots, thresholds recomputed with d2 on the calibration split of run 39186450732. Bound to the code by decoder_version and code_sha256 (checked by the collector). To be copied to config/round35.json only after Astra's approval and the post-freeze holdout coverage check.",
+ "phase": "encode",
+ "models": [
+  "qwen2.5-1.5b+p8"
+ ],
+ "splits": [
+  "ho"
+ ],
+ "chunks": 12,
+ "decoding": {
+  "joint_roles": true,
+  "structural_slots": true,
+  "receiver_differs_from_actor": false
+ },
+ "frozen": {
+  "model": "qwen2.5-1.5b+p8",
+  "prompt_version": "p8",
+  "candidate_version": "c2",
+  "score": "sum",
+  "decoder_version": "d2",
+  "calibration": {
+   "run": 39186450732,
+   "code_commit": "e5823436f4800d65eff19fc6f361b1d48a428346",
+   "split": "cal",
+   "recomputed_offline_with": "d2"
+  },
+  "taus": {
+   "actor": 0.0,
+   "partner": 0.0,
+   "action": 0.0,
+   "object": 0.0,
+   "place": 0.0,
+   "event_day": "structural"
+  },
+  "code_sha256": {
+   "episodic_lab/wordings35.py": "d0efe7670f275e9d41fe2ca367d52b63286df4648283618cedb0219ae6a6756a",
+   "episodic_lab/env35.py": "bff192184aca40744129be8f7f08088ae97824fd1bd13b3875012b4bb5c3f33e",
+   "episodic_lab/cands35.py": "6d21ed3a12d19c01acedc34261440101e5918cc1699b895ee4a92b4289add63a",
+   "episodic_lab/encoder35.py": "1abb7d31267a3b0b8a44b65222d5b19f56c6b43cbb8093ed378daa6a222908d6",
+   "episodic_lab/analysis35.py": "d38fc0d287ff7a9966b9b8768da6ae4b3bbdc98d9f19d1274b0b246f274bde90",
+   "episodic_lab/models.py": "6702199f75eada4d699fb444b5a6d1f892679c73f39b79a67736fab19c9fe441",
+   "bench/m3/run_round35.py": "fef0398ed032cbd3523197a280ff01d6be94bf6eef696bcfd33f674b3f04fc62",
+   "bench/m3/collect_round35.py": "a9eaabbffe80f3188349ca7e5f4e947560e7225d5c52ffb10c6f6e59fc4e130e"
+  }
+ }
+}
+---END FILE config/round35_holdout_proposal.json---
+
+=== END OF LAB ROUND 3.5 DECODER CORRECTION PART 1 ===

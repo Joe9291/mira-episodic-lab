@@ -1,0 +1,447 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.5 DECODER CORRECTION (d2), PART 2 OF 2
+
+Complete code and test diff 6009e6a..f79643d (episodic_lab/encoder35.py, episodic_lab/analysis35.py, bench/m3/collect_round35.py, tests/test_round35.py). This file ends with the line "=== END OF LAB ROUND 3.5 DECODER CORRECTION PART 2 ===".
+
+---BEGIN DIFF---
+diff --git a/bench/m3/collect_round35.py b/bench/m3/collect_round35.py
+index 602f68f..c9ff832 100644
+--- a/bench/m3/collect_round35.py
++++ b/bench/m3/collect_round35.py
+@@ -26,6 +26,7 @@ import run_round34  # noqa: E402
+ import run_round35  # noqa: E402
+ from episodic_lab import analysis35 as A  # noqa: E402
+ from episodic_lab.cands35 import SLOTS  # noqa: E402
++from episodic_lab.encoder35 import DECODER_VERSION  # noqa: E402
+ from episodic_lab.env35 import SIZES  # noqa: E402
+ 
+ JOB_HOURS = 5.5   # usable part of the 6-hour job limit
+@@ -35,6 +36,17 @@ def sha256_file(path) -> str:
+     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+ 
+ 
++ROOT = Path(__file__).resolve().parents[2]
++# the round 3.5 code a frozen configuration is bound to (its SHA-256 is part of the request)
++FROZEN_CODE = ("episodic_lab/wordings35.py", "episodic_lab/env35.py", "episodic_lab/cands35.py",
++               "episodic_lab/encoder35.py", "episodic_lab/analysis35.py", "episodic_lab/models.py",
++               "bench/m3/run_round35.py", "bench/m3/collect_round35.py")
++
++
++def code_hashes() -> dict:
++    return {p: sha256_file(ROOT / p) for p in FROZEN_CODE}
++
++
+ def planned(req: dict) -> list[tuple[str, str, int]]:
+     if req["phase"] in ("timing", "probe"):
+         return [(m, "dev", 0) for m in req["models"]]
+@@ -141,21 +153,36 @@ def encode_summary(req: dict, enc: dict) -> tuple[list[str], dict]:
+         if "cal" in req["splits"]:
+             cal = A.calibrate(enc[(model, "cal")], truth["cal"])
+             taus = {s: cal[s]["tau"] for s in SLOTS}
+-            decisions[model] = {"taus": taus, "calibration": cal}
++            decisions[model] = {"taus": taus, "calibration": cal, "decoder_version": DECODER_VERSION,
++                                "decoding": dict(A.DECODING)}
+             L += ["Thresholds (calibration split): " + "; ".join(
+                 f"{s} tau={cal[s]['tau'] if not isinstance(cal[s]['tau'], float) else round(cal[s]['tau'], 4)} acceptance "
+                 f"{'-' if cal[s]['acceptance'] is None else round(cal[s]['acceptance'], 3)} precision {'-' if cal[s]['precision'] is None else round(cal[s]['precision'], 4)} "
+-                f"({cal[s]['accepted']}/{cal[s]['items']})" for s in SLOTS), ""]
++                f"({cal[s]['accepted']}/{cal[s]['items']}; basis {cal[s]['basis']}, single-value cases {cal[s]['singles']}"
++                f"{'' if cal[s]['single_precision'] is None else ' precision ' + str(round(cal[s]['single_precision'], 4))})"
++                for s in SLOTS), ""]
+         if req.get("frozen"):
+             taus = req["frozen"]["taus"]
+         for split in req["splits"]:
+             for label, t in (("best value (tau 0)", zero),) + ((("thresholds", taus),) if taus else ()):
+                 q = A.quality(enc[(model, split)], truth[split], t)
+                 L += [f"### {split}, {label}: complete records {q['complete_records']:.3f} ({q['texts']} texts)", "",
+-                      "| slot | correct | unknown | wrong | single-value | accuracy where chosen |", "|---|---|---|---|---|---|"]
++                      "| slot | correct | unknown | wrong | single-value (from text / from schema) | accuracy where chosen |",
++                      "|---|---|---|---|---|---|"]
+                 for s, v in q["slots"].items():
+                     ch = f"{v['chosen_correct'] / v['chosen']:.3f}" if v["chosen"] else "-"
+-                    L.append(f"| {s} | {v['correct']} | {v['unknown']} | {v['wrong']} | {v['single']} | {ch} |")
++                    L.append(f"| {s} | {v['correct']} | {v['unknown']} | {v['wrong']} | {v['single']} "
++                             f"({v['single_text']} / {v['single_schema']}) | {ch} |")
++                if label == "thresholds":
++                    ctl = []
++                    for kind in ("uniform", "random"):
++                        qc = A.quality(A.rescored(enc[(model, split)], kind), truth[split], t)
++                        det = sum(v["correct"] + v["wrong"] for v in qc["slots"].values())
++                        cor = sum(v["correct"] for v in qc["slots"].values())
++                        ctl.append(f"{kind} scores: complete records {qc['complete_records']:.3f}, slots decided "
++                                   f"{det}/{qc['texts'] * len(SLOTS)}, of these correct {cor / det if det else 0:.3f}")
++                    L += ["", "Schema-constrained controls (same candidates, decoder and thresholds, model scores "
++                          "replaced): " + "; ".join(ctl)]
+                 if split != "ho":
+                     fq = A.frame_quality(split, enc[(model, split)], t)
+                     L += ["", "By wording frame (distinct texts / complete records correct): " + "; ".join(
+@@ -192,6 +219,12 @@ def main(request_path: str, dest: str, pins_path: str, commit: str | None = None
+                       **req.get("decoding", {}))
+     dest = Path(dest)
+     enc, reports, problems = load(req, request_path, pins_path, dest, commit)
++    frozen = req.get("frozen")
++    if frozen is not None and frozen.get("decoder_version") != DECODER_VERSION:   # frozen decoder = code's decoder
++        problems.append(f"decoder_version:{frozen.get('decoder_version')}:{DECODER_VERSION}")
++    if frozen is not None and frozen.get("code_sha256") != code_hashes():   # frozen code = running code
++        problems.append("code_sha256:" + ",".join(p for p in FROZEN_CODE
++                                                  if (frozen.get("code_sha256") or {}).get(p) != code_hashes()[p]))
+     verdict = "COMPLETE" if not problems else "INCOMPLETE"
+     lines = [f"FAILED {p}" for p in problems] or ["OK every planned report present, valid and from this run"]
+     summary, decisions = [], {}
+diff --git a/episodic_lab/analysis35.py b/episodic_lab/analysis35.py
+index 1074f26..bc79a64 100644
+--- a/episodic_lab/analysis35.py
++++ b/episodic_lab/analysis35.py
+@@ -16,7 +16,7 @@ from __future__ import annotations
+ import statistics
+ 
+ from .cands35 import NONE, SELF, SLOTS, STRUCTURAL, ranking, truth_value
+-from .encoder35 import decide_record, joint_roles, view
++from .encoder35 import DECISION_ORDER, decide_record, decide_slot, slot_view
+ from .env import PLACING, parse_goal
+ from .env35 import KINDS35, split_pairs
+ from .env_reference import plan as env_plan, predictions as env_predictions
+@@ -66,7 +66,8 @@ def role(slot: str, content: dict) -> str:
+ def quality(encodings: dict, truth: dict, taus: dict, mode: str = "sum") -> dict:
+     """Per slot correct/unknown/wrong over distinct texts, single-value slots separately,
+     by role; complete records with every slot correct."""
+-    per = {s: {"correct": 0, "unknown": 0, "wrong": 0, "single": 0, "chosen_correct": 0, "chosen": 0} for s in SLOTS}
++    per = {s: {"correct": 0, "unknown": 0, "wrong": 0, "single": 0, "single_text": 0,
++                 "single_schema": 0, "chosen_correct": 0, "chosen": 0} for s in SLOTS}
+     roles = {}
+     complete = 0
+     n = 0
+@@ -86,6 +87,7 @@ def quality(encodings: dict, truth: dict, taus: dict, mode: str = "sum") -> dict
+             per[s][st] += 1
+             if d["status"] == "single":
+                 per[s]["single"] += 1
++                per[s]["single_" + d["origin"]] += 1
+             else:
+                 per[s]["chosen"] += 1
+                 per[s]["chosen_correct"] += st == "correct"
+@@ -114,39 +116,70 @@ def frame_quality(split: str, encodings: dict, taus: dict, mode: str = "sum") ->
+ 
+ 
+ def calibrate(encodings: dict, truth: dict, mode: str = "sum") -> dict:
+-    """Per slot: the threshold with the highest acceptance rate subject to precision >= 0.99
+-    and >= 200 accepted values among the multi-value slots; ties to the smaller threshold;
+-    None if no threshold qualifies (the slot is then always unknown)."""
++    """Per slot, in DECISION_ORDER and with the same decision steps as decide_record (a later
++    slot sees the earlier slots decided with their calibrated thresholds): the threshold with
++    the highest acceptance rate subject to precision >= 0.99 and >= 200 accepted values among
++    the multi-value cases; ties to the smaller threshold; None if no threshold qualifies (the
++    slot is then always unknown).
++    basis: "multi" (multi-value cases exist), "single_only" (every evaluable case had one value:
++    with structural_slots the slot is STRUCTURAL if >= 200 single values with precision >= 0.99,
++    else None) or "none" (no evaluable case: None)."""
++    usable = [(enc, truth[text]) for text, enc in encodings.items() if text in truth]
++    details = [{} for _ in usable]
+     out = {}
+-    for s in SLOTS:
+-        items = []
+-        for text, enc in encodings.items():
+-            if text not in truth:
+-                continue
+-            entries = enc[s]
+-            if DECODING.get("joint_roles") and s in ("actor", "partner"):   # same rule as decide_record
+-                entries = joint_roles(enc, ranking(view(enc["action"], mode))[0], mode)[s]
+-            elif s == "partner" and DECODING.get("receiver_differs_from_actor"):
+-                actor = ranking(view(enc["actor"], mode))[0]
+-                entries = [e for e in entries if e[1] != actor]
+-            value, margin, n = ranking(view(entries, mode))
++    for s in DECISION_ORDER:
++        items, singles = [], []
++        for (enc, t), det in zip(usable, details):
++            value, margin, n = ranking(slot_view(enc, s, det, mode))
+             if n >= 2:
+-                items.append((margin, value == truth_value(s, truth[text])))
+-        best = None
+-        for tau in sorted({m for m, _ in items if m > 0} | {0.0}):
+-            acc = [ok for m, ok in items if m > 0 and m >= tau]
+-            if len(acc) < MIN_ACCEPTED:
+-                continue
+-            prec = sum(acc) / len(acc)
+-            rate = len(acc) / len(items)
+-            if prec >= PRECISION and (best is None or rate > best[1]):
+-                best = (tau, rate, prec, len(acc))
+-        if not items:   # proposal v4: a slot with only single-value cases is structurally fixed
+-            out[s] = {"tau": STRUCTURAL if DECODING.get("structural_slots") else None, "acceptance": None,
+-                      "precision": None, "accepted": 0, "items": 0}
+-            continue
+-        out[s] = {"tau": best[0] if best else None, "acceptance": best[1] if best else 0.0,
+-                  "precision": best[2] if best else None, "accepted": best[3] if best else 0, "items": len(items)}
++                items.append((margin, value == truth_value(s, t)))
++            elif n == 1:
++                singles.append(value == truth_value(s, t))
++        sprec = sum(singles) / len(singles) if singles else None
++        base = {"items": len(items), "singles": len(singles), "single_precision": sprec}
++        if not items:
++            ok = (DECODING.get("structural_slots") and len(singles) >= MIN_ACCEPTED and sprec >= PRECISION)
++            out[s] = {"tau": STRUCTURAL if ok else None, "acceptance": None, "precision": None, "accepted": 0,
++                      "basis": "single_only" if singles else "none", **base}
++        else:
++            best = None
++            for tau in sorted({m for m, _ in items if m > 0} | {0.0}):
++                acc = [ok for m, ok in items if m > 0 and m >= tau]
++                if len(acc) < MIN_ACCEPTED:
++                    continue
++                prec = sum(acc) / len(acc)
++                rate = len(acc) / len(items)
++                if prec >= PRECISION and (best is None or rate > best[1]):
++                    best = (tau, rate, prec, len(acc))
++            out[s] = {"tau": best[0] if best else None, "acceptance": best[1] if best else 0.0,
++                      "precision": best[2] if best else None, "accepted": best[3] if best else 0,
++                      "basis": "multi", **base}
++        for (enc, _), det in zip(usable, details):
++            det[s] = decide_slot(enc, s, det, out[s]["tau"], mode)
++    return {s: out[s] for s in SLOTS}
++
++
++def rescored(encodings: dict, kind: str) -> dict:
++    """Schema-constrained controls: the same candidates and the same decoder, the model's
++    scores replaced by "uniform" (all equal: only what candidates and constraints determine)
++    or "random" (deterministic pseudo-random scores per text, slot and surface)."""
++    import hashlib
++    out = {}
++    for text, enc in encodings.items():
++        new = {}
++        for slot, entries in enc.items():
++            rows = []
++            for x in entries:
++                if kind == "uniform":
++                    sc = 0.0
++                elif kind == "random":
++                    h = hashlib.sha256(f"{text}|{slot}|{x[0]}".encode()).digest()
++                    sc = -10.0 * int.from_bytes(h[:8], "big") / 2 ** 64
++                else:
++                    raise ValueError(kind)
++                rows.append([x[0], x[1], sc] + list(x[3:]))
++            new[slot] = rows
++        out[text] = new
+     return out
+ 
+ 
+diff --git a/episodic_lab/encoder35.py b/episodic_lab/encoder35.py
+index 7cba88d..1815021 100644
+--- a/episodic_lab/encoder35.py
++++ b/episodic_lab/encoder35.py
+@@ -10,7 +10,7 @@ is logged in docs/ROUND_3_5.md).
+ """
+ from __future__ import annotations
+ 
+-from .cands35 import ACTIONS, NONE, SELF as SELF_VALUE, SLOTS, candidates, decide, ranking
++from .cands35 import ACTIONS, NONE, SELF as SELF_VALUE, SLOTS, candidates, decide
+ 
+ # p2 (development change after the timing slice, logged in docs/ROUND_3_5.md): questions
+ # state the schema's roles explicitly (who is reported, who received something, objects
+@@ -159,48 +159,76 @@ def _best_per_value(entries: list, mode: str) -> dict:
+     return best
+ 
+ 
+-def joint_roles(encoding: dict, action, mode: str = "sum") -> dict:
+-    """Joint choice of actor and receiver under the schema's role constraints (development
+-    proposal): the receiver differs from the actor; a person seen ("was") is never the
+-    narrator. Returns {slot: entries restricted to the values feasible given the other
+-    slot's joint choice}, so that the usual decision (choice, margin, threshold) applies to
+-    each slot within its feasible set."""
++# Decoder versions (docs/ROUND_3_5.md, development log):
++#   d1 - joint roles under the provisional best action, slot margins after filtering by the
++#        chosen counterpart (rejected in review: hides joint ambiguity, uses an undecided action)
++#   d2 - the action is decided first by its own rule; the narrator constraint of "was" applies
++#        only to an accepted action; actor and receiver margins over ALL feasible role pairs
++DECODER_VERSION = "d2"
++DECISION_ORDER = ("action", "actor", "partner", "object", "place", "event_day")
++
++
++def role_views(encoding: dict, accepted_action, mode: str = "sum") -> dict:
++    """Pair-level scores under the schema's role constraints (receiver differs from actor;
++    a person seen - an ACCEPTED action "was" - is never the narrator; with an unknown action
++    no action-dependent constraint applies). For every actor value: the best joint score
++    actor + receiver over all feasible receivers; likewise for every receiver value. Margins
++    between these keep competing joint explanations visible: two equally good best pairs
++    leave their differing components with margin 0 (unknown)."""
+     A = _best_per_value(encoding["actor"], mode)
+     R = _best_per_value(encoding["partner"], mode)
+ 
+     def ok(a, r):
+-        return a != r and not (action == "was" and a == SELF_VALUE)
+-    pairs = [(sa + sr, str(a), str(r), a, r) for a, sa in A.items() for r, sr in R.items() if ok(a, r)]
+-    if not pairs:
+-        return {"actor": [], "partner": []}
+-    _, _, _, a_star, r_star = max(pairs, key=lambda p: (p[0], p[1], p[2]))
+-    return {"actor": [x for x in encoding["actor"] if ok(x[1], r_star)],
+-            "partner": [x for x in encoding["partner"] if ok(a_star, x[1])]}
++        return a != r and not (accepted_action == "was" and a == SELF_VALUE)
++    ja, jr = {}, {}
++    for a, sa in A.items():
++        for r, sr in R.items():
++            if ok(a, r):
++                s = sa + sr
++                if a not in ja or s > ja[a]:
++                    ja[a] = s
++                if r not in jr or s > jr[r]:
++                    jr[r] = s
++    return {"actor": [(str(a), a, s) for a, s in ja.items()],
++            "partner": [(str(r), r, s) for r, s in jr.items()]}
++
++
++def slot_view(encoding: dict, slot: str, detail: dict, mode: str = "sum") -> list[tuple]:
++    """The scored candidates (surface, canonical, score) on which a slot is decided, given
++    the decisions already taken in DECISION_ORDER (detail). The one function used by both
++    calibration and application."""
++    from .analysis35 import DECODING
++    if DECODING.get("joint_roles") and slot in ("actor", "partner"):
++        act = detail["action"]
++        return role_views(encoding, act["value"] if act["status"] != "unknown" else None, mode)[slot]
++    scored = view(encoding[slot], mode)
++    if slot == "partner" and DECODING.get("receiver_differs_from_actor") and detail["actor"]["status"] != "unknown":
++        scored = [x for x in scored if x[1] != detail["actor"]["value"]]
++    return scored
++
++
++def decide_slot(encoding: dict, slot: str, detail: dict, tau, mode: str = "sum") -> dict:
++    """{value, margin, status, origin}; origin of an accepted single value: "text" (the
++    note's candidates had one value) or "schema" (one value left by the role constraints)."""
++    value, margin, status = decide(slot_view(encoding, slot, detail, mode), tau)
++    origin = None
++    if status == "single":
++        origin = "text" if len({x[1] for x in encoding[slot]}) == 1 else "schema"
++    return {"value": value, "margin": margin, "status": status, "origin": origin}
+ 
+ 
+ def decide_record(encoding: dict, taus: dict, mode: str = "sum") -> tuple[dict, list, dict]:
+     """(record content, declared unknown slots, per-slot detail) from a recorded encoding.
+     taus[slot] = threshold or None (no qualifying threshold: always unknown)."""
+-    from .analysis35 import DECODING
+-    content, unknown, detail = {}, [], {}
+-    restricted = {}
+-    if DECODING.get("joint_roles"):
+-        action = ranking(view(encoding["action"], mode))[0]
+-        restricted = joint_roles(encoding, action, mode)
++    detail = {}
++    for slot in DECISION_ORDER:
++        detail[slot] = decide_slot(encoding, slot, detail, taus.get(slot), mode)
++    content, unknown = {}, []
+     for slot in SLOTS:
+-        entries = restricted.get(slot, encoding[slot])
+-        if slot == "partner" and DECODING.get("receiver_differs_from_actor") and detail.get("actor", {}).get("status") != "unknown":
+-            entries = [x for x in entries if x[1] != detail["actor"]["value"]]
+-        value, margin, status = decide(view(entries, mode), taus.get(slot))
+-        detail[slot] = {"value": value, "margin": margin, "status": status}
+-        if status == "unknown":
++        d = detail[slot]
++        if d["status"] == "unknown":
+             content[slot] = None
+             unknown.append(slot)
+         else:
+-            content[slot] = None if value == NONE else value
++            content[slot] = None if d["value"] == NONE else d["value"]
+     return content, unknown, detail
+-
+-
+-def margins(encoding: dict, mode: str = "sum") -> dict:
+-    """{slot: (best canonical value, margin or None for a single value)} - for calibration."""
+-    return {slot: ranking(view(encoding[slot], mode))[:2] for slot in SLOTS}
+diff --git a/tests/test_round35.py b/tests/test_round35.py
+index 019bc4b..f225cf9 100644
+--- a/tests/test_round35.py
++++ b/tests/test_round35.py
+@@ -304,15 +304,24 @@ class JobTests(unittest.TestCase):
+         from episodic_lab.cands35 import decide
+         self.assertEqual(decide([("3", 3, -0.1)], STRUCTURAL)[2], "single")
+         self.assertEqual(decide([("3", 3, -0.1), ("4", 4, -2.0)], STRUCTURAL)[2], "unknown")
+-        truth = {f"t{i}": {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
+-                           "place": "Oak Mill", "event_day": 1} for i in range(5)}
+-        enc5 = {t: {s: [["x", "v", 0.0, None, 1]] for s in SLOTS} for t in truth}
++        def single_day(n, day_value=1):
++            truth = {f"t{i}": {"actor": "Ana Bell", "partner": None, "action": "hid", "object": "red cup",
++                               "place": "Oak Mill", "event_day": 1} for i in range(n)}
++            enc = {t: {s: [["x", "v", 0.0, None, 1]] for s in SLOTS} for t in truth}
++            for e in enc.values():
++                e["event_day"] = [[str(day_value), day_value, -0.1, None, 1]] if day_value is not None else []
++            return enc, truth
+         try:
+             A.DECODING["structural_slots"] = True
+-            self.assertEqual(A.calibrate(enc5, truth)["event_day"]["tau"], STRUCTURAL)
++            cal = A.calibrate(*single_day(200))["event_day"]
++            self.assertEqual((cal["tau"], cal["basis"], cal["singles"], cal["items"]), (STRUCTURAL, "single_only", 200, 0))
++            self.assertIsNone(A.calibrate(*single_day(199))["event_day"]["tau"])           # too little evidence
++            self.assertIsNone(A.calibrate(*single_day(200, 2))["event_day"]["tau"])        # single values wrong
++            cal = A.calibrate(*single_day(200, None))["event_day"]                         # no evaluable case
++            self.assertEqual((cal["tau"], cal["basis"], cal["singles"]), (None, "none", 0))
+         finally:
+             A.DECODING["structural_slots"] = False
+-        self.assertIsNone(A.calibrate(enc5, truth)["event_day"]["tau"])
++        self.assertIsNone(A.calibrate(*single_day(200))["event_day"]["tau"])
+ 
+     def test_joint_role_decoding(self):
+         from episodic_lab.encoder35 import decide_record
+@@ -334,6 +343,41 @@ class JobTests(unittest.TestCase):
+             # own placing: actor You, receiver must differ -> none
+             r = decide_record(enc({"You": -0.1, "Ana Bell": -3.0}, {"You": -0.1, "none": -0.5}, {"put": 0.0, "was": -4.0}), taus)[0]
+             self.assertEqual((r["actor"], r["partner"]), ("You", None))
++            # regression (review B1, first point): "was" and "went" tie -> the action is unknown and
++            # its narrator constraint must not apply: actor You stays possible and wins
++            r, unk, det = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -3.0},
++                                            {"was": 0.0, "went": 0.0}), taus)
++            self.assertEqual(det["action"]["status"], "unknown")
++            self.assertEqual((r["actor"], r["partner"]), ("You", None))
++            # ... and a "was" below its threshold is not accepted either: same outcome
++            r, unk, det = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -3.0},
++                                            {"was": 0.0, "went": -0.5}), dict(taus, action=1.0))
++            self.assertEqual((det["action"]["status"], r["actor"]), ("unknown", "You"))
++            # while an accepted "was" excludes the narrator (the actor becomes a single value from the schema)
++            r, unk, det = decide_record(enc({"You": -0.1, "Dorran Vesk": -2.0}, {"none": -0.1, "You": -3.0},
++                                            {"was": 0.0, "went": -0.5}), taus)
++            self.assertEqual((r["actor"], det["actor"]["status"], det["actor"]["origin"]), ("Dorran Vesk", "single", "schema"))
++            self.assertEqual((det["object"]["status"], det["object"]["origin"]), ("single", "text"))
++            # regression (review B1, second point): two equally good feasible pairs (You, none) and
++            # (Ada Stone, You) with different components -> both components unknown
++            r, unk, det = decide_record(enc({"You": -1.0, "Ada Stone": -1.0}, {"none": -1.0, "You": -1.0},
++                                            {"gave": 0.0, "was": -4.0}), taus)
++            self.assertEqual(sorted(x for x in unk if x in ("actor", "partner")), ["actor", "partner"])
++            self.assertEqual((det["actor"]["margin"], det["partner"]["margin"]), (0.0, 0.0))
++            # tied pairs that share the actor: the actor stays decided, only the receiver is unknown
++            r, unk, det = decide_record(enc({"You": -0.1, "Ada Stone": -3.0}, {"Tom Reed": -1.0, "Ben Cole": -1.0},
++                                            {"gave": 0.0, "was": -4.0}), taus)
++            self.assertEqual((r["actor"], "partner" in unk, "actor" in unk), ("You", True, False))
++            # the pair-level margin, not the margin after filtering by the chosen counterpart:
++            # pairs (You, Ada) 0.0 and (Ada, You) -0.15; d1 filtered the competitor away and
++            # accepted both slots as single values, d2 keeps margin 0.15 (unknown at tau 0.2)
++            e = enc({"You": 0.0, "Ada Stone": -0.1}, {"Ada Stone": 0.0, "You": -0.05}, {"gave": 0.0, "was": -4.0})
++            r, unk, det = decide_record(e, taus)
++            self.assertAlmostEqual(det["actor"]["margin"], 0.15)
++            self.assertAlmostEqual(det["partner"]["margin"], 0.15)
++            self.assertEqual((r["actor"], r["partner"]), ("You", "Ada Stone"))
++            r, unk, det = decide_record(e, dict(taus, actor=0.2, partner=0.2))
++            self.assertEqual(sorted(x for x in unk if x in ("actor", "partner")), ["actor", "partner"])
+         finally:
+             A.DECODING["joint_roles"] = False
+ 
+@@ -342,7 +386,8 @@ class JobTests(unittest.TestCase):
+             d = Path(tmp)
+             (d / "pins.json").write_text("{}")
+             req = {"phase": "encode", "models": ["m"], "splits": ["ho"], "chunks": 3,
+-                   "frozen": {"model": "m", "taus": {s: 1.0 for s in SLOTS}}}
++                   "frozen": {"model": "m", "decoder_version": "d2", "code_sha256": collect_round35.code_hashes(),
++                              "taus": {s: 1.0 for s in SLOTS}}}
+             (d / "req.json").write_text(json.dumps(req))
+             for chunk in range(3):
+                 self.run_job(d, "encode", "m", "ho", chunk, 3)
+@@ -350,6 +395,14 @@ class JobTests(unittest.TestCase):
+             self.assertEqual((d / "VERDICT").read_text().strip(), "COMPLETE", (d / "CHECK.txt").read_text())
+             dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+             self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("YES", "PASS"))
++            # the frozen decoder version and code hashes must match the running code
++            with mock.patch.object(collect_round35, "DECODER_VERSION", "d9"), \
++                    mock.patch.object(collect_round35, "code_hashes", lambda: {p: "0" for p in collect_round35.FROZEN_CODE}):
++                collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
++            check = (d / "CHECK.txt").read_text()
++            self.assertIn("FAILED decoder_version:d2:d9", check)
++            self.assertIn("FAILED code_sha256:episodic_lab/wordings35.py", check)
++            self.assertEqual(json.loads((d / "DECISIONS.json").read_text())["m"]["ENCODER_QUALIFIED"], "UNDECIDABLE")
+             (d / "r35_encode_m_ho_2.json").unlink()
+             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+             dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+---END DIFF---
+
+=== END OF LAB ROUND 3.5 DECODER CORRECTION PART 2 ===
