@@ -46,16 +46,22 @@ the same split structure. Draft (to be checked by Joe for meaning, see section 6
 
 | type | development | holdout | reserve |
 |---|---|---|---|
-| object_current | Where is the {o} now? / Take me to the {o}. / I need the {o} - where is it? | Where can I find the {o} at the moment? / Go get the {o}. / Which place has the {o} right now? | Locate the {o}. / Where would I find the {o} today? / Head to wherever the {o} is. |
+| object_current | Where is the {o} now? / Take me to the {o}. / I need the {o} - where is it? | Where can I find the {o} at the moment? / Go get the {o}. / Which place has the {o} right now? | Locate the {o}. / Where should I look for the {o}? / Head to wherever the {o} is. |
 | object_first | Where was the {o} put the very first time? / Take me to the first place the {o} was put. / Where did the {o} start out? | Where was the {o} originally placed? / Go to the {o}'s first location. / Before all the moving, where was the {o} put? | Where did the {o} get placed first? / Show me where the {o} was put initially. / Which place did the {o} land in first? |
 | object_previous | Where was the {o} before its last move? / Go to the place the {o} was in before it was last put somewhere. / Where had the {o} been just before it was last placed? | Where was the {o} prior to the latest placing? / Take me to the {o}'s previous spot. / Before the {o} was put where it is now, where was it? | Where did the {o} sit before its most recent placing? / Go to the {o}'s second-to-last place. / One move back, where was the {o}? |
 | person_current | Where is {x} now? / Go to {x}. / Take me to where {x} was last seen. | Where can I meet {x}? / Head to {x}'s last known spot. / Where did you see {x} most recently? | Find where {x} is. / Where was {x} last spotted? / Go wherever {x} was last. |
 | person_first | Where did you see {x} for the first time? / Go to the place where {x} first appeared. / Where was {x} when you first saw them? | Take me to where you originally saw {x}. / Where did you first come across {x}? / Go to {x}'s earliest known place. | Where did {x} first show up? / Head to the first place you saw {x}. / Your first sighting of {x} - where was it? |
 | person_previous | Where did you see {x} before the last time? / Go to where {x} was seen before the latest sighting. / Where was {x} the time before you last saw them? | Take me to {x}'s previous location. / Before the most recent sighting, where was {x}? / Where did you see {x} one time before the last? | Where was {x} seen just before the last sighting? / Go back one sighting: where was {x}? / Where did {x} appear before their latest appearance? |
-| giver | Who gave you the {o}? Go to them. / Go to the person you got the {o} from. / Find whoever handed you the {o}. | Take me to the one who gave me the {o}. / Where is the person the {o} came from? / Go find the giver of the {o}. | The {o} - who gave it to you? Find them. / Locate the person who passed you the {o}. / Where is whoever gave me the {o}? |
+| giver | Who gave you the {o}? Go to them. / Go to the person you got the {o} from. / Find whoever handed you the {o}. | Take me to the one who gave you the {o}. / Where is the person the {o} came from? / Go find the giver of the {o}. | The {o} - who gave it to you? Find them. / Locate the person who passed you the {o}. / Where is whoever gave you the {o}? |
 | ambiguous | Where is it now? / Find the {noun}. / Go to {first}. | Where did they put it first? / Take me to the {noun}. / Where is {first} now? | Find it. / Where was the {noun} placed first? / Locate {first}. |
-| unsupported | Why did {x} put the {o} there? / How many times was the {o} moved? / Where will the {o} be tomorrow? | What colour is the {o}? / How often did you see {x}? / Where was {x} right before they gave you the {o}? | Who will take the {o} next? / Why was the {o} hidden? / Where was the {o} just before you met {x}? |
+| unsupported | Why did {x} put the {o} there? / How many times was the {o} moved? / Where will the {o} be tomorrow? | Who owns the {o}? / How often did you see {x}? / Where was {x} right before they gave you the {o}? | Who will take the {o} next? / Why was the {o} hidden? / Where was the {o} just before you met {x}? |
 
+Meaning check (2026-10-19): Joe checked the table; Claude's cross-check changed four
+sentences before any review: "gave me" -> "gave you" twice (the questions address the
+agent, who received the object; "me" would be the instructor), "What colour is the {o}?"
+-> "Who owns the {o}?" (the adjective can itself be a colour, so the question was partly
+answerable from its own text), "Where would I find the {o} today?" -> "Where should I look
+for the {o}?" ("today" suggests a restriction to the current day).
 Rules as in 3.5: development uses only template and development wordings; holdout and
 reserve wordings are never used in development; every question text parses back to its
 generating specification with its wording's exact inverse (model-free audit); question
