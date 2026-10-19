@@ -96,3 +96,38 @@ coverage 1.0 for every slot on res (2,974 distinct texts); every true object of 
 splits has exactly two tokens (F1 never excludes a true value); position/word-list
 baseline on res: all slots 0.504. Opened with config/round35.json = the reserve proposal
 with "enabled": true (unchanged otherwise).
+
+## RESERVE RESULT (once; GitHub 39257404107, commit b400189)
+
+config/round35.json sha256 5adb802d48825ce8b558db3e5837ca662e05b8b16e50211a0713b299659f54f8
+(= the proposal with "enabled": true); freeze checks passed in the plan, all 12 encode jobs
+and the collector; all 12 reports present and valid; VERDICT COMPLETE.
+
+ENCODER_QUALIFIED = YES. MILESTONE_ORIGINAL_RULES = PASS (all 17 original round 3.3/3.4
+checks). The reserve is consumed.
+- Records (2,974 distinct texts): complete records 0.994; place, day, object 1.000; actor
+  0.999, action 0.999, receiver 0.997 (240 receivers of giving events fixed by the schema
+  rule F2, "from schema"; the accuracy of the remaining receiver choices 0.996). 17 records
+  wrong, none unknown: the receiver "You" for an observed placing "You noticed on day d
+  that X put the Y at P." (10) and its actor "You" (4), "X crossed your path" read as
+  "left"/"went" (3).
+- Tasks: every kind x goal cell success 1.000, pair success 1.000, confident-error rate
+  0.000, coverage 1.000 (no fallback); Wilson 95% interval of each cell's pair success
+  [0.912, 1.000] (40 pairs per kind).
+- Controls: uniform scores 0.000 complete records; random scores 0.327 of the slots
+  correct; position/word-list baseline 0.504.
+- Comparison decodings on the same encodings (diagnosis only; d3 was pre-registered):
+  d2 0.979, criteria NOT met (giver:find 0.938 / 0.925 - "X gave me the Y" read with
+  receiver "none" in 35 of 78 texts); F1 only 0.983, NOT met (same); F2 only 0.991, met.
+  Paired: relative to d2, d3 fixes 44 records and 5 giver world decisions and breaks
+  none; F1 alone fixes 9 records (the "heavy" objects) and no decision.
+- What the result shows: the system of the 1.5B model's scores, the given candidates and
+  the schema-constrained decoder d3 writes the episodic store of this environment from
+  free-text notes in unseen wordings well enough that every memory task and every
+  original milestone rule of rounds 3.3/3.4 passes. What it does not show: general
+  receiver recognition (the decisive F2 gives the receiver of every giving event; without
+  it the giver task fails again), nor anything beyond this environment's schema, wordings
+  of this kind and 40 pairs per kind.
+- Post-run analysis (bench/m3/post35b.py, docs/ROUND_3_5b_post_res.md): paired change
+  table, intervals, class findings with affected records; no decision consequences (no
+  wrong or non-memory decision).
