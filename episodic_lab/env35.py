@@ -57,10 +57,13 @@ def _final_state(events: list[dict], objects: list, people: list) -> dict:
     return {"objects": obj, "people": ppl}
 
 
-def generate_pair35(split: str, index: int, kind: str, attempt: int = 0) -> dict:
+def generate_pair35(split: str, index: int, kind: str, attempt: int = 0, prefix: str = "r35",
+                    wording_set: str | None = None) -> dict:
+    """One pair; seed f"{prefix}-{split}-{index}[-r{attempt}]". Round 3.6 uses prefix "r36"
+    (new worlds); wording_set overrides the note wording group of the split."""
     if kind not in KINDS35 or split not in SPLITS:
         raise ValueError((split, kind))
-    seed = f"r35-{split}-{index}" + (f"-r{attempt}" if attempt else "")
+    seed = f"{prefix}-{split}-{index}" + (f"-r{attempt}" if attempt else "")
     fam = FAMILY[kind]
     pair = env.generate_pair(seed, kind) if fam == "env" else history_env.generate_pair(seed, kind)
     worlds = pair["worlds"]
@@ -103,7 +106,7 @@ def generate_pair35(split: str, index: int, kind: str, attempt: int = 0) -> dict
         for w in events:
             events[w][i] = dict(events[w][i], actor=giver, partner=SELF, action="gave", object=obj)
     # 3. wordings (same frame in both worlds at every position)
-    wset = SPLITS[split]
+    wset = wording_set or SPLITS[split]
     out_worlds = {}
     for w, evs in events.items():
         exps = []

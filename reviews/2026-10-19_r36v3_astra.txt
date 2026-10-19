@@ -1,0 +1,20 @@
+Astra, review of round 3.6 design v3 (pasted by Joe, 2026-10-19 20:58)
+
+APPROVE für Design v3 und die vorgesehene Umsetzung und Entwicklungsphase. Die drei offenen Punkte aus v2 sind geschlossen. Ich sehe keinen weiteren blockierenden Designpunkt.
+
+Die Freigabe betrifft den Versuchsplan. Code, Tests und neue Auditergebnisse liegen noch nicht zur Prüfung vor.
+
+Konkrete Gründe
+1. Die Generatorbedingungen sind jetzt passend eingegrenzt. Die Drei-Einträge-Bedingung gilt für die historischen Objektfälle. Giver-Welten besitzen ausdrücklich ihr Gebeereignis und eigene Auditbedingungen. Damit entfällt der vorherige Widerspruch. Die sprachliche Gleichsetzung verschiedener Zeitformulierungen bleibt nachvollziehbar an Eigenschaften dieses Generators gebunden.
+2. Die Zielkalibrierung ist vollständig definiert. Gold-unsupported hat kein Goldziel und wird deshalb ausgeschlossen. Eine falsche Weiterleitung bleibt als Absichtsfehler sichtbar. Die Mindestmenge bezieht sich auf unterschiedliche kalibrierungsfähige Texte statt auf einzelne Kandidaten. Auch fehlende Schwellen sind konsistent behandelt: Eine fehlende Zielschwelle verändert eine bereits akzeptierte Ablehnung nicht.
+3. Die Baseline trennt die relevanten Zeitbezüge jetzt konzeptionell richtig. Eine Frage vor der eigenen letzten relevanten Beobachtung bleibt previous; der Bezug auf ein anderes Referenzereignis führt zur Ablehnung. Die Informationsbasis ist als Entwicklungsgrammatik festgelegt. Deren tatsächliche Einhaltung lässt sich bei der Implementierung prüfen.
+
+Auch die übrigen Teile bilden einen brauchbaren Prüfvertrag: vollständige Spezifikationen, explizite Fehlernenner, getrennte Kontrollklassen, Textdeduplikation für Parsermetriken und identische Fragen innerhalb der Weltpaare. Die Mindestmengenaudits und die gezielten Tests machen diese Regeln überprüfbar.
+Die getrennte Ausweisung von richtiger Rückfrage und erkannter Mehrdeutigkeit verbessert die Interpretation. Ebenso richtig sind die spätere Vier-Kombinationen-Auswertung und deren Kennzeichnung als gemeinsame Prüfung auf denselben Fällen.
+Der spätere Erkenntnisanspruch bleibt auf die sieben Operatoren, die Kandidatenregeln und die geprüften Formulierungsfamilien dieser Umgebung begrenzt. Ein Erfolg wäre ein belastbarer Baustein für den Sprachzugang zum Gedächtnis.
+
+Verbesserungsideen – nicht blockierend
+- Wortlistenherkunft automatisch prüfen. Hinterlegt für lexikalische Regeln die zugelassenen Entwicklungsquellen. Allgemeine Grammatikbausteine und ihre Funktionswörter sollten ausdrücklich davon unterschieden werden.
+- Schwellengrenzen gezielt testen: Gleichstand bei Schwelle null, positive Marge knapp unter der Schwelle und exakte Schwellengleichheit. Kalibrierung und Anwendung müssen dieselbe Entscheidung ergeben.
+- Je Kontrollfamilie absolute Fallzahlen mitberichten. Eine konstante Pronomenfrage liefert nach Deduplikation einen Testfall. Das Familienmittel ist hilfreich, sollte aber zusammen mit diesem kleinen Nenner gelesen werden.
+- Den Zusatznutzen gegenüber der Regelbaseline gepaart ausweisen: beide richtig, nur Modell richtig, nur Regel richtig, beide falsch – ergänzt um Laufzeit. Bei vergleichbarer Leistung wäre für diese Runde kein zusätzlicher Modellnutzen belegt; das wäre ein verwertbares Forschungsergebnis.

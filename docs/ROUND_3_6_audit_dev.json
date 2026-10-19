@@ -1,0 +1,31 @@
+{
+ "problems": [],
+ "texts": {
+  "dev": 208,
+  "cal": 490,
+  "aud": 72
+ },
+ "coverage": {
+  "dev": 1.0,
+  "cal": 1.0,
+  "aud": 1.0
+ },
+ "baseline": {
+  "dev": {
+   "right": 208,
+   "texts": 208
+  },
+  "cal": {
+   "right": 490,
+   "texts": 490
+  },
+  "aud": {
+   "right": 72,
+   "texts": 72
+  }
+ },
+ "counts": {
+  "intent_calibratable": 490,
+  "target_calibratable": 348
+ }
+}

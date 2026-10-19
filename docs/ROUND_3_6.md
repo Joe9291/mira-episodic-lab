@@ -254,3 +254,47 @@ PARSER_QUALIFIED. Label: "new worlds with known note wordings and question wordi
 used in development". The combination is not an independent second confirmation of the
 parser. Questions touching the concentrated 3.5b error class (actors of observed
 placings) are unsupported here and counted separately.
+
+## Review of v3 and implementation notes
+
+Astra APPROVE for design v3, the implementation and the development phase
+(reviews/2026-10-19_r36v3_astra.txt); code, tests and audit results are reviewed before the
+freeze. Her non-blocking ideas, adopted: the baseline's word-list provenance is checked
+automatically (baseline36.provenance(), a test requires it empty; function words listed
+separately); threshold boundaries tested (tie at threshold 0, margin just below, margin
+equal - and calibration and application agree); absolute counts per control family beside
+the family macro mean; the model-vs-baseline comparison paired per text (both right, only
+model, only rules, both wrong) together with the time per question.
+
+Implementation notes (2026-10-19):
+1. Text separation inside the development group. Section 2 asked for texts disjoint across
+   splits except constants; within dev / cal / aud this is impossible for the low-entropy
+   control families ("Find the {noun}." has 12 possible texts, "Go to {first}." 16) - the
+   regeneration loop did not terminate. Implemented instead: pairs are regenerated only for
+   failed generator conditions; parser metrics and calibration count every distinct text
+   ONCE, in the first split (order dev, cal, aud, ho, res) where it occurs
+   (env36.split_questions); the parse of a repeated text is reused for the task metrics.
+   Holdout and reserve texts cannot occur in the development group (their wordings differ;
+   the audit checks that no text is shared between groups). Counts on cal after this rule:
+   490 distinct intent-calibratable and 348 target-calibratable texts (>= 300 each).
+2. Round 3.6 worlds use the 3.5 generator with the seed prefix r36 (env35.generate_pair35
+   got a backward-compatible prefix argument; all five 3.5 splits are byte-identical before
+   and after, checked by hashing). The 3.5b freeze therefore no longer matches the current
+   env35.py hash; the 3.5 test now checks that a freeze made from the current code matches
+   and the old one differs only in env35.py. config/round35.json is disabled (done).
+3. Disclosure: during the implementation the model-free candidate coverage (1.0) and the
+   rule baseline were also computed on the holdout and reserve question texts, which the
+   design reserves for after the freeze. This gives no information about the model's
+   performance; the baseline (episodic_lab/baseline36.py) is not changed after that and its
+   holdout numbers will be reported as they are (it was built from development wordings
+   only; on development texts it is right on all 770 texts).
+4. Small denominators on the holdout: about 28 distinct gold-ambiguous texts (1 pronoun, up
+   to 12 bare-noun, up to 16 first-name texts); "false OK <= 0.02" then allows no false OK
+   at all. This follows from the approved criteria and is reported with absolute counts.
+5. Prompt q2 = q1 plus eight worked examples (vocabulary outside the worlds) for the first
+   development probe beside q1.
+
+## Development log
+
+1. Model-free audit (dev group, docs/ROUND_3_6_audit_dev.json): no problems; coverage 1.0 on
+   dev, cal, aud; calibration counts 490 / 348; rule baseline 208/208, 490/490, 72/72.

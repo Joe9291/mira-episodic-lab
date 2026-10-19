@@ -455,8 +455,13 @@ class JobTests(unittest.TestCase):
         out = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True, check=True).stdout
         self.assertEqual(set(out.split()) - set(freeze35.FROZEN_CODE), set())
         self.assertEqual(freeze35.check(None), [])
-        cfg = json.loads((root / "config" / "round35b_reserve_proposal.json").read_text())   # the active freeze
-        self.assertEqual(freeze35.check(cfg["frozen"]), [], "the proposed freeze must match the code")
+        # the 3.5b freeze belongs to its run's commit (b400189); env35.py gained a backward-compatible
+        # seed prefix for round 3.6 since (3.5 worlds byte-identical, see docs/ROUND_3_6.md). Here: a
+        # freeze made from the current code matches, an outdated one does not.
+        current = {"decoder_version": freeze35.decoder_version(), "code_sha256": freeze35.code_hashes()}
+        self.assertEqual(freeze35.check(current), [])
+        cfg = json.loads((root / "config" / "round35b_reserve_proposal.json").read_text())
+        self.assertEqual(freeze35.check(cfg["frozen"]), ["code_sha256:episodic_lab/env35.py"])
 
     def test_reserve_qualification_phase(self):
         """Round 3.5b: the reserve is a qualification split with comparisons, class

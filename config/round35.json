@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round35_request.v1",
- "enabled": true,
- "note": "Round 3.5b RESERVE qualification (docs/ROUND_3_5b.md): qwen2.5-1.5b, prompt p8, candidates c2, sum score, decoder d3 = d2 + the two named schema rules F1 (object values adjective + noun or none) and F2 (an accepted 'gave' has the receiver You, inside the feasible role pairs), structurally fixed slots, thresholds recalibrated with d3 on the calibration split of run 39186450732. New worlds with the reserve paraphrases, used once. Bound to the code by decoder_version and code_sha256 (bench/m3/freeze35.py). To be copied to config/round35.json only after Astra's approval and the post-freeze reserve coverage check.",
+ "enabled": false,
+ "note": "DONE: round 3.5b reserve run 39257404107 (ENCODER_QUALIFIED YES, MILESTONE_ORIGINAL_RULES PASS), disabled afterwards; the freeze below belongs to code commit b400189. Round 3.5b RESERVE qualification (docs/ROUND_3_5b.md): qwen2.5-1.5b, prompt p8, candidates c2, sum score, decoder d3 = d2 + the two named schema rules F1 (object values adjective + noun or none) and F2 (an accepted 'gave' has the receiver You, inside the feasible role pairs), structurally fixed slots, thresholds recalibrated with d3 on the calibration split of run 39186450732. New worlds with the reserve paraphrases, used once. Bound to the code by decoder_version and code_sha256 (bench/m3/freeze35.py). To be copied to config/round35.json only after Astra's approval and the post-freeze reserve coverage check.",
  "phase": "encode",
  "models": [
   "qwen2.5-1.5b+p8"
