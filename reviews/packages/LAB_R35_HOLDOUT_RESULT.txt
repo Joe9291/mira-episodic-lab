@@ -1,0 +1,156 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.5 HOLDOUT RESULT AND THE DECISION ON HOW TO CONTINUE
+
+Review request (Astra; Claude is lead reviewer). The approved holdout ran once. Please (1) check the result report and the error analysis, (2) decide on the proposal for one fix iteration with a qualification on the reserve (APPROVE / REQUEST CHANGES with concrete reasons per point, or name the alternative you prefer), then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 3.5 HOLDOUT RESULT ===".
+
+STATE: lab main = 67e4765. Holdout run GitHub 39221095580 at commit 4809114 (config/round35.json sha256 33b7f36978fe71650f515f45d5867d422d7b0aa99de919457c51a4b813443b18 = the approved proposal v2 with "enabled": true); freeze checks passed in the plan, in all 12 encode jobs and in the collector; all 12 reports present and valid; VERDICT COMPLETE.
+
+RESULT: ENCODER_QUALIFIED = NO. MILESTONE_ORIGINAL_RULES = FAIL. The holdout worlds and holdout paraphrases are consumed.
+
+- Records (2,974 distinct holdout texts): complete records with every slot correct 0.959 (criterion >= 0.95: met). Place 1.000, day 1.000 (structural), object 0.998, actor 0.993, receiver 0.991, action 0.977. No declared unknowns (all thresholds 0).
+- Tasks: hidden, moved, object:current/previous and all person cells 1.000; object:first 0.988 with one confident error (rate 0.013, criterion <= 0.05 met); giver:find 0.938, pair success 0.925 -> the two failed criteria (success >= reference 1.000 - 0.02; pair success >= 0.95). The giver failures are not confident errors: the agent did not find the giver in memory and explored (coverage 0.925).
+- Controls: uniform scores 0.000 complete records (they decide only the day); random scores 0.299 of the slots correct; position/word-list baseline 0.647.
+- Original 3.3/3.4 rules: availability and informativeness checks pass, the no-memory/random/state-only/removal checks mostly pass; they fail where perfection is required (intact success and pair success 1.0, swap and relevant-removal predictions >= 0.95, irrelevant removal 1.0).
+
+ERROR MECHANISMS (all 122 wrong records; every count is "texts of that wording frame")
+(a) "It was day d when you set the X down at P." -> action "left" instead of "put": 69 of 231. Task-neutral (both are placings).
+(b) the object "heavy X" read as "X": 6 of 189 "heavy" objects (no other adjective: 0 errors). Consequences: 2 giver worlds explored; the one confident error (object:first - the first placement "put the heavy ledger there" was stored as "ledger", so a later placement counted as the first). ADMISSION: on dev, "heavy" already had 1 error in 48 and by far the smallest correct margin of all adjectives (0.12 vs >= 0.37 for the others). This warning was visible before the freeze and I did not act on it; pooled per-slot calibration (precision 0.999 on objects) cannot see a weak value class.
+(c) "On day d, the X came to you from Y, at P." -> receiver "none": 9 of 75 (+1 in another frame). Consequence: 3 giver worlds explored.
+(d) "you saw X put the Y at P" -> receiver "You": 17 of 232 (task-neutral).
+(e) passive "The X was put at P by Y on day d, and you saw it." -> actor "You": 13 of 246; "P was where you went on day d." -> actor = the place name: 5 of 180.
+
+FIVE CASES FOR JOE (bench/m3/cases35.py, deterministic: the lowest index per category)
+1. historical pair r35-ho-0 (striped ledger): worlds A/B differ in the first placement ("you set the striped ledger down at Brannick Orchard" / "... at Thornby Chapel"); current, first and previous all correct in both worlds - although both critical notes were stored with action "left" instead of "put" (mechanism a, task-neutral).
+2. role change: "It was day 5 at Sorrow Harbour when Ilsen Brack passed you the tiny violin." -> actor Ilsen Brack, receiver You, gave, correct; the giver goal solved.
+3. narrator as actor in an inverted wording: "Ellsmere Harbour was where you went on day 1." -> actor You, went, correct (5 of 180 such notes took the place as actor).
+4. first wrong decision: giver r35-ho-6, world A: "On day 4, the blue ladder came to you from Fenwick Quist, at Mossgate Garden." stored with receiver "none" -> the giver is not found -> the agent explores (wrong room, but no confident error).
+5. abstention: none on the record level (thresholds 0 never abstain); the abstentions happen at the decision level (5 giver worlds explored instead of acting from memory).
+
+PROPOSAL: ROUND 3.5b - ONE LOGGED FIX ITERATION, QUALIFICATION ON THE RESERVE
+By design section 3 a further qualification needs a logged fix and new worlds with the reserve paraphrases (the last unused wording set; if it is consumed as well, only "transfer to new worlds with known wordings" may be claimed). Both fixes are decoding/candidate rules applied to the recorded scores (no new prompt, no new dev/cal encodings; the c2 encodings already contain every candidate's score). Both were chosen AFTER seeing holdout errors and are schema knowledge of this environment, named as such:
+F1 objects have the schema's shape adjective + noun: object values are restricted to two-token values or "none" (removes mechanism b; the same-noun distractor worlds make a bare noun never a valid object here).
+F2 an ACCEPTED action "gave" has the receiver You (in this environment every giving event is to the agent - all 1,260 gave events of all five splits); like the narrator rule of d2, it applies only to an accepted action (removes mechanism c). Consequence for the claim: the receiver of a giving event is then given by the schema, not extracted.
+Not fixed (task-neutral or rare): (a), (d), (e); they stay in the record criterion.
+Offline measurement (diagnostic only; thresholds recalibrated on cal under each variant, all stay 0 with the day structural):
+  as frozen
+    {'actor': 0.0, 'partner': 0.0, 'action': 0.0, 'object': 0.0, 'place': 0.0, 'event_day': 'structural'}
+    dev: complete 0.999 obj wrong 1 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    cal: complete 0.996 obj wrong 1 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    ho: complete 0.959 obj wrong 6 partner wrong 27 giver 0.938/0.925 obj:first 0.988 maxCER 0.013 3.5:no orig:FAIL
+  F1 two-token objects
+    {'actor': 0.0, 'partner': 0.0, 'action': 0.0, 'object': 0.0, 'place': 0.0, 'event_day': 'structural'}
+    dev: complete 1.000 obj wrong 0 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    cal: complete 0.997 obj wrong 0 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    ho: complete 0.961 obj wrong 0 partner wrong 27 giver 0.963/0.950 obj:first 1.000 maxCER 0.000 3.5:no orig:FAIL
+  F2 gave->receiver You
+    {'actor': 0.0, 'partner': 0.0, 'action': 0.0, 'object': 0.0, 'place': 0.0, 'event_day': 'structural'}
+    dev: complete 0.999 obj wrong 1 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    cal: complete 0.996 obj wrong 1 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    ho: complete 0.962 obj wrong 6 partner wrong 17 giver 0.975/0.975 obj:first 0.988 maxCER 0.013 3.5:no orig:FAIL
+  F1+F2
+    {'actor': 0.0, 'partner': 0.0, 'action': 0.0, 'object': 0.0, 'place': 0.0, 'event_day': 'structural'}
+    dev: complete 1.000 obj wrong 0 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    cal: complete 0.997 obj wrong 0 partner wrong 0 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+    ho: complete 0.964 obj wrong 0 partner wrong 17 giver 1.000/1.000 obj:first 1.000 maxCER 0.000 3.5:MET orig:PASS
+The holdout lines are NOT a qualification: the fixes were made after seeing these errors (holdout = audit material now). They show only that F1+F2 remove the observed failure mechanisms without changing dev/cal.
+
+Plan if approved: implement F1/F2 as decoder d3 (tests: unknown "gave" keeps every receiver; non-two-token objects excluded, "none" kept), new pre-freeze diagnostic (smallest correct margin and error count per value class: adjective, frame, role - the check that would have flagged "heavy"), recalibrate on cal, freeze (decoder d3, code hashes), model-free coverage check of the reserve split (res: 40 new pairs per kind with the reserve paraphrases, e.g. "I put the X at P", "X gave me the Y", "you received the Y from X"), then one encode run of res (12 chunks) -> ENCODER_QUALIFIED and MILESTONE_ORIGINAL_RULES on the reserve, reported as they come out. If it fails, round 3.5 ends with the reported result and the encoder is not used to write later stores.
+
+ALTERNATIVES
+(B) Stop round 3.5 now with ENCODER_QUALIFIED NO and go to round 3.6 (goal/question parser) with structured input; the LM extraction stays documented as near but not qualified.
+(C) Instead of F1/F2, prompt changes (worked examples for adjectives and inverted giving) - new development encodings needed, and it tunes the prompt on known holdout errors.
+
+QUESTIONS
+Q1 Is the result report correct and complete, including the admission under (b)?
+Q2 F1 and F2: acceptable as named schema constraints, or does F2 remove too much of the extraction task (then: F1 only, with giver:find at 0.963/0.950 on the consumed holdout)?
+Q3 Reserve qualification as planned, or alternative B/C?
+
+---BEGIN FILE round35/run_39221095580_1/SUMMARY.md---
+# Round 3.5 encode run
+
+## qwen2.5-1.5b+p8
+
+### ho, best value (tau 0): complete records 0.959 (2974 texts)
+
+| slot | correct | unknown | wrong | single-value (from text / from schema) | accuracy where chosen |
+|---|---|---|---|---|---|
+| actor | 2954 | 0 | 20 | 0 (0 / 0) | 0.993 |
+| partner | 2947 | 0 | 27 | 0 (0 / 0) | 0.991 |
+| action | 2905 | 0 | 69 | 0 (0 / 0) | 0.977 |
+| object | 2968 | 0 | 6 | 0 (0 / 0) | 0.998 |
+| place | 2974 | 0 | 0 | 0 (0 / 0) | 1.000 |
+| event_day | 2974 | 0 | 0 | 2974 (2974 / 0) | - |
+
+By role and absence: action:- 2905/0/69; actor:You 1208/0/5; actor:giver 239/0/1; actor:observed_person 1507/0/14; event_day:- 2974/0/0; object:absent 1296/0/0; object:present 1672/0/6; partner:You 230/0/10; partner:absent 2717/0/17; place:- 2974/0/0
+
+| kind:goal | success LM | success reference | pair success | confident-error rate | coverage | min world |
+|---|---|---|---|---|---|---|
+| hidden:find | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| moved:find | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| giver:find | 0.938 | 1.000 | 0.925 | 0.000 | 0.925 | 0 |
+| object:current | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| object:first | 0.988 | 1.000 | 0.975 | 0.013 | 1.000 | 0 |
+| object:previous | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| person:current | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| person:first | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| person:previous | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+
+3.5 criteria on ho (best value (tau 0)): NOT met
+
+- FAIL giver:find: success LM 0.938 >= reference 1.000 - 0.02
+- FAIL giver:find: pair success 0.925 >= 0.95
+
+### ho, thresholds: complete records 0.959 (2974 texts)
+
+| slot | correct | unknown | wrong | single-value (from text / from schema) | accuracy where chosen |
+|---|---|---|---|---|---|
+| actor | 2954 | 0 | 20 | 0 (0 / 0) | 0.993 |
+| partner | 2947 | 0 | 27 | 0 (0 / 0) | 0.991 |
+| action | 2905 | 0 | 69 | 0 (0 / 0) | 0.977 |
+| object | 2968 | 0 | 6 | 0 (0 / 0) | 0.998 |
+| place | 2974 | 0 | 0 | 0 (0 / 0) | 1.000 |
+| event_day | 2974 | 0 | 0 | 2974 (2974 / 0) | - |
+
+Schema-constrained controls (same candidates, decoder and thresholds, model scores replaced): uniform scores: complete records 0.000, slots decided 2974/17844, of these correct 1.000; random scores: complete records 0.000, slots decided 17844/17844, of these correct 0.299
+
+By role and absence: action:- 2905/0/69; actor:You 1208/0/5; actor:giver 239/0/1; actor:observed_person 1507/0/14; event_day:- 2974/0/0; object:absent 1296/0/0; object:present 1672/0/6; partner:You 230/0/10; partner:absent 2717/0/17; place:- 2974/0/0
+
+| kind:goal | success LM | success reference | pair success | confident-error rate | coverage | min world |
+|---|---|---|---|---|---|---|
+| hidden:find | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| moved:find | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| giver:find | 0.938 | 1.000 | 0.925 | 0.000 | 0.925 | 0 |
+| object:current | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| object:first | 0.988 | 1.000 | 0.975 | 0.013 | 1.000 | 0 |
+| object:previous | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| person:current | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| person:first | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+| person:previous | 1.000 | 1.000 | 1.000 | 0.000 | 1.000 | 1 |
+
+3.5 criteria on ho (thresholds): NOT met
+
+- FAIL giver:find: success LM 0.938 >= reference 1.000 - 0.02
+- FAIL giver:find: pair success 0.925 >= 0.95
+
+Original round 3.3 / 3.4 milestone rules on the LM system (holdout):
+
+- PASS every case planned for intact, none, random, relevant_removed is available
+- PASS swapped_binding and irrelevant_removed available in >= 90% of planned cases
+- PASS informative cases (prediction != truth) >= 60% of planned for swap and relevant removal
+- FAIL intact: success 1.0 and pair success 1.0
+- PASS no memory and random memory: pair success 0 (fixed, deterministic exploration policy)
+- FAIL swapped binding: action as predicted in >= 0.95 of informative cases
+- FAIL relevant episode removed: action as predicted in >= 0.95 of informative cases
+- FAIL irrelevant episode removed: success 1.0
+- PASS availability: every planned case of intact, none, old_removed, last_removed, irrelevant_removed
+- PASS availability: old_swapped in >= 90% of planned cases
+- PASS informative cases >= 60% of planned (first goal: old_removed, old_swapped; current goal: last_removed)
+- FAIL episodic intact: success 1.0 for all goals, pair success 1.0 for the first goal
+- PASS state_only: success 1.0 for the current goal, pair success 0.0 for the first goal
+- PASS episodic none: pair success 0.0 for the first goal
+- PASS old_removed, old_swapped: first goal as predicted >= 0.95 (informative); current and previous unchanged 1.0
+- PASS last_removed: current goal as predicted >= 0.95 (informative); first goal unchanged 1.0
+- FAIL irrelevant_removed: success 1.0 for all goals
+
+---END FILE SUMMARY.md---
+
+=== END OF LAB ROUND 3.5 HOLDOUT RESULT ===
