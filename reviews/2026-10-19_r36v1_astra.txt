@@ -1,0 +1,92 @@
+3m 5s nachgedacht
+
+favour of the context-dependent historical queries?
+---END FILE docs/ROUND_3_6.md---
+
+REQUEST CHANGES. Der Grundaufbau ist sinnvoll: Parser zunächst isoliert prüfen, d3 unverändert lassen, anschließend beide Komponenten kombinieren. Die vier Formulierungskorrekturen akzeptiere ich. Vor der Umsetzung fehlen jedoch eindeutige Regeln für Decoder, Datenaufteilung und Bewertung.
+
+Ich habe v1b vollständig gelesen; es handelt sich um eine Designprüfung ohne Ausführung.
+
+Erforderliche Änderungen
+
+1. Der Decoder definiert den Weg zu ambiguous noch nicht widerspruchsfrei.
+
+Bei „Where is it now?“ fehlt ein zulässiges Ziel. Gleichzeitig bleibt das Paar (unsupported, none) nach euren Regeln zulässig. Die gemeinsame Auswahl über zulässige Paare führt daher nicht automatisch zu ambiguous. Ein pauschaler Vorfilter „kein Ziel → ambiguous“ wäre ebenfalls falsch: Eine klare Zukunftsfrage kann ohne konkretes Objekt oder konkrete Person unsupported sein.
+
+Definiert deshalb eine vollständige Entscheidungstabelle. Meine bevorzugte einfache Lösung:
+
+- Zunächst die Frageabsicht einschließlich unsupported bestimmen.
+- Bei einer unterstützten Absicht die Zielauflösung prüfen.
+- Fehlendes oder mehrdeutiges Ziel führt zur Rückfrage; eine akzeptierte nicht unterstützte Absicht zur Ablehnung.
+- Modellunsicherheit ebenfalls durch Rückfrage behandeln, aber intern von semantischer Mehrdeutigkeit unterscheiden.
+
+Eine gemeinsame Dekodierung ist weiterhin möglich, wenn ambiguous darin ausdrücklich repräsentiert wird. Für jeden Ausgang müssen außerdem die bewertbaren Gold-Slots und ihre Behandlung bei der Kalibrierung feststehen. giver benötigt dabei ausdrücklich ein Objekt als Zielparameter.
+
+2. Fragehäufigkeiten, Texttrennung und Paarung müssen festgelegt werden.
+
+Die konstante Frage „Where is it now?“ lässt sich bei wiederholter Verwendung in dev, cal und aud nicht mit vollständig disjunkten Fragetexten vereinbaren. Sie enthält keine Entität, die sich durch neue Welt-Seeds verändert.
+
+Legt fest, wie identische Fragen gruppiert werden und welche Trennung zwischen Entwicklungsphasen tatsächlich gilt. Holdout und Reserve müssen für die Modellentwicklung unbenutzt bleiben. Wiederholungen desselben Textes dürfen die Fallzahl für Parsergenauigkeit und Kalibrierung nicht künstlich erhöhen.
+
+Zusätzlich erforderlich:
+
+- Wie werden Wortlautvarianten und Kontrollfamilien zugeteilt und gewichtet?
+- Erhalten A und B eines Weltpaares denselben Fragetext und dieselbe Gold-Spezifikation? Das sollte für die Gedächtnisvergleiche gelten.
+- Sind mindestens 200 auswertbare, mehrwertige Kalibrierungsentscheidungen pro kalibriertem Slot erreichbar? Mit zehn Kalibrierungspaaren je Weltart ist das nach Textdeduplikation nicht automatisch gewährleistet.
+
+Parsermetriken sollten unterschiedliche Fragetexte bewerten; Aufgabenmetriken die Weltpaare. Diese Auswertungseinheiten müssen getrennt beschrieben werden.
+
+3. Die Kriterien brauchen vollständige Spezifikationen und eindeutige Nenner.
+
+Bei den Nicht-im-Gedächtnis-Fragen verlangt Kriterium 3 bisher nur ok und das richtige Ziel. Auch der Fragetyp muss richtig sein. Sonst könnte beispielsweise eine falsch verstandene historische Frage bestehen, weil mehrere Operatoren beim unbekannten Ziel dasselbe no_observation liefern.
+
+Für „confident misparse“ fehlt der Nenner. Außerdem begrenzt eine Erkennungsrate von 90 % allein nicht ausreichend, wie häufig unklare oder nicht unterstützte Fragen fälschlich als ausführbares ok behandelt werden. Meine konkreten Vorschläge stehen unter Q3.
+
+4. Zeitsemantik und angekündigte Akteurfragen müssen zum Operatorumfang passen.
+
+Definiert verbindlich, was current, first und previous bedeuten: letzter bekannter Ort, erste relevante Beobachtung, vorletzter relevanter Eintrag oder vorheriger unterschiedlicher Ort? Formulierungen wie „before its last move“ sind nicht unter allen Ereignisfolgen mit einem vorletzten Speichereintrag identisch. Ein exakter Template-Roundtrip prüft die technische Zuordnung, nicht diese Bedeutungsäquivalenz.
+
+Die angekündigten Fragen nach Akteuren beobachteter Platzierungen passen außerdem zu keinem der sieben Fragetypen. Für 3.6 sollten sie unsupported-Kontrollen bleiben. Ihre tatsächliche Beantwortung benötigt später einen zusätzlichen Operator. Die 17 bekannten Extraktionsfehler bleiben wertvolle Entwicklungsfälle; sie sind dadurch nicht behoben.
+
+Q1 – Mehrdeutigkeit zunächst ohne Gedächtnis auflösen?
+
+Ja, eure erste Variante. Für 3.6 ist die isolierte Prüfung vorzuziehen: Ein unvollständig angegebenes Ziel führt zur Rückfrage, auch wenn zufällig nur ein passendes Objekt im Store liegt.
+
+Beschreibt dies als festgelegte Auflösungsregel dieser Runde. Es ist keine allgemeine sprachliche Behauptung, dass jeder Vorname oder jedes einfache Substantiv unabhängig vom Kontext mehrdeutig wäre.
+
+Q2 – Sind die nicht unterstützten Familien richtig?
+
+Grundsätzlich ja, einschließlich ereignisrelativer Geschichte. „Unsupported“ bedeutet hier: außerhalb des festgelegten Operatorumfangs. Es bedeutet nicht, dass die gespeicherten Informationen prinzipiell keine Antwort erlauben.
+
+Eine zusätzliche Trennung ist nötig: Eigentumsfragen und ereignisrelative Fragen erscheinen erstmals im Holdout. Das sind neue Fragefamilien, nicht lediglich neue Formulierungen bekannter Familien. Ihr könnt diesen anspruchsvolleren Test beibehalten, solltet ihn aber vorab als solchen kennzeichnen und getrennt ausweisen.
+
+Q3 – Sind die Schwellen angemessen?
+
+Als technische Laborgrenzen sind die Größenordnungen vertretbar. Ich würde sie folgendermaßen präzisieren:
+
+Prüfgröße	Empfohlene Regel
+
+Vollständige richtige Spezifikation	≥ 0,95 je unterstütztem Fragetyp; bekannte und nicht beobachtete Ziele getrennt ausweisen
+Falsche akzeptierte Spezifikationen	≤ 0,02 unter den ausgegebenen ok-Parses; Nenner ausdrücklich festlegen
+Fälschliches ok bei Gold-ambiguous beziehungsweise Gold-unsupported	Zusätzlich jeweils ≤ 0,02
+Richtige Rückfrage beziehungsweise Ablehnung	Je Klasse ≥ 0,90
+Unnötige Rückfrage/Ablehnung bei gültigen Fragen	≤ 0,05
+Aufgaben mit korrektem Store	Vorgeschlagene Grenzen beibehalten
+
+
+Das verhindert, dass ein guter Gesamtwert einzelne Fragetypen verdeckt.
+
+Die Aufgabenschwelle reference − 0.02 ist bei 80 Weltentscheidungen pro Zelle streng: Zwei falsche Entscheidungen ergeben bereits 0,975 und damit FAIL bei perfekter Referenz. Das ist vertretbar, sollte aber bewusst so beschlossen werden. Die Grenzen sind beobachtete Bestehenskriterien, keine statistischen Zuverlässigkeitsgarantien.
+
+Q4 – Kombination durchführen oder überspringen?
+
+Durchführen, als getrennten Schritt nach der Parserqualifikation. Erst die vier Kombinationen zeigen, ob sich Extraktions- und Parserfehler gegenseitig verstärken oder verdecken. Diesen Erkenntnisgewinn würde ich vor der Erweiterung um ereignisrelative Fragen mitnehmen.
+
+Die Bezeichnung „neue Welten mit bekannten Notizformulierungen und bisher nicht zur Entwicklung verwendeten Frageformulierungen“ ist angemessen. Die Parserkonfiguration und die Auswertung der Kombination müssen vor Einsicht in die betreffenden Testergebnisse feststehen. Die Kombination ist anschließend keine unabhängige zweite Bestätigung der Parserleistung.
+
+Verbesserungsideen – zusätzlich zu den erforderlichen Änderungen
+
+- Minimale Kontrastpaare ergänzen: gleiche Entität, aber first statt previous; vollständig angegebener statt verkürzter Name; bekannte statt nicht beobachtete Entität. So wird sichtbar, ob der Parser auf den entscheidenden Unterschied reagiert.
+- Die Regelbaseline als kleine Grammatik ausarbeiten. Einzelne Schlüsselwörter wie „before“ reichen als starke Vergleichsgruppe nicht aus; zeitliche Ausdrücke brauchen Kontext und Vorrangregeln.
+- Fehlerursachen getrennt protokollieren: fehlender Gold-Kandidat, falsche Absicht, falsches Ziel, geringe Konfidenz und korrekt verstandene Frage ohne passende Beobachtung.
+- Rechenaufwand durch Wiederverwendung begrenzen: Jede unterschiedliche Frage einmal scoren; ihre Parse-Ergebnisse über Weltpaare und Speicherbedingungen wiederverwenden. Erst nach erfolgreicher Parserqualifikation die zusätzlichen d3-Encodings für die Kombination erzeugen.

@@ -1,48 +1,92 @@
-# Round 3.6 - LM-assisted goal/question parsing (design v1, draft for review)
+# Round 3.6 - LM-assisted goal/question parsing (design v2)
 
 Uncertainty removed: can the same small language model, used the same way as in round 3.5b
 (scores for given candidates, schema-constrained decoding, thresholds from a calibration
 split, frozen before a blind holdout), turn FREE-LANGUAGE goals and questions into the
 structured question specification the fixed memory operators use - and recognise questions
-it must not answer from memory (ambiguous, unsupported) - on wordings it was not developed
-on? Name of the system: "LM-assisted question parsing with given candidates".
-Order (Astra, reviews/2026-10-19_r35b_reserve_astra.txt): the parser is first checked
+it must not answer from memory - on wordings it was not developed on? Name of the system:
+"LM-assisted question parsing with given candidates".
+Order (Astra, reviews/2026-10-19_r35b_reserve_astra.txt): the parser is checked first
 against correct question specifications and with a CORRECT store, so that parser errors
-stay identifiable; d3 stays frozen; the combination with the LM-written store follows as a
-separate step (section 5).
+stay identifiable; d3 stays frozen; the combination follows as a separate step (section 7).
+v2 answers Astra's review of v1b (reviews/2026-10-19_r36v1_astra.txt): a complete decision
+table (section 3), fixed frequencies, text separation and pairing (section 2), complete
+specifications and denominators for every criterion (section 5), the time semantics bound
+to the operators (section 1), actor questions as unsupported controls, Q1-Q4 as decided.
 
-## 1. The question specification (what the parser must produce)
+## 1. Question specification and time semantics
 
-A parse is either a question for the memory or one of two refusals:
-- `ok`: {qtype, target}. qtype is one of the seven goals of rounds 3.3/3.4:
-  object_current ("Find the X."), object_first, object_previous, person_current
-  ("Find X."), person_first, person_previous, giver ("Find the person who gave you the X.");
-  target is an object (adjective + noun) or a person (first + last name), as in the schema.
-- `ambiguous`: the question has no resolvable referent in the schema's terms: a pronoun
-  without antecedent ("Where is it now?", "Find them."), a bare noun ("Find the ledger.";
-  objects are adjective + noun and same-noun objects exist), a first name only ("Find
-  Ilsen."). Response: a clarification question, no movement.
-- `unsupported`: the question is clear but outside what the memory operators answer: why,
-  how many, future, other attributes, and event-relative history ("Where was X right before
-  they gave you the Y?" - the subject of a later round). Response: "I cannot answer that
-  from memory", no movement.
-Distinct from both (Astra's idea): a well-formed `ok` question whose target the memory has
-never observed (an object or person that does not occur in the world). The parser must
-return `ok`; the operator returns no_observation; the agent says it does not remember and
-explores. Four outcomes are therefore scored separately: memory answer, no knowledge,
-clarification, refusal.
+Gold specification of every question: `intent` (one of seven supported types or
+`unsupported`) and, for a supported intent, `target` (a value or `none`).
+- Supported types (the goals of rounds 3.3/3.4) with their operator meaning:
+  object_current / object_first / object_previous: the target object's placing records
+  (put, hid, left) ordered by event day - the latest / the earliest / the one before the
+  latest (history_place); person_current / person_first / person_previous: the records
+  mentioning the target person, same positions; giver: the unique person who gave the agent
+  the target object, then that person's latest record. The target of object types and of
+  giver is an object (adjective + noun), of person types a person (first + last name).
+- Binding of the wordings to this meaning: in the generator every target object has exactly
+  three placing records, never two consecutive ones at the same place, and occurs in no
+  other event; every target person of the history kinds has exactly three records (all
+  "seen"). Under these conditions "latest placing / where it is now", "first placing /
+  where it started", "the placing before the latest / before its last move / its previous
+  spot / second-to-last place" and the person counterparts denote the same record. This is
+  a property of THIS generator, not a claim about the wordings in general; the model-free
+  audit checks the three conditions for every world of every split (a violation is a
+  problem, the world is regenerated before any run).
+- Outcomes: OK(intent, target) -> the operator answers; with no observation of the target
+  the agent says it does not remember and explores. CLARIFY(reason) -> a clarification
+  question, no movement; reasons no_referent (semantic) and low_confidence (model
+  uncertainty) are reported separately. REFUSE -> "I cannot answer that from memory", no
+  movement.
+- Resolution rule of THIS round (Q1, decided): a question whose target is not fully given
+  in the schema's terms - a pronoun without antecedent, a bare noun, a first name only - is
+  answered with CLARIFY(no_referent), also when the store happens to contain one matching
+  entity. This is a fixed rule of 3.6, not a claim that such questions are ambiguous in
+  every context; resolution against memory is a later round.
+- Unsupported (Q2, decided) means: outside the fixed operator scope of this round (why, how
+  many, future, ownership, event-relative history, who did an action), not that the stored
+  information could never answer it. Questions about the actor of an observed placing ("Who
+  put the X at P?") are unsupported controls here (no actor operator yet); the 17 known
+  extraction errors of 3.5b stay development cases and are not fixed by this round.
+- Gold per outcome: OK questions (known target or a target absent from the world):
+  intent and target; ambiguous questions: their intent (fixed per wording, table below) and
+  target `none`, expected CLARIFY; unsupported questions: intent `unsupported`, no target,
+  expected REFUSE.
 
-## 2. Data, worlds and wordings
+## 2. Data, frequencies, text separation, pairing
 
-Worlds: the round 3.5 generator (env35: hidden, moved, giver, object, person kinds; pairs
-differing in one critical episode) with new seeds `r36-{split}-{index}` and the splits dev,
-cal, aud, ho, res (sizes as in 3.5: 10, 10, 5, 40, 40 pairs per kind). Every world gets its
-answerable goals (1 for the 3.3 kinds, 3 for the history kinds) and three control
-questions: one not-in-memory question (an object or person of the vocabulary absent from the
-world), one ambiguous and one unsupported question.
-Wordings: per question type the template (the existing goal sentence) plus 3 development,
-3 holdout and 3 reserve paraphrases; ambiguous and unsupported questions as families with
-the same split structure. Draft (to be checked by Joe for meaning, see section 6):
+Worlds: the round 3.5 generator (env35 kinds hidden, moved, giver, object, person; pairs
+differing in one critical episode) with new seeds `r36-{split}-{index}`; splits dev, cal,
+aud, ho, res with 10, 30, 5, 40, 40 pairs per kind (cal enlarged from 10 so that every
+calibrated slot reaches >= 200 multi-value decisions after deduplication; the model-free
+audit checks >= 300 multi-value target candidates and >= 300 distinct intent texts on cal
+before any run).
+Questions per world pair - the SAME question texts and gold specifications in worlds A
+and B (the world difference changes the answer, not the question): the pair's goals (1 for
+hidden/moved/giver, 3 for object/person) and three controls, each a minimal contrast to a
+goal of the pair where the wording allows it (Astra's idea): a not-in-memory question (same
+type as the first goal, a vocabulary entity absent from both worlds), an ambiguous question
+about the first goal's target (object targets, incl. giver: the bare-noun family with the
+target's noun, or the pronoun family; person targets: the first-name family with the
+target's first name; the gold intent is fixed per wording, see the table) and an
+unsupported question (family below, filled with the pair's entities). Constant wordings
+can only be chosen in the first split of their group; in cal and aud the ambiguous family
+of an object target is therefore always the bare-noun family.
+Wordings: per supported type the template plus 3 development, 3 holdout and 3 reserve
+paraphrases; ambiguous families pronoun / bare noun / first name and unsupported families
+why / count / future / ownership / event-relative / who-did - EVERY family has one
+wording in each group (no family appears first in the holdout). Assignment: the wording
+group follows the split (dev, cal, aud: template + development; ho: holdout; res: reserve);
+within the group the wording and the control family are chosen by a hash of the pair seed
+and the question role (uniform; deterministic).
+Text separation and units: parser metrics and calibration count DISTINCT question texts
+per split (a text asked in both worlds and in several pairs counts once). Texts are
+disjoint across splits, with one fixed exception: constant wordings without a placeholder
+("Where is it now?", "Where did they put it first?", "Find it.", "How many people have you
+seen?") occur only in the first split of their group (dev, ho, res respectively), never in
+cal or aud, and count once. Task metrics count world pairs. Holdout and reserve wordings and
+worlds are never used in development.
 
 | type | development | holdout | reserve |
 |---|---|---|---|
@@ -53,90 +97,125 @@ the same split structure. Draft (to be checked by Joe for meaning, see section 6
 | person_first | Where did you see {x} for the first time? / Go to the place where {x} first appeared. / Where was {x} when you first saw them? | Take me to where you originally saw {x}. / Where did you first come across {x}? / Go to {x}'s earliest known place. | Where did {x} first show up? / Head to the first place you saw {x}. / Your first sighting of {x} - where was it? |
 | person_previous | Where did you see {x} before the last time? / Go to where {x} was seen before the latest sighting. / Where was {x} the time before you last saw them? | Take me to {x}'s previous location. / Before the most recent sighting, where was {x}? / Where did you see {x} one time before the last? | Where was {x} seen just before the last sighting? / Go back one sighting: where was {x}? / Where did {x} appear before their latest appearance? |
 | giver | Who gave you the {o}? Go to them. / Go to the person you got the {o} from. / Find whoever handed you the {o}. | Take me to the one who gave you the {o}. / Where is the person the {o} came from? / Go find the giver of the {o}. | The {o} - who gave it to you? Find them. / Locate the person who passed you the {o}. / Where is whoever gave you the {o}? |
-| ambiguous | Where is it now? / Find the {noun}. / Go to {first}. | Where did they put it first? / Take me to the {noun}. / Where is {first} now? | Find it. / Where was the {noun} placed first? / Locate {first}. |
-| unsupported | Why did {x} put the {o} there? / How many times was the {o} moved? / Where will the {o} be tomorrow? | Who owns the {o}? / How often did you see {x}? / Where was {x} right before they gave you the {o}? | Who will take the {o} next? / Why was the {o} hidden? / Where was the {o} just before you met {x}? |
+| ambiguous: pronoun | Where is it now? (object_current) | Where did they put it first? (object_first) | Find it. (object_current) |
+| ambiguous: bare noun | Find the {noun}. (object_current) | Take me to the {noun}. (object_current) | Where was the {noun} placed first? (object_first) |
+| ambiguous: first name | Go to {first}. (person_current) | Where is {first} now? (person_current) | Locate {first}. (person_current) |
+| unsupported: why | Why did {x} put the {o} there? | Why was the {o} hidden? | For what reason did {x} leave the {o} behind? |
+| unsupported: count | How many times was the {o} moved? | How often did you see {x}? | How many people have you seen? |
+| unsupported: future | Where will the {o} be tomorrow? | Who will take the {o} next? | Where is {x} going to be next week? |
+| unsupported: ownership | Who does the {o} belong to? | Who owns the {o}? | Whose {o} is it? |
+| unsupported: event-relative | Where was {x} right before they gave you the {o}? | Where was the {o} just before you met {x}? | Where did you go after {x} handed you the {o}? |
+| unsupported: who-did | Who put the {o} at {p}? | Which person hid the {o}? | Who was the last person to move the {o}? |
 
-Meaning check (2026-10-19): Joe checked the table; Claude's cross-check changed four
-sentences before any review: "gave me" -> "gave you" twice (the questions address the
-agent, who received the object; "me" would be the instructor), "What colour is the {o}?"
--> "Who owns the {o}?" (the adjective can itself be a colour, so the question was partly
-answerable from its own text), "Where would I find the {o} today?" -> "Where should I look
-for the {o}?" ("today" suggests a restriction to the current day).
-Rules as in 3.5: development uses only template and development wordings; holdout and
-reserve wordings are never used in development; every question text parses back to its
-generating specification with its wording's exact inverse (model-free audit); question
-texts are disjoint across splits.
+The ambiguous wordings with a pronoun keep their family's constant text; for the
+ambiguous families the intent in brackets is the gold intent. Meaning check: Joe checked
+the v1b table (four corrections before review, see the log); the new control wordings of
+v2 (ownership, who-did, the reserve and development family fill-ins) go to Joe before the
+implementation.
+Model-free audit (before any model run): roundtrip of every question to its gold
+specification with its wording's exact inverse; disjoint texts as specified; the
+generator conditions of section 1; candidate coverage of every gold target (must be 1.0 on
+dev, cal, aud; checked on ho/res only after the freeze); the calibration counts above; the
+rule baseline on dev, cal, aud.
 
-## 3. Parser: candidates, scores, decoding
+## 3. Parser and the complete decision table
 
-- Slots: qtype (labels: the seven types and "unsupported", each with a one-line
-  description) and target (candidate spans of the question: capitalised 1-3 token spans for
-  persons, lower-case spans after a determiner for objects, plus "none").
-- The model (qwen2.5-1.5b, pinned) scores every candidate as the complete answer to a fixed
-  slot question; prompt development on development data only (worked examples allowed, as
-  p8 in 3.5); sum log-probability; recorded scores, decisions model-free afterwards.
-- Schema-constrained decoding (named rules, as F1/F2 in 3.5b): an object type needs an
-  object target of exactly two tokens, a person type a person target of exactly two tokens
-  (first + last name); qtype and target are chosen jointly over the feasible pairs, with
-  pair-level margins as in d2; "unsupported" needs no target. If the best feasible
-  analysis has no admissible target (only "none", a bare noun or a first name), the parse
-  is `ambiguous`.
-- Thresholds per slot from the calibration split (precision >= 0.99 with >= 200 accepted
-  values, as in 3.5); an unknown slot gives `ambiguous` (clarify), never a guessed answer.
-- Deterministic baseline (Astra's idea): a rule parser with the same schema rules and word
-  lists built from the template and development wordings only (first/originally -> first,
-  before/previous -> previous, gave/got from -> giver, why/how many/will -> unsupported,
-  pronoun or partial name -> ambiguous). It shows what the model adds beyond the rules.
-  Controls as in 3.5: uniform and random scores through the same decoder.
+Slots: `intent` (labels: the seven types and `unsupported`, each with a one-line
+description) and `target` (candidates: capitalised 1-3 token spans for persons; lower-case
+1-3 token spans directly after a determiner, possessive "'s" removed, for objects; plus
+`none`). The model (qwen2.5-1.5b, pinned) scores every candidate as the complete answer to
+a fixed slot question (sum log-probability; prompt development on development data only,
+worked examples allowed); each distinct question is scored once and its parse reused over
+worlds and store conditions; decisions are derived model-free from the recorded scores.
+Decision table (decoder q1), in this order:
+1. intent decided with its rule (margin to the best different label, threshold tau_intent;
+   tie or below threshold -> unknown): unknown -> CLARIFY(low_confidence).
+2. intent = unsupported (accepted) -> REFUSE (no target).
+3. intent = supported type t (accepted): admissible target values for t - for object types
+   and giver canonical lower-case values of exactly two tokens, for person types canonical
+   capitalised values of exactly two tokens - plus `none`.
+   a. no admissible value besides `none` -> CLARIFY(no_referent);
+   b. otherwise the target is decided among the admissible values and `none` with
+      tau_target: unknown -> CLARIFY(low_confidence); `none` accepted -> CLARIFY
+      (no_referent); a value v accepted -> OK(t, v).
+Every question therefore has exactly one outcome. A clear unsupported question needs no
+target, so a missing referent never turns it into CLARIFY (step 2 precedes step 3).
+Calibration (same steps as the application, in this order): tau_intent over all distinct
+cal texts with >= 2 intent labels (all of them), correctness = decided label equals the
+gold intent (ambiguous texts included with their gold intent); tau_target over the distinct
+cal texts whose intent is ACCEPTED as a supported type with tau_intent, with >= 2 values
+among admissible + none, correctness = decided value equals the gold target (`none` for
+ambiguous texts). Rule as in 3.5: the threshold with the highest acceptance subject to
+precision >= 0.99 and >= 200 accepted values; none qualifies -> the slot is always
+unknown (every question CLARIFY). The structural rule of 3.5 is not used.
+Error causes are logged per question (Astra's idea): gold target not among the
+candidates, wrong intent, wrong target, low confidence (intent / target), understood but
+no observation.
+Baseline (Astra's idea: a small grammar, not single key words), built from the template
+and development wordings only, rules in this precedence: (1) event-relative - a temporal
+preposition (before / after) followed by a clause with its own subject and event verb
+("before they gave you", "after X handed you") -> REFUSE; (2) giver - (gave / handed /
+passed / got ... from / came from) with the agent as receiver, or "giver" -> giver; (3)
+other unsupported markers - why / for what reason; how many / how often; will / going to /
+tomorrow / next; belong / own / whose; "who" or "which person" followed by an action verb
+-> REFUSE; (4) time - first / originally / initially / earliest / start out / land in
+first -> first; before + (last / latest / most recent) / previous / prior / second-to-last
+/ one ... back -> previous; otherwise current; (5) referent - a two-token lower-case span
+after a determiner -> object type, a two-token capitalised name -> person type, otherwise
+CLARIFY. Controls
+as in 3.5: uniform and random scores through the same decoder.
 
-## 4. Criteria (technical, fixed before any run)
+## 4. Store conditions
 
-On the holdout, with the CORRECT store (oracle records from the structured truth):
-1. answerable questions: exact specification (qtype and target) >= 0.95; confident misparse
-   (an `ok` specification that is wrong) <= 0.02;
-2. ambiguous and unsupported questions: each recognised (clarify / refuse) >= 0.90;
-   answerable questions wrongly refused or sent to clarification <= 0.05;
-3. not-in-memory questions: parsed `ok` with the right target >= 0.95 (the agent then
-   says it does not remember);
-4. tasks per kind x goal: success >= reference (perfect specification) - 0.02, pair
-   success >= 0.95, confident-error rate <= 0.05; the original 3.3/3.4 milestone rules on
-   the oracle store with the LM parser reported separately (PARSER_MILESTONE_ORIGINAL_RULES).
-Results: PARSER_QUALIFIED (YES / NO / UNDECIDABLE) and PARSER_MILESTONE_ORIGINAL_RULES
-(PASS / FAIL), reported per criterion, with the baseline, the controls, class diagnostics
-(per question type, wording, outcome) and Wilson intervals over world pairs.
-Completeness contract, freeze binding (decoder version, code hashes of the import closure,
-checked before plan, in every job and by the collector), one holdout run, reserve only by
-the logged procedure of 3.5b - all as in 3.5/3.5b.
+Phase A (this round's qualification): the CORRECT store (oracle records from the structured
+truth) with the LM parser, against the reference agent with the gold specification.
+Phase B (section 7): the d3-written store.
 
-## 5. Combination (separate step after PARSER_QUALIFIED)
+## 5. Criteria (fixed before any run; denominators explicit)
 
-The same holdout worlds in four combinations (Astra's table): correct store + correct
-specification (reference); d3 store + correct specification (extraction effects); correct
-store + LM parser (parser effects); d3 store + LM parser (joint behaviour). The notes of
-the new worlds must be encoded by the frozen d3 system; their WORDINGS are known (all
-three note wording sets are consumed), so this step can only claim "transfer to new worlds
-with known note wordings and unseen question wordings" and is labelled so. The 17 wrong
-reserve records of 3.5b stay regression cases; questions about actors of observed
-placings (the concentrated 3.5b error class) are counted separately.
+On the holdout, distinct question texts unless stated otherwise:
+1. per supported type: exact specification (outcome OK with the gold intent AND the gold
+   target) >= 0.95 among the gold-OK texts of that type; known targets and targets absent
+   from the world reported separately (the absent-target questions also need the right
+   intent - several operators give the same no_observation);
+2. wrong accepted specifications <= 0.02, denominator: all texts whose outcome is OK
+   (numerator: OK with intent or target different from gold, gold-ambiguous and
+   gold-unsupported texts included);
+3. false OK <= 0.02 among the gold-ambiguous texts, and <= 0.02 among the gold-unsupported
+   texts (each class separately);
+4. correct handling >= 0.90 per class: CLARIFY (any reason) among gold-ambiguous texts,
+   REFUSE among gold-unsupported texts;
+5. unnecessary CLARIFY or REFUSE <= 0.05 among the gold-OK texts;
+6. tasks with the correct store, per kind x goal over world pairs: success >= reference
+   (gold specification) - 0.02, pair success >= 0.95, confident-error rate <= 0.05.
+   Deliberately strict: with 80 world decisions per cell two wrong decisions already give
+   0.975 and FAIL against a perfect reference.
+Results: PARSER_QUALIFIED (YES / NO / UNDECIDABLE) and, separately,
+PARSER_MILESTONE_ORIGINAL_RULES (the original 3.3/3.4 rules on the correct store with the
+LM parser), with the baseline, the controls, the error causes, class diagnostics per type,
+family and wording, and Wilson intervals per cell. These are observed pass criteria, not
+statistical reliability guarantees. The holdout control families are the same families as
+in development with new wordings (v2 removes the "new family" asymmetry of v1b).
+Completeness contract and freeze binding (decoder version, code hashes of the import
+closure, checked before the plan, in every job and by the collector), one holdout run, the
+reserve only by the logged procedure of 3.5b.
 
-## 6. Before any model run
+## 6. Order
 
-- Joe's meaning check of the wording table (every sentence: does it ask what its type
-  says; are the ambiguous ones really unclear and the unsupported ones really outside
-  "where is / was X"?).
-- Model-free audit: roundtrip, disjoint texts, candidate coverage of every true target
-  (must be 1.0 on dev/cal/aud), the baseline on dev/cal/aud.
-- Cost estimate: questions are short (about 10-25 candidates in two slots); a timing slice
-  on development data decides the chunking.
+Joe's meaning check of the new control wordings -> implementation (questions, generator
+extension, candidates, decoder q1, baseline, analysis, collector, tests incl. mutation
+proof with the 3.5b protocol) -> model-free audit -> timing slice and development probes on
+dev -> dev/cal run -> calibration -> review and freeze -> holdout coverage check -> one
+holdout run -> results.
 
-## Open design questions for the review
+## 7. Combination (separate step after PARSER_QUALIFIED; Q4 decided: do it)
 
-Q1 Ambiguity at the question level (a bare noun or first name is always `ambiguous`), as
-   proposed; or resolved against memory (a bare noun with exactly one matching object in
-   the store is answered)? The second is closer to natural use but mixes parser and memory
-   behaviour and needs a new operator; I propose the first for 3.6 and the second later.
-Q2 Are the unsupported families right, in particular event-relative history ("right before
-   they gave you ...") - unsupported now, the subject of the round after the combination?
-Q3 Criteria thresholds as proposed (0.95 / 0.02 / 0.90 / 0.05)?
-Q4 Combination as a separate step with the "known note wordings" label, or skip it in
-   favour of the context-dependent historical queries?
+The same holdout worlds in four combinations (Astra's table): correct store + gold
+specification (reference); d3 store + gold specification (extraction effects); correct
+store + LM parser (parser effects); d3 store + LM parser (joint behaviour). The parser
+configuration and the evaluation of the combination are fixed before the combination's
+results are seen; the d3 encodings of the new worlds' notes are produced only after
+PARSER_QUALIFIED. Label: "new worlds with known note wordings and question wordings not
+used in development". The combination is not an independent second confirmation of the
+parser. Questions touching the concentrated 3.5b error class (actors of observed
+placings) are unsupported here and counted separately.
