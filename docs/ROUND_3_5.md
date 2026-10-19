@@ -442,9 +442,35 @@ DECODER_VERSION and `frozen.code_sha256` the SHA-256 of the eight round 3.5 code
 the collector reports any mismatch as INCOMPLETE (ENCODER_QUALIFIED UNDECIDABLE), so a
 code change after the freeze cannot pass unnoticed. Request hash and code commit: in the
 review package.
+After the approval (item 12) the binding covers the complete local import closure of the
+jobs and the collector (25 files, bench/m3/freeze35.py; a test checks that no imported
+local module is missing) and is checked three times: in the workflow before the plan (no
+job starts on a mismatch), in every encode job before the model loads, and by the
+collector.
 
 Role of the calibration split: it was planned as an untouched threshold split; it has been
 used as development evidence (runs 9 and 10, the decoder proposals were checked on it), so
 its numbers are development values. The thresholds still come from it alone; the unused
 holdout (ho, 40 pairs per kind) is the only independent test. The reserve split stays
 closed.
+
+## Holdout (after the approval)
+
+12. Review of the decoder correction (Astra, 2026-10-19, reviews/2026-10-19_r35dev_v2_astra.txt):
+   APPROVE on every point (A model, B1 decoder d2, B2 including the evidence bar, C frozen
+   configuration); the holdout may be evaluated once after the coverage check. Adopted
+   non-blocking ideas before the run: the freeze check also before the encoding (workflow
+   plan and every encode job), and the hash binding extended from the eight round 3.5
+   files to the complete local import closure (memory operators, history logic, reference
+   rules, round 3.3/3.4 criteria). Neither changes a decision; both only stop a run whose
+   code differs from the freeze. Planned: the five cases for Joe chosen systematically (a
+   historical pair, a role change, the narrator as actor, and present error or abstention
+   cases); the control statement stays narrow (the performance belongs to the whole system
+   of model scores, candidates and schema constraints).
+   Post-freeze coverage check (bench/m3/audit35.py --frozen, model-free, 2026-10-19,
+   docs/ROUND_3_5_holdout_audit.json): no problems; disjoint texts; candidate coverage 1.0
+   for every slot on dev, cal, aud and ho (2,974 distinct holdout texts); the position and
+   word-list baseline on the holdout: all slots 0.647. The holdout is opened with
+   config/round35.json = the proposal with "enabled": true (12 chunks; holdout notes have
+   about 10% more candidates than development notes, about 2.7 h per chunk expected).
+

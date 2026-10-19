@@ -1,0 +1,81 @@
+{
+ "problems": [],
+ "texts": {
+  "dev": 750,
+  "cal": 748,
+  "aud": 375,
+  "ho": 2974
+ },
+ "coverage": {
+  "dev": {
+   "actor": 1.0,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 1.0,
+   "event_day": 1.0
+  },
+  "cal": {
+   "actor": 1.0,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 1.0,
+   "event_day": 1.0
+  },
+  "aud": {
+   "actor": 1.0,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 1.0,
+   "event_day": 1.0
+  },
+  "ho": {
+   "actor": 1.0,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 1.0,
+   "event_day": 1.0
+  }
+ },
+ "baseline": {
+  "dev": {
+   "actor": 0.7853333333333333,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 0.7346666666666667,
+   "event_day": 1.0,
+   "all_slots": 0.7346666666666667
+  },
+  "cal": {
+   "actor": 0.7954545454545454,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 0.7192513368983957,
+   "event_day": 1.0,
+   "all_slots": 0.7192513368983957
+  },
+  "aud": {
+   "actor": 0.768,
+   "partner": 1.0,
+   "action": 1.0,
+   "object": 1.0,
+   "place": 0.6906666666666667,
+   "event_day": 1.0,
+   "all_slots": 0.6906666666666667
+  },
+  "ho": {
+   "actor": 0.7020847343644923,
+   "partner": 0.9193006052454606,
+   "action": 0.7293207800941492,
+   "object": 0.9172831203765972,
+   "place": 0.8920645595158037,
+   "event_day": 1.0,
+   "all_slots": 0.6466039004707465
+  }
+ }
+}

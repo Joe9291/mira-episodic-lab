@@ -1,0 +1,60 @@
+4m 6s nachgedacht
+
+Teil 1
+
+}
+---END FILE config/round35_holdout_proposal.json---
+
+Teil 2
+
+dec = json.loads((d / "DECISIONS.json").read_text())["m"]
+---END DIFF---
+
+APPROVE. Ja: Nach erfolgreichem vorgesehenem Coveragecheck darf der Holdout mit der vorgelegten eingefrorenen Konfiguration einmalig ausgewertet werden. Bei einem Coveragefehler gilt die vereinbarte Verbrauchsregel für Welten und Formulierungen.
+
+Punkt	Urteil	Konkreter Grund
+
+A: Modellwahl	APPROVE bleibt bestehen	Die begründete Auswahl des 1,5B-Modells bleibt unverändert.
+B1: Decoder d2	APPROVE	Aktionsabhängige Einschränkungen verwenden die akzeptierte Aktion; Rollenmargen berücksichtigen sämtliche zulässigen Paare.
+B2 einschließlich Verschärfung	APPROVE	Einzelwerte und fehlende auswertbare Fälle werden unterschieden. Die zusätzliche Evidenzschwelle ist angemessen.
+C: eingefrorene Konfiguration	APPROVE	Kalibrierung wurde mit d2 neu berechnet; Decoder und erfasste Codedateien werden gegen den Freeze geprüft.
+
+
+Warum die Decoderkorrektur überzeugt
+
+Die beiden konkreten Fehler sind im gezeigten Diff behoben:
+
+- slot_view() verwendet den Aktionswert nur bei akzeptiertem Status. Eine unbekannte Aktion löst die Erzähler-Einschränkung nicht aus.
+- role_views() berechnet für jeden Rollenwert den besten gemeinsamen Score über alle zulässigen Gegenwerte. Konkurrierende Rollenpaare bleiben dadurch in den Margen sichtbar.
+- Kalibrierung und Anwendung verwenden dieselben Funktionen und dieselbe Entscheidungsreihenfolge. Die Kalibrierung berücksichtigt dabei bereits die tatsächlich bestimmten Schwellen früherer Slots.
+
+Die gezeigten Regressionstests prüfen die relevanten Gegenfälle: unbekannte beziehungsweise verworfene Aktion, akzeptiertes was, gemeinsame Gleichstände mit unterschiedlichen oder geteilten Komponenten sowie eine zuvor überschätzte Marge.
+
+Dass laut Neuberechnung 831 Rollenmargen kleiner werden, während Werte und Status unverändert bleiben, passt zur korrigierten Berücksichtigung der Konkurrenzpaare.
+
+Die B2-Verschärfung bestätige ich ausdrücklich
+
+Mindestens 200 Einzelwerte und mindestens 0,99 beobachtete Präzision sind eine vertretbare technische Voraussetzung für STRUCTURAL. Fehlende Kandidaten werden damit nicht mehr als strukturelle Eindeutigkeit behandelt.
+
+Der berichtete Tagesfall erfüllt diese Voraussetzung mit 748 korrekten Einzelwerten. Die Regel bleibt konservativ: Treten später mehrere Tageskandidaten auf, wird das Feld unbekannt. Die Präzisionsgrenze bleibt eine empirische Abnahmeregel.
+
+Die Konfiguration ist für den Abschlusstest ausreichend festgelegt
+
+Die erneute Berechnung aus gespeicherten Scores ist hier methodisch passend: Die Modellbewertungen bleiben gleich; geändert wurde ihre Auswertung. Die berichteten Entwicklungs- und Kalibrierwerte erfüllen weiterhin sämtliche technischen Kriterien.
+
+Positiv ist außerdem:
+
+- Die bereits verwendete Kalibriergruppe wird ausdrücklich als Entwicklungsevidenz eingeordnet.
+- Der Holdout bleibt der unabhängige Test.
+- Die Nullschwellen werden zutreffend als Annahme jeder eindeutig besten Auswahl beschrieben.
+- Versions- oder Hashabweichungen verhindern eine positive Qualifikation.
+- Encoderqualifikation und ursprünglicher Meilenstein-PASS bleiben getrennte Ergebnisse.
+
+Die Freigabe bezieht sich auf das vorgelegte Proposal v2 mit d2, p8, c2, Summenscore und den angegebenen Schwellen. Sie beruht auf statischer Prüfung der Dateien und den berichteten Messungen; Tests und Neuberechnung habe ich nicht selbst ausgeführt.
+
+Verbesserungsideen – nicht blockierend
+
+- Freeze-Prüfung zusätzlich vor dem Encoding ausführen. Die Collectorprüfung schützt die Ergebnisfreigabe. Eine frühe Prüfung könnte bei Abweichungen den teuren Lauf vermeiden.
+- Hashbindung künftig um fachliche Abhängigkeiten erweitern. Die acht Hashes schützen die genannten Dateien. Speicheroperatoren, Historienlogik und Referenzregeln ließen sich ebenfalls einbeziehen oder über eine festgelegte vollständige Coderevision binden.
+- Die fünf Fälle für Joe systematisch auswählen. Beispielsweise ein historisches Paar, ein Rollenwechsel, ein eigener Akteur sowie vorhandene Fehler- oder Enthaltungsfälle. Das macht die Darstellung überprüfbarer.
+- Die Kontrollaussage eng formulieren. Uniforme und zufällige Ersatzscores reproduzieren den Erfolg nicht. Die gemessene Leistung gehört weiterhin dem Gesamtsystem aus Modellscores, Kandidaten und Schemaeinschränkungen.

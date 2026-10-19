@@ -110,6 +110,12 @@ def main() -> int:
                           "request_sha256": hashlib.sha256(Path(args.request).read_bytes()).hexdigest(),
                           "pins_sha256": hashlib.sha256(Path(args.pins).read_bytes()).hexdigest()}}
     try:
+        if args.phase == "encode":   # a frozen request must match the code before any model work
+            sys.path.insert(0, str(ROOT / "bench" / "m3"))
+            import freeze35
+            problems = freeze35.check(json.loads(Path(args.request).read_text()).get("frozen"))
+            if problems:
+                raise RuntimeError("frozen configuration does not match the code: " + "; ".join(problems))
         from episodic_lab.models import PinnedModel
         t0 = time.perf_counter()
         model = PinnedModel(slug, args.pins)

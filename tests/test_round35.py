@@ -113,6 +113,8 @@ import tempfile  # noqa: E402
 from unittest import mock  # noqa: E402
 
 import collect_round35  # noqa: E402
+import freeze35  # noqa: E402
+import subprocess  # noqa: E402
 import run_round35  # noqa: E402
 from episodic_lab import analysis35 as A  # noqa: E402
 from episodic_lab.cands35 import SLOTS, truth_value  # noqa: E402
@@ -381,12 +383,25 @@ class JobTests(unittest.TestCase):
         finally:
             A.DECODING["joint_roles"] = False
 
+    def test_freeze_binding_covers_the_import_closure(self):
+        """Every local module the jobs and the collector import is hash-bound by a freeze."""
+        code = ("import os, sys; sys.path[:0] = ['.', 'bench/m3']; import collect_round35, run_round35, "
+                "episodic_lab.models; r = os.path.abspath('.'); print('\\n'.join(sorted(os.path.relpath(m.__file__, r) "
+                "for m in list(sys.modules.values()) if getattr(m, '__file__', None) and "
+                "os.path.abspath(m.__file__).startswith(r))))")
+        root = Path(__file__).resolve().parents[1]
+        out = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True, check=True).stdout
+        self.assertEqual(set(out.split()) - set(freeze35.FROZEN_CODE), set())
+        self.assertEqual(freeze35.check(None), [])
+        cfg = json.loads((root / "config" / "round35_holdout_proposal.json").read_text())
+        self.assertEqual(freeze35.check(cfg["frozen"]), [], "the proposed freeze must match the code")
+
     def test_holdout_phase_decisions(self):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)
             (d / "pins.json").write_text("{}")
             req = {"phase": "encode", "models": ["m"], "splits": ["ho"], "chunks": 3,
-                   "frozen": {"model": "m", "decoder_version": "d2", "code_sha256": collect_round35.code_hashes(),
+                   "frozen": {"model": "m", "decoder_version": "d2", "code_sha256": freeze35.code_hashes(),
                               "taus": {s: 1.0 for s in SLOTS}}}
             (d / "req.json").write_text(json.dumps(req))
             for chunk in range(3):
@@ -396,12 +411,18 @@ class JobTests(unittest.TestCase):
             dec = json.loads((d / "DECISIONS.json").read_text())["m"]
             self.assertEqual((dec["ENCODER_QUALIFIED"], dec["MILESTONE_ORIGINAL_RULES"]), ("YES", "PASS"))
             # the frozen decoder version and code hashes must match the running code
-            with mock.patch.object(collect_round35, "DECODER_VERSION", "d9"), \
-                    mock.patch.object(collect_round35, "code_hashes", lambda: {p: "0" for p in collect_round35.FROZEN_CODE}):
+            with mock.patch.object(freeze35, "decoder_version", lambda root=None: "d9"), \
+                    mock.patch.object(freeze35, "code_hashes", lambda root=None: {p: "0" for p in freeze35.FROZEN_CODE}):
                 collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")
+                # ... and every encode job stops before loading a model
+                r = self.run_job(d, "encode", "m", "ho", 0, 3)
+                self.assertEqual(r["status"], "ERROR")
+                self.assertIn("frozen configuration does not match the code", r["error"])
+                self.assertNotIn("encodings", r)
+            self.run_job(d, "encode", "m", "ho", 0, 3)   # restore the valid chunk report
             check = (d / "CHECK.txt").read_text()
             self.assertIn("FAILED decoder_version:d2:d9", check)
-            self.assertIn("FAILED code_sha256:episodic_lab/wordings35.py", check)
+            self.assertIn("FAILED code_sha256:episodic_lab/__init__.py,episodic_lab/wordings35.py", check)
             self.assertEqual(json.loads((d / "DECISIONS.json").read_text())["m"]["ENCODER_QUALIFIED"], "UNDECIDABLE")
             (d / "r35_encode_m_ho_2.json").unlink()
             collect_round35.main(str(d / "req.json"), str(d), str(d / "pins.json"), "local")

@@ -22,6 +22,8 @@ jobs:
       phase: ${{ steps.plan.outputs.phase }}
     steps:
       - uses: actions/checkout@v4
+      - name: Freeze check (a frozen request must match the code; no job starts otherwise)
+        run: python3 bench/m3/freeze35.py config/round35.json
       - id: plan
         run: |
           python3 - <<'PY'

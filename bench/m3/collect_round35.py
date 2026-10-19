@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import collect_round33  # noqa: E402
 import collect_round34  # noqa: E402
+import freeze35  # noqa: E402
 import run_round33  # noqa: E402
 import run_round34  # noqa: E402
 import run_round35  # noqa: E402
@@ -35,16 +36,6 @@ JOB_HOURS = 5.5   # usable part of the 6-hour job limit
 def sha256_file(path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
-
-ROOT = Path(__file__).resolve().parents[2]
-# the round 3.5 code a frozen configuration is bound to (its SHA-256 is part of the request)
-FROZEN_CODE = ("episodic_lab/wordings35.py", "episodic_lab/env35.py", "episodic_lab/cands35.py",
-               "episodic_lab/encoder35.py", "episodic_lab/analysis35.py", "episodic_lab/models.py",
-               "bench/m3/run_round35.py", "bench/m3/collect_round35.py")
-
-
-def code_hashes() -> dict:
-    return {p: sha256_file(ROOT / p) for p in FROZEN_CODE}
 
 
 def planned(req: dict) -> list[tuple[str, str, int]]:
@@ -219,12 +210,7 @@ def main(request_path: str, dest: str, pins_path: str, commit: str | None = None
                       **req.get("decoding", {}))
     dest = Path(dest)
     enc, reports, problems = load(req, request_path, pins_path, dest, commit)
-    frozen = req.get("frozen")
-    if frozen is not None and frozen.get("decoder_version") != DECODER_VERSION:   # frozen decoder = code's decoder
-        problems.append(f"decoder_version:{frozen.get('decoder_version')}:{DECODER_VERSION}")
-    if frozen is not None and frozen.get("code_sha256") != code_hashes():   # frozen code = running code
-        problems.append("code_sha256:" + ",".join(p for p in FROZEN_CODE
-                                                  if (frozen.get("code_sha256") or {}).get(p) != code_hashes()[p]))
+    problems += freeze35.check(req.get("frozen"))   # frozen decoder and code = running decoder and code
     verdict = "COMPLETE" if not problems else "INCOMPLETE"
     lines = [f"FAILED {p}" for p in problems] or ["OK every planned report present, valid and from this run"]
     summary, decisions = [], {}
