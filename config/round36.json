@@ -1,11 +1,10 @@
 {
  "schema": "episodic_lab.round36_request.v1",
  "enabled": true,
- "note": "Round 3.6 development probe 4 (docs/ROUND_3_6.md, log item 7): Qwen3-1.7B (pinned, Apache-2.0, float32) with q4 and q5 (q5 records the factor slots and content-free label scores).",
+ "note": "Round 3.6 development probe 5 (docs/ROUND_3_6.md, log items 8-9): Qwen3-1.7B with q7 (q5 examples + two imperatives, slots of the decision table only); prefix cache fixed for the Qwen3 chat template (the job's cache check compares with uncached scores).",
  "phase": "probe",
  "models": [
-  "qwen3-1.7b+q4",
-  "qwen3-1.7b+q5"
+  "qwen3-1.7b+q7"
  ],
  "splits": [
   "dev"

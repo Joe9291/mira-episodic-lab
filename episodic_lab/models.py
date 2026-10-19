@@ -135,11 +135,18 @@ class PinnedModel:
         torch = self._torch
         ids = self.tokenizer.apply_chat_template(messages, add_generation_prompt=True,
                                                  return_tensors="pt", **self.template_kwargs)
-        head = self.tokenizer.apply_chat_template(messages[:-1], add_generation_prompt=False,
-                                                  return_tensors="pt", **self.template_kwargs)
-        hl = head.shape[1]
-        if len(messages) < 2 or hl >= ids.shape[1] or not torch.equal(ids[0, :hl], head[0]):
+        # the reusable head: the longest common token prefix of the full prompt and the same
+        # conversation with an empty last turn (round 3.6: rendering messages[:-1] alone is not a
+        # prefix for chat templates that format the final assistant turn differently, e.g.
+        # Qwen3's think tags, which made every call fall back to the uncached path)
+        probe = self.tokenizer.apply_chat_template(messages[:-1] + [dict(messages[-1], content="")],
+                                                   add_generation_prompt=True, return_tensors="pt",
+                                                   **self.template_kwargs)
+        n = min(ids.shape[1], probe.shape[1])
+        hl = int((ids[0, :n] != probe[0, :n]).nonzero()[0, 0]) if not torch.equal(ids[0, :n], probe[0, :n]) else n
+        if len(messages) < 2 or hl < 1 or hl >= ids.shape[1]:
             return self.score_candidates_cached(messages, candidates)
+        head = ids[:, :hl]
         key = tuple(head[0].tolist())
         store = self.__dict__.setdefault("_prefix_caches", {})   # one per slot prompt
         if key not in store:

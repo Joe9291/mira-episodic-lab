@@ -335,3 +335,18 @@ Implementation notes (2026-10-19):
    Apache-2.0): one probe with Qwen3-1.7B (the largest Apache-2.0 model that fits in float32;
    Qwen3 support exists in models.py), prompts q4 and q5. A model change is a decision for
    Astra before any use beyond development (as in round 3.5).
+8. Probe 4 (GitHub 39323805995, Qwen3-1.7B pinned at 70d244cc, Apache-2.0, float32): q4
+   18/69 (without examples Qwen3 refuses or clarifies almost everything); q5 62/69 right -
+   every unsupported question refused (12/12, no false OK), every ambiguous one clarified
+   (5/5, all as no_referent), no wrong accepted specification (0/45); the 7 errors are all
+   unnecessary refusals or clarifications of terse imperatives ("Find X.", "Go to X.",
+   "Take me to the X.", "I need the X - where is it?"). Cost: q5 97 s per question against
+   6.5 s for q4. Cause: the prefix cache fell back to the uncached path on every call -
+   Qwen3's chat template formats the last assistant turn of messages[:-1] with think tags,
+   so that rendering is not a token prefix of the full prompt.
+9. Development changes: (a) models.py - the reusable head is now the longest common token
+   prefix of the full prompt and the same conversation with an empty last turn (always an
+   exact prefix of the prompt, so the scores are unchanged; every probe job checks prefixed
+   against uncached scores); (b) prompt q7 = q5's worked examples plus two imperatives
+   that are not development wordings ("Bring me to Tom Reed.", "Show me the old key."), only
+   the two slots of the decision table.

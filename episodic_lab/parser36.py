@@ -166,6 +166,20 @@ EXAMPLES_Q5 = [
 ]
 
 
+# q7 (development change after probe 4: Qwen3-1.7B with q5 was right on 62 of 69, every
+# error a terse imperative - "Find X.", "Go to X.", "Take me to the X." - refused or read as
+# giver): q5's examples plus two imperatives (not development wordings), only the two slots
+# of the decision table (no factor slots, no content-free scores).
+PROMPTS = PROMPTS + ("q7",)
+LETTER_PROMPTS = LETTER_PROMPTS + ("q7",)
+EXAMPLES_Q7 = EXAMPLES_Q5 + [
+    ("Bring me to Tom Reed.", {"intent": "person_current", "target": "Tom Reed", "answerable": "yes",
+                               "kind": "person", "when": "latest"}),
+    ("Show me the old key.", {"intent": "object_current", "target": "old key", "answerable": "yes",
+                              "kind": "object", "when": "latest"}),
+]
+
+
 def factor_messages(slot: str, text: str, prompt: str) -> list[dict]:
     question = FACTOR_QUESTIONS[slot]
     turns = [{"role": "system", "content": SYSTEM}]
@@ -185,7 +199,7 @@ def messages(slot: str, text: str, prompt: str = "q1") -> list[dict]:
     if prompt in LETTER_PROMPTS:
         question = Q_INTENT_LETTERS if slot == "intent" else Q_TARGET_V2
     turns = [{"role": "system", "content": SYSTEM}]
-    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2, "q5": EXAMPLES_Q5}.get(prompt, []):
+    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2, "q5": EXAMPLES_Q5, "q7": EXAMPLES_Q7}.get(prompt, []):
         if slot not in answers:
             continue
         answer = LETTER_OF[answers[slot]] if (slot == "intent" and prompt in LETTER_PROMPTS) else answers[slot]
