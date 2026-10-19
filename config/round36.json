@@ -1,11 +1,11 @@
 {
  "schema": "episodic_lab.round36_request.v1",
  "enabled": true,
- "note": "Round 3.6 development probe 2 (docs/ROUND_3_6.md, log item 3): intent as multiple choice with letters A-H, target question for the complete object / full name written in the request; q3 with worked examples, q4 without.",
+ "note": "Round 3.6 development probe 3 (docs/ROUND_3_6.md, log item 5): q4 letter intent + written-target question plus recorded factor slots (answerable, kind, when) and content-free label scores for offline decoder comparisons; q5 with balanced per-slot examples, q6 without.",
  "phase": "probe",
  "models": [
-  "qwen2.5-1.5b+q3",
-  "qwen2.5-1.5b+q4"
+  "qwen2.5-1.5b+q5",
+  "qwen2.5-1.5b+q6"
  ],
  "splits": [
   "dev"

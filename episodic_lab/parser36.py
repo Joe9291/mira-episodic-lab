@@ -120,14 +120,74 @@ EXAMPLES_Q2 = [
 ]
 
 
+# q5 / q6 (development change after probe 2: "unsupported" has a very low label prior - its
+# gold label ranks 4-6 - and person_current is often confused; examples with target "none"
+# biased q3 towards CLARIFY): q4's letter intent and written-target question PLUS three
+# recorded development slots for an offline comparison of a factorised decoder (answerable
+# yes/no, kind object/person/giver, time latest/first/previous) and content-free scores
+# ("(no request)") of every label slot for an offline prior correction. q5 with balanced
+# per-slot worked examples (the target examples answer "none" only once), q6 without.
+PROMPTS = PROMPTS + ("q5", "q6")
+LETTER_PROMPTS = LETTER_PROMPTS + ("q5", "q6")
+FACTOR_PROMPTS = ("q5", "q6")
+FACTOR_SLOTS = ("answerable", "kind", "when")
+FACTOR_LABELS = {"answerable": ("yes", "no"), "kind": ("object", "person", "giver"),
+                 "when": ("latest", "first", "previous")}
+FACTOR_QUESTIONS = {
+    "answerable": ("Can this request be answered from memory by naming ONE place: where an object is now, was "
+                   "first placed, or was before its last placing; where a person was seen last, first, or the time "
+                   "before the last; or where the person who gave you an object is now? Answer yes or no."),
+    "kind": ("Is the request about the place of an object, the place of a person, or the person who gave you an "
+             "object? Answer object, person, or giver."),
+    "when": ("Which time does the request ask for: the latest one (now, last), the first one, or the one before "
+             "the latest? Answer latest, first, or previous."),
+}
+NULL_REQUEST = "(no request)"
+EXAMPLES_Q5 = [
+    ("Where is the green box now?", {"intent": "object_current", "target": "green box", "answerable": "yes",
+                                     "kind": "object", "when": "latest"}),
+    ("Go to where the small drum was first placed.", {"intent": "object_first", "target": "small drum",
+                                                      "answerable": "yes", "kind": "object", "when": "first"}),
+    ("Where was the old key before its last move?", {"intent": "object_previous", "target": "old key",
+                                                     "answerable": "yes", "kind": "object", "when": "previous"}),
+    ("Where is Mara Lind now?", {"intent": "person_current", "target": "Mara Lind", "answerable": "yes",
+                                 "kind": "person", "when": "latest"}),
+    ("Where did you see Tom Reed for the first time?", {"intent": "person_first", "target": "Tom Reed",
+                                                        "answerable": "yes", "kind": "person", "when": "first"}),
+    ("Where did you see Ida Voss before the last time?", {"intent": "person_previous", "target": "Ida Voss",
+                                                          "answerable": "yes", "kind": "person", "when": "previous"}),
+    ("Go to the person you got the red bell from.", {"intent": "giver", "target": "red bell", "answerable": "yes",
+                                                     "kind": "giver", "when": "latest"}),
+    ("Find the box.", {"intent": "object_current", "target": "none", "answerable": "yes", "kind": "object",
+                       "when": "latest"}),
+    ("Why did Tom Reed hide the green box?", {"intent": "unsupported", "answerable": "no"}),
+    ("Where will the old key be tomorrow?", {"intent": "unsupported", "answerable": "no"}),
+    ("Where was Mara Lind just after she met you?", {"intent": "unsupported", "answerable": "no"}),
+]
+
+
+def factor_messages(slot: str, text: str, prompt: str) -> list[dict]:
+    question = FACTOR_QUESTIONS[slot]
+    turns = [{"role": "system", "content": SYSTEM}]
+    for req, answers in (EXAMPLES_Q5 if prompt == "q5" else []):
+        if slot in answers:
+            turns += [{"role": "user", "content": f"Request: {req}\n\nQuestion: {question}"},
+                      {"role": "assistant", "content": answers[slot]}]
+    return turns + [{"role": "user", "content": f"Request: {text}\n\nQuestion: {question}"}]
+
+
 def messages(slot: str, text: str, prompt: str = "q1") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
+    if slot in FACTOR_SLOTS:
+        return factor_messages(slot, text, prompt)
     question = QUESTIONS[slot]
     if prompt in LETTER_PROMPTS:
         question = Q_INTENT_LETTERS if slot == "intent" else Q_TARGET_V2
     turns = [{"role": "system", "content": SYSTEM}]
-    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2}.get(prompt, []):
+    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2, "q5": EXAMPLES_Q5}.get(prompt, []):
+        if slot not in answers:
+            continue
         answer = LETTER_OF[answers[slot]] if (slot == "intent" and prompt in LETTER_PROMPTS) else answers[slot]
         turns += [{"role": "user", "content": f"Request: {req}\n\nQuestion: {question}"},
                   {"role": "assistant", "content": answer}]
@@ -136,6 +196,8 @@ def messages(slot: str, text: str, prompt: str = "q1") -> list[dict]:
 
 def candidates(slot: str, text: str, prompt: str = "q1") -> list[tuple[str, str]]:
     """[(surface scored by the model, canonical value)]."""
+    if slot in FACTOR_SLOTS:
+        return [(x, x) for x in FACTOR_LABELS[slot]]
     if slot == "intent":
         if prompt in LETTER_PROMPTS:
             return [(LETTER_OF[k], k) for k in INTENTS]
@@ -147,11 +209,26 @@ def encode_question(scorer, text: str, ntokens=None, prompt: str = "q1") -> dict
     """{slot: [[surface, canonical, score, None, tokens], ...]} (score = total log-probability
     of the complete answer after the slot question)."""
     out = {}
-    for slot in SLOTS:
+    for slot in SLOTS + (FACTOR_SLOTS if prompt in FACTOR_PROMPTS else ()):
         cands = candidates(slot, text, prompt)
-        scores = scorer(messages(slot, text, prompt), [s for s, _ in cands])
-        out[slot] = [[s, c, float(x), None, ntokens(s) if ntokens else None] for (s, c), x in zip(cands, scores)]
+        surf = [s for s, _ in cands]
+        scores = scorer(messages(slot, text, prompt), surf)
+        nulls = ([None] * len(surf) if (slot == "target" or prompt not in FACTOR_PROMPTS)
+                 else null_scores(scorer, slot, prompt, surf))
+        out[slot] = [[s, c, float(x), None if n is None else float(n), ntokens(s) if ntokens else None]
+                     for (s, c), x, n in zip(cands, scores, nulls)]
     return out
+
+
+_NULL_CACHE: dict = {}
+
+
+def null_scores(scorer, slot: str, prompt: str, surfaces: list[str]) -> list[float]:
+    """Content-free scores of a label slot ("(no request)"), cached per process."""
+    key = (slot, prompt, tuple(surfaces))   # one model per process
+    if key not in _NULL_CACHE:
+        _NULL_CACHE[key] = list(scorer(messages(slot, NULL_REQUEST, prompt), surfaces))
+    return _NULL_CACHE[key]
 
 
 def _scored(entries: list) -> list[tuple]:

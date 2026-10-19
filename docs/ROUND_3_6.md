@@ -309,3 +309,17 @@ Implementation notes (2026-10-19):
    letter answers A-H (canonical value = the label), the target question asks for the
    complete object or full name WRITTEN in the request; q3 with the worked examples, q4
    without. Probe 2 compares both.
+4. Probe 2 (GitHub 39314734322): q3 40/69, q4 48/69 right. Letters alone do not help.
+   Offline look at the recorded intent scores (all four prompts): the supported types other
+   than person_current rank the gold label first almost always; the gold label of
+   unsupported questions ranks 4-6 (its label score is far lower for every text - a label
+   prior), person_current ranks 2-4. Subtracting each label's mean score (a crude prior
+   correction) raises q1 from 45 to 60 of 69 right intents. q3's target examples answered
+   "none" three times in eight and biased the target towards none.
+5. Development change: prompts q5 / q6 = q4 plus three RECORDED development slots for an
+   offline comparison with a factorised decoder (answerable yes/no, kind object / person /
+   giver, time latest / first / previous) and the content-free score of every label slot
+   ("(no request)") for an offline prior correction; q5 with balanced per-slot worked
+   examples (target "none" once), q6 without. The decision table q1 and its sum score stay
+   the approved decoder; a factorised decoder or a prior-corrected score would be a design
+   change and goes to Astra before any use.
