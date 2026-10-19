@@ -1,0 +1,9 @@
+{
+ "schema": "episodic_lab.round36_request.v1",
+ "enabled": true,
+ "note": "Round 3.6 development probe (docs/ROUND_3_6.md): qwen2.5-1.5b with prompt q1 (no examples) and q2 (worked examples), 2 development texts per development wording; timing and cache check included.",
+ "phase": "probe",
+ "models": ["qwen2.5-1.5b+q1", "qwen2.5-1.5b+q2"],
+ "splits": ["dev"],
+ "chunks": 1
+}
