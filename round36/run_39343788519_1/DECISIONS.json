@@ -1,0 +1,39 @@
+{
+ "qwen3-1.7b+q7": {
+  "calibration": {
+   "flow": {
+    "after_accepted_intent": 0,
+    "distinct": 490,
+    "intent_items": 490,
+    "target_accepted": 0,
+    "target_calibratable": 354,
+    "target_items": 0
+   },
+   "intent": {
+    "acceptance": 0.0,
+    "accepted": 0,
+    "items": 490,
+    "precision": null,
+    "tau": null
+   },
+   "target": {
+    "acceptance": 0.0,
+    "accepted": 0,
+    "items": 0,
+    "precision": null,
+    "tau": null
+   }
+  },
+  "criteria": {
+   "cal:best value (tau 0)": false,
+   "cal:thresholds": false,
+   "dev:best value (tau 0)": false,
+   "dev:thresholds": false
+  },
+  "decoder_version": "q1",
+  "taus": {
+   "intent": null,
+   "target": null
+  }
+ }
+}
