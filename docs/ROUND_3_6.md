@@ -370,3 +370,20 @@ Implementation notes (2026-10-19):
    "Go to Ida Voss." and "I want the old key - where is it?" (close to development
    wordings - the dev/cal numbers of q8 are therefore optimistic for those two wordings)
    and an event-relative question about a giving (unsupported). Run 2 of dev/cal follows.
+13. Development and calibration run 2 (GitHub 39347271628, Qwen3-1.7B + q8, complete): worse
+   than q7 - best value dev 171/208 and cal 417/490 right; wrong accepted specifications cal
+   14/289 (q7: 0/329), object_previous 13/28, object_current 83/127; unsupported and ambiguous
+   still handled without false OK. An intent threshold now qualifies (19.8, acceptance 0.63)
+   but no target threshold can (176 target items after the accepted intent, fewer than the
+   200 the rule requires). Three added worked examples changed the readings of unrelated
+   wordings: the model is highly prompt-sensitive.
+14. Development conclusion (no holdout used): with the best configuration (Qwen3-1.7B + q7)
+   the parser never gave a false OK on 72 + 142 development-group control questions and
+   almost never a wrong accepted specification (1/128 dev, 0/329 cal), but misreads specific
+   wordings systematically and confidently (person_current 0.80, object_current 0.93-0.95 on
+   dev/cal; "Go to X." 11/11 as giver); no intent threshold qualifies under the approved rule
+   (best precision 0.987 among >= 200 accepted), so with thresholds every question would be
+   CLARIFY; even with the best value (tau 0) the per-type and task criteria fail on dev and
+   cal. Targeted examples (q8) made it worse. The approved criteria are therefore not
+   reachable with this model and method on development data; a holdout run would only
+   confirm NO. Decision for Astra: docs/ROUND_3_6.md / review package LAB_R36_DEV_DECISION.
