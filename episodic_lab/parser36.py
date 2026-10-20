@@ -180,6 +180,24 @@ EXAMPLES_Q7 = EXAMPLES_Q5 + [
 ]
 
 
+# q8 (development change after the dev/cal run with q7: no intent threshold reaches precision
+# 0.99, the intent errors are systematic per wording and confident - "Go to X." read as giver
+# 11/11, "I need the X - where is it?" refused 7/35, "... right before they gave you the X"
+# read as object_previous 3/20): q7's examples plus three - a bare "Go to <full name>."
+# (person, close to a development wording), "I want the old key - where is it?" (object,
+# close to a development wording) and an event-relative question about a giving (unsupported).
+PROMPTS = PROMPTS + ("q8",)
+LETTER_PROMPTS = LETTER_PROMPTS + ("q8",)
+EXAMPLES_Q8 = EXAMPLES_Q7 + [
+    ("Go to Ida Voss.", {"intent": "person_current", "target": "Ida Voss", "answerable": "yes",
+                         "kind": "person", "when": "latest"}),
+    ("I want the old key - where is it?", {"intent": "object_current", "target": "old key", "answerable": "yes",
+                                           "kind": "object", "when": "latest"}),
+    ("Where was the green box right before Tom Reed gave it to you?", {"intent": "unsupported",
+                                                                       "answerable": "no"}),
+]
+
+
 def factor_messages(slot: str, text: str, prompt: str) -> list[dict]:
     question = FACTOR_QUESTIONS[slot]
     turns = [{"role": "system", "content": SYSTEM}]
@@ -199,7 +217,8 @@ def messages(slot: str, text: str, prompt: str = "q1") -> list[dict]:
     if prompt in LETTER_PROMPTS:
         question = Q_INTENT_LETTERS if slot == "intent" else Q_TARGET_V2
     turns = [{"role": "system", "content": SYSTEM}]
-    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2, "q5": EXAMPLES_Q5, "q7": EXAMPLES_Q7}.get(prompt, []):
+    for req, answers in {"q2": EXAMPLES_Q2, "q3": EXAMPLES_Q2, "q5": EXAMPLES_Q5, "q7": EXAMPLES_Q7,
+                         "q8": EXAMPLES_Q8}.get(prompt, []):
         if slot not in answers:
             continue
         answer = LETTER_OF[answers[slot]] if (slot == "intent" and prompt in LETTER_PROMPTS) else answers[slot]

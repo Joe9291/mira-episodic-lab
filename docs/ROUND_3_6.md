@@ -356,3 +356,17 @@ Implementation notes (2026-10-19):
    giver); 10.8 s per question (was 97 s); the cache check passed (largest difference
    1.3e-4, identical choices). Next: development and calibration run (dev and cal, 4 chunks
    each) with Qwen3-1.7B + q7 and the approved decision table q1.
+11. Development and calibration run 1 (GitHub 39343788519, Qwen3-1.7B + q7, complete): best
+   value - dev 198/208 and cal 465/490 intents right; no false OK anywhere (0/22 and 0/6
+   ambiguous, 0/50 and 0/136 unsupported), wrong accepted 1/128 and 0/329; every error a
+   safe CLARIFY or REFUSE. Calibration: no intent threshold qualifies (the best precision
+   among >= 200 accepted is 0.987), so with thresholds every question would be CLARIFY.
+   The intent errors are systematic per wording and confident (margins up to 25): "Go to X."
+   read as giver 11/11 on cal, "I need the X - where is it?" refused 7/35, the development
+   event-relative wording read as object_previous 3/20, "Go to <first name>." as giver
+   (still CLARIFY, the right handling). A threshold cannot remove confident systematic
+   errors. The rule baseline is right on every development-group text (dev 208, cal 490).
+12. Development change: prompt q8 = q7 plus three worked examples aimed at these errors:
+   "Go to Ida Voss." and "I want the old key - where is it?" (close to development
+   wordings - the dev/cal numbers of q8 are therefore optimistic for those two wordings)
+   and an event-relative question about a giving (unsupported). Run 2 of dev/cal follows.
