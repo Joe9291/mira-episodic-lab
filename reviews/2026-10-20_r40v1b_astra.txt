@@ -1,0 +1,116 @@
+8m 30s nachgedacht
+
+phase A include a bounded store (fixed size with compaction) so that delay matters?
+---END FILE docs/ROUND_4_0.md---
+
+REQUEST CHANGES. Die Richtung passt zum nächsten Gedächtnistest. Vor der Umsetzung müssen jedoch Zeitsemantik, Quellenauflösung und Prüfvertrag eindeutiger werden. Besonders der Ausschluss abgelöster Versionen würde gerade die historischen Abfragen beschädigen, die ihr nachweisen wollt.
+
+Beide Dateien habe ich vollständig gelesen. Es bleibt eine Prüfung der vorgelegten Texte.
+
+Erforderliche Änderungen am Design
+
+1. Historische Gültigkeit und heutiger Versionsstatus müssen getrennt werden.
+
+Operator 7 berücksichtigt nur heute bestehende Versionen und schließt „superseded“ aus. Eine durch eine spätere Zustandsänderung abgelöste Version bleibt aber für ihr früheres Gültigkeitsintervall relevant.
+
+Beispiel: A gilt ab Tag 1, B ab Tag 5. Bei einem Anker an Tag 3 muss die Antwort A bleiben. A darf für diese Abfrage nicht verschwinden, weil inzwischen B aktuell ist.
+
+Unterscheidet deshalb ausdrücklich:
+
+- Zustandsänderung: Die alte Version behält ihr historisches Gültigkeitsintervall.
+- Nachträgliche Korrektur: Die heutige Rekonstruktion der Vergangenheit ändert sich.
+- Damals verfügbare Information: Eine spätere Korrektur verändert nicht rückwirkend, was damals berichtet beziehungsweise geglaubt wurde.
+
+Ein interner Resolver mit zwei Zeitargumenten würde das vereinfachen: value_at(valid_time, known_time). Daraus lassen sich eure öffentlichen Operatoren ableiten. Für why_changed muss ebenfalls feststehen, ob derselbe Gültigkeitszeitpunkt unter zwei Wissensständen verglichen wird oder die jeweils damalige Gegenwart.
+
+2. Berichtsgestützte Antwort ist nicht automatisch Weltwahrheit.
+
+Ihr erlaubt ausdrücklich falsche hochrangige Berichte. Ohne korrigierende Information kann der Speicher deren Falschheit nicht erkennen.
+
+Definiert daher getrennte Goldwerte für:
+
+- die tatsächliche Weltgeschichte;
+- die nach eurer festgelegten Quellenpolitik gerechtfertigte Antwort;
+- die unter dem damaligen Wissensstand gerechtfertigte Antwort.
+
+current ist zunächst der bestgestützte aktuelle Wert. Für eine Bewertung gegen tatsächliche Wahrheit braucht der Generator zusätzliche Bedingungen, unter denen diese Wahrheit aus den verfügbaren Berichten bestimmbar ist. Andernfalls muss der Test Informationsmangel zulassen.
+
+3. Korrekturen, Rücknahmen und Konfliktauflösung benötigen eine vollständige Regelmenge.
+
+Im Berichtsschema fehlen ausdrückliche Verweise auf die korrigierten oder zurückgenommenen Berichte. Ergänzt dauerhafte Bericht-IDs und entsprechende Zielverweise.
+
+Außerdem bleibt offen:
+
+- Darf eine Quelle fremde Aussagen zurücknehmen oder nur eigene?
+- Wann überschreibt ein neuer Gültigkeitsbeginn einen alten Zustand?
+- Wann liegt stattdessen ein Widerspruch zum selben Zeitraum vor?
+- Zwei gleichrangige Berichte widersprechen sich: Eröffnet der zweite einen Konflikt, oder löst er als späterer gleichrangiger Bericht bereits auf?
+- Welche besondere Information berechtigt einen weiteren gleichrangigen Bericht zur Auflösung?
+
+Diese Fälle brauchen eine kleine Übergangstabelle mit festen erwarteten Ergebnissen. Für why_changed muss daraus eine kanonische Erklärung beziehungsweise ein definiertes Bericht-ID-Set folgen.
+
+4. Die Ankersemantik und der Prüfvertrag brauchen noch Präzisierungen.
+
+„Earliest strictly after“ bezeichnet die nächste aufgezeichnete Version nach dem Anker. Das ist bei fortgeltenden Fakten nicht zwingend der Zustand unmittelbar nach dem Anker. Ich würde zunächst nur before aufnehmen oder den zweiten Operator ausdrücklich als „erste Beobachtung nach Y“ bezeichnen.
+
+Zusätzlich fehlen Fallzahlen je Fragetyp, Phänomen und Delay sowie vollständige Ergebnisdefinitionen. history, anchored und die verschiedenen Unknown-Gründe sollten ausdrücklich im Kriterienkatalog stehen. Erwartete Ergebnisse der Interventionen benötigen eine vom geprüften Resolver unabhängige Referenz.
+
+Die geforderten Baseline-Ausfälle müssen ebenfalls präziser werden:
+
+- S0 kann bei einer tatsächlich unbeantwortbaren Frage korrekt unknown liefern.
+- S1 und S2 müssen gezielt auf informativen Gegenbeispielen scheitern.
+- S3 sollte als tatsächlich begrenzte Zusammenfassung definiert sein. Ein nicht implementierter anchored-Aufruf allein belegt keine Informationsgrenze.
+- Für die Ununterscheidbarkeit sollten die gesamten baseline-sichtbaren Eingaben kontrolliert werden, einschließlich Frage und Metadaten.
+
+Q1 – Ist der Umfang richtig?
+
+Der Kern ist richtig; Compaction würde ich verschieben.
+
+Für 4.0 reichen bitemporale Versionen, feste Quellenränge, explizite Korrekturen/Rücknahmen und ereignisbezogene historische Abfragen. Das ist bereits ein erheblicher Schritt.
+
+Verdichtung würde ich danach separat prüfen. So bleibt erkennbar, ob ein Fehler aus der Auflösungslogik oder aus Informationsverlust durch Verdichtung stammt. Phase A darf weiterhin einen unbegrenzten unveränderten Ereignisspeicher verwenden.
+
+Q2 – Vorgegebene oder gelernte Quellenzuverlässigkeit?
+
+Vorgegebene Ränge jetzt, Lernen später. Damit prüft ihr zunächst zuverlässig die Umsetzung einer festgelegten Quellenpolitik.
+
+Kennzeichnet diesen Anspruch entsprechend. Der Versuch belegt weder das Lernen von Vertrauenswürdigkeit noch eine allgemeine Wahrheitsfindung. „Unabhängige Quellen“ sollte außerdem durch ihre Herkunft definiert werden; verschiedene Namen allein garantieren keine unabhängige Evidenz.
+
+Q3 – Sind die Schwellen angemessen?
+
+Als technische Grenzen für einen größeren Generatortest sind 0,99 Genauigkeit und 0,95 Paarerfolg vertretbar. Für einen kleinen, handprüfbaren Konformitätssatz würde ich 100 % korrekte Ergebnisse verlangen – insbesondere bei Korrekturen, Rücknahmen, Konflikten und zeitlichen Grenzfällen.
+
+Vorab festzulegen sind:
+
+- absolute Fallzahlen und ganzzahlige Fehlergrenzen;
+- vollständige Trefferdefinition je Operator;
+- Nenner für stale answers und falsche Konflikte;
+- Mindestzahlen informativer Interventionsfälle;
+- getrennte Bewertung bekannter Antworten, Konflikte und Unknown-Ausgänge.
+
+Bei 40 Paaren und 80 Einzelantworten bedeutet ≥0,99 bereits null Fehler: 79/80 sind nur 0,9875. Wiederholungen derselben Welten über vier Delays dürfen nicht als vier unabhängige Replikationen behandelt werden.
+
+Q4 – Sind die Delay-Buckets sinnvoll?
+
+Ja, als Invarianz- und Belastungstest; zunächst ohne begrenzten Store.
+
+Bei vollständigem symbolischem Zugriff sollte die Antwort durch zusätzliche irrelevante Berichte unverändert bleiben. Die Buckets prüfen dann Interferenz und Skalierung, nicht eine zeitabhängige Vergessensleistung.
+
+Ergänzt einen Persistenztest: speichern, Prozess beenden, neu laden, dieselben Fragen beantworten. Das passt unmittelbar zum externen Langzeitgedächtnis.
+
+Ein begrenztes Abrufbudget oder eine begrenzte abgeleitete Ansicht kann später hinzukommen. Dann muss auch der Zugriff auf das vollständige Archiv budgetiert sein, damit die Begrenzung tatsächlich wirksam ist.
+
+Verbesserungsideen
+
+- Einen kleinen Referenzfall mit verspäteter Nachricht und anschließender Korrektur vollständig tabellieren: Weltwahrheit, heutige Rekonstruktion und damalige Antwort an mehreren Zeitpunkten.
+- Gedächtnisinterventionen als gültige Gegenwelten mit eigener konsistenter Kette erzeugen. Eine beschädigte Hashkette würde Integrität statt historischer Nutzung testen.
+- Für Phase B eine eigene Extraktionsqualifikation vorsehen: Quellen, Gültigkeitsbeginn und Korrekturverweise sind zusätzliche Felder, die der frühere 3.5b-PASS nicht abdeckt.
+- In Phase C den korrigierten Status der 3.6-Gruppen übernehmen: LM-ungetestet, aber technisch und mit der Baseline vorab ausgewertet.
+- Der Bezug auf Wissensaktualisierung und zeitliches Schlussfolgern passt zu LongMemEval. Euer Phase-A-Ergebnis wäre zunächst ein Nachweis der symbolischen Speicherlogik innerhalb des Generators. 
+
+Anmerkungen zu Datei 2
+
+- Phasennummern unterscheiden: Phase 2 der Repo-Roadmap bezeichnet offenbar die Vorbereitung vor Training; Phase 2 von Joes Plan bezeichnet das Langzeitgedächtnis. „Phase 2 erledigt“ ist ohne diese Zuordnung missverständlich.
+- Die Wanduhrlücke ist eine offene Infrastrukturgrenze. Ein CPU-Limit begrenzt wartende oder blockierte Prozesse nicht zuverlässig nach verstrichener Zeit. „Kein Infrastruktur-Mangel“ ist deshalb zu absolut.
+- Abweichende Abhängigkeiten liefern einen Portabilitätsbefund. Für eine genaue Reproduktion der CI-Umgebung braucht es zusätzlich deren gepinnte Versionen sowie nachvollziehbare Testlisten und Ergebnisartefakte.
+- Vertrauens- und Versionszuordnung bleiben klärungsbedürftig: Schlüssel-ID und öffentlicher Schlüssel im Repo ergeben allein noch keinen unabhängig verankerten Vertrauensanker. Auch die Zuordnung zwischen Receipt-Version v1.7.69 und dokumentiertem SSOT-Stand v1.7.70 sollte ausdrücklich nachvollziehbar sein; welcher Stand maßgeblich ist, kann ich aus diesem Bericht nicht bestimmen.
