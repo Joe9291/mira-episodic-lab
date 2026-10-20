@@ -1,4 +1,4 @@
-# Round 4.0 - Long-term memory with updates, contradictions and sources (design v1, draft for review)
+# Round 4.0 - Long-term memory with updates, contradictions and sources (design v1b, draft for review)
 
 Context: the experiment's five-phase plan (2026-10-20) puts phase 2 first - "an external
 memory that keeps current and historical information reliably apart" - with the milestone
@@ -15,6 +15,9 @@ updates, contradictions, retractions and long delays - and can it reconstruct WH
 answer changed (which report, from which source, on which day)? Tested against systems that
 cannot, with predicted interventions, so that a pass shows causal use of the stored
 history, not plain retrieval.
+v1b adds the event-anchored historical queries that Astra named as the next step when she
+closed round 3.6 (reviews/2026-10-20_r36dev_astra.txt, Q3): "where was X immediately before
+event Y?", with her three requirements (section 2, operator 7; section 3).
 
 ## 1. World and reports (generator with known truth)
 
@@ -36,8 +39,16 @@ Reports: the agent learns about facts only through reports, each an immutable ev
 Delays: questions are asked after 0, 50, 200 or 500 later unrelated reports (distractors
 with the same vocabulary), so recall is tested over long gaps.
 Pairs: as in rounds 3.3-3.6, worlds A and B differ in exactly one report (an update, a
-retraction, a contradicting report, a source level), so a correct answer must depend on
-that report.
+retraction, a contradicting report, a source level, or the position of an anchor event), so
+a correct answer must depend on that report.
+Anchored-query worlds (Astra's three requirements): (1) no shortcut - pairs whose current,
+first and previous answers are identical in A and B but whose anchored answer differs;
+(2) real history needed - the target has more than three relevant observations (5-8), and
+in both worlds of a pair the anchored answer is an intermediate one that none of current /
+first / previous holds; (3) causal binding - predicted interventions on the anchor (swap
+the anchor to another day, remove it -> unknown), on the relevant observation (remove it ->
+the next earlier version or unknown) and on irrelevant events (no change), each with the
+answer or the unknown it must produce fixed before any run.
 
 ## 2. Memory: versioned statements over the immutable store
 
@@ -57,7 +68,18 @@ Operators (structured questions, the language interface returns later - round 3.
 4. `why_changed(s, a, t1, t2)` - the report(s) that change the answer between knowledge
    days t1 and t2 (source, day, kind), or "unchanged";
 5. `conflicts(s, a)` - open contradictions with their sources;
-6. `history(s, a)` - all versions with provenance.
+6. `history(s, a)` - all versions with provenance;
+7. `anchored(s, a, relation, anchor)` - the value of (s, a) immediately before / after an
+   anchor event (an event identified by its own content, e.g. "Ida Voss gave you the old
+   key"). The structured question holds target (s, a), relation (before / after) and anchor.
+   Meaning of "immediately before", fixed here: the anchor's valid day d_Y is the valid day of
+   the anchor event as known now; the answer is the version of (s, a) with the latest valid
+   day strictly before d_Y (for "after": the earliest strictly after d_Y), taking only the
+   versions that stand now (superseded, corrected and retracted reports excluded); a version
+   on the same day as the anchor counts as neither (one event per entity and day in the
+   generator - the audit checks it); no version before the anchor -> unknown ("no
+   observation before Y"); an anchor that matches no stored event or several -> unknown
+   (anchor not found / ambiguous anchor), never a guess.
 Source-bound compaction (the plan's "quellengebundene Verdichtung"): old reports may be
 condensed into statement versions that keep the ids of their source reports; the store
 itself is never rewritten (compaction is a second, derived layer). Test: every answer
@@ -73,6 +95,8 @@ resolves to a stored report.
 - S2 naive episodic: keeps all reports but answers by "latest report wins" - can answer
   history-like questions but ignores source levels, corrections and valid_from before
   report_day.
+- S3 the round 3.4 history agent (current / first / previous only): must fail the
+  anchored queries by construction of requirement (1) and (2).
 - S0 no memory.
 - Interventions on M's store with predicted answers: remove the update (answer reverts),
   remove the retraction, swap two sources' levels, move a late report earlier, remove the
@@ -93,8 +117,9 @@ stale-answer rate <= 0.01, conflict recall >= 0.95 with <= 0.02 false conflicts,
 intervention as predicted in >= 0.95 of the informative cases, compaction invariance 1.0,
 every cited id resolvable. Dissociations that must appear: S1 fails valid_at, believed_at,
 why_changed and conflicts; S2 fails the source-level, correction and late-report cases; S0
-fails everything. A pass of M without these dissociations would mean the worlds are too
-easy and does not count.
+fails everything; S3 fails every anchored query whose answer is an intermediate version.
+A pass of M without these dissociations would mean the worlds are too easy and does not
+count. The anchored-query interventions are part of the intervention criterion.
 Joe's check: about 5 cases per round, chosen by rule (an update, a late report, a
 contradiction, a correction by a higher source, a long delay).
 

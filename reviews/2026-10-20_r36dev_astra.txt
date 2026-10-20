@@ -1,0 +1,59 @@
+5m 55s nachgedacht
+
+confirm NO. Decision for Astra: docs/ROUND_3_6.md / review package LAB_R36_DEV_DECISION.
+---END FILE docs/ROUND_3_6.md---
+
+Q1 – Bericht und Implementierungsnotizen: REQUEST CHANGES für die Darstellung. Der Entwicklungsstopp ist sachlich begründet.
+
+Die Ergebnisse reichen aus, um diese Entwicklungsiteration zu beenden. Einige Aussagen müssen jedoch präzisiert werden:
+
+- „Sicher“ durch den beobachteten Befund ersetzen: Für q7 wurden auf dev/cal keine falschen OK-Ausgaben bei 28 mehrdeutigen und 186 nicht unterstützten Fragen beobachtet. Das ist ein positiver Entwicklungsbefund. Bei beantwortbaren Fragen gab es dennoch einen falschen akzeptierten Parse auf dev.
+- Metriken eindeutig benennen: Das Log bezeichnet 198/208 und 465/490 als richtige Absichten. Diese Werte sind nicht automatisch vollständige Parsegenauigkeit oder richtige Gesamtausgänge. Der Satz „every error a safe CLARIFY or REFUSE“ muss außerdem die eine falsch akzeptierte Spezifikation ausnehmen.
+- Die Modellgrenze enger formulieren: „Keine untersuchte Konfiguration erreicht die Kriterien“ ist belegt. „Die Kriterien sind mit diesem Modell und Verfahren nicht erreichbar“ oder „das Modell, nicht der Prompt, ist die Grenze“ geht darüber hinaus. Gerade die großen Unterschiede zwischen q4, q7 und q8 zeigen, wie stark das Ergebnis vom Prompt abhängt.
+
+Zu den sechs Implementierungsnotizen:
+
+Punkt	Beurteilung
+
+Erstvorkommenszählung	APPROVE als dokumentierte Protokolländerung. Identische Fragen einmal zu zählen und für Aufgaben wiederzuverwenden ist sinnvoll. Die geänderte Zusammensetzung der Teilmengen und die Fallzahlen müssen sichtbar bleiben.
+Seed-Präfix und Rückwärtskompatibilität	Die berichtete Identität der erzeugten Welten ist ein geeigneter Kompatibilitätscheck. Die Freeze-Darstellung muss korrigiert werden: Der frühere Freeze enthält auch models.py. „Nur env35.py weicht ab“ passt daher nicht zur zusätzlich beschriebenen Cacheänderung. Berichtet die vollständige aktuelle Abweichungsliste.
+Cachekorrektur	Konzeptionell APPROVE. Ein tatsächlich gemeinsamer Tokenpräfix ist eine passende Grundlage für die Wiederverwendung. Die berichteten Vergleichswerte und identischen Entscheidungen unterstützen die Änderung. Ein vollständiger Codecheck ist anhand der Notizen nicht möglich.
+Vorzeitige Holdout-/Reserve-Auswertung	Protokollabweichung ausdrücklich beibehalten. Die Gruppen sind noch nicht mit dem LM ausgewertet, aber bereits auf Kandidatenabdeckung und Baselineleistung geprüft worden. „Unberührt“ ist deshalb zu weitgehend. Passend wäre: „LM-ungetestet, vor dem Freeze technisch und mit der Regelbaseline ausgewertet.“
+Kleine Nenner	APPROVE. Bei 28 Fällen erlaubt die Grenze von 2 % tatsächlich keinen Fehler. Dafür braucht es keine nachträgliche Anpassung.
+Modellwechsel	APPROVE als Entwicklungsexperiment, mit dokumentierter Revision, Promptversion und Zahlenformat. Die absolute Behauptung „größtes passendes Apache-Modell“ würde ich ohne umfassenden Vergleich streichen.
+
+
+Der historische PASS von 3.5b bleibt an seinen damaligen Code und Lauf gebunden. Änderungen gemeinsamer Module müssen für eine spätere Wiederverwendung separat nachvollziehbar bleiben.
+
+Die 161 grünen Tests und Cachevergleiche behandle ich als berichtete Ergebnisse; ich habe keine Tests ausgeführt.
+
+Q2 – Meine Wahl: Option A, mit korrigierter Abschlussaussage.
+
+Für q7 gibt es unter der vereinbarten Regel keinen qualifizierenden Absichtsschwellenwert. Bei q8 fehlt anschließend eine qualifizierende Zielschwelle. Auch die Ergebnisse ohne Schwellen unterschreiten bereits wichtige Genauigkeitsgrenzen.
+
+Damit fehlt eine freigabefähige Konfiguration für den Qualifikationslauf. Ein Holdout-Lauf liefert unter diesen Bedingungen wenig zusätzlichen Erkenntnisgewinn.
+
+Ich würde den Abschluss so kennzeichnen:
+
+Entwicklungs-Gate nicht bestanden; kein LM-Qualifikationstest durchgeführt. Keine der untersuchten Konfigurationen erfüllt die vereinbarten Entwicklungs- und Kalibrierungsbedingungen.
+
+Option B verursacht zusätzliche Modell-, Speicherformat- und Cachevalidierungsarbeit für die Sprachschnittstelle. Für das Forschungsziel sehe ich derzeit mehr Nutzen in der nächsten Gedächtnisfähigkeit. Option C löst die bestehenden Genauigkeitsprobleme nicht.
+
+Die vorhandenen Holdout-/Reservegruppen bleiben für spätere LM-Untersuchungen nutzbar, müssen aber ihre dokumentierte Voreinsicht behalten. Für eine künftig beanspruchte vollständig blinde Bestätigung würde ich neue Formulierungen vorsehen.
+
+Q3 – Ja, der Entwurf der nächsten Runde kann sofort beginnen.
+
+Kontextabhängige historische Abfragen mit strukturierten Zielen sind jetzt der passende nächste Schritt. Der Test sollte drei Dinge leisten:
+
+1. Die bisherigen Abkürzungen ausschließen: Weltpaare mit identischen Antworten für current, first und previous, aber unterschiedlichen Antworten auf die neue ereignisbezogene Frage.
+2. Zusätzliche Geschichte tatsächlich benötigen: Mehr als drei relevante Zielbeobachtungen vorsehen. Besonders aussagekräftig wäre, wenn beide Paarantworten Zwischenpositionen betreffen, die keiner der drei bisherigen Werte speichert.
+3. Die Ereignisbindung kausal prüfen: Bezug auf das Ankerereignis vertauschen oder entfernen, relevante Zielbeobachtung entfernen und irrelevante Ereignisse verändern. Vorab festlegen, welche Antworten beziehungsweise welches Nichtwissen daraus folgen müssen.
+
+Die strukturierte Frage sollte Ziel, Relation und Ankerereignis enthalten. Die genaue Bedeutung von „unmittelbar vor“ gehört ausdrücklich in den nächsten Entwurf.
+
+Verbesserungsideen
+
+- Künftig früh eine Diagnosematrix pro Wortlaut mit mehreren Entitäten verwenden. Eine gute Gesamtquote auf 69 Fragen kann systematische Probleme einzelner Formulierungen verdecken.
+- Entwicklungsabschlüsse mit einer gemeinsamen Tabelle für Absichtsgenauigkeit, vollständige Spezifikation, Ausgang, Antwortabdeckung und Aufgabenleistung dokumentieren.
+- Änderungen gemeinsam genutzter Module automatisch gegen die vollständigen alten Freeze-Manifeste ausweisen lassen.
+- Die Regelbaseline als Entwicklungshilfe behalten. Ihre Leistung auf bekannten Formulierungen kann die Arbeit erleichtern, ohne einen allgemeinen Sprachzugang vorauszusetzen.

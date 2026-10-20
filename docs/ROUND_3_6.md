@@ -282,12 +282,20 @@ Implementation notes (2026-10-19):
    and after, checked by hashing). The 3.5b freeze therefore no longer matches the current
    env35.py hash; the 3.5 test now checks that a freeze made from the current code matches
    and the old one differs only in env35.py. config/round35.json is disabled (done).
+   [Corrected 2026-10-20, Astra's review: the 3.5b freeze also covers models.py, which was
+   changed later (prefix cache, log item 9); the full current deviation list of the 3.5b
+   freeze against the current code is env35.py and models.py. The 3.5b PASS stays bound
+   to its run's code (commit b400189); a later reuse of shared modules must be traced
+   separately.]
 3. Disclosure: during the implementation the model-free candidate coverage (1.0) and the
    rule baseline were also computed on the holdout and reserve question texts, which the
    design reserves for after the freeze. This gives no information about the model's
    performance; the baseline (episodic_lab/baseline36.py) is not changed after that and its
    holdout numbers will be reported as they are (it was built from development wordings
    only; on development texts it is right on all 770 texts).
+   [Wording fixed 2026-10-20, Astra: the holdout and reserve groups are "LM-untested,
+   evaluated technically and with the rule baseline before the freeze" - not "untouched".
+   A later claim of a fully blind confirmation needs new wordings.]
 4. Small denominators on the holdout: about 28 distinct gold-ambiguous texts (1 pronoun, up
    to 12 bare-noun, up to 16 first-name texts); "false OK <= 0.02" then allows no false OK
    at all. This follows from the approved criteria and is reported with absolute counts.
@@ -328,12 +336,15 @@ Implementation notes (2026-10-19):
    prior-corrected factors): no variant above 49/69; unsupported questions accepted as OK in
    7-11 of 12 by every variant that keeps the supported types (the factorised q6 decoder
    refuses 9/12 but then fails most supported questions). Conclusion after six prompt
-   variants and four decoders: the limit is the model's ability to separate unsupported
-   questions, not the prompt; the criterion "false OK <= 0.02 among unsupported" is out of
-   reach with qwen2.5-1.5b. No further prompt iteration on this model.
+   variants and four decoders: no examined configuration of qwen2.5-1.5b separates the
+   unsupported questions as required (claim narrowed 2026-10-20, Astra: the large
+   differences between prompts show how prompt-dependent the result is; a statement that
+   the model and not the prompt is the limit goes beyond the evidence). No further prompt
+   iteration on this model.
 7. Next development step (realistic within the constraints - free runner, float32 memory,
-   Apache-2.0): one probe with Qwen3-1.7B (the largest Apache-2.0 model that fits in float32;
-   Qwen3 support exists in models.py), prompts q4 and q5. A model change is a decision for
+   Apache-2.0): one probe with Qwen3-1.7B (an Apache-2.0 model that fits in float32 - the
+   claim "the largest such model" was dropped, no systematic comparison was made; Qwen3
+   support exists in models.py), prompts q4 and q5. A model change is a decision for
    Astra before any use beyond development (as in round 3.5).
 8. Probe 4 (GitHub 39323805995, Qwen3-1.7B pinned at 70d244cc, Apache-2.0, float32): q4
    18/69 (without examples Qwen3 refuses or clarifies almost everything); q5 62/69 right -
@@ -357,9 +368,12 @@ Implementation notes (2026-10-19):
    1.3e-4, identical choices). Next: development and calibration run (dev and cal, 4 chunks
    each) with Qwen3-1.7B + q7 and the approved decision table q1.
 11. Development and calibration run 1 (GitHub 39343788519, Qwen3-1.7B + q7, complete): best
-   value - dev 198/208 and cal 465/490 intents right; no false OK anywhere (0/22 and 0/6
-   ambiguous, 0/50 and 0/136 unsupported), wrong accepted 1/128 and 0/329; every error a
-   safe CLARIFY or REFUSE. Calibration: no intent threshold qualifies (the best precision
+   value - dev 198/208 and cal 468/490 texts fully right (outcome and, for OK, intent and
+   target; the intent label alone was right on 189/208 and 465/490 - corrected 2026-10-20,
+   the first report called 198/208 "intents right"); no false OK observed (0/22 and 0/6
+   ambiguous, 0/50 and 0/136 unsupported); wrong accepted specifications 1/128 (dev) and
+   0/329 (cal); every other error a CLARIFY or REFUSE (the one wrong accepted
+   specification on dev is the exception). Calibration: no intent threshold qualifies (the best precision
    among >= 200 accepted is 0.987), so with thresholds every question would be CLARIFY.
    The intent errors are systematic per wording and confident (margins up to 25): "Go to X."
    read as giver 11/11 on cal, "I need the X - where is it?" refused 7/35, the development
@@ -377,13 +391,41 @@ Implementation notes (2026-10-19):
    but no target threshold can (176 target items after the accepted intent, fewer than the
    200 the rule requires). Three added worked examples changed the readings of unrelated
    wordings: the model is highly prompt-sensitive.
-14. Development conclusion (no holdout used): with the best configuration (Qwen3-1.7B + q7)
-   the parser never gave a false OK on 72 + 142 development-group control questions and
-   almost never a wrong accepted specification (1/128 dev, 0/329 cal), but misreads specific
-   wordings systematically and confidently (person_current 0.80, object_current 0.93-0.95 on
+14. Development conclusion (no LM run on holdout or reserve): with the best configuration
+   (Qwen3-1.7B + q7) no false OK was observed on the 28 ambiguous and 186 unsupported
+   dev/cal questions, and 1 wrong accepted specification on 457 OK outputs (1/128 dev,
+   0/329 cal), but specific wordings are misread systematically and confidently (person_current 0.80, object_current 0.93-0.95 on
    dev/cal; "Go to X." 11/11 as giver); no intent threshold qualifies under the approved rule
    (best precision 0.987 among >= 200 accepted), so with thresholds every question would be
    CLARIFY; even with the best value (tau 0) the per-type and task criteria fail on dev and
-   cal. Targeted examples (q8) made it worse. The approved criteria are therefore not
-   reachable with this model and method on development data; a holdout run would only
-   confirm NO. Decision for Astra: docs/ROUND_3_6.md / review package LAB_R36_DEV_DECISION.
+   cal. Targeted examples (q8) made it worse. No examined configuration meets the approved
+   development and calibration conditions. Decision for Astra: review package
+   LAB_R36_DEV_DECISION.
+
+## Closing of round 3.6 (Astra, 2026-10-20, reviews/2026-10-20_r36dev_astra.txt)
+
+RESULT: development gate not passed; no LM qualification test performed. None of the
+examined configurations meets the agreed development and calibration conditions.
+(Astra: Q1 presentation corrected above; implementation notes - first-occurrence counting
+APPROVE as a documented protocol change, cache fix conceptually APPROVE, model change
+APPROVE as a development experiment, small denominators APPROVE, the early technical look
+at holdout/reserve stays recorded; Q2 option A; Q3 the next round's design may start.)
+The holdout and reserve groups stay available for later LM studies with their recorded
+pre-inspection; a fully blind confirmation would need new wordings.
+
+Development overview with every measure named (best value, no thresholds; distinct texts;
+"fully right" = outcome right and, for OK, intent and target right; the task columns are
+means over the nine kind x goal cells with the correct store):
+
+| prompt | split | intent right | full spec (gold-OK) | outcome right | fully right | wrong accepted / OK out | false OK ambiguous | false OK unsupported | mean coverage (tasks) | mean pair success |
+|---|---|---|---|---|---|---|---|---|---|---|
+| q7 | dev | 189/208 | 127/136 | 199/208 | 198/208 | 1/128 | 0/22 | 0/50 | 0.911 | 0.911 |
+| q7 | cal | 465/490 | 329/348 | 468/490 | 468/490 | 0/329 | 0/6 | 0/136 | 0.941 | 0.941 |
+| q8 | dev | 161/208 | 99/136 | 175/208 | 171/208 | 4/103 | 0/22 | 0/50 | 0.711 | 0.711 |
+| q8 | cal | 412/490 | 275/348 | 431/490 | 417/490 | 14/289 | 0/6 | 0/136 | 0.793 | 0.793 |
+
+Adopted ideas for later language rounds: a diagnosis matrix per wording with several
+entities from the first probe on (a good total on 69 questions hid systematic problems of
+single wordings); this common table for every development close; automatic reports of
+changed shared modules against complete old freeze manifests; the rule baseline kept as a
+development aid.
