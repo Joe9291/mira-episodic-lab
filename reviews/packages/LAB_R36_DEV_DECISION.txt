@@ -1,0 +1,169 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 3.6 DEVELOPMENT RESULT AND THE DECISION ON HOW TO CONTINUE
+
+Review request (Astra; Claude is lead reviewer). Round 3.6 (question parser, design v3, approved) has been implemented and developed on development data only; the holdout and reserve are untouched (no model has seen a holdout or reserve question). The development result does not reach the approved criteria. Please (1) check the development report and the implementation notes, (2) decide how to continue (options A-C below or your own), then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 3.6 DEVELOPMENT DECISION ===".
+
+STATE: lab main = cd5396c. All development runs complete and valid (CHECK: every planned report present, from the run's commit and request). Unit tests 161 green.
+
+DEVELOPMENT HISTORY (development wordings only; numbers = distinct texts)
+- qwen2.5-1.5b, probes 1-3 (69 dev texts, six prompt variants q1-q6, four offline decoders incl. a prior-corrected score and a factorised decoder): best 49/69; unsupported questions accepted as OK in 7-11 of 12 by every variant that still answers the supported ones. Limit = the model, not the prompt.
+- Qwen3-1.7B (pinned 70d244cc, Apache-2.0, the largest Apache-2.0 model that fits the free runner in float32): q4 (no examples) 18/69; q5 62/69; q7 67/69 - unsupported 12/12 refused, ambiguous 5/5 clarified, 0/50 wrong accepted.
+- dev/cal run 1 (Qwen3-1.7B + q7, approved decoder q1, sum score): best value dev 198/208, cal 465/490 right; false OK 0/22 + 0/50 (dev), 0/6 + 0/136 (cal); wrong accepted 1/128 (dev), 0/329 (cal); every other error a safe CLARIFY/REFUSE. Per type at best value: person_current 0.80 / 0.80, object_current 0.93 / 0.95, others >= 0.95; unnecessary CLARIFY/REFUSE 8/136, 19/348. Calibration: NO intent threshold qualifies (best precision among >= 200 accepted: 0.987) -> under the approved rule every question would be CLARIFY. The intent errors are systematic per wording and confident (margins up to 25): "Go to X." -> giver 11/11 (cal), "I need the X - where is it?" refused 7/35, the development event-relative wording -> object_previous 3/20 (still no false OK: no admissible target or refused later).
+- dev/cal run 2 (q8 = q7 + three examples aimed at those wordings): worse - cal 417/490, wrong accepted 14/289 (dangerous), object_previous 13/28. The model is highly prompt-sensitive; targeted examples shift unrelated wordings.
+- Rule baseline (development grammar, words of the template and development wordings only, provenance checked by a test): right on all 770 development-group texts - expected, since it was built from these wordings; its value as a comparison is on the holdout.
+
+CONCLUSION (development data): with the best configuration the parser is SAFE (no false OK on 214 development-group control questions, almost no wrong accepted specification) but not ACCURATE enough: per-type and task criteria fail at the best value, and no threshold qualifies under the approved calibration rule. A holdout run would only confirm PARSER_QUALIFIED = NO; I propose not to spend the holdout.
+
+IMPLEMENTATION NOTES FOR YOUR REVIEW (docs/ROUND_3_6.md, "Implementation notes" and log)
+1. Text separation inside the development group: strict disjointness of dev/cal/aud question texts is impossible for the low-entropy control families ("Find the {noun}." has 12 possible texts, "Go to {first}." 16; the regeneration loop did not terminate). Implemented: each distinct text counts once, in the first split where it occurs; holdout/reserve texts cannot occur in the development group (different wordings; the audit checks no shared text between groups).
+2. env35.generate_pair35 got a backward-compatible seed prefix (r36 worlds); all five 3.5 splits byte-identical before/after (hash check). config/round35.json disabled (3.5b done).
+3. models.py: the prefix cache used to fall back to the uncached path for chat templates that format the last assistant turn of a shortened conversation differently (Qwen3 think tags) - 97 s instead of 11 s per question. Fixed: the reusable head is the longest common token prefix of the full prompt and the same conversation with an empty last turn (always an exact prefix; every probe checks prefixed against uncached scores: largest difference 1.3e-4, identical choices).
+4. Disclosure: during the implementation the model-free candidate coverage and the rule baseline were computed once on the holdout and reserve question texts (the design reserves that for after the freeze). No model output on these texts exists; the baseline was not changed afterwards.
+5. Small denominators on the holdout (about 28 distinct ambiguous texts): "false OK <= 0.02" then allows none.
+6. Model: the design named qwen2.5-1.5b; Qwen3-1.7B was used from probe 4 on (a model change is a decision - in 3.5 you approved the 0.5B -> 1.5B change the same way).
+
+OPTIONS
+A (my recommendation) Close round 3.6 now with this documented development result: "Qwen3-1.7B with given candidates and the decision table separates answerable, ambiguous and unsupported questions safely on development wordings, but misreads specific wordings systematically and is prompt-sensitive; the approved accuracy criteria are not met; no holdout used." Holdout and reserve stay unused for a later attempt (e.g. with a larger model). Continue with the core memory capability that is still open: context-dependent historical queries ("where was X immediately before event Y?", pairs with identical current/first/previous values) with structured goals - the next step towards the goal "episodic memory as fast as possible"; the language interface returns later.
+B One bounded further attempt with a larger model: Qwen3-4B (Apache-2.0) only fits the free runner in bfloat16 (about 8 GB); this needs a dtype option in models.py, a pinning run, a review of the cache-check tolerance under bfloat16, and probably 30-60 s per question (dev+cal about 750 texts -> 8 chunks). Stop rule: if dev/cal with the approved decoder does not meet the criteria at the best value and yield thresholds, close as in A.
+C Change the calibration rule (e.g. calibrate the intent threshold on wrong accepted specifications instead of intent precision, since every observed intent error was safe). I do not recommend it: even at the best value (no thresholds) the per-type and task criteria fail on dev and cal, so the rule is not the binding problem.
+
+QUESTIONS
+Q1 Is the development report correct and complete; do you accept the implementation notes 1-6 (in particular the first-occurrence counting and the models.py fix)?
+Q2 A, B or your own alternative?
+Q3 If A: may the next round's design start right away (context-dependent historical queries with structured goals)?
+
+---BEGIN FILE docs/ROUND_3_6.md (implementation notes and development log)---
+## Review of v3 and implementation notes
+
+Astra APPROVE for design v3, the implementation and the development phase
+(reviews/2026-10-19_r36v3_astra.txt); code, tests and audit results are reviewed before the
+freeze. Her non-blocking ideas, adopted: the baseline's word-list provenance is checked
+automatically (baseline36.provenance(), a test requires it empty; function words listed
+separately); threshold boundaries tested (tie at threshold 0, margin just below, margin
+equal - and calibration and application agree); absolute counts per control family beside
+the family macro mean; the model-vs-baseline comparison paired per text (both right, only
+model, only rules, both wrong) together with the time per question.
+
+Implementation notes (2026-10-19):
+1. Text separation inside the development group. Section 2 asked for texts disjoint across
+   splits except constants; within dev / cal / aud this is impossible for the low-entropy
+   control families ("Find the {noun}." has 12 possible texts, "Go to {first}." 16) - the
+   regeneration loop did not terminate. Implemented instead: pairs are regenerated only for
+   failed generator conditions; parser metrics and calibration count every distinct text
+   ONCE, in the first split (order dev, cal, aud, ho, res) where it occurs
+   (env36.split_questions); the parse of a repeated text is reused for the task metrics.
+   Holdout and reserve texts cannot occur in the development group (their wordings differ;
+   the audit checks that no text is shared between groups). Counts on cal after this rule:
+   490 distinct intent-calibratable and 348 target-calibratable texts (>= 300 each).
+2. Round 3.6 worlds use the 3.5 generator with the seed prefix r36 (env35.generate_pair35
+   got a backward-compatible prefix argument; all five 3.5 splits are byte-identical before
+   and after, checked by hashing). The 3.5b freeze therefore no longer matches the current
+   env35.py hash; the 3.5 test now checks that a freeze made from the current code matches
+   and the old one differs only in env35.py. config/round35.json is disabled (done).
+3. Disclosure: during the implementation the model-free candidate coverage (1.0) and the
+   rule baseline were also computed on the holdout and reserve question texts, which the
+   design reserves for after the freeze. This gives no information about the model's
+   performance; the baseline (episodic_lab/baseline36.py) is not changed after that and its
+   holdout numbers will be reported as they are (it was built from development wordings
+   only; on development texts it is right on all 770 texts).
+4. Small denominators on the holdout: about 28 distinct gold-ambiguous texts (1 pronoun, up
+   to 12 bare-noun, up to 16 first-name texts); "false OK <= 0.02" then allows no false OK
+   at all. This follows from the approved criteria and is reported with absolute counts.
+5. Prompt q2 = q1 plus eight worked examples (vocabulary outside the worlds) for the first
+   development probe beside q1.
+
+## Development log
+
+1. Model-free audit (dev group, docs/ROUND_3_6_audit_dev.json): no problems; coverage 1.0 on
+   dev, cal, aud; calibration counts 490 / 348; rule baseline 208/208, 490/490, 72/72.
+2. Probe 1 (GitHub 39310171530, 69 development texts, best value): q1 46/69 right, q2
+   (worked examples) 42/69; about 11 s per question. Errors: unsupported questions almost
+   never recognised (q1 0/12 refused, 11 accepted as OK) - the intent was scored as long
+   label strings ("object_current", "unsupported") whose lengths differ under the sum
+   score; "Where is X now?" / "Go to X." read as object questions; giver questions answered
+   with target "none" (the target question asked what the request is "about"). Ambiguous
+   questions were handled 5/5 by both.
+3. Development change: prompts q3 / q4 - the intent as a multiple choice with equally short
+   letter answers A-H (canonical value = the label), the target question asks for the
+   complete object or full name WRITTEN in the request; q3 with the worked examples, q4
+   without. Probe 2 compares both.
+4. Probe 2 (GitHub 39314734322): q3 40/69, q4 48/69 right. Letters alone do not help.
+   Offline look at the recorded intent scores (all four prompts): the supported types other
+   than person_current rank the gold label first almost always; the gold label of
+   unsupported questions ranks 4-6 (its label score is far lower for every text - a label
+   prior), person_current ranks 2-4. Subtracting each label's mean score (a crude prior
+   correction) raises q1 from 45 to 60 of 69 right intents. q3's target examples answered
+   "none" three times in eight and biased the target towards none.
+5. Development change: prompts q5 / q6 = q4 plus three RECORDED development slots for an
+   offline comparison with a factorised decoder (answerable yes/no, kind object / person /
+   giver, time latest / first / previous) and the content-free score of every label slot
+   ("(no request)") for an offline prior correction; q5 with balanced per-slot worked
+   examples (target "none" once), q6 without. The decision table q1 and its sum score stay
+   the approved decoder; a factorised decoder or a prior-corrected score would be a design
+   change and goes to Astra before any use.
+6. Probe 3 (GitHub 39319562259): q5 49/69, q6 48/69 right. Offline comparison on the same
+   encodings (q1 decoder with sum or prior-corrected intent; factorised decoder with sum or
+   prior-corrected factors): no variant above 49/69; unsupported questions accepted as OK in
+   7-11 of 12 by every variant that keeps the supported types (the factorised q6 decoder
+   refuses 9/12 but then fails most supported questions). Conclusion after six prompt
+   variants and four decoders: the limit is the model's ability to separate unsupported
+   questions, not the prompt; the criterion "false OK <= 0.02 among unsupported" is out of
+   reach with qwen2.5-1.5b. No further prompt iteration on this model.
+7. Next development step (realistic within the constraints - free runner, float32 memory,
+   Apache-2.0): one probe with Qwen3-1.7B (the largest Apache-2.0 model that fits in float32;
+   Qwen3 support exists in models.py), prompts q4 and q5. A model change is a decision for
+   Astra before any use beyond development (as in round 3.5).
+8. Probe 4 (GitHub 39323805995, Qwen3-1.7B pinned at 70d244cc, Apache-2.0, float32): q4
+   18/69 (without examples Qwen3 refuses or clarifies almost everything); q5 62/69 right -
+   every unsupported question refused (12/12, no false OK), every ambiguous one clarified
+   (5/5, all as no_referent), no wrong accepted specification (0/45); the 7 errors are all
+   unnecessary refusals or clarifications of terse imperatives ("Find X.", "Go to X.",
+   "Take me to the X.", "I need the X - where is it?"). Cost: q5 97 s per question against
+   6.5 s for q4. Cause: the prefix cache fell back to the uncached path on every call -
+   Qwen3's chat template formats the last assistant turn of messages[:-1] with think tags,
+   so that rendering is not a token prefix of the full prompt.
+9. Development changes: (a) models.py - the reusable head is now the longest common token
+   prefix of the full prompt and the same conversation with an empty last turn (always an
+   exact prefix of the prompt, so the scores are unchanged; every probe job checks prefixed
+   against uncached scores); (b) prompt q7 = q5's worked examples plus two imperatives
+   that are not development wordings ("Bring me to Tom Reed.", "Show me the old key."), only
+   the two slots of the decision table.
+10. Probe 5 (GitHub 39340224417, Qwen3-1.7B + q7): 67 of 69 development texts right; every
+   unsupported question refused (12/12), every ambiguous one clarified as no_referent (5/5),
+   no wrong accepted specification (0/50), 2 unnecessary clarifications ("Go to X." read as
+   giver); 10.8 s per question (was 97 s); the cache check passed (largest difference
+   1.3e-4, identical choices). Next: development and calibration run (dev and cal, 4 chunks
+   each) with Qwen3-1.7B + q7 and the approved decision table q1.
+11. Development and calibration run 1 (GitHub 39343788519, Qwen3-1.7B + q7, complete): best
+   value - dev 198/208 and cal 465/490 intents right; no false OK anywhere (0/22 and 0/6
+   ambiguous, 0/50 and 0/136 unsupported), wrong accepted 1/128 and 0/329; every error a
+   safe CLARIFY or REFUSE. Calibration: no intent threshold qualifies (the best precision
+   among >= 200 accepted is 0.987), so with thresholds every question would be CLARIFY.
+   The intent errors are systematic per wording and confident (margins up to 25): "Go to X."
+   read as giver 11/11 on cal, "I need the X - where is it?" refused 7/35, the development
+   event-relative wording read as object_previous 3/20, "Go to <first name>." as giver
+   (still CLARIFY, the right handling). A threshold cannot remove confident systematic
+   errors. The rule baseline is right on every development-group text (dev 208, cal 490).
+12. Development change: prompt q8 = q7 plus three worked examples aimed at these errors:
+   "Go to Ida Voss." and "I want the old key - where is it?" (close to development
+   wordings - the dev/cal numbers of q8 are therefore optimistic for those two wordings)
+   and an event-relative question about a giving (unsupported). Run 2 of dev/cal follows.
+13. Development and calibration run 2 (GitHub 39347271628, Qwen3-1.7B + q8, complete): worse
+   than q7 - best value dev 171/208 and cal 417/490 right; wrong accepted specifications cal
+   14/289 (q7: 0/329), object_previous 13/28, object_current 83/127; unsupported and ambiguous
+   still handled without false OK. An intent threshold now qualifies (19.8, acceptance 0.63)
+   but no target threshold can (176 target items after the accepted intent, fewer than the
+   200 the rule requires). Three added worked examples changed the readings of unrelated
+   wordings: the model is highly prompt-sensitive.
+14. Development conclusion (no holdout used): with the best configuration (Qwen3-1.7B + q7)
+   the parser never gave a false OK on 72 + 142 development-group control questions and
+   almost never a wrong accepted specification (1/128 dev, 0/329 cal), but misreads specific
+   wordings systematically and confidently (person_current 0.80, object_current 0.93-0.95 on
+   dev/cal; "Go to X." 11/11 as giver); no intent threshold qualifies under the approved rule
+   (best precision 0.987 among >= 200 accepted), so with thresholds every question would be
+   CLARIFY; even with the best value (tau 0) the per-type and task criteria fail on dev and
+   cal. Targeted examples (q8) made it worse. The approved criteria are therefore not
+   reachable with this model and method on development data; a holdout run would only
+   confirm NO. Decision for Astra: docs/ROUND_3_6.md / review package LAB_R36_DEV_DECISION.
+---END FILE docs/ROUND_3_6.md---
+
+=== END OF LAB ROUND 3.6 DEVELOPMENT DECISION ===
