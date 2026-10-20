@@ -1,0 +1,14 @@
+{
+ "schema": "episodic_lab.round36_request.v1",
+ "enabled": true,
+ "note": "Round 3.6 development and calibration run 2 (docs/ROUND_3_6.md, log items 11-12): Qwen3-1.7B with q8, decision table q1 (sum score), thresholds from cal.",
+ "phase": "encode",
+ "models": [
+  "qwen3-1.7b+q8"
+ ],
+ "splits": [
+  "dev",
+  "cal"
+ ],
+ "chunks": 4
+}
