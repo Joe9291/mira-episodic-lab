@@ -1,0 +1,86 @@
+5m 43s nachgedacht
+
+agent on real conversations.
+---END FILE docs/ROUND_4_0.md---
+
+REQUEST CHANGES für Runde 4.0, Design v2.
+
+Die wesentlichen Änderungen sind richtig: Gültigkeitszeit und Wissenszeit sind getrennt, historische Versionen behalten ihre Intervalle, und der tabellierte Referenzfall ist mit dem Resolver konsistent. Auch die unabhängige Referenz, der Persistenztest und das Verschieben der Verdichtung passen. Vier Punkte brauchen vor der Freigabe noch eine verbindliche Festlegung.
+
+1. Korrekturen und Rücknahmen sind bei aufeinanderfolgenden Eingriffen noch nicht vollständig definiert.
+
+Eine Korrektur ersetzt laut Tabelle Wert beziehungsweise valid_from des ursprünglichen Claims. Offen bleiben die Folgen für Rang, Quelle, Ursprung und entscheidende Bericht-IDs.
+
+Beispiel:
+
+- r1: Rang 1 behauptet A.
+- r2: Rang 3 korrigiert r1 auf B.
+- r3: Rang 2 behauptet C für denselben Gültigkeitsbeginn.
+
+Behält der korrigierte Claim Rang 1, gewinnt C. Übernimmt er die Autorität von r2, gewinnt B. Beides lässt sich als feste Politik definieren; die gewünschte Bedeutung muss ausdrücklich feststehen. Entsprechend muss geklärt sein, ob die ursprüngliche Quelle anschließend die durch Rang 3 korrigierte Behauptung zurückziehen darf.
+
+Außerdem fehlen Regeln oder ausdrückliche Generatorausschlüsse für:
+
+- Korrektur eines bereits zurückgenommenen Claims;
+- mehrere Korrekturen desselben Ziels;
+- Verweise auf Korrektur- oder Rücknahmeberichte statt auf assert;
+- fehlende Zielberichte, insbesondere nach einer Intervention.
+
+Ergänzt diese Fälle einschließlich erwarteter Provenienz in der Konformitätssuite. Ausgeschlossene Fälle müssen auch nach jeder Intervention den Generator-Audit bestehen. Eine neu berechnete Hash-Kette allein garantiert noch keine semantisch gültige Gegenwelt.
+
+2. Die Definition „truth-determinable“ garantiert die behauptete Wahrheitstreue nicht.
+
+„Alle falschen Berichte korrigiert oder zurückgenommen, kein offener Konflikt“ reicht nicht aus.
+
+Gegenbeispiel: Am Tag 1 wird A korrekt berichtet. Am Tag 4 wechselt die Welt zu B, aber darüber trifft kein Bericht ein. Es gibt keinen falschen Bericht und keinen Konflikt. Trotzdem liefert die Politik am Tag 5 weiterhin A.
+
+Ebenso kann die Rücknahme einer falschen Änderungsmeldung einen alten Wert wieder fortschreiben, ohne den tatsächlich neuen Wert bekannt zu machen.
+
+Zwei saubere Möglichkeiten:
+
+- Die Generatorbedingungen garantieren zusätzlich eine korrekte, wirksame Abdeckung aller für die jeweilige Frage relevanten Zustandsgrenzen.
+- Ihr benennt diese Gruppe beispielsweise „bereinigte Berichtslage“ und behandelt ihre Übereinstimmung mit der Weltwahrheit ausschließlich als Messergebnis.
+
+Die Trennung der drei Goldwerte ist richtig. Die zusätzliche Gleichheitsbehauptung braucht diese Nachbesserung.
+
+3. Die verlangten Baseline-Fehlschläge sind derzeit zirkulär definiert.
+
+Ein Fall gilt als informativ, wenn sein Gold bereits von der Baseline-Antwort abweicht. Auf genau dieser Auswahl muss die Baseline definitionsgemäß scheitern. Der verlangte Fehlschlag liefert damit keinen zusätzlichen Beleg. Ohne Mindestfallzahl könnte zudem ein leerer Nenner unbemerkt durchgehen.
+
+Für P9 habt ihr bereits die bessere Grundlage: identischer gespeicherter S3-Zustand und identische Frage, aber unterschiedliche Goldantworten. Prüft dabei ausdrücklich die vollständigen gespeicherten Tripel einschließlich valid_from. Dann kann S3 nicht beide Welten eines Paars richtig beantworten.
+
+Bitte:
+
+- informative Vergleichsfälle über vorab festgelegte Eigenschaften der Paare definieren;
+- Baseline-Ergebnisse auf allen vorgesehenen Fällen berichten;
+- Mindestzahlen und den Umgang mit leeren Zellen festlegen;
+- Paarerfolg und einzelne richtige Antworten unterscheiden.
+
+Außerdem braucht S1 für why_changed eine zulässige Ausgabe, etwa eine festgelegte unchanged-Strategie. Ein einzelner Zustandswert statt einer Erklärungsliste erzeugt einen Formatfehler, der wenig über historische Gedächtnisleistung aussagt.
+
+4. Die Zählung der Bestehenskriterien ist noch mehrdeutig.
+
+Die Messungen werden nach Operator × Phänomen × Verzögerung beschrieben, die Fehlergrenze anschließend nach Operator × Phänomen. Das verändert die ganzzahlige Grenze:
+
+- Bei einer Frage pro Welt ergeben 40 Paare 80 Antworten je Verzögerung: floor(0.01 × 80) = 0.
+- Über vier Verzögerungen zusammen wären es 320 Antworten: floor(0.01 × 320) = 3.
+
+Die Aussage „bei diesen Größen null Fehler“ ist deshalb erst mit dem ausdrücklich festgelegten Nenner eindeutig.
+
+Auch „Paar richtig, wenn alle vier Verzögerungen richtig“ und „Paarerfolg je Verzögerungsgruppe“ bezeichnen verschiedene Größen. Legt beide gegebenenfalls getrennt fest.
+
+Benötigt wird vor dem Test eine feste Falltabelle mit Fragenzahl, Nenner und erlaubter Fehlerzahl pro gewerteter Zelle. Falls überall null Fehler gelten sollen, schreibt direkt null Fehler. Bei dieser Regel wäre die zusätzliche 95-%-Paargrenze für dieselben Antworten redundant.
+
+Zum Phase-1-Bericht
+
+Die im R40-Paket angekündigten Änderungen sind sachlich passend. Die separat vorliegende Auditdatei enthält allerdings weiterhin die früheren Formulierungen „kein Infrastruktur-Mangel“ und „unabhängig reproduzierbar“. Die vollständige überarbeitete Berichtsversion kann ich damit nicht bestätigen.
+
+Das Urteil oben betrifft den R40-Entwurf. Runde-4-Code liegt laut Paket noch nicht vor; eine Implementierungsfreigabe ist damit nicht verbunden.
+
+Verbesserungsideen — getrennt von den erforderlichen Änderungen
+
+- Eine stärkere Zustandsbaseline ergänzen: Sie erhält zum Fragezeitpunkt den korrekten aktuellen Politikzustand, aber keine Historie. Besonders auf P9 zeigt der Vergleich dann klarer, welchen zusätzlichen Nutzen historische Information bringt.
+- why_changed gezielt absichern: zusätzliche Belege bei unverändertem Wert, Wechsel A → B → A und Änderungen nur der Konfliktbelege. Legt fest, ob „Änderung“ Status und Werte oder auch Bericht-IDs umfasst. Nach dem bisherigen Vertrag wäre A → B → A bei gleichen Endpunkten ausdrücklich unchanged.
+- Ankerkorrekturen prüfen: Ein später korrigiertes Ankerdatum sollte die heutige before-Antwort entsprechend verschieben. Ergänzend sind zurückgenommene und widersprüchlich datierte Anker nützlich.
+- Statistische Aussagen begrenzen: 40 unabhängige Paare pro Phänomen sind eine brauchbare technische Qualifikation. Selbst null Fehler belegen pro Phänomen noch keine allgemeine Fehlerquote unter 1 %. Die 99-%-Schwelle sollte als Bestehensregel der endlichen Testsuite bezeichnet werden.
+- Rechenzeit am Referenzresolver sparen: R kann jeden Berichtspräfix einmal verarbeiten und daraus mehrere Fragen beantworten. Seine Unabhängigkeit bleibt erhalten, solange Resolverlogik und Zustandsaufbereitung nicht mit M geteilt werden. Für diese symbolische Phase erscheint mir die Referenzauswertung als der wahrscheinlichste vermeidbare Rechenaufwand.

@@ -1,4 +1,4 @@
-# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v2, draft for review)
+# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v3, draft for review)
 
 Context: the experiment's five-phase plan (2026-10-20) puts the external long-term memory
 first, with the milestone "B1 long-term test with real updates, contradictory statements,
@@ -11,7 +11,11 @@ historical validity and today's version status are separated by a two-time resol
 report ids and target references (section 2); "after" dropped, "before" defined through
 the resolver; case numbers, integer error limits, denominators, an independent reference
 and precise baseline failures (sections 4-5); compaction moved to a later round; a
-persistence test added.
+persistence test added. v3 answers her review of v2 (reviews/2026-10-20_r40v2_astra.txt):
+the full semantics of corrections and retractions incl. chains, withdrawn and missing
+targets (section 2); "truth-determinable" replaced by a measured "clean report state"
+(section 1); baseline failures defined by pre-fixed pair properties instead of by the
+baselines' answers (section 3); one fixed case table with zero allowed errors (section 5).
 
 Uncertainty removed: does an external episodic memory, following a FIXED source policy,
 keep apart (a) the best-supported state now, (b) the state at an earlier valid time as
@@ -40,8 +44,9 @@ target_report_id}`
 - `origin`: the underlying observation a report comes from (an own observation has its
   own origin; a person repeating another person's statement carries that statement's
   origin). Two reports are independent iff their origins differ;
-- `kind`: `assert` (value holds from valid_from on), `correct` (replaces the value and/or
-  valid_from of report target_report_id), `retract` (withdraws report target_report_id);
+- `kind`: `assert` (value holds from valid_from on), `correct` (withdraws the claim of
+  report target_report_id and states a new value and/or valid_from on the corrector's own
+  authority, section 2), `retract` (withdraws the claim of report target_report_id);
 - `valid_from` may lie before report_day (late news).
 Three gold values per question (computed by the generator and the reference, section 4):
 - WORLD TRUTH: the true timeline (reported, never the pass criterion of M by itself);
@@ -49,12 +54,13 @@ Three gold values per question (computed by the generator and the reference, sec
   question time - the pass criterion for current / valid_at / anchored;
 - POLICY ANSWER THEN: what the policy yields from the reports known at an earlier
   knowledge time - the pass criterion for believed_at and why_changed.
-Truth-determinable worlds: worlds in which every false report is corrected or retracted by
-an entitled report before question time, and no conflict stays open; there the policy
-answer now must also equal the world truth (reported as a separate measure). Other worlds
-are kept on purpose (a standing false top-rank report, an open conflict): there the policy
-answer and the truth may differ, and an "unknown" / "conflict" answer can be right - the
-test allows lack of information.
+Clean report state (v3; replaces "truth-determinable", which did not guarantee truth - a
+change that is never reported keeps an old value without any false report): a question
+whose relevant reports contain no standing false claim and no open conflict. For these
+questions the agreement of the policy answer with the world truth is REPORTED AS A
+MEASUREMENT ONLY; it is no pass criterion and no claim. The test allows lack of
+information everywhere: an unreported change or a retracted wrong update can leave an old
+value standing, and "unknown" / "conflict" can be the right policy answer.
 
 ## 2. Memory: two-time resolver over the immutable store
 
@@ -62,9 +68,9 @@ Store: the round 3 append-only, hash-chained EpisodeStore holds the reports unch
 Everything else is a pure function of the reports with report_day <= known_time.
 Core resolver `value_at(s, a, valid_time v, known_time k)`:
 1. take the reports about (s, a) with report_day <= k, in total order;
-2. apply them to a table of CLAIMS (one claim per assert, keyed by its report_id) with the
-   transition rules below;
-3. for each valid_from day keep the claims that stand (not retracted) and decide the
+2. apply them to a table of CLAIMS (one claim per assert and per effective correct, keyed
+   by its report_id) with the transition rules below;
+3. for each valid_from day keep the claims that stand (not withdrawn) and decide the
    value of that day by rank: the highest-rank claims; one value -> that value; several
    different values at the highest rank -> an OPEN CONFLICT for that valid_from;
 4. the timeline: each decided valid_from starts a version that lasts until the next
@@ -84,21 +90,38 @@ Transition rules (complete for 4.0):
 | assert, same valid_from, different value, lower rank | - | stored, not deciding |
 | assert, same valid_from, different value, equal to the highest rank | different origin from the deciding claim(s) | OPEN CONFLICT for that day |
 | same, but the same origin | - | cannot occur: the generator never emits it (audit check) |
-| correct (target t) | source rank >= rank of t's source | t's claim is replaced by the corrected value / valid_from |
-| correct | lower rank | stored as an ineffective correction (no change) |
-| retract (target t) | the same source as t | t's claim is withdrawn |
+| correct (target t) | t's claim stands and the corrector's rank >= the rank of t's claim | t's claim is withdrawn; a NEW claim is created with the correction's value and valid_from (t's valid_from if none is given) and with the CORRECTOR's source, rank and origin; its report id is the correction's id |
+| correct | lower rank than t's claim | stored as an ineffective correction (no change) |
+| retract (target t) | t's claim stands and the retracting source is the source of t's claim | t's claim is withdrawn |
 | retract | another source | stored as an ineffective retraction (no change) |
+| correct or retract | t's claim is already withdrawn (retracted or corrected before) | ineffective (no change), stored |
+| correct or retract | t does not exist in the store | ineffective, stored with the flag "dangling reference" - the generator never emits it, and no intervention may create it (audit) |
+| correct or retract | t is a retract report | cannot occur: the generator never emits it (audit) |
 An open conflict is resolved only by (i) an assert of higher rank for the same valid_from,
 or (ii) an effective correct / retract of one of the conflicting claims. A further assert
 of equal rank resolves nothing (majorities are not used in 4.0).
+Consequences of the correction rule (fixed policy: a correction is a withdrawal plus a new
+claim on the corrector's authority): (a) example r1 rank 1 asserts A; r2 rank 3 corrects r1
+to B; r3 rank 2 asserts C for the same valid_from -> B decides (r2's claim has rank 3), the
+deciding id is r2; (b) the original source of r1 cannot withdraw B afterwards: r1's claim
+is already withdrawn (ineffective), and B belongs to r2's source - only r2's source can
+retract it, and only a source of rank >= 3 can correct it; (c) several corrections of
+the same target: the first effective one withdraws it, later ones that point to the
+same target are ineffective; a further change must target the latest standing claim (the
+previous correction) - the generator emits chains this way; (d) a correction or
+retraction may target an assert or a correct report (a correction's claim can be
+corrected or retracted), never a retract report.
 Public operators (all derived from value_at; structured questions):
 1. `current(s, a)` = value_at(now, now);
 2. `valid_at(s, a, v)` = value_at(v, now) - the past as reconstructed today;
 3. `believed_at(s, a, t)` = value_at(t, t) - what would have been answered on day t;
 4. `why_changed(s, a, v, k1, k2)`: the SAME valid time v under two knowledge times k1 < k2.
-   If value_at(v, k1) = value_at(v, k2): "unchanged". Otherwise the canonical explanation:
-   replay the reports with k1 < report_day <= k2 in total order and list every report whose
-   application changes value_at(v, .) (the ordered id list);
+   An answer is the triple (status, value or set of conflicting values); report ids do
+   not count as a change. If the answers at k1 and k2 are equal: "unchanged" (also after
+   A -> B -> A, and when only the evidence of an unchanged conflict changes - fixed by
+   contract). Otherwise the canonical explanation: replay the reports with
+   k1 < report_day <= k2 in total order and list every report whose application changes
+   the answer for v (the ordered id list);
 5. `conflicts(s, a)`: the open conflicts now, with values and report ids;
 6. `history(s, a)`: the versions now with their intervals and deciding report ids;
 7. `before(s, a, anchor)`: the anchor is an event identified by its content (for example
@@ -107,7 +130,10 @@ Public operators (all derived from value_at; structured questions):
    Unknown with a stated reason: anchor not found, anchor ambiguous (several matching
    events), no version before the anchor; conflict if an open conflict covers d_Y - 1.
    ("after" is not part of 4.0.) The generator puts no change of (s, a) on the anchor's day
-   (audit check).
+   (audit check). The anchor is itself a report and follows the same rules: a corrected
+   anchor date moves today's before(...) answer; a retracted anchor -> anchor not found; two
+   standing anchor reports with different dates at the same rank -> anchor ambiguous
+   (conformance cases).
 Reference case (fully tabulated; ranks own 3, trusted 2, hearsay 1). Truth for the key:
 day 1-3 old mill, day 4-6 bridge, from day 7 library. Reports: r1 (day 1, own, assert old
 mill from 1); r2 (day 6, Ana trusted, assert harbour from 4 - late and wrong); r3 (day 8,
@@ -130,18 +156,31 @@ from the truth (bridge) - right by the policy then, wrong by the world.
 - M: section 2.
 - R: an INDEPENDENT reference resolver for the gold values and the expected intervention
   outcomes - a separate, deliberately simple implementation (day-by-day replay over a full
-  table, no indexes, no shared code with M except the report schema); M and R must agree on
-  every question (a disagreement is a problem, not an error of M alone).
+  table, no indexes, no shared resolver logic or state preparation with M, only the report
+  schema); it processes each report prefix once and answers all questions of that prefix
+  (Astra's saving idea); M and R must agree on every question (a disagreement is a
+  problem, not an error of M alone).
+- S0 no memory: always unknown (why_changed: unknown; conflicts: none; history: empty).
 - S1 state-only: one value per (s, a) - the value of the last assert received wins (rank,
-  valid_from, corrections and retractions ignored); every question is answered with that
-  value.
+  valid_from, corrections and retractions ignored); every value question is answered with
+  that value; why_changed: always "unchanged"; conflicts: none; history: one version.
 - S2 naive episodic: all asserts kept with their valid_from; for an asked valid time the
   assert with the latest report_day among those whose valid_from is not after it wins
-  (rank, corrections and retractions ignored; knowledge time respected).
+  (rank, corrections and retractions ignored; knowledge time respected); why_changed: its
+  own answers at k1 and k2, "unchanged" if equal, else the asserts in (k1, k2] that change
+  its own answer; conflicts: none; history: its own versions.
 - S3 bounded summary: per (s, a) only three versions with their valid_from - first,
   previous and current (the information of the round 3.4 history agent); before(...) is
-  answered from these three (the latest stored version with valid_from < d_Y).
-- S0 no memory: always unknown.
+  answered from these three (the latest stored version with valid_from < d_Y); it keeps no
+  knowledge times, so believed_at is answered like valid_at and why_changed with
+  "unchanged"; conflicts: none; history: the three versions.
+- S4 oracle current state (Astra's idea, a stronger state baseline): it receives the
+  CORRECT current policy answer at question time (from R) but no history; current is
+  always right, every historical question is answered with the current answer;
+  why_changed: "unchanged"; conflicts: the conflict of the current answer, if any;
+  history: one version.
+Every baseline thus gives an allowed output for every operator, so a baseline error is
+never a mere format error.
 Interventions: each is a VALID counterfactual world - the report list is changed and a new,
 consistent chain is built (never a corrupted chain): remove the update; remove the late
 report; remove the correction; remove the retraction; swap the ranks of two sources;
@@ -152,6 +191,25 @@ counterfactual world before any run.
 Control of the baseline-visible input: in a pair, worlds A and B have the same question
 (text, structured fields, metadata), the same number of reports and the same report days;
 only the content of the one critical report differs.
+Baseline failures without circularity (v3): for every baseline B and phenomenon P, the
+generator marks a pair as B-INDISTINGUISHABLE when everything B can see is identical in
+worlds A and B - its complete stored state (for S3 the three stored versions WITH their
+valid_from, for S1 the single value, for S2 the asserts with report_day, valid_from and
+value, for S4 the current answer) and the question - while
+the gold answer of at least one question of the phenomenon (same operator, same arguments,
+same delay) differs between A and B. This is a property of the inputs, fixed before any
+run and checked by the audit; on such a pair B can be right in at most one world. The
+design (section 4) fixes in advance which (B, P) cells must contain at least 30
+B-indistinguishable pairs (and which are not applicable by design); the evidence is that
+M solves these pairs. Baseline results are reported on ALL cases (answers right and pair
+success separately), not only on the marked pairs.
+Interventions as valid counterfactual worlds: removing a report also removes every report
+that refers to it (transitively), so no dangling reference arises; every counterfactual
+world must pass the general generator audit (unique ids and total order, no equal-rank
+same-origin conflict, no change of (s, a) on the anchor day, no dangling reference, no
+reference to a retract report); the phenomenon's own conditions are not required there,
+since an intervention may remove the phenomenon on purpose. A new hash chain alone is no
+proof of a valid counterfactual.
 
 ## 4. Data, phenomena and case numbers
 
@@ -164,13 +222,36 @@ previous identical in A and B, the answer differs and is held by none of them.
 Splits: dev 10 pairs per phenomenon, holdout 40 pairs per phenomenon (9 x 40 = 360 pairs,
 720 worlds); the holdout is generated and frozen before any run of M on it (worlds only;
 M is symbolic, so the holdout guards against generator-specific overfitting of the logic).
-Questions per world: the operators that the phenomenon makes informative (each listed in
-the generator's case table with its gold values), asked at delays of 0, 50, 200 and 500
-interleaved irrelevant reports (same vocabulary). A pair counts as one unit; the four
-delays are not independent replications.
-Conformance set: about 30 hand-checkable cases - every row of the transition table, the
-reference case of section 2 at every (v, k) shown, every unknown reason of before(...) -
-with expected values written down by hand before any run.
+Questions per world (fixed case table, v3):
+| phenomenon | questions per world |
+|---|---|
+| P1 state change | current, valid_at (before the change), believed_at (before the change), history |
+| P2 late news | current, valid_at (inside the late interval), believed_at (before the report day), why_changed (that valid day; before vs after the report day) |
+| P3 correction | valid_at (corrected day), believed_at (before the correction), why_changed, history |
+| P4 ineffective correction | valid_at, why_changed (gold "unchanged"), history |
+| P5 retraction | current, valid_at, believed_at (before the retraction), why_changed |
+| P6 ineffective retraction | current, valid_at, why_changed (gold "unchanged") |
+| P7 open conflict | current or valid_at (gold conflict), conflicts, history |
+| P8 conflict resolved by a higher rank | current, conflicts (gold none), why_changed |
+| P9 anchored before (intermediate answer) | before, current |
+That is 30 question kinds summed over P1-P9 (4+4+4+3+4+3+3+3+2); each
+pair asks its phenomenon's questions in both worlds at each of the four delays (0, 50, 200,
+500 interleaved irrelevant reports of the same vocabulary). Holdout: 40 pairs per
+phenomenon -> 30 x 2 x 4 x 40 = 9,600 answers. A pair is one unit; the four delays are not
+independent replications.
+Minimum B-indistinguishable pairs (>= 30 of the 40 holdout pairs): S1 on P1-P3, P5, P9;
+S2 on P3-P8; S3 on P9; S4 on P1-P3, P5, P9; other (B, P) cells are reported, not
+required.
+Conformance set: about 45 hand-checkable cases, each with the expected answer AND the
+expected provenance (deciding report ids, source, rank) written down by hand before any
+run - every row of the transition table; the reference case of section 2 at every (v, k)
+shown; the correction consequences (a)-(d) of section 2 (rank of a corrected claim,
+retraction by the original source ineffective, retraction by the corrector, a second
+correction of the same target, a correction chain, correcting or retracting a withdrawn
+claim, correcting a correction); why_changed edge cases (A -> B -> A, a supporting report
+with an unchanged value, a change of conflict evidence only); before(...) with every
+unknown reason, a corrected anchor date, a retracted anchor and conflicting anchor dates;
+interventions with cascading removal (removing a report that a correction targets).
 
 ## 5. Measures and pass rule (fixed before any run)
 
@@ -185,19 +266,23 @@ Measures, per operator x phenomenon x delay and per pair (all four delays right)
   outdated value;
 - false conflicts: denominator = questions whose gold is not a conflict; numerator = a
   conflict output;
-- truth agreement in the truth-determinable worlds (reported, section 1).
-Pass rule for M (integer limits): the conformance set 100 %; on the holdout at most
-floor(0.01 n) errors per operator x phenomenon cell (with these sizes: zero errors), pair
-success >= 0.95 per phenomenon and delay bucket, stale-answer rate and false-conflict rate
-within the same integer limit, M and R agree on every question, every intervention as
-predicted by R in all informative cases with at least 30 informative cases per
-intervention type, and the persistence test passes.
-Required baseline failures, on INFORMATIVE cases only (the gold differs from that
-baseline's answer, determined by R): S1 on P2-P9 valid_at / believed_at / why_changed /
-before, S2 on P3-P8 (rank, correction, retraction, conflict), S3 on P9 - each with at most
-the integer limit of correct answers on its informative cases; S0 is reported, and its
-correct unknowns are counted where the gold is unknown. A pass of M without these
-dissociations does not count.
+- agreement with the world truth on the clean report state (measurement only, section 1).
+Pass rule for M (v3, one count for everything): ZERO errors on all 9,600 holdout answers
+(every operator x phenomenon x delay cell; the table above fixes every denominator), the
+conformance set 100 %, M and R agree on every question, every intervention outcome as
+predicted by R (an intervention case is informative when R's answer on the counterfactual
+world differs from its answer on the original - a property of the worlds, computed before
+any run; at least 30 informative cases per intervention type, except the irrelevant-report
+control, which must leave every answer unchanged), the persistence test passes,
+and the generator audit marks at least 30 B-indistinguishable pairs in each required cell
+(section 4). With zero allowed errors a separate pair-success limit would be redundant;
+pair success is reported as a measure. Stale answers and false conflicts are reported with
+their denominators (above); under the zero-error rule both are zero for a pass.
+This is the pass rule of a finite test suite: 40 independent pairs per phenomenon with zero
+errors do not establish a general error rate below 1 %.
+Baselines: results on all cases and on their B-indistinguishable pairs are reported; a pass
+of M where a required cell has fewer than 30 such pairs does not count (the worlds would
+be too easy for that baseline).
 Persistence test: the store is written to disk, the process ends, a new process loads it,
 verifies the chain and answers the same questions identically.
 Joe's check: about 5 cases per round, chosen by rule (a late report, a correction, a
