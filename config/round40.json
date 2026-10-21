@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round40_request.v1",
- "enabled": true,
- "note": "Round 4.0 phase A holdout, attempt 1 (the only planned run). Freeze written in commit 1aa5ad1 after Astra's APPROVE of the implementation (reviews/2026-10-21_r40impl_astra.txt); the runner stops with FREEZE_MISMATCH before M if anything differs.",
+ "enabled": false,
+ "note": "DONE: round 4.0 phase A holdout attempt 1 (run 39680621145, commit d7a79af): PASS. Freeze kept below. No further run planned.",
  "split": "holdout",
  "attempt": 1,
  "repeat_of": null,
