@@ -1,0 +1,184 @@
+{
+ "schema": "episodic_lab.r40_conformance.v1",
+ "note": "Hand-computed before any run of M or R (docs/ROUND_4_0.md section 4). Report rows: [id, day, source, rank, subject, attribute, kind, value, valid_from, target]; origin = 'o-' + id. Fact 'key'/'loc'; anchors are subject 'event:<content>', attribute 'day'. Expected answers include the deciding report ids; 'prov' lists [id, source, rank] of the deciding claims where the provenance is the point of the case. W10 pins the definition before = value_at(d_Y - 1, now) with a change ON the anchor day, which the generator never produces (definitional case, not a generated world).",
+ "worlds": {
+  "W1_reference_case": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "old mill", 1, null],
+    ["r00002", 6, "ana", 2, "key", "loc", "assert", "harbour", 4, null],
+    ["r00003", 8, "ben", 1, "key", "loc", "assert", "forge", 7, null],
+    ["r00004", 9, "self", 3, "key", "loc", "assert", "library", 7, null],
+    ["r00005", 10, "ana", 2, "key", "loc", "correct", "bridge", 4, "r00002"]
+   ],
+   "checks": [
+    ["c01", {"op": "valid_at", "v": 5, "now": 7}, {"status": "value", "value": "harbour", "ids": ["r00002"]}],
+    ["c02", {"op": "valid_at", "v": 5, "now": 11}, {"status": "value", "value": "bridge", "ids": ["r00005"]}, [["r00005", "ana", 2]]],
+    ["c03", {"op": "valid_at", "v": 8, "now": 8}, {"status": "value", "value": "forge", "ids": ["r00003"]}],
+    ["c04", {"op": "valid_at", "v": 8, "now": 9}, {"status": "value", "value": "library", "ids": ["r00004"]}],
+    ["c05", {"op": "believed_at", "t": 7, "now": 11}, {"status": "value", "value": "harbour", "ids": ["r00002"]}],
+    ["c06", {"op": "believed_at", "t": 5, "now": 11}, {"status": "value", "value": "old mill", "ids": ["r00001"]}],
+    ["c07", {"op": "valid_at", "v": 2, "now": 11}, {"status": "value", "value": "old mill", "ids": ["r00001"]}],
+    ["c08", {"op": "why_changed", "v": 5, "k1": 7, "k2": 11, "now": 11}, ["r00005"]],
+    ["c09", {"op": "why_changed", "v": 8, "k1": 8, "k2": 9, "now": 11}, ["r00004"]],
+    ["c10", {"op": "history", "now": 11}, [
+      {"valid_from": 1, "valid_to": 3, "status": "value", "value": "old mill", "ids": ["r00001"]},
+      {"valid_from": 4, "valid_to": 6, "status": "value", "value": "bridge", "ids": ["r00005"]},
+      {"valid_from": 7, "valid_to": null, "status": "value", "value": "library", "ids": ["r00004"]}]],
+    ["c11", {"op": "current", "now": 11}, {"status": "value", "value": "library", "ids": ["r00004"]}],
+    ["c12", {"op": "valid_at", "v": 0, "now": 11}, {"status": "unknown", "reason": "no_version"}]
+   ]
+  },
+  "W2_correction_authority": {
+   "reports": [
+    ["r00001", 1, "cy", 1, "key", "loc", "assert", "A", 3, null],
+    ["r00002", 2, "self", 3, "key", "loc", "correct", "B", null, "r00001"],
+    ["r00003", 3, "ana", 2, "key", "loc", "assert", "C", 3, null],
+    ["r00004", 4, "cy", 1, "key", "loc", "retract", null, null, "r00001"],
+    ["r00005", 5, "cy", 1, "key", "loc", "retract", null, null, "r00002"],
+    ["r00006", 6, "self", 3, "key", "loc", "retract", null, null, "r00002"]
+   ],
+   "checks": [
+    ["c13", {"op": "current", "now": 3}, {"status": "value", "value": "B", "ids": ["r00002"]}, [["r00002", "self", 3]]],
+    ["c14", {"op": "current", "now": 5}, {"status": "value", "value": "B", "ids": ["r00002"]}, [["r00002", "self", 3]]],
+    ["c15", {"op": "why_changed", "v": 3, "k1": 3, "k2": 5, "now": 6}, "unchanged"],
+    ["c16", {"op": "history", "now": 5}, [{"valid_from": 3, "valid_to": null, "status": "value", "value": "B", "ids": ["r00002"]}]],
+    ["c17", {"op": "current", "now": 6}, {"status": "value", "value": "C", "ids": ["r00003"]}, [["r00003", "ana", 2]]],
+    ["c18", {"op": "why_changed", "v": 3, "k1": 5, "k2": 6, "now": 6}, ["r00006"]],
+    ["c19", {"op": "believed_at", "t": 5, "now": 6}, {"status": "value", "value": "B", "ids": ["r00002"]}]
+   ],
+   "interventions": [
+    ["c20", {"remove": "r00002"}, ["r00002", "r00005", "r00006"],
+     {"op": "current", "now": 6}, {"status": "value", "value": "C", "ids": ["r00003"]}]
+   ]
+  },
+  "W3_correction_chains": {
+   "reports": [
+    ["r00001", 1, "ana", 2, "key", "loc", "assert", "A", 1, null],
+    ["r00002", 2, "bo", 2, "key", "loc", "correct", "B", null, "r00001"],
+    ["r00003", 3, "ana", 2, "key", "loc", "correct", "C", null, "r00001"],
+    ["r00004", 4, "self", 3, "key", "loc", "correct", "D", 2, "r00002"],
+    ["r00005", 5, "cy", 1, "key", "loc", "correct", "E", null, "r00004"],
+    ["r00006", 6, "self", 3, "key", "loc", "correct", "F", null, "r00005"],
+    ["r00007", 7, "bo", 2, "key", "loc", "retract", null, null, "r00003"]
+   ],
+   "checks": [
+    ["c21", {"op": "current", "now": 2}, {"status": "value", "value": "B", "ids": ["r00002"]}, [["r00002", "bo", 2]]],
+    ["c22", {"op": "current", "now": 3}, {"status": "value", "value": "B", "ids": ["r00002"]}],
+    ["c23", {"op": "valid_at", "v": 1, "now": 4}, {"status": "unknown", "reason": "no_version"}],
+    ["c24", {"op": "current", "now": 7}, {"status": "value", "value": "D", "ids": ["r00004"]}, [["r00004", "self", 3]]],
+    ["c25", {"op": "history", "now": 7}, [{"valid_from": 2, "valid_to": null, "status": "value", "value": "D", "ids": ["r00004"]}]],
+    ["c26", {"op": "why_changed", "v": 1, "k1": 3, "k2": 4, "now": 7}, ["r00004"]],
+    ["c27", {"op": "why_changed", "v": 5, "k1": 4, "k2": 7, "now": 7}, "unchanged"],
+    ["c28", {"op": "believed_at", "t": 1, "now": 7}, {"status": "value", "value": "A", "ids": ["r00001"]}]
+   ],
+   "interventions": [
+    ["c29", {"remove": "r00002"}, ["r00002", "r00004", "r00005", "r00006"],
+     {"op": "current", "now": 7}, {"status": "value", "value": "C", "ids": ["r00003"]}]
+   ]
+  },
+  "W4_conflict_resolved_by_correction_outside": {
+   "reports": [
+    ["r00001", 1, "cy", 1, "key", "loc", "assert", "A", 1, null],
+    ["r00002", 2, "ana", 2, "key", "loc", "assert", "B", 1, null],
+    ["r00003", 3, "bo", 2, "key", "loc", "assert", "C", 1, null],
+    ["r00004", 4, "bo", 2, "key", "loc", "assert", "B", 1, null],
+    ["r00005", 5, "self", 3, "key", "loc", "correct", "D", null, "r00001"]
+   ],
+   "checks": [
+    ["c30", {"op": "current", "now": 3}, {"status": "conflict", "values": ["B", "C"], "ids": ["r00002", "r00003"]}],
+    ["c31", {"op": "conflicts", "now": 4}, [{"valid_from": 1, "values": ["B", "C"], "ids": ["r00002", "r00003", "r00004"]}]],
+    ["c32", {"op": "current", "now": 5}, {"status": "value", "value": "D", "ids": ["r00005"]}, [["r00005", "self", 3]]],
+    ["c33", {"op": "conflicts", "now": 5}, []],
+    ["c34", {"op": "why_changed", "v": 1, "k1": 3, "k2": 4, "now": 5}, "unchanged"],
+    ["c35", {"op": "why_changed", "v": 1, "k1": 1, "k2": 5, "now": 5}, ["r00002", "r00003", "r00005"]],
+    ["c36", {"op": "history", "now": 5}, [{"valid_from": 1, "valid_to": null, "status": "value", "value": "D", "ids": ["r00005"]}]]
+   ]
+  },
+  "W5_equal_rank_correction_resolves": {
+   "reports": [
+    ["r00001", 1, "ana", 2, "key", "loc", "assert", "B", 1, null],
+    ["r00002", 2, "bo", 2, "key", "loc", "assert", "C", 1, null],
+    ["r00003", 3, "bo", 2, "key", "loc", "correct", "B", null, "r00002"],
+    ["r00004", 4, "ana", 2, "key", "loc", "retract", null, null, "r00001"],
+    ["r00005", 5, "bo", 2, "key", "loc", "retract", null, null, "r00003"]
+   ],
+   "checks": [
+    ["c37", {"op": "current", "now": 3}, {"status": "value", "value": "B", "ids": ["r00001", "r00003"]}],
+    ["c38", {"op": "why_changed", "v": 1, "k1": 2, "k2": 3, "now": 5}, ["r00003"]],
+    ["c39", {"op": "current", "now": 4}, {"status": "value", "value": "B", "ids": ["r00003"]}, [["r00003", "bo", 2]]],
+    ["c40", {"op": "why_changed", "v": 1, "k1": 3, "k2": 4, "now": 5}, "unchanged"],
+    ["c41", {"op": "current", "now": 5}, {"status": "unknown", "reason": "no_version"}]
+   ]
+  },
+  "W6_why_changed_edges": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+    ["r00002", 2, "self", 3, "key", "loc", "correct", "Y", null, "r00001"],
+    ["r00003", 3, "self", 3, "key", "loc", "correct", "X", null, "r00002"],
+    ["r00004", 4, "ana", 2, "key", "loc", "assert", "X", 1, null],
+    ["r00005", 5, "self", 3, "key", "loc", "assert", "X", 1, null]
+   ],
+   "checks": [
+    ["c42", {"op": "why_changed", "v": 1, "k1": 1, "k2": 3, "now": 5}, "unchanged"],
+    ["c43", {"op": "why_changed", "v": 1, "k1": 1, "k2": 2, "now": 5}, ["r00002"]],
+    ["c44", {"op": "why_changed", "v": 1, "k1": 3, "k2": 5, "now": 5}, "unchanged"],
+    ["c45", {"op": "current", "now": 5}, {"status": "value", "value": "X", "ids": ["r00003", "r00005"]}],
+    ["c46", {"op": "history", "now": 2}, [{"valid_from": 1, "valid_to": null, "status": "value", "value": "Y", "ids": ["r00002"]}]]
+   ]
+  },
+  "W7_anchor_corrections": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "P", 1, null],
+    ["r00002", 4, "self", 3, "key", "loc", "assert", "Q", 4, null],
+    ["r00003", 6, "self", 3, "event:met Ida at the mill", "day", "assert", 6, 0, null],
+    ["r00004", 8, "self", 3, "key", "loc", "assert", "R", 8, null],
+    ["r00005", 10, "self", 3, "event:met Ida at the mill", "day", "correct", 3, null, "r00003"],
+    ["r00006", 11, "self", 3, "event:met Ida at the mill", "day", "retract", null, null, "r00005"],
+    ["r00007", 12, "ana", 2, "event:met Ida at the mill", "day", "assert", 9, 0, null],
+    ["r00008", 12, "bo", 2, "event:met Ida at the mill", "day", "assert", 7, 0, null]
+   ],
+   "checks": [
+    ["c47", {"op": "before", "anchor": "met Ida at the mill", "now": 9}, {"status": "value", "value": "Q", "ids": ["r00002"]}],
+    ["c48", {"op": "before", "anchor": "met Ida at the mill", "now": 10}, {"status": "value", "value": "P", "ids": ["r00001"]}],
+    ["c49", {"op": "before", "anchor": "met Ida at the mill", "now": 11}, {"status": "unknown", "reason": "anchor_not_found"}],
+    ["c50", {"op": "before", "anchor": "met Ida at the mill", "now": 12}, {"status": "unknown", "reason": "anchor_ambiguous"}]
+   ]
+  },
+  "W8_anchor_edges": {
+   "reports": [
+    ["r00001", 3, "self", 3, "event:met Ida at the mill", "day", "assert", 2, 0, null],
+    ["r00002", 5, "self", 3, "key", "loc", "assert", "P", 4, null],
+    ["r00003", 6, "ana", 2, "key", "loc", "assert", "P2", 1, null],
+    ["r00004", 6, "bo", 2, "key", "loc", "assert", "P3", 1, null]
+   ],
+   "checks": [
+    ["c51", {"op": "before", "anchor": "met Ida at the mill", "now": 5}, {"status": "unknown", "reason": "no_version_before"}],
+    ["c52", {"op": "before", "anchor": "met Ida at the mill", "now": 7}, {"status": "conflict", "values": ["P2", "P3"], "ids": ["r00003", "r00004"]}],
+    ["c53", {"op": "before", "anchor": "met Ole at the forge", "now": 7}, {"status": "unknown", "reason": "anchor_not_found"}]
+   ]
+  },
+  "W10_change_on_the_anchor_day": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "P", 1, null],
+    ["r00002", 3, "self", 3, "key", "loc", "assert", "Q", 3, null],
+    ["r00003", 3, "self", 3, "event:met Ida at the mill", "day", "assert", 3, 0, null]
+   ],
+   "checks": [
+    ["c56", {"op": "before", "anchor": "met Ida at the mill", "now": 4}, {"status": "value", "value": "P", "ids": ["r00001"]}]
+   ]
+  },
+  "W9_forbidden_references": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+    ["r00002", 2, "ana", 2, "key", "loc", "retract", null, null, "r00099"],
+    ["r00003", 3, "self", 3, "key", "loc", "correct", "Z", null, "r00099"],
+    ["r00004", 4, "self", 3, "key", "loc", "retract", null, null, "r00001"],
+    ["r00005", 5, "self", 3, "key", "loc", "correct", "Y", null, "r00004"]
+   ],
+   "checks": [
+    ["c54", {"op": "current", "now": 3}, {"status": "value", "value": "X", "ids": ["r00001"]}],
+    ["c55", {"op": "current", "now": 5}, {"status": "unknown", "reason": "no_version"}]
+   ]
+  }
+ }
+}

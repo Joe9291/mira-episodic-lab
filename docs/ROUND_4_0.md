@@ -1,4 +1,4 @@
-# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v4, draft for review)
+# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v4, approved 2026-10-21; implementation notes in section 7)
 
 Context: the experiment's five-phase plan (2026-10-20) puts the external long-term memory
 first, with the milestone "B1 long-term test with real updates, contradictory statements,
@@ -110,9 +110,10 @@ in value - through a higher-rank assert, a higher-rank claim created by a correc
 (also when the corrected claim was not part of the conflict: r1 rank 1 asserts A; r2 and
 r3, rank 2, independent, assert B and C -> conflict; r4 rank 3 corrects r1 to D -> D
 decides, deciding id r4), a correction that changes or moves a conflicting claim, or a
-retraction of a conflicting claim. A further claim of equal rank resolves nothing
-(majorities are not used in 4.0); a correction claim of equal rank takes part in the
-conflict like any claim.
+retraction of a conflicting claim. A mere further claim of equal rank does not resolve an
+existing conflict (majorities are not used in 4.0); a correction of equal rank can
+withdraw a conflicting claim and replace it with an equal-rank claim that now agrees,
+which ends the conflict (conformance world W5).
 Consequences of the correction rule (fixed policy: a correction is a withdrawal plus a new
 claim on the corrector's authority): (a) example r1 rank 1 asserts A; r2 rank 3 corrects r1
 to B; r3 rank 2 asserts C for the same valid_from -> B decides (r2's claim has rank 3), the
@@ -327,3 +328,62 @@ Relation to the literature: the target failure modes match the knowledge-update 
 temporal-reasoning categories of long-term memory benchmarks such as LongMemEval; a
 phase A pass is evidence for the symbolic memory logic inside this generator, not for an
 agent on real conversations.
+
+## 7. Implementation notes (phase A, after the APPROVE of v4)
+
+Astra approved v4 on 2026-10-21 (reviews/2026-10-21_r40v4_astra.txt). Her four ideas and
+every choice the design left open are fixed here; they are part of the implementation
+review before the holdout freeze.
+- Code: episodic_lab/r40_schema.py (the only module M and R share), r40_memory.py (M:
+  hash-chained ReportStore and the resolver), r40_reference.py (R), r40_baselines.py,
+  r40_world.py (generator, interventions, audit), r40_analysis.py; bench/m3/run_round40.py,
+  bench/m3/freeze40.py; tests/test_round40.py; tests/fixtures/r40_conformance.json (56
+  hand-computed checks in 10 worlds, written before M or R ran; world W10 pins
+  before = value_at(d_Y - 1, now) with a change ON the anchor day, a case the generator
+  never produces).
+- Anchors: an anchor event is the fact (subject "event:<content>", attribute "day") with
+  the day as value and valid_from 0, resolved by the same resolver at valid time 0: no
+  standing claim -> anchor_not_found; standing claims with different days at the top rank
+  (several matching events or conflicting dates) -> anchor_ambiguous; a correction of the
+  day moves before(...). Unknown reasons: no_version (value questions), anchor_not_found,
+  anchor_ambiguous, no_version_before.
+- History: one version per decided valid_from (adjacent versions with equal values are
+  not merged); the deciding ids of a version are all top-rank standing claims of that day.
+- Delays: the irrelevant reports lie between the last relevant report and the question,
+  5 per day; the question day is the day after. They use the same vocabulary (other
+  objects, and the same object with the other attribute) and all kinds: asserts (some
+  late), corrections and retractions of irrelevant asserts, repeats with the same origin,
+  other anchor events.
+- P7 (Astra's idea 2): even pairs have the conflict on the newest version and ask
+  current; odd pairs add a later state change and ask valid_at inside the conflict.
+- S2 ties (idea 2): the latest report in the total order (report_day, report_id) wins.
+- Baselines in detail: S1 keeps only the value (its history has one version without
+  valid_from or ids); S3 keeps the first, previous and current version of R's policy
+  history at question time with valid_from and ids, and the current version of the
+  anchor; S4 keeps R's current version (status, value(s), ids and since when). The
+  compared states are exactly these (plus the question).
+- To make S4 indistinguishable where it is required, P1, P2, P3, P5 (and odd P7 pairs)
+  end with a later own observation, so that the current version is the same in A and B.
+- Variants inside families: P3 / P4 correct the value, the valid_from or both (pair index
+  mod 3); P5 / P6 retract a correction claim in every third pair (only its corrector may
+  retract it - consequence (b) of section 2); P8 resolves the conflict by a higher assert,
+  by a higher correction of a conflicting claim, or by a higher correction of a claim
+  outside the conflict (Astra's v3 case), by pair index mod 3.
+- Interventions run on world A at all four delays; "informative" is counted per pair at
+  delay 0. swap_ranks swaps the critical report's source with the competing source, or
+  with "self" when both have the same rank, and is skipped when no rank changes. The
+  irrelevant control removes one irrelevant report (with its cascade) in odd pairs at
+  delays > 0 and adds one otherwise.
+- The audit decides whether a target ever created a claim with R's transition function
+  (an audit use of R, never of M). Required cells on dev: 8 of 10 pairs (the holdout
+  ratio 30 / 40).
+- Freeze (idea 3): bench/m3/freeze40.py generates the holdout, lets R compute every
+  expected answer (original and counterfactual) and writes the digests of worlds,
+  questions, expected answers and interventions plus the SHA-256 of every code file into
+  config/round40.json; the holdout run compares them before M runs and stops with
+  FREEZE_MISMATCH otherwise. The request carries "attempt" and "repeat_of"; a repeat after
+  a correction is labelled as such.
+- Resources (idea 4): the run records wall time and the largest additional traced memory
+  per kind of work (R, R on interventions, M, M on interventions, baselines, audit,
+  persistence write and reload).
+

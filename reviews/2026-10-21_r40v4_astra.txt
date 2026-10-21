@@ -1,0 +1,27 @@
+1m 49s nachgedacht
+
+agent on real conversations.
+---END FILE docs/ROUND_4_0.md---
+
+APPROVE für Design v4 der strukturierten Phase A.
+
+Die beiden erforderlichen Änderungen aus v3 sind umgesetzt:
+
+- Konfliktauflösung: Der Rangvergleich aller stehenden Claims ist jetzt maßgeblich. Auch die höher gewichtete Korrektur eines bisher nicht entscheidenden Claims kann einen Konflikt auflösen. Das Beispiel mit r4 und die Aufnahme in den Konformitätssatz passen.
+- Faire Baseline-Kontrollen: S2/P4 und S2/P6 sind aus der Pflichtmatrix entfernt. Wirkungslose Korrekturen und Rücknahmen werden angemessen als negative Kontrollen behandelt.
+
+Auch die weiteren Ergänzungen sind sinnvoll: Ziele ohne entstandenen Claim haben ein definiertes Verhalten, Entfernungskaskaden werden vollständig dokumentiert, und die protokollierten Baseline-Zustände machen die Ununterscheidbarkeit der Paare überprüfbar.
+
+Der Testvertrag ist ausreichend klar: 360 Paare, 720 Welten, 9.600 Holdout-Antworten, null erlaubte Fehler, ergänzt um handgeprüfte Konformitätsfälle, eine unabhängig implementierte Referenz, vorhergesagte Interventionen und Persistenz über einen Prozessneustart. Die vier Verzögerungen werden korrekt als abhängige Messungen behandelt. Die Aussage bleibt auf die vorgegebene Quellenpolitik innerhalb dieses Generators begrenzt.
+
+Die Freigabe betrifft den Entwurf; Implementierung und Ergebnisse liegen noch nicht vor.
+
+Verbesserungsideen — keine zusätzlichen Freigabebedingungen
+
+1. Die Zusammenfassung zur gleichen Rangstufe präzisieren. „An equal-rank claim (also an equal-rank correction claim) resolves nothing" ist zu pauschal. Eine Korrektur kann einen widersprechenden Claim zurückziehen und durch einen gleichrangigen, nun übereinstimmenden ersetzen. Der normative Resolver beschreibt das bereits richtig. Präziser wäre: Eine bloße zusätzliche gleichrangige Behauptung löst einen bestehenden Konflikt nicht auf.
+
+2. Zwei kleine Auswertungsdetails vorab festlegen: Bei P7 die Wahl zwischen current und valid_at dokumentieren; bei S2 für gleiche report_day die bereits vorhandene totale Reihenfolge verwenden.
+
+3. Den ersten Holdout-Lauf nachvollziehbar einfrieren: Neben den Welten auch Fragen, erwartete Antworten sowie Code- und Konfigurationsprüfsummen festhalten. Wiederholungen nach einer Fehlerkorrektur ausdrücklich als Wiederholungen kennzeichnen.
+
+4. Rechenaufwand zunächst an den Entwicklungsfällen messen. Die vorgesehene sequenzielle Referenzauswertung ist für das CPU-/RAM-Budget sinnvoll. Laufzeit und maximalen Speicherverbrauch getrennt für M, R und die Interventionen erfassen; daraus lässt sich der Gesamtaufwand belastbar abschätzen.
