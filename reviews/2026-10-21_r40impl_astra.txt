@@ -1,0 +1,43 @@
+8m 27s nachgedacht
+
+}
+---END FILE docs/ROUND_4_0_mutation.json---
+
+APPROVE — der Holdout darf mit der vorgelegten Codefassung eingefroren und einmal ausgeführt werden.
+
+Der gelesene Code setzt die freigegebene Zeit-, Korrektur- und Konfliktsemantik schlüssig um. M und R verwenden getrennte Resolver; die handberechneten Konformitätsfälle prüfen beide gegen feste Erwartungen. Der Freeze bindet Generator, Code, Fragen, Goldantworten und Gegenwelten und wird vor der Auswertung durch M verglichen.
+
+Die beigefügten Entwicklungs- und Mutationsnachweise stützen die Freigabe. Ich habe sie statisch geprüft und keine Tests selbst ausgeführt.
+
+Q1 — Implementierungsentscheidungen: akzeptiert, mit präziser Einordnung.
+
+- S3 und S4 aus R: Als Oracle-Baselines sind sie sinnvolle, starke Informationskontrollen. Ihre Ergebnisse betreffen die begrenzte verfügbare Information; die praktische Umsetzung eines fortlaufend verdichtenden Speichers wird damit nicht geprüft. Dass S4 zusätzlich Beginn und Provenienz der aktuellen Version erhält, macht den Vergleich anspruchsvoller.
+- Spätere Eigenbeobachtung: Für identische aktuelle Baseline-Zustände bei unterschiedlichen historischen Antworten ist das vertretbar. Dadurch liegt der aussagekräftige Vergleich besonders auf den historischen Fragen.
+- Irrelevante Berichte nach den relevanten Berichten: Für verzögerten Abruf und Lastprüfung akzeptabel. Die Anordnung sollte im Ergebnisbericht ausdrücklich genannt bleiben.
+- Entwicklungsschwelle 8/10: Passt zur aufgerundeten 75-%-Vorgabe; tatsächlich sind laut Bericht alle Pflichtzellen mit 10/10 gefüllt.
+
+Eine Berichtsaussage bitte präzisieren: S3 erzielt laut Tabelle in jeder Familie 0/10 vollständig richtige Paare. „Auf den meisten Familien richtig“ kann daher allenfalls einzelne Antworten meinen. Dafür sollten die Ergebnisse nach Operator herangezogen werden.
+
+Q2 — Konformitätsabdeckung: ausreichend für diese Runde.
+
+Ich verlange vor dem Freeze keine Erweiterung der generierten Falltabelle. Die 56 Konformitätsprüfungen sind verbindlicher Bestandteil des Bestehens, und die vier ausschließlich dort erkannten Mutanten sind transparent ausgewiesen.
+
+Im Abschlussbericht müssen die Belege getrennt bleiben: Diese vier Pfade erhalten ihre Absicherung durch die festen Konformitätsfälle; der generierte Holdout liefert dafür keine zusätzliche Abdeckung. Die 13 erkannten Mutanten zeigen Empfindlichkeit gegenüber diesen gezielten Änderungen.
+
+Q3 — Stale-Kennzahl: unverändert behalten, als nicht diskriminierend kennzeichnen.
+
+Die gemeldeten 0/520 bei allen Systemen dürfen berichtet werden. Ich würde die Definition vor diesem Holdout nicht austauschen. Die exakten Trefferkriterien erfassen weiterhin falsche Antworten, die außerhalb dieser Stale-Definition liegen.
+
+Die Erklärung „jede Welt endet mit einer frischen Eigenbeobachtung“ ist allerdings zu pauschal: Gerade P7 bei geraden Paarindizes und P8 enthalten andere Endkonstellationen. Präziser ist: Die Kennzahl trennt die Systeme in den Entwicklungsdaten nicht; die abschließenden Eigenbeobachtungen in mehreren Familien tragen dazu bei. Eine besondere Stale-Resistenz lässt sich daraus nicht ableiten.
+
+Q4 — Freeze und einmaliger Lauf: freigegeben.
+
+Die vorgeschlagene Reihenfolge passt: Freeze bei deaktivierter Konfiguration erzeugen, versionieren, anschließend holdout, attempt: 1 und Aktivierung setzen und einmal ausführen. Die eingefrorenen Code- und Fixture-Dateien bleiben dabei unverändert.
+
+Bei FREEZE_MISMATCH stoppt der Runner vor M. Jede weitere Ausführung nach einem begonnenen Holdout-Durchlauf sollte nachvollziehbar als Wiederholung dokumentiert werden, einschließlich Anlass und Codeänderungen.
+
+Verbesserungsideen — keine zusätzlichen Freigabebedingungen
+
+- Ressourcenmessung vervollständigen: Bei M_interventions liegt die Antwortberechnung derzeit außerhalb von Phase.run. Beim Reload bedeutet der ausgewiesene Speicherwert 0.0 MB keine gemessene Speicherfreiheit. Diese Messlücken kennzeichnen; später den gesamten Prozessspeicher einschließlich Unterprozess erfassen.
+- Wahrheitsvergleich aufteilen: believed_at getrennt von heutiger Rekonstruktion berichten. So werden die 52 erklärten Abweichungen durch damals fehlende Information unmittelbar verständlich.
+- Gezielter nächster Stale-Test: Fragen unmittelbar nach einer Korrektur oder Rücknahme stellen, bevor eine weitere Eigenbeobachtung den aktuellen Zustand wieder eindeutig liefert. Dafür eignet sich eine eigene Folgerunde.

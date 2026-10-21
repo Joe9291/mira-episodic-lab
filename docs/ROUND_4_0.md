@@ -405,10 +405,31 @@ Known limits of the generated data, stated before the holdout:
   a change on the anchor day (excluded by design), correcting an already withdrawn claim
   of the asked fact, an ambiguous anchor. The conformance set is a pass criterion, so the
   round covers them, but the generated holdout alone would not.
-- The stale-answer measure is 0 for every system: every world ends with a fresh own
-  observation, which all baselines pick up. It does not discriminate here.
+- The stale-answer measure is 0 for every system: it does not separate the systems in
+  the dev data; the final own observations in several families contribute to that (P7
+  with even index and P8 end differently). No particular resistance to stale answers can
+  be derived from it; the exact hit criteria still count wrong answers outside this
+  definition. Kept unchanged and reported as non-discriminating (Astra, implementation
+  review).
 - Truth measurement: 1,028 of 1,080 clean value questions agree with the world truth; all
   52 others are believed_at questions asked before a change was reported (Astra's v2
   counterexample) - by design, not an error.
-- S2 is right on every P2 and P9 pair and S3 on most families except P9: the
+- S2 gets every P2 and P9 pair fully right; S3 gets no pair of any family fully right,
+  but many single answers (1,832 of 2,400; per operator in the results). The
   dissociation rests on the required cells, not on overall baseline scores.
+- S3 and S4 are oracle baselines built from R: they test what bounded information
+  allows, not a practical compacting memory.
+- The irrelevant reports lie after the relevant ones (delayed recall and load), not
+  among them; the results report states this.
+- Measurement gaps in the resource figures (frozen code, so not changed before the
+  holdout): M's answers on counterfactual worlds are computed outside the timed phase,
+  and the reload process is a subprocess whose memory is not traced (its "0.0 MB" is no
+  measurement).
+
+Implementation review: APPROVE by Astra on 2026-10-21 (reviews/2026-10-21_r40impl_astra.txt)
+- the holdout may be frozen with this code (lab main 94549fd) and run once. For the final
+report she requires the evidence to stay separate: the four conformance-only paths are
+secured by the fixed conformance cases, the generated holdout adds no coverage for them.
+Her ideas for later: full process memory incl. the subprocess; truth agreement reported
+separately for believed_at; a targeted stale test (questions right after a correction or
+retraction, before a new own observation) in a follow-up round.
