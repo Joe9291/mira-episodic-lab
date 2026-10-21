@@ -1,0 +1,3206 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.0 PHASE A IMPLEMENTATION AND DEV RUN (before the holdout freeze)
+
+Review request (Astra; Claude is lead reviewer). You approved design v4 on 2026-10-21 (archived as reviews/2026-10-21_r40v4_astra.txt). This package contains the complete implementation of phase A, the dev run and a mutation check. Please answer APPROVE (= the holdout may be frozen with this code and run once) or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.0 IMPLEMENTATION REVIEW ===".
+
+STATE: lab main = 6a32ecd. Holdout: not generated into any file, not frozen, M has never run on it. config/round40.json is disabled.
+
+WHAT IS BUILT (files below; docs/ROUND_4_0.md section 7 lists every implementation choice)
+- M (episodic_lab/r40_memory.py): hash-chained append-only ReportStore; claims per assert and per effective correction; after every effective report the value of each valid_from day is re-decided by rank; operators current, valid_at, believed_at, why_changed, conflicts, history, before.
+- R (episodic_lab/r40_reference.py): independent reference - one pass per world over a flat claim table without per-fact index, answers taken at the needed knowledge times, why_changed followed report by report; shares only episodic_lab/r40_schema.py with M.
+- Baselines S0-S4 (r40_baselines.py) with an allowed output for every operator and an explicit visible state per question (used for B-indistinguishability).
+- Generator (r40_world.py): P1-P9 pairs that differ only in one critical report, irrelevant reports for the delays, questions per the fixed case table, world truth, interventions as counterfactual worlds with removal cascades, the general audit; pair controls and phenomenon conditions in r40_analysis.py; runner bench/m3/run_round40.py (pass 1: R on everything + freeze check; pass 2: M, baselines, audit, conditions, indistinguishability, interventions, persistence in a second process, conformance); bench/m3/freeze40.py; workflow round40.yml.
+- Your four v4 ideas: (1) equal-rank wording made precise in section 2 + conformance world W5; (2) P7 rule (even pairs: conflict on the newest version, ask current; odd pairs: later change, ask valid_at) and S2 ties by the total order; (3) freeze of worlds, questions, expected answers, intervention outcomes and code hashes before M runs, "attempt" / "repeat_of" in the request; (4) time and extra traced memory per kind of work.
+
+DEV RUN (GitHub Actions run 39573228533, commit 5a44447; identical to a local run under Python 3.13 except timings): DEV_OK on every criterion. M 2,400 / 2,400 answers right and equal to R everywhere; conformance 56 / 56 (hand-computed before any run); 840 counterfactual cases all as predicted by R (informative pairs at delay 0: 10/10 per removal type, swap_ranks 34/40; irrelevant control 360/360 unchanged); 720 stores reloaded identically in a new process; 0 audit violations; all 15 required cells filled with 10/10 pairs. Baselines (answers right of 2,400): S0 80, S1 736, S2 1,588, S3 1,832, S4 900; none gets a single pair of a required cell right. Total 36.6 s on the runner. Additional tests: 3,000 random worlds with arbitrary corrections, retractions, chains, claimless targets and anchor conflicts - M equals R on every operator (400 of them in the unit tests); full lab test suite 174 / 174.
+
+MUTATION CHECK (docs/ROUND_4_0_mutation.json): 13 single changes of M, each through the full dev run in a fresh copy: 13 / 13 killed.
+
+KNOWN LIMITS, STATED BEFORE THE HOLDOUT (also in section 7)
+a) Four mutants are caught ONLY by the conformance set, because the generated worlds never exercise these paths: why_changed when only report ids change; a change on the anchor day (excluded by design; conformance world W10 now pins before = value_at(d_Y - 1)); correcting an already withdrawn claim of the asked fact; an ambiguous anchor. The conformance set is a pass criterion, so the round covers them, but the generated holdout alone would not.
+b) The stale-answer measure is 0 for every system: every world ends with a fresh own observation that all baselines pick up; it does not discriminate here.
+c) Truth measurement: 1,028 of 1,080 clean value questions agree with the world truth; all 52 others are believed_at questions asked before a change was reported (your v2 counterexample) - by design.
+d) Choices the design left open and that you should check: S3 and S4 are built from R's policy history at question time (S3: first / previous / current version with valid_from and ids; S4: the current version including since when); to make S4 indistinguishable where required, P1, P2, P3, P5 and odd P7 pairs end with a later own observation; the irrelevant reports lie between the last relevant report and the question (not among the relevant reports); dev threshold for required cells 8 of 10.
+
+QUESTIONS
+Q1 Are the choices in d) and section 7 acceptable for the frozen holdout?
+Q2 Limit a): is coverage by the conformance set sufficient, or do you require generated cases for these four paths before the freeze (that would extend the approved case table)?
+Q3 Limit b): keep the stale measure as a reported measure, or define it differently?
+Q4 After APPROVE the sequence is: bench/m3/freeze40.py config/round40.json --write; commit; set split "holdout", attempt 1, enabled; one run; any repeat after a fix is labelled as a repeat.
+
+
+---BEGIN FILE docs/ROUND_4_0.md---
+# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v4, approved 2026-10-21; implementation notes in section 7)
+
+Context: the experiment's five-phase plan (2026-10-20) puts the external long-term memory
+first, with the milestone "B1 long-term test with real updates, contradictory statements,
+independent sources and delayed recall"; Astra named event-anchored historical queries as
+the next step when she closed round 3.6. Rounds 3.3-3.5b built the basis (append-only
+hash-chained store, unknown-aware operators, history operators proven by interventions,
+an LM-written store). v2 answers Astra's review of v1b (reviews/2026-10-20_r40v1b_astra.txt):
+historical validity and today's version status are separated by a two-time resolver
+(section 2); three separate gold values (section 1); a complete transition table with
+report ids and target references (section 2); "after" dropped, "before" defined through
+the resolver; case numbers, integer error limits, denominators, an independent reference
+and precise baseline failures (sections 4-5); compaction moved to a later round; a
+persistence test added. v3 answers her review of v2 (reviews/2026-10-20_r40v2_astra.txt):
+the full semantics of corrections and retractions incl. chains, withdrawn and missing
+targets (section 2); "truth-determinable" replaced by a measured "clean report state"
+(section 1); baseline failures defined by pre-fixed pair properties instead of by the
+baselines' answers (section 3); one fixed case table with zero allowed errors (section 5).
+v4 answers her review of v3 (reviews/2026-10-21_r40v3_astra.txt): the day's value is
+re-decided by rank after every effective report, so a new correction claim can resolve a
+conflict (section 2); S2 on P4 / P6 removed from the required cells, both families are
+negative controls (section 4); targets without a claim defined; removal cascades, baseline
+states and R's memory use specified (section 3).
+
+Uncertainty removed: does an external episodic memory, following a FIXED source policy,
+keep apart (a) the best-supported state now, (b) the state at an earlier valid time as
+reconstructed today, and (c) what it would have answered at an earlier knowledge time -
+under state changes, late news, corrections, retractions, contradictions and many
+interleaved irrelevant reports - and can it name the reports that changed an answer and
+the state immediately before an anchor event? With predicted interventions, so that a
+pass shows causal use of the stored history.
+Claim limits (fixed now): the test checks the implementation of a GIVEN source policy
+within this generator; it shows neither learned trustworthiness nor general truth
+finding; "independent sources" means reports with different origins (section 1), not
+different names.
+
+## 1. World, reports and the three gold values
+
+Facts: attributes of entities that change over time (where an object is, who holds it,
+where a person is staying), values from the round 3 vocabularies. Every fact has a TRUE
+timeline: one value per valid day.
+Reports (immutable events; the only way the agent learns anything):
+`{report_id, report_day, source, rank, origin, subject, attribute, kind, value, valid_from,
+target_report_id}`
+- `report_id`: stable, unique, never reused; reports are totally ordered by
+  (report_day, report_id);
+- `source` with a fixed `rank` from the world rules, given to the agent: own observation 3,
+  trusted person 2, hearsay 1;
+- `origin`: the underlying observation a report comes from (an own observation has its
+  own origin; a person repeating another person's statement carries that statement's
+  origin). Two reports are independent iff their origins differ;
+- `kind`: `assert` (value holds from valid_from on), `correct` (withdraws the claim of
+  report target_report_id and states a new value and/or valid_from on the corrector's own
+  authority, section 2), `retract` (withdraws the claim of report target_report_id);
+- `valid_from` may lie before report_day (late news).
+Three gold values per question (computed by the generator and the reference, section 4):
+- WORLD TRUTH: the true timeline (reported, never the pass criterion of M by itself);
+- POLICY ANSWER NOW: what the source policy (section 2) yields from all reports known at
+  question time - the pass criterion for current / valid_at / anchored;
+- POLICY ANSWER THEN: what the policy yields from the reports known at an earlier
+  knowledge time - the pass criterion for believed_at and why_changed.
+Clean report state (v3; replaces "truth-determinable", which did not guarantee truth - a
+change that is never reported keeps an old value without any false report): a question
+whose relevant reports contain no standing false claim and no open conflict. For these
+questions the agreement of the policy answer with the world truth is REPORTED AS A
+MEASUREMENT ONLY; it is no pass criterion and no claim. The test allows lack of
+information everywhere: an unreported change or a retracted wrong update can leave an old
+value standing, and "unknown" / "conflict" can be the right policy answer.
+
+## 2. Memory: two-time resolver over the immutable store
+
+Store: the round 3 append-only, hash-chained EpisodeStore holds the reports unchanged.
+Everything else is a pure function of the reports with report_day <= known_time.
+Core resolver `value_at(s, a, valid_time v, known_time k)`:
+1. take the reports about (s, a) with report_day <= k, in total order;
+2. apply them to a table of CLAIMS (one claim per assert and per effective correct, keyed
+   by its report_id) with the transition rules below;
+3. for each valid_from day keep the claims that stand (not withdrawn) and decide the
+   value of that day by rank: the highest-rank claims; one value -> that value; several
+   different values at the highest rank -> an OPEN CONFLICT for that valid_from;
+4. the timeline: each decided valid_from starts a version that lasts until the next
+   decided valid_from; value_at(v, k) is the version whose interval contains v; none ->
+   unknown (no observation); an open conflict whose interval contains v -> conflict
+   (with the values and report ids).
+A version that is later followed by a newer one is NOT removed: it keeps its interval
+(state change). A correction or retraction changes the claims themselves, so the
+reconstruction of the past changes for every known_time from that report on - and never
+for earlier known_times (what was believed then stays as it was).
+Transition rules (complete for 4.0):
+| report | condition | effect |
+|---|---|---|
+| assert, valid_from not yet used | - | new claim; a state change if valid_from is after the other days, late news splitting an interval otherwise |
+| assert, same valid_from as standing claims, same value | - | supports; no change of the value |
+| assert, same valid_from, different value, higher rank than every standing claim there | - | its value decides that day (the lower claims stay stored, not deciding) |
+| assert, same valid_from, different value, lower rank | - | stored, not deciding |
+| assert, same valid_from, different value, equal to the highest rank | different origin from the deciding claim(s) | OPEN CONFLICT for that day |
+| same, but the same origin | - | cannot occur: the generator never emits it, also not via a correction claim (audit check) |
+| correct (target t) | t's claim stands and the corrector's rank >= the rank of t's claim | t's claim is withdrawn; a NEW claim is created with the correction's value and valid_from (t's valid_from if none is given) and with the CORRECTOR's source, rank and origin; its report id is the correction's id |
+| correct | lower rank than t's claim | stored as an ineffective correction (no change) |
+| retract (target t) | t's claim stands and the retracting source is the source of t's claim | t's claim is withdrawn |
+| retract | another source | stored as an ineffective retraction (no change) |
+| correct or retract | t's claim is already withdrawn (retracted or corrected before) | ineffective (no change), stored |
+| correct or retract | t exists but never created a claim (t is a correct report that was itself ineffective) | ineffective (no change), stored - the generator does not emit it in original worlds; it can arise legitimately in a counterfactual world (for example after swapping ranks) and is then resolved by this row |
+| correct or retract | t does not exist in the store | ineffective, stored with the flag "dangling reference" - the generator never emits it, and no intervention may create it (audit) |
+| correct or retract | t is a retract report | cannot occur: the generator never emits it (audit) |
+Conflicts are not a separate state machine: after EVERY effective report the value of
+each affected valid_from day is decided again from the claims standing then (step 3). A
+conflict therefore ends exactly when the highest-rank standing claims of that day agree
+in value - through a higher-rank assert, a higher-rank claim created by a correction
+(also when the corrected claim was not part of the conflict: r1 rank 1 asserts A; r2 and
+r3, rank 2, independent, assert B and C -> conflict; r4 rank 3 corrects r1 to D -> D
+decides, deciding id r4), a correction that changes or moves a conflicting claim, or a
+retraction of a conflicting claim. A mere further claim of equal rank does not resolve an
+existing conflict (majorities are not used in 4.0); a correction of equal rank can
+withdraw a conflicting claim and replace it with an equal-rank claim that now agrees,
+which ends the conflict (conformance world W5).
+Consequences of the correction rule (fixed policy: a correction is a withdrawal plus a new
+claim on the corrector's authority): (a) example r1 rank 1 asserts A; r2 rank 3 corrects r1
+to B; r3 rank 2 asserts C for the same valid_from -> B decides (r2's claim has rank 3), the
+deciding id is r2; (b) the original source of r1 cannot withdraw B afterwards: r1's claim
+is already withdrawn (ineffective), and B belongs to r2's source - only r2's source can
+retract it, and only a source of rank >= 3 can correct it; (c) several corrections of
+the same target: the first effective one withdraws it, later ones that point to the
+same target are ineffective; a further change must target the latest standing claim (the
+previous correction) - the generator emits chains this way; (d) a correction or
+retraction may target an assert or a correct report (a correction's claim can be
+corrected or retracted), never a retract report.
+Public operators (all derived from value_at; structured questions):
+1. `current(s, a)` = value_at(now, now);
+2. `valid_at(s, a, v)` = value_at(v, now) - the past as reconstructed today;
+3. `believed_at(s, a, t)` = value_at(t, t) - what would have been answered on day t;
+4. `why_changed(s, a, v, k1, k2)`: the SAME valid time v under two knowledge times k1 < k2.
+   An answer is the triple (status, value or set of conflicting values); report ids do
+   not count as a change. If the answers at k1 and k2 are equal: "unchanged" (also after
+   A -> B -> A, and when only the evidence of an unchanged conflict changes - fixed by
+   contract). Otherwise the canonical explanation: replay the reports with
+   k1 < report_day <= k2 in total order and list every report whose application changes
+   the answer for v (the ordered id list);
+5. `conflicts(s, a)`: the open conflicts now, with values and report ids;
+6. `history(s, a)`: the versions now with their intervals and deciding report ids;
+7. `before(s, a, anchor)`: the anchor is an event identified by its content (for example
+   "you met Ida Voss at the old mill"); d_Y = the valid day of the anchor event as resolved
+   now; answer = value_at(d_Y - 1, now), i.e. the state immediately before the anchor.
+   Unknown with a stated reason: anchor not found, anchor ambiguous (several matching
+   events), no version before the anchor; conflict if an open conflict covers d_Y - 1.
+   ("after" is not part of 4.0.) The generator puts no change of (s, a) on the anchor's day
+   (audit check). The anchor is itself a report and follows the same rules: a corrected
+   anchor date moves today's before(...) answer; a retracted anchor -> anchor not found; two
+   standing anchor reports with different dates at the same rank -> anchor ambiguous
+   (conformance cases).
+Reference case (fully tabulated; ranks own 3, trusted 2, hearsay 1). Truth for the key:
+day 1-3 old mill, day 4-6 bridge, from day 7 library. Reports: r1 (day 1, own, assert old
+mill from 1); r2 (day 6, Ana trusted, assert harbour from 4 - late and wrong); r3 (day 8,
+Ben hearsay, assert forge from 7 - wrong); r4 (day 9, own, assert library from 7); r5
+(day 10, Ana, correct r2: bridge from 4).
+| known_time k | value_at(v=2, k) | value_at(v=5, k) | value_at(v=8, k) | believed_at(k) |
+|---|---|---|---|---|
+| 5 | old mill | old mill | old mill | old mill |
+| 7 | old mill | harbour | harbour | harbour |
+| 8 | old mill | harbour | forge | forge |
+| 9 | old mill | harbour | library | library |
+| 11 | old mill | bridge | library | library |
+| truth | old mill | bridge | library | - |
+why_changed(v=5, k1=7, k2=11) = [r5]; why_changed(v=8, k1=8, k2=9) = [r4]; before(anchor on
+day 6) = value_at(5, now) = bridge; at k = 7 the policy answer for day 5 (harbour) differs
+from the truth (bridge) - right by the policy then, wrong by the world.
+
+## 3. Systems and controls
+
+- M: section 2.
+- R: an INDEPENDENT reference resolver for the gold values and the expected intervention
+  outcomes - a separate, deliberately simple implementation (day-by-day replay over a full
+  table, no indexes, no shared resolver logic or state preparation with M, only the report
+  schema); it processes each report prefix once and answers all questions of that prefix
+  (Astra's saving idea); it processes the worlds one after another and keeps only the
+  answers at the prefixes that are needed, no state copy per irrelevant report; M and R
+  must agree on every question (a disagreement is a problem, not an error of M alone).
+- S0 no memory: always unknown (why_changed: unknown; conflicts: none; history: empty).
+- S1 state-only: one value per (s, a) - the value of the last assert received wins (rank,
+  valid_from, corrections and retractions ignored); every value question is answered with
+  that value; why_changed: always "unchanged"; conflicts: none; history: one version.
+- S2 naive episodic: all asserts kept with their valid_from; for an asked valid time the
+  assert with the latest report_day among those whose valid_from is not after it wins
+  (rank, corrections and retractions ignored; knowledge time respected); why_changed: its
+  own answers at k1 and k2, "unchanged" if equal, else the asserts in (k1, k2] that change
+  its own answer; conflicts: none; history: its own versions.
+- S3 bounded summary: per (s, a) only three versions with their valid_from - first,
+  previous and current (the information of the round 3.4 history agent); before(...) is
+  answered from these three (the latest stored version with valid_from < d_Y); it keeps no
+  knowledge times, so believed_at is answered like valid_at and why_changed with
+  "unchanged"; conflicts: none; history: the three versions.
+- S4 oracle current state (Astra's idea, a stronger state baseline): it receives the
+  CORRECT current policy answer at question time (from R) but no history; current is
+  always right, every historical question is answered with the current answer;
+  why_changed: "unchanged"; conflicts: the conflict of the current answer, if any;
+  history: one version.
+Every baseline thus gives an allowed output for every operator, so a baseline error is
+never a mere format error.
+Interventions: each is a VALID counterfactual world - the report list is changed and a new,
+consistent chain is built (never a corrupted chain): remove the update; remove the late
+report; remove the correction; remove the retraction; swap the ranks of two sources;
+remove the report that resolves a conflict; move the anchor to another day; remove the
+anchor (-> unknown); remove the relevant observation before the anchor; add or remove an
+irrelevant report (no change). The expected outcome of each is computed by R on the
+counterfactual world before any run. Every intervention record lists the complete set of
+removed report ids (the removal cascade below), so a result that rests on removing a
+whole dependency is visible as such.
+Control of the baseline-visible input: in a pair, worlds A and B have the same question
+(text, structured fields, metadata), the same number of reports and the same report days;
+only the content of the one critical report differs.
+Baseline failures without circularity (v3): for every baseline B and phenomenon P, the
+generator marks a pair as B-INDISTINGUISHABLE when everything B can see is identical in
+worlds A and B - its complete stored state (for S3 the three stored versions WITH their
+valid_from, for S1 the single value, for S2 the asserts with report_day, valid_from and
+value, for S4 the current answer) and the question - while
+the gold answer of at least one question of the phenomenon (same operator, same arguments,
+same delay) differs between A and B. This is a property of the inputs, fixed before any
+run and checked by the audit; on such a pair B can be right in at most one world. For
+every marked pair the compared baseline states and the question are logged (including
+report ids where the baseline uses them for its outputs). The
+design (section 4) fixes in advance which (B, P) cells must contain at least 30
+B-indistinguishable pairs (and which are not applicable by design); the evidence is that
+M solves these pairs. Baseline results are reported on ALL cases (answers right and pair
+success separately), not only on the marked pairs.
+Interventions as valid counterfactual worlds: removing a report also removes every report
+that refers to it (transitively), so no dangling reference arises; every counterfactual
+world must pass the general generator audit (unique ids and total order, no equal-rank
+same-origin conflict, no change of (s, a) on the anchor day, no dangling reference, no
+reference to a retract report); the phenomenon's own conditions are not required there,
+since an intervention may remove the phenomenon on purpose. A new hash chain alone is no
+proof of a valid counterfactual.
+
+## 4. Data, phenomena and case numbers
+
+Phenomena (each with its own pairs): P1 state change; P2 late news; P3 correction by an
+equal or higher rank; P4 ineffective correction (lower rank); P5 retraction by the own
+source; P6 ineffective retraction (another source); P7 open conflict (equal rank,
+different origins); P8 conflict resolved by a higher rank; P9 event-anchored before with
+an intermediate answer - more than three relevant observations (5-8), current / first /
+previous identical in A and B, the answer differs and is held by none of them.
+Splits: dev 10 pairs per phenomenon, holdout 40 pairs per phenomenon (9 x 40 = 360 pairs,
+720 worlds); the holdout is generated and frozen before any run of M on it (worlds only;
+M is symbolic, so the holdout guards against generator-specific overfitting of the logic).
+Questions per world (fixed case table, v3):
+| phenomenon | questions per world |
+|---|---|
+| P1 state change | current, valid_at (before the change), believed_at (before the change), history |
+| P2 late news | current, valid_at (inside the late interval), believed_at (before the report day), why_changed (that valid day; before vs after the report day) |
+| P3 correction | valid_at (corrected day), believed_at (before the correction), why_changed, history |
+| P4 ineffective correction | valid_at, why_changed (gold "unchanged"), history |
+| P5 retraction | current, valid_at, believed_at (before the retraction), why_changed |
+| P6 ineffective retraction | current, valid_at, why_changed (gold "unchanged") |
+| P7 open conflict | current or valid_at (gold conflict), conflicts, history |
+| P8 conflict resolved by a higher rank | current, conflicts (gold none), why_changed |
+| P9 anchored before (intermediate answer) | before, current |
+That is 30 question kinds summed over P1-P9 (4+4+4+3+4+3+3+3+2); each
+pair asks its phenomenon's questions in both worlds at each of the four delays (0, 50, 200,
+500 interleaved irrelevant reports of the same vocabulary). Holdout: 40 pairs per
+phenomenon -> 30 x 2 x 4 x 40 = 9,600 answers. A pair is one unit; the four delays are not
+independent replications.
+Minimum B-indistinguishable pairs (>= 30 of the 40 holdout pairs): S1 on P1-P3, P5, P9;
+S2 on P3, P5, P7, P8; S3 on P9; S4 on P1-P3, P5, P9; other (B, P) cells are reported, not
+required. P4 and P6 are NEGATIVE CONTROLS: an ineffective correction or retraction must
+change nothing, which a baseline that ignores corrections and retractions also gets
+right; M must match the gold there exactly (the ineffective report changes no answer;
+why_changed "unchanged"), and no superiority over a baseline is required there.
+Conformance set: about 50 hand-checkable cases, each with the expected answer AND the
+expected provenance (deciding report ids, source, rank) written down by hand before any
+run - every row of the transition table; the reference case of section 2 at every (v, k)
+shown; the correction consequences (a)-(d) of section 2 (rank of a corrected claim,
+retraction by the original source ineffective, retraction by the corrector, a second
+correction of the same target, a correction chain, correcting or retracting a withdrawn
+claim, correcting a correction); why_changed edge cases (A -> B -> A, a supporting report
+with an unchanged value, a change of conflict evidence only); before(...) with every
+unknown reason, a corrected anchor date, a retracted anchor and conflicting anchor dates;
+interventions with cascading removal (removing a report that a correction targets); a
+conflict resolved by a higher-rank correction of a claim outside the conflict (section 2);
+a correction targeting an ineffective correction report.
+
+## 5. Measures and pass rule (fixed before any run)
+
+Hit definitions: current / valid_at / believed_at / before - the exact value, or the
+exact outcome conflict (with the same set of values) or unknown (with the same reason);
+why_changed - "unchanged", or exactly the canonical id list; conflicts - exactly the set of
+open conflicts with values and ids; history - exactly the versions with intervals and ids.
+Measures, per operator x phenomenon x delay and per pair (all four delays right):
+- known answers, conflict outputs and unknown outputs separately;
+- stale-answer rate: denominator = current questions in worlds where an update,
+  correction or retraction made an older value outdated; numerator = the answer equals an
+  outdated value;
+- false conflicts: denominator = questions whose gold is not a conflict; numerator = a
+  conflict output;
+- agreement with the world truth on the clean report state (measurement only, section 1).
+Pass rule for M (v3, one count for everything): ZERO errors on all 9,600 holdout answers
+(every operator x phenomenon x delay cell; the table above fixes every denominator), the
+conformance set 100 %, M and R agree on every question, every intervention outcome as
+predicted by R (an intervention case is informative when R's answer on the counterfactual
+world differs from its answer on the original - a property of the worlds, computed before
+any run; at least 30 informative cases per intervention type, except the irrelevant-report
+control, which must leave every answer unchanged), the persistence test passes,
+and the generator audit marks at least 30 B-indistinguishable pairs in each required cell
+(section 4). With zero allowed errors a separate pair-success limit would be redundant;
+pair success is reported as a measure. Stale answers and false conflicts are reported with
+their denominators (above); under the zero-error rule both are zero for a pass.
+This is the pass rule of a finite test suite: 40 independent pairs per phenomenon with zero
+errors do not establish a general error rate below 1 %.
+Baselines: results on all cases and on their B-indistinguishable pairs are reported; a pass
+of M where a required cell has fewer than 30 such pairs does not count (the worlds would
+be too easy for that baseline).
+Persistence test: the store is written to disk, the process ends, a new process loads it,
+verifies the chain and answers the same questions identically.
+Joe's check: about 5 cases per round, chosen by rule (a late report, a correction, a
+conflict, an anchored question, a long delay).
+
+## 6. Phases
+
+A. Structured reports (this round): model-free, unbounded unchanged event store.
+B. Reports as free-text notes read by an LM extractor - needs its own extraction
+   qualification (source, origin, valid_from, kind and target references are new fields
+   that the 3.5b PASS does not cover).
+C. Questions in language - a new parser attempt; the 3.6 holdout / reserve groups keep
+   their recorded status (LM-untested, evaluated technically and with the rule baseline
+   before a freeze).
+Later rounds: source-bound compaction (separately, so that resolution errors and
+compaction losses stay distinguishable); a bounded retrieval budget (then access to the
+full archive must be budgeted too); learned source reliability.
+Relation to the literature: the target failure modes match the knowledge-update and
+temporal-reasoning categories of long-term memory benchmarks such as LongMemEval; a
+phase A pass is evidence for the symbolic memory logic inside this generator, not for an
+agent on real conversations.
+
+## 7. Implementation notes (phase A, after the APPROVE of v4)
+
+Astra approved v4 on 2026-10-21 (reviews/2026-10-21_r40v4_astra.txt). Her four ideas and
+every choice the design left open are fixed here; they are part of the implementation
+review before the holdout freeze.
+- Code: episodic_lab/r40_schema.py (the only module M and R share), r40_memory.py (M:
+  hash-chained ReportStore and the resolver), r40_reference.py (R), r40_baselines.py,
+  r40_world.py (generator, interventions, audit), r40_analysis.py; bench/m3/run_round40.py,
+  bench/m3/freeze40.py; tests/test_round40.py; tests/fixtures/r40_conformance.json (56
+  hand-computed checks in 10 worlds, written before M or R ran; world W10 pins
+  before = value_at(d_Y - 1, now) with a change ON the anchor day, a case the generator
+  never produces).
+- Anchors: an anchor event is the fact (subject "event:<content>", attribute "day") with
+  the day as value and valid_from 0, resolved by the same resolver at valid time 0: no
+  standing claim -> anchor_not_found; standing claims with different days at the top rank
+  (several matching events or conflicting dates) -> anchor_ambiguous; a correction of the
+  day moves before(...). Unknown reasons: no_version (value questions), anchor_not_found,
+  anchor_ambiguous, no_version_before.
+- History: one version per decided valid_from (adjacent versions with equal values are
+  not merged); the deciding ids of a version are all top-rank standing claims of that day.
+- Delays: the irrelevant reports lie between the last relevant report and the question,
+  5 per day; the question day is the day after. They use the same vocabulary (other
+  objects, and the same object with the other attribute) and all kinds: asserts (some
+  late), corrections and retractions of irrelevant asserts, repeats with the same origin,
+  other anchor events.
+- P7 (Astra's idea 2): even pairs have the conflict on the newest version and ask
+  current; odd pairs add a later state change and ask valid_at inside the conflict.
+- S2 ties (idea 2): the latest report in the total order (report_day, report_id) wins.
+- Baselines in detail: S1 keeps only the value (its history has one version without
+  valid_from or ids); S3 keeps the first, previous and current version of R's policy
+  history at question time with valid_from and ids, and the current version of the
+  anchor; S4 keeps R's current version (status, value(s), ids and since when). The
+  compared states are exactly these (plus the question).
+- To make S4 indistinguishable where it is required, P1, P2, P3, P5 (and odd P7 pairs)
+  end with a later own observation, so that the current version is the same in A and B.
+- Variants inside families: P3 / P4 correct the value, the valid_from or both (pair index
+  mod 3); P5 / P6 retract a correction claim in every third pair (only its corrector may
+  retract it - consequence (b) of section 2); P8 resolves the conflict by a higher assert,
+  by a higher correction of a conflicting claim, or by a higher correction of a claim
+  outside the conflict (Astra's v3 case), by pair index mod 3.
+- Interventions run on world A at all four delays; "informative" is counted per pair at
+  delay 0. swap_ranks swaps the critical report's source with the competing source, or
+  with "self" when both have the same rank, and is skipped when no rank changes. The
+  irrelevant control removes one irrelevant report (with its cascade) in odd pairs at
+  delays > 0 and adds one otherwise.
+- The audit decides whether a target ever created a claim with R's transition function
+  (an audit use of R, never of M). Required cells on dev: 8 of 10 pairs (the holdout
+  ratio 30 / 40).
+- Freeze (idea 3): bench/m3/freeze40.py generates the holdout, lets R compute every
+  expected answer (original and counterfactual) and writes the digests of worlds,
+  questions, expected answers and interventions plus the SHA-256 of every code file into
+  config/round40.json; the holdout run compares them before M runs and stops with
+  FREEZE_MISMATCH otherwise. The request carries "attempt" and "repeat_of"; a repeat after
+  a correction is labelled as such.
+- Resources (idea 4): the run records wall time and the largest additional traced memory
+  per kind of work (R, R on interventions, M, M on interventions, baselines, audit,
+  persistence write and reload).
+
+Dev run (2026-10-21, GitHub Actions run 39573228533, commit 5a44447; summary in
+docs/ROUND_4_0_dev_SUMMARY.md; identical to a local run under another Python version
+except the timings): DEV_OK on every criterion - M 2,400 / 2,400 answers right and equal
+to R everywhere, 56 / 56 conformance checks, all 840 counterfactual cases as predicted
+by R, 720 stores reloaded identically in a new process, no audit violation, all 15
+required cells filled (10 / 10 pairs each). Baselines: S0 80, S1 736, S2 1,588, S3 1,832,
+S4 900 of 2,400 answers; no baseline gets a single pair of a required cell right. Run
+time on the runner 36.6 s in total (R 4.6 s with interventions, M 1.5 s, baselines 0.4 s,
+audit 1.4 s, persistence 16.7 s); peak extra traced memory below 2 MB per kind of work;
+the holdout (4 x the dev size) should need about 2.5 minutes.
+Mutation check (docs/ROUND_4_0_mutation.json): 13 single changes of M, each run through
+the full dev run in a fresh copy - all 13 fail at least one pass criterion.
+Known limits of the generated data, stated before the holdout:
+- Four mutants are caught ONLY by the hand-checked conformance set, because the
+  generated worlds never exercise these paths: why_changed when only report ids change,
+  a change on the anchor day (excluded by design), correcting an already withdrawn claim
+  of the asked fact, an ambiguous anchor. The conformance set is a pass criterion, so the
+  round covers them, but the generated holdout alone would not.
+- The stale-answer measure is 0 for every system: every world ends with a fresh own
+  observation, which all baselines pick up. It does not discriminate here.
+- Truth measurement: 1,028 of 1,080 clean value questions agree with the world truth; all
+  52 others are believed_at questions asked before a change was reported (Astra's v2
+  counterexample) - by design, not an error.
+- S2 is right on every P2 and P9 pair and S3 on most families except P9: the
+  dissociation rests on the required cells, not on overall baseline scores.
+---END FILE docs/ROUND_4_0.md---
+
+---BEGIN FILE episodic_lab/r40_schema.py---
+"""Round 4.0 report schema (docs/ROUND_4_0.md section 1).
+
+This module is the ONLY code that the memory M (r40_memory.py) and the independent
+reference R (r40_reference.py) share: field names, kinds, ranks and the check of a
+single report's shape. No resolver logic lives here.
+"""
+from __future__ import annotations
+
+REPORT_SCHEMA = "episodic_lab.r40_report.v1"
+FIELDS = ("report_id", "report_day", "source", "rank", "origin", "subject", "attribute",
+          "kind", "value", "valid_from", "target_report_id")
+KINDS = ("assert", "correct", "retract")
+RANKS = (1, 2, 3)                       # hearsay 1, trusted person 2, own observation 3
+ANCHOR_PREFIX = "event:"                # anchor events: subject "event:<content>",
+ANCHOR_ATTRIBUTE = "day"                # attribute "day", value = the day, valid_from 0
+OPERATORS = ("current", "valid_at", "believed_at", "why_changed", "conflicts", "history",
+             "before")
+
+
+class ReportError(ValueError):
+    pass
+
+
+def check_report(r: dict) -> None:
+    """Shape of one report; raises ReportError. Semantics (targets, ranks of the world,
+    origins) are checked by the generator audit, not here."""
+    if not isinstance(r, dict) or tuple(sorted(r)) != tuple(sorted(FIELDS)):
+        raise ReportError(f"fields must be exactly {FIELDS}")
+    rid = r["report_id"]
+    if not (isinstance(rid, str) and len(rid) == 6 and rid[0] == "r" and rid[1:].isdigit()):
+        raise ReportError(f"bad report_id {rid!r}")
+    if type(r["report_day"]) is not int or r["report_day"] < 1:
+        raise ReportError(f"{rid}: bad report_day")
+    if type(r["rank"]) is not int or r["rank"] not in RANKS:
+        raise ReportError(f"{rid}: bad rank")
+    for f in ("source", "origin", "subject", "attribute"):
+        if not isinstance(r[f], str) or not r[f]:
+            raise ReportError(f"{rid}: bad {f}")
+    kind = r["kind"]
+    if kind not in KINDS:
+        raise ReportError(f"{rid}: bad kind")
+    vf, val, tgt = r["valid_from"], r["value"], r["target_report_id"]
+    if vf is not None and (type(vf) is not int or vf < 0):
+        raise ReportError(f"{rid}: bad valid_from")
+    if val is not None and not (isinstance(val, str) or type(val) is int):
+        raise ReportError(f"{rid}: bad value")
+    if kind == "assert":
+        if val is None or vf is None or tgt is not None:
+            raise ReportError(f"{rid}: assert needs value and valid_from, no target")
+    elif kind == "correct":
+        if tgt is None or (val is None and vf is None):
+            raise ReportError(f"{rid}: correct needs a target and a value or valid_from")
+    else:
+        if tgt is None or val is not None or vf is not None:
+            raise ReportError(f"{rid}: retract needs a target only")
+    if tgt is not None and not (isinstance(tgt, str) and len(tgt) == 6 and tgt[0] == "r"):
+        raise ReportError(f"{rid}: bad target_report_id")
+
+
+def order_key(r: dict) -> tuple:
+    """The total order of reports: (report_day, report_id)."""
+    return (r["report_day"], r["report_id"])
+---END FILE episodic_lab/r40_schema.py---
+
+---BEGIN FILE episodic_lab/r40_memory.py---
+"""Round 4.0 memory M (docs/ROUND_4_0.md section 2): an append-only, hash-chained store of
+immutable reports and a two-time resolver over it.
+
+Everything except the stored reports is a pure function of the reports with
+report_day <= known_time. Claims: one per assert and per effective correction, keyed by
+the report id that created it. After every effective report the value of each valid_from
+day is decided again by rank from the claims standing then.
+
+Answer format (shared by convention with R and the baselines, not by code):
+  {"status": "value", "value": x, "ids": [...]}
+  {"status": "conflict", "values": [...], "ids": [...]}
+  {"status": "unknown", "reason": "no_version" | "anchor_not_found" | "anchor_ambiguous"
+                                  | "no_version_before"}
+why_changed -> "unchanged" or the ordered list of report ids; conflicts -> list of
+{"valid_from", "values", "ids"}; history -> list of {"valid_from", "valid_to", "status",
+"value" | "values", "ids"}.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+
+from .r40_schema import ANCHOR_ATTRIBUTE, ANCHOR_PREFIX, REPORT_SCHEMA, check_report, order_key
+
+STORE_SCHEMA = "episodic_lab.r40_store.v1"
+GENESIS = "0" * 64
+
+
+class StoreCorrupted(RuntimeError):
+    pass
+
+
+def _digest(record: dict) -> str:
+    body = {k: v for k, v in record.items() if k != "hash"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+class ReportStore:
+    """Append-only JSON-lines store of reports, chained by SHA-256; a changed, removed or
+    reordered record is detected on load; `expect` (a seal kept outside the chain) also
+    detects a cut-off tail."""
+
+    def __init__(self, path=None, expect: dict | None = None):
+        self.path = Path(path) if path is not None else None
+        self._records: list[dict] = []
+        if self.path is not None and self.path.exists():
+            prev = GENESIS
+            for n, line in enumerate(self.path.read_text(encoding="utf-8").splitlines()):
+                rec = json.loads(line)
+                if rec.get("prev") != prev or rec.get("seq") != n or _digest(rec) != rec.get("hash") \
+                        or rec.get("schema") != STORE_SCHEMA:
+                    raise StoreCorrupted(f"record {n}")
+                check_report(rec["report"])
+                prev = rec["hash"]
+                self._records.append(rec)
+        if expect is not None and self.seal() != expect:
+            raise StoreCorrupted(f"seal mismatch: {self.seal()} != {expect}")
+
+    def seal(self) -> dict:
+        return {"count": len(self._records),
+                "head": self._records[-1]["hash"] if self._records else GENESIS}
+
+    @property
+    def reports(self) -> list[dict]:
+        return [dict(rec["report"]) for rec in self._records]
+
+    def extend(self, reports) -> None:
+        """Append reports in arrival (= total) order; one write and one fsync."""
+        lines = []
+        for r in reports:
+            check_report(r)
+            if self._records and order_key(r) <= order_key(self._records[-1]["report"]):
+                raise ValueError(f"{r['report_id']} breaks the total order")
+            prev = self._records[-1]["hash"] if self._records else GENESIS
+            rec = {"schema": STORE_SCHEMA, "report_schema": REPORT_SCHEMA,
+                   "seq": len(self._records), "report": dict(r), "prev": prev}
+            rec["hash"] = _digest(rec)
+            self._records.append(rec)
+            lines.append(json.dumps(rec, sort_keys=True) + "\n")
+        if self.path is not None and lines:
+            with self.path.open("a", encoding="utf-8") as fh:
+                fh.write("".join(lines))
+                fh.flush()
+                os.fsync(fh.fileno())
+
+
+class _Claim:
+    __slots__ = ("cid", "value", "vf", "rank", "source", "origin", "standing")
+
+    def __init__(self, cid, value, vf, rank, source, origin):
+        self.cid, self.value, self.vf, self.rank = cid, value, vf, rank
+        self.source, self.origin, self.standing = source, origin, True
+
+
+def _apply(claims: dict, rep: dict) -> bool:
+    """Transition rules (section 2). Returns True if the report was effective."""
+    kind = rep["kind"]
+    if kind == "assert":
+        claims[rep["report_id"]] = _Claim(rep["report_id"], rep["value"], rep["valid_from"],
+                                          rep["rank"], rep["source"], rep["origin"])
+        return True
+    tgt = claims.get(rep["target_report_id"])
+    # missing target, a retract report, a claimless correction report, a withdrawn claim
+    if tgt is None or not tgt.standing:
+        return False
+    if kind == "correct":
+        if rep["rank"] < tgt.rank:
+            return False
+        tgt.standing = False
+        claims[rep["report_id"]] = _Claim(
+            rep["report_id"],
+            rep["value"] if rep["value"] is not None else tgt.value,
+            rep["valid_from"] if rep["valid_from"] is not None else tgt.vf,
+            rep["rank"], rep["source"], rep["origin"])
+        return True
+    if rep["source"] != tgt.source:
+        return False
+    tgt.standing = False
+    return True
+
+
+def _versions(claims: dict) -> list[dict]:
+    by_day: dict[int, list[_Claim]] = {}
+    for c in claims.values():
+        if c.standing:
+            by_day.setdefault(c.vf, []).append(c)
+    days = sorted(by_day)
+    out = []
+    for i, d in enumerate(days):
+        top = max(c.rank for c in by_day[d])
+        tops = [c for c in by_day[d] if c.rank == top]
+        values = sorted({c.value for c in tops})
+        ids = sorted(c.cid for c in tops)
+        v = {"valid_from": d, "valid_to": days[i + 1] - 1 if i + 1 < len(days) else None}
+        if len(values) == 1:
+            v.update(status="value", value=values[0], ids=ids)
+        else:
+            v.update(status="conflict", values=values, ids=ids)
+        out.append(v)
+    return out
+
+
+def _answer_of(version: dict | None, reason: str = "no_version") -> dict:
+    if version is None:
+        return {"status": "unknown", "reason": reason}
+    if version["status"] == "value":
+        return {"status": "value", "value": version["value"], "ids": list(version["ids"])}
+    return {"status": "conflict", "values": list(version["values"]), "ids": list(version["ids"])}
+
+
+def _key(ans: dict) -> tuple:
+    """What counts as a change for why_changed: status and value(s), not report ids."""
+    if ans["status"] == "value":
+        return ("value", ans["value"])
+    if ans["status"] == "conflict":
+        return ("conflict", tuple(ans["values"]))
+    return ("unknown",)
+
+
+class Memory:
+    """M: indexes the store by fact and replays the fact's reports per question."""
+
+    def __init__(self, reports):
+        reports = list(reports)
+        for r in reports:
+            check_report(r)
+        if [order_key(r) for r in reports] != sorted(order_key(r) for r in reports):
+            raise ValueError("reports are not in total order")
+        if len({r["report_id"] for r in reports}) != len(reports):
+            raise ValueError("duplicate report ids")
+        self._by_fact: dict[tuple, list[dict]] = {}
+        for r in reports:
+            self._by_fact.setdefault((r["subject"], r["attribute"]), []).append(r)
+        self._cache: dict = {}
+
+    def _claims_at(self, fact, k) -> dict:
+        claims: dict = {}
+        for r in self._by_fact.get(fact, ()):
+            if r["report_day"] > k:
+                break
+            _apply(claims, r)
+        return claims
+
+    def versions(self, fact, k) -> list[dict]:
+        key = (fact, k)
+        if key not in self._cache:
+            self._cache[key] = _versions(self._claims_at(fact, k))
+        return [dict(v) for v in self._cache[key]]
+
+    def value_at(self, fact, v, k) -> dict:
+        found = None
+        for ver in self.versions(fact, k):
+            if ver["valid_from"] <= v:
+                found = ver
+            else:
+                break
+        return _answer_of(found)
+
+    def why_changed(self, fact, v, k1, k2):
+        if _key(self.value_at(fact, v, k1)) == _key(self.value_at(fact, v, k2)):
+            return "unchanged"
+        claims = self._claims_at(fact, k1)
+        ids, before = [], _key(self._value_from(claims, v))
+        for r in self._by_fact.get(fact, ()):
+            if r["report_day"] <= k1:
+                continue
+            if r["report_day"] > k2:
+                break
+            _apply(claims, r)
+            after = _key(self._value_from(claims, v))
+            if after != before:
+                ids.append(r["report_id"])
+            before = after
+        return ids
+
+    @staticmethod
+    def _value_from(claims, v) -> dict:
+        found = None
+        for ver in _versions(claims):
+            if ver["valid_from"] <= v:
+                found = ver
+        return _answer_of(found)
+
+    def before(self, fact, anchor: str, now: int) -> dict:
+        a = self.value_at((ANCHOR_PREFIX + anchor, ANCHOR_ATTRIBUTE), 0, now)
+        if a["status"] == "unknown":
+            return {"status": "unknown", "reason": "anchor_not_found"}
+        if a["status"] == "conflict":
+            return {"status": "unknown", "reason": "anchor_ambiguous"}
+        ans = self.value_at(fact, a["value"] - 1, now)
+        if ans["status"] == "unknown":
+            return {"status": "unknown", "reason": "no_version_before"}
+        return ans
+
+    def answer(self, q: dict):
+        fact, now, op = (q["subject"], q["attribute"]), q["now"], q["op"]
+        if op == "current":
+            return self.value_at(fact, now, now)
+        if op == "valid_at":
+            return self.value_at(fact, q["v"], now)
+        if op == "believed_at":
+            return self.value_at(fact, q["t"], q["t"])
+        if op == "why_changed":
+            return self.why_changed(fact, q["v"], q["k1"], q["k2"])
+        if op == "conflicts":
+            return [{"valid_from": x["valid_from"], "values": x["values"], "ids": x["ids"]}
+                    for x in self.versions(fact, now) if x["status"] == "conflict"]
+        if op == "history":
+            return self.versions(fact, now)
+        if op == "before":
+            return self.before(fact, q["anchor"], now)
+        raise ValueError(f"unknown operator {op}")
+---END FILE episodic_lab/r40_memory.py---
+
+---BEGIN FILE episodic_lab/r40_reference.py---
+"""Round 4.0 independent reference resolver R (docs/ROUND_4_0.md section 3).
+
+Deliberately simple and written separately from M (r40_memory.py); the two share only
+the report schema (r40_schema.py). R walks one world's reports ONCE in total order over
+a flat table of claim rows (no per-fact index), takes the answers of every question at
+the knowledge times it needs on the way, and follows why_changed questions report by
+report between k1 and k2. It keeps no state copies, only the answers.
+"""
+from __future__ import annotations
+
+from .r40_schema import ANCHOR_ATTRIBUTE, ANCHOR_PREFIX
+
+
+def _rows_of(table, subject, attribute):
+    return [row for row in table if row["alive"] and row["subject"] == subject
+            and row["attribute"] == attribute]
+
+
+def _decide(rows):
+    """rows: alive claim rows of one fact with the same valid_from."""
+    best = max(row["rank"] for row in rows)
+    top = [row for row in rows if row["rank"] == best]
+    values = sorted(set(row["value"] for row in top))
+    ids = sorted(row["id"] for row in top)
+    if len(values) == 1:
+        return {"status": "value", "value": values[0], "ids": ids}
+    return {"status": "conflict", "values": values, "ids": ids}
+
+
+def _eval(table, subject, attribute, v):
+    rows = [row for row in _rows_of(table, subject, attribute) if row["vf"] <= v]
+    if not rows:
+        return {"status": "unknown", "reason": "no_version"}
+    last = max(row["vf"] for row in rows)
+    return _decide([row for row in rows if row["vf"] == last])
+
+
+def _history(table, subject, attribute):
+    rows = _rows_of(table, subject, attribute)
+    days = sorted(set(row["vf"] for row in rows))
+    out = []
+    for n, d in enumerate(days):
+        item = {"valid_from": d, "valid_to": (days[n + 1] - 1) if n + 1 < len(days) else None}
+        item.update(_decide([row for row in rows if row["vf"] == d]))
+        out.append(item)
+    return out
+
+
+def _change_key(ans):
+    if ans["status"] == "value":
+        return ("value", ans["value"])
+    if ans["status"] == "conflict":
+        return ("conflict", tuple(ans["values"]))
+    return ("unknown",)
+
+
+def _step(table, rep):
+    """Apply one report to the flat claim table."""
+    if rep["kind"] == "assert":
+        table.append({"id": rep["report_id"], "subject": rep["subject"],
+                      "attribute": rep["attribute"], "value": rep["value"],
+                      "vf": rep["valid_from"], "rank": rep["rank"], "source": rep["source"],
+                      "alive": True})
+        return
+    hits = [row for row in table if row["id"] == rep["target_report_id"]]
+    if len(hits) != 1 or not hits[0]["alive"]:
+        return                                    # no claim to act on: ineffective
+    target = hits[0]
+    if rep["kind"] == "retract":
+        if rep["source"] == target["source"]:
+            target["alive"] = False
+        return
+    if rep["rank"] >= target["rank"]:
+        target["alive"] = False
+        table.append({"id": rep["report_id"], "subject": target["subject"],
+                      "attribute": target["attribute"],
+                      "value": target["value"] if rep["value"] is None else rep["value"],
+                      "vf": target["vf"] if rep["valid_from"] is None else rep["valid_from"],
+                      "rank": rep["rank"], "source": rep["source"], "alive": True})
+
+
+def _before(table, subject, attribute, anchor):
+    a = _eval(table, ANCHOR_PREFIX + anchor, ANCHOR_ATTRIBUTE, 0)
+    if a["status"] == "unknown":
+        return {"status": "unknown", "reason": "anchor_not_found"}
+    if a["status"] == "conflict":
+        return {"status": "unknown", "reason": "anchor_ambiguous"}
+    ans = _eval(table, subject, attribute, a["value"] - 1)
+    if ans["status"] == "unknown":
+        return {"status": "unknown", "reason": "no_version_before"}
+    return ans
+
+
+def _standing(table, subject, attribute):
+    return sorted([row["vf"], row["value"]] for row in _rows_of(table, subject, attribute))
+
+
+def _snapshot(table, q, K, results, aux):
+    """Answer every part of question q that needs knowledge time K."""
+    s, a, op = q["subject"], q["attribute"], q["op"]
+    if op == "why_changed":
+        st = aux.setdefault(q["qid"], {})
+        if K == q["k1"]:
+            st["start"] = _change_key(_eval(table, s, a, q["v"]))
+            st["last"], st["ids"] = st["start"], []
+        if K == q["k2"]:
+            end = _change_key(_eval(table, s, a, q["v"]))
+            results[q["qid"]] = "unchanged" if end == st["start"] else list(st["ids"])
+        return
+    if op == "current":
+        results[q["qid"]] = _eval(table, s, a, K)
+    elif op == "valid_at":
+        results[q["qid"]] = _eval(table, s, a, q["v"])
+    elif op == "believed_at":
+        results[q["qid"]] = _eval(table, s, a, K)
+    elif op == "conflicts":
+        results[q["qid"]] = [{"valid_from": h["valid_from"], "values": h["values"], "ids": h["ids"]}
+                             for h in _history(table, s, a) if h["status"] == "conflict"]
+    elif op == "history":
+        results[q["qid"]] = _history(table, s, a)
+    elif op == "before":
+        results[q["qid"]] = _before(table, s, a, q["anchor"])
+    else:
+        raise ValueError(op)
+    hist = _history(table, s, a)
+    info = {"standing": _standing(table, s, a),
+            "open_conflict": any(h["status"] == "conflict" for h in hist)}
+    if op == "before":
+        info["anchor_standing"] = _standing(table, ANCHOR_PREFIX + q["anchor"], ANCHOR_ATTRIBUTE)
+    aux[q["qid"]] = info
+
+
+def _times(q):
+    op = q["op"]
+    if op == "believed_at":
+        return [q["t"]]
+    if op == "why_changed":
+        return [q["k1"], q["k2"]]
+    return [q["now"]]
+
+
+def reference_answers(reports, questions, track_current=()):
+    """One pass over the world. Returns (answers by qid, aux by qid, past current answers).
+    `track_current`: facts (subject, attribute) whose current answer value_at(d, d) is
+    recorded at the end of every day d with a report about them (for the stale measure)."""
+    reps = sorted(reports, key=lambda r: (r["report_day"], r["report_id"]))
+    need: dict[int, list] = {}
+    for q in questions:
+        for K in _times(q):
+            need.setdefault(K, []).append(q)
+    watch = [q for q in questions if q["op"] == "why_changed"]
+    track = {tuple(f): [] for f in track_current}
+    table, results, aux, today = [], {}, {}, set()
+    pending = sorted(need)
+    i = 0
+    while pending or i < len(reps):
+        next_day = reps[i]["report_day"] if i < len(reps) else None
+        if pending and (next_day is None or pending[0] < next_day):
+            K = pending.pop(0)
+            for q in need[K]:
+                _snapshot(table, q, K, results, aux)
+            continue
+        if next_day is None:
+            break
+        rep = reps[i]
+        i += 1
+        _step(table, rep)
+        for q in watch:
+            st = aux.get(q["qid"])
+            if st is not None and "start" in st and q["k1"] < rep["report_day"] <= q["k2"]:
+                key = _change_key(_eval(table, q["subject"], q["attribute"], q["v"]))
+                if key != st["last"]:
+                    st["ids"].append(rep["report_id"])
+                    st["last"] = key
+        today.add((rep["subject"], rep["attribute"]))
+        if i >= len(reps) or reps[i]["report_day"] != rep["report_day"]:
+            for f, seen in track.items():
+                if f in today:
+                    seen.append(_eval(table, f[0], f[1], rep["report_day"]))
+            today = set()
+    missing = [q["qid"] for q in questions if q["qid"] not in results]
+    if missing:
+        raise RuntimeError(f"R answered no result for {missing[:5]}")
+    why_aux = {q["qid"] for q in watch}
+    aux = {k: v for k, v in aux.items() if k not in why_aux}
+    return results, aux, {f: seen for f, seen in track.items()}
+---END FILE episodic_lab/r40_reference.py---
+
+---BEGIN FILE episodic_lab/r40_world.py---
+"""Round 4.0 generator (docs/ROUND_4_0.md sections 1, 3, 4): paired worlds A / B for the
+phenomena P1-P9, irrelevant reports for the four delays, questions, the world truth,
+interventions as valid counterfactual worlds (with removal cascades) and the generator
+audit.
+
+A pair's worlds differ ONLY in the content of one critical report (same id, same day);
+everything else - other reports, their ids and days, the irrelevant reports, the
+questions - is identical. Every random choice comes from HashRng, so worlds are
+byte-identical everywhere.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+
+from .r40_reference import _step
+from .r40_schema import ANCHOR_ATTRIBUTE, ANCHOR_PREFIX, check_report, order_key
+from .rng import HashRng
+from .world import FIRST, LAST, OBJ_ADJ, OBJ_NOUN, PLACE_KIND, PLACE_STEM
+
+GENERATOR_VERSION = "r40.g1"
+FAMILIES = ("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9")
+QUESTION_TABLE = {
+    "P1": ("current", "valid_at", "believed_at", "history"),
+    "P2": ("current", "valid_at", "believed_at", "why_changed"),
+    "P3": ("valid_at", "believed_at", "why_changed", "history"),
+    "P4": ("valid_at", "why_changed", "history"),
+    "P5": ("current", "valid_at", "believed_at", "why_changed"),
+    "P6": ("current", "valid_at", "why_changed"),
+    "P7": ("current|valid_at", "conflicts", "history"),
+    "P8": ("current", "conflicts", "why_changed"),
+    "P9": ("before", "current"),
+}
+DELAYS = (0, 50, 200, 500)
+PAIRS = {"dev": 10, "holdout": 40}
+SEEDS = {"dev": "r40-dev-1", "holdout": "r40-holdout-1"}
+PER_DAY = 5                      # irrelevant reports per day
+INTERVENTIONS = {
+    "remove_update": ("P1",), "remove_late_report": ("P2",), "remove_correction": ("P3",),
+    "remove_retraction": ("P5",), "swap_ranks": ("P3", "P4", "P7", "P8"),
+    "remove_conflict_resolver": ("P8",), "move_anchor": ("P9",), "remove_anchor": ("P9",),
+    "remove_obs_before_anchor": ("P9",), "irrelevant_control": FAMILIES,
+}
+
+
+# ------------------------------------------------------------------ vocabulary
+def vocabulary(rng: HashRng) -> dict:
+    people = [f"{f} {l}" for f, l in zip(rng.shuffled(FIRST), rng.shuffled(LAST))]
+    places = [f"{s} {k}" for s, k in zip(rng.shuffled(PLACE_STEM), rng.shuffled(PLACE_KIND))]
+    objects = [f"the {a} {n}" for a, n in zip(rng.shuffled(OBJ_ADJ), rng.shuffled(OBJ_NOUN))]
+    names = rng.shuffled(FIRST)
+    sources = {"self": 3, names[0]: 2, names[1]: 2, names[2]: 1, names[3]: 1}
+    return {"people": people, "places": places, "objects": objects, "ranks": sources,
+            "trusted": [names[0], names[1]], "hearsay": [names[2], names[3]],
+            "values": {"location": places, "holder": people}}
+
+
+class _Builder:
+    """Report specs with symbolic references; ids are assigned in total order."""
+
+    def __init__(self):
+        self.specs: list[dict] = []
+
+    def add(self, day, source, kind, subject, attribute, value=None, vf=None, target=None,
+            repeat_of=None) -> int:
+        self.specs.append({"day": day, "source": source, "kind": kind, "subject": subject,
+                           "attribute": attribute, "value": value, "vf": vf,
+                           "target": target, "repeat_of": repeat_of})
+        return len(self.specs) - 1
+
+
+def finalize(specs: list[dict], ranks: dict) -> tuple[list[dict], dict]:
+    """Specs -> reports in total order with ids r00001...; returns (reports, sym -> id)."""
+    order = sorted(range(len(specs)), key=lambda i: (specs[i]["day"], i))
+    ids = {sym: f"r{n + 1:05d}" for n, sym in enumerate(order)}
+    reports = []
+    for sym in order:
+        s = specs[sym]
+        origin = ("o-" + ids[s["repeat_of"]]) if s["repeat_of"] is not None else ("o-" + ids[sym])
+        reports.append({"report_id": ids[sym], "report_day": s["day"], "source": s["source"],
+                        "rank": ranks[s["source"]], "origin": origin, "subject": s["subject"],
+                        "attribute": s["attribute"], "kind": s["kind"], "value": s["value"],
+                        "valid_from": s["vf"],
+                        "target_report_id": ids[s["target"]] if s["target"] is not None else None})
+    return reports, ids
+
+
+def _g(rng, lo, hi):
+    return lo + rng.below(hi - lo + 1)
+
+
+# ------------------------------------------------------------------ families
+def _family(fam: str, rng: HashRng, voc: dict, idx: int) -> dict:
+    """One pair's relevant reports (as specs), the critical report and its B content,
+    the questions, the truth of both worlds and the intervention targets."""
+    b = _Builder()
+    attribute = ("location", "holder")[rng.below(2)]
+    subject = voc["objects"][0]
+    pool = rng.shuffled(voc["values"][attribute])
+    T1, T2 = voc["trusted"]
+    H1, H2 = voc["hearsay"]
+    A = lambda *a, **k: b.add(*a, subject=subject, attribute=attribute, **k)  # noqa: E731
+    out = {"fact": [subject, attribute], "anchor": None, "anchor_day": None, "iv": {}}
+    X, Y, Z, W, V, U = pool[:6]
+
+    if fam == "P1":
+        Q = (T1, T2)[rng.below(2)]
+        d1 = _g(rng, 1, 3); vfc = d1 + _g(rng, 3, 6); d3 = vfc + _g(rng, 0, 2)
+        r1 = A(d1, Q, "assert", value=X, vf=d1)
+        if rng.below(2):
+            A(d1 + 1, (H1, H2)[rng.below(2)], "assert", value=X, vf=d1, repeat_of=r1)
+        c = A(d3, "self", "assert", value=Y, vf=vfc)
+        d4 = vfc + _g(rng, 3, 5)        # a later change: the current version is the same in A and B
+        A(max(d3, d4) + _g(rng, 1, 2), "self", "assert", value=W, vf=d4)
+        out.update(crit=c, b_change={"vf": d1},
+                   questions=[{"op": "current"}, {"op": "valid_at", "v": _g(rng, d1, vfc - 1)},
+                              {"op": "believed_at", "t": _g(rng, d1, d3 - 1)}, {"op": "history"}],
+                   truth={"A": [[d1, X], [vfc, Y], [d4, W]], "B": [[d1, Y], [d4, W]]})
+        out["iv"]["remove_update"] = {"remove": c}
+
+    elif fam == "P2":
+        Q = (T1, T2)[rng.below(2)]
+        d1 = _g(rng, 1, 3); d2 = d1 + _g(rng, 2, 5); d3 = d2 + _g(rng, 2, 6)
+        A(d1, "self", "assert", value=X, vf=d1)
+        c = A(d3, Q, "assert", value=Y, vf=d2)
+        d4 = d3 + _g(rng, 2, 4)         # a later change: the current version is the same in A and B
+        A(d4 + _g(rng, 0, 1), "self", "assert", value=W, vf=d4)
+        out.update(crit=c, b_change={"vf": d3},
+                   questions=[{"op": "current"}, {"op": "valid_at", "v": _g(rng, d2, d3 - 1)},
+                              {"op": "believed_at", "t": _g(rng, d2, d3 - 1)},
+                              {"op": "why_changed", "v": _g(rng, d2, d3 - 1), "k1": _g(rng, d2, d3 - 1)}],
+                   truth={"A": [[d1, X], [d2, Y], [d4, W]], "B": [[d1, X], [d3, Y], [d4, W]]})
+        out["iv"]["remove_late_report"] = {"remove": c}
+
+    elif fam in ("P3", "P4"):
+        Q = (T1, T2)[rng.below(2)]
+        d0 = _g(rng, 1, 2); d2 = d0 + _g(rng, 2, 4); d1 = d2 + _g(rng, 0, 2)
+        A(d0, "self", "assert", value=X, vf=d0)
+        r1 = A(d1, Q, "assert", value=Y, vf=d2)
+        d3 = d1 + _g(rng, 2, 4)
+        variant = idx % 3
+        new_vf = None if variant == 0 else d2 + _g(rng, 2, 3)
+        new_val = None if variant == 1 else Z
+        d4 = max(d2, new_vf or 0) + _g(rng, 3, 5)
+        hi = (new_vf - 1) if new_vf else d4 - 1
+        effective = (Q, (T2 if Q == T1 else T1), "self")[rng.below(3)]
+        weak = (H1, H2)[rng.below(2)]
+        a_src, b_src = (effective, weak) if fam == "P3" else (weak, effective)
+        c = A(d3, a_src, "correct", value=new_val, vf=new_vf, target=r1)
+        A(max(d3, d4) + _g(rng, 1, 2), "self", "assert", value=W, vf=d4)
+        v = _g(rng, d2, hi)
+        fixed = [[d0, X], [new_vf or d2, new_val or Y], [d4, W]]
+        wrong = [[d0, X], [d2, Y], [d4, W]]
+        qs = [{"op": "valid_at", "v": v}]
+        if fam == "P3":
+            qs.append({"op": "believed_at", "t": _g(rng, d1, d3 - 1)})
+        qs += [{"op": "why_changed", "v": v, "k1": _g(rng, d1, d3 - 1)}, {"op": "history"}]
+        out.update(crit=c, b_change={"source": b_src}, questions=qs,
+                   truth={"A": fixed if fam == "P3" else wrong, "B": wrong if fam == "P3" else fixed})
+        if fam == "P3":
+            out["iv"]["remove_correction"] = {"remove": c}
+        out["iv"]["swap_ranks"] = {"swap_with": Q}
+
+    elif fam in ("P5", "P6"):
+        Q = (T1, T2, H1, H2)[rng.below(4)]
+        Q2 = {T1: T2, T2: T1, H1: H2, H2: H1}[Q]
+        d0 = _g(rng, 1, 2); d2 = d0 + _g(rng, 2, 4); d1 = d2 + _g(rng, 0, 2)
+        A(d0, "self", "assert", value=X, vf=d0)
+        r1 = A(d1, Q, "assert", value=Y, vf=d2)
+        chain = idx % 3 == 2
+        if chain:          # the target is a correction claim: only its corrector may retract it
+            target = A(d1 + 1, Q2, "correct", value=V, target=r1)
+            own, other, last, shown = Q2, Q, d1 + 1, V
+        else:
+            target, own, other, last, shown = r1, Q, Q2, d1, Y
+        d3 = last + _g(rng, 2, 4)
+        a_src, b_src = (own, other) if fam == "P5" else (other, own)
+        c = A(d3, a_src, "retract", target=target)
+        d4 = d2 + _g(rng, 3, 6)
+        A(max(d3, d4) + _g(rng, 1, 2), "self", "assert", value=W, vf=d4)
+        v = _g(rng, d2, d4 - 1)
+        gone = [[d0, X], [d4, W]]
+        kept = [[d0, X], [d2, shown], [d4, W]]
+        qs = [{"op": "current"}, {"op": "valid_at", "v": v}]
+        if fam == "P5":
+            qs.append({"op": "believed_at", "t": _g(rng, last, d3 - 1)})
+        qs.append({"op": "why_changed", "v": v, "k1": _g(rng, last, d3 - 1)})
+        out.update(crit=c, b_change={"source": b_src}, questions=qs,
+                   truth={"A": gone if fam == "P5" else kept, "B": kept if fam == "P5" else gone})
+        if fam == "P5":
+            out["iv"]["remove_retraction"] = {"remove": c}
+
+    elif fam == "P7":
+        Q, Q2 = (T1, T2) if rng.below(2) else (T2, T1)
+        H = (H1, H2)[rng.below(2)]
+        d0 = _g(rng, 1, 2); d2 = d0 + _g(rng, 2, 4); d1 = d2 + _g(rng, 0, 2)
+        A(d0, "self", "assert", value=X, vf=d0)
+        A(d1, Q, "assert", value=Y, vf=d2)
+        d3 = d1 + _g(rng, 1, 3)
+        c = A(d3, Q2, "assert", value=Z, vf=d2)
+        truth = [[d0, X], [d2, Y]]
+        if idx % 2 == 0:   # fixed rule: even pairs - conflict on the newest version, ask current
+            q0 = {"op": "current"}
+        else:              # odd pairs - a later state change, ask valid_at inside the conflict
+            d4 = d2 + _g(rng, 3, 5)
+            A(max(d3, d4) + _g(rng, 1, 2), "self", "assert", value=W, vf=d4)
+            q0 = {"op": "valid_at", "v": _g(rng, d2, d4 - 1)}
+            truth = truth + [[d4, W]]
+        out.update(crit=c, b_change={"source": H}, questions=[q0, {"op": "conflicts"}, {"op": "history"}],
+                   truth={"A": truth, "B": truth})
+        out["iv"]["swap_ranks"] = {"swap_with": Q}
+
+    elif fam == "P8":
+        Q, Q2 = (T1, T2) if rng.below(2) else (T2, T1)
+        H = (H1, H2)[rng.below(2)]
+        d0 = _g(rng, 1, 2); d2 = d0 + _g(rng, 2, 4)
+        A(d0, "self", "assert", value=X, vf=d0)
+        e1 = d2 + _g(rng, 0, 1); r1 = A(e1, Q, "assert", value=Y, vf=d2)
+        e2 = e1 + _g(rng, 0, 1); A(e2, Q2, "assert", value=Z, vf=d2)
+        last = e2
+        variant = idx % 3
+        if variant == 2:
+            last = e2 + _g(rng, 0, 1)
+            rl = A(last, H, "assert", value=U, vf=d2)
+        d4 = last + _g(rng, 1, 3)
+        if variant == 0:
+            c = A(d4, "self", "assert", value=V, vf=d2)
+        else:
+            c = A(d4, "self", "correct", value=V, target=r1 if variant == 1 else rl)
+        out.update(crit=c, b_change={"source": H},
+                   questions=[{"op": "current"}, {"op": "conflicts"},
+                              {"op": "why_changed", "v": _g(rng, d2, d4), "k1": _g(rng, last, d4 - 1)}],
+                   truth={"A": [[d0, X], [d2, V]], "B": [[d0, X], [d2, V]]})
+        out["iv"]["remove_conflict_resolver"] = {"remove": c}
+        out["iv"]["swap_ranks"] = {"swap_with": Q}
+
+    elif fam == "P9":
+        n = _g(rng, 5, 8)
+        vals = pool[:n]
+        spare = [p for p in pool if p not in vals]
+        vfs = [_g(rng, 1, 2)]
+        for _ in range(n - 1):
+            vfs.append(vfs[-1] + _g(rng, 3, 5))
+        i = _g(rng, 1, n - 3)                      # 0-based: not first, previous or current
+        syms = []
+        for j in range(n):
+            syms.append(A(vfs[j] + _g(rng, 0, 1), ("self", T1, T2)[rng.below(3)], "assert",
+                          value=vals[j], vf=vfs[j]))
+        dy = _g(rng, vfs[i] + 1, vfs[i + 1] - 1)
+        content = f"met {voc['people'][1]} at {voc['places'][-1]}"
+        anchor = b.add(dy + _g(rng, 0, 1), "self", "assert", ANCHOR_PREFIX + content,
+                       ANCHOR_ATTRIBUTE, value=dy, vf=0)
+        other = [j for j in range(n - 1) if j != i]
+        j = other[rng.below(len(other))]
+        moved = _g(rng, vfs[j] + 1, vfs[j + 1] - 1)
+        truth_a = [[vfs[k], vals[k]] for k in range(n)]
+        truth_b = [[vfs[k], spare[0] if k == i else vals[k]] for k in range(n)]
+        out.update(crit=syms[i], b_change={"value": spare[0]}, anchor=content, anchor_day=dy,
+                   questions=[{"op": "before", "anchor": content}, {"op": "current"}],
+                   truth={"A": truth_a, "B": truth_b}, p9={"n": n, "i": i})
+        out["iv"]["move_anchor"] = {"set_value": [anchor, moved]}
+        out["iv"]["remove_anchor"] = {"remove": anchor}
+        out["iv"]["remove_obs_before_anchor"] = {"remove": syms[i]}
+    else:
+        raise ValueError(fam)
+    out["specs"] = b.specs
+    out["last_day"] = max(s["day"] for s in b.specs)
+    return out
+
+
+def distractors(rng: HashRng, voc: dict, n: int, start_day: int, fact, anchor) -> list[dict]:
+    """n irrelevant reports (same vocabulary, other facts), PER_DAY per day from
+    start_day on: asserts (some late), corrections and retractions of earlier irrelevant
+    asserts, repeats (same origin, same value) and other anchor events."""
+    subject, attribute = fact
+    facts = [(o, a) for o in voc["objects"][1:6] for a in ("location", "holder")]
+    facts.append((subject, "holder" if attribute == "location" else "location"))
+    sources = list(voc["ranks"])
+    specs: list[dict] = []
+    asserts: list[int] = []
+    for k in range(n):
+        day = start_day + k // PER_DAY
+        roll = rng.below(100)
+        if roll < 70 or len(asserts) < 3:
+            s, a = facts[rng.below(len(facts))]
+            vals = voc["values"][a]
+            specs.append({"day": day, "source": sources[rng.below(5)], "kind": "assert",
+                          "subject": s, "attribute": a, "value": vals[rng.below(len(vals))],
+                          "vf": max(1, day - rng.below(7)), "target": None, "repeat_of": None})
+            asserts.append(len(specs) - 1)
+        elif roll < 80:
+            t = asserts[rng.below(len(asserts))]
+            vals = voc["values"][specs[t]["attribute"]]
+            specs.append({"day": day, "source": sources[rng.below(5)], "kind": "correct",
+                          "subject": specs[t]["subject"], "attribute": specs[t]["attribute"],
+                          "value": vals[rng.below(len(vals))], "vf": None, "target": t,
+                          "repeat_of": None})
+        elif roll < 88:
+            t = asserts[rng.below(len(asserts))]
+            src = specs[t]["source"] if rng.below(2) else sources[rng.below(5)]
+            specs.append({"day": day, "source": src, "kind": "retract",
+                          "subject": specs[t]["subject"], "attribute": specs[t]["attribute"],
+                          "value": None, "vf": None, "target": t, "repeat_of": None})
+        elif roll < 95:
+            t = asserts[rng.below(len(asserts))]
+            specs.append({**specs[t], "day": day, "source": sources[rng.below(5)],
+                          "repeat_of": t})
+        else:
+            while True:
+                content = (f"met {voc['people'][2 + rng.below(len(voc['people']) - 2)]} at "
+                           f"{voc['places'][rng.below(len(voc['places']))]}")
+                if content != anchor:
+                    break
+            specs.append({"day": day, "source": sources[rng.below(5)], "kind": "assert",
+                          "subject": ANCHOR_PREFIX + content, "attribute": ANCHOR_ATTRIBUTE,
+                          "value": max(1, day - rng.below(5)), "vf": 0, "target": None,
+                          "repeat_of": None})
+    return specs
+
+
+# ------------------------------------------------------------------ pairs and worlds
+def _with_offset(specs, offset):
+    out = []
+    for s in specs:
+        s = dict(s)
+        for f in ("target", "repeat_of"):
+            if s[f] is not None:
+                s[f] += offset
+        out.append(s)
+    return out
+
+
+def generate_split(split: str) -> list[dict]:
+    return list(iter_pairs(split))
+
+
+def iter_pairs(split: str):
+    """All pairs of a split, one at a time: per family PAIRS[split] pairs, each with
+    worlds A and B at the four delays."""
+    seed = SEEDS[split]
+    for fam in FAMILIES:
+        for idx in range(PAIRS[split]):
+            rng = HashRng(f"{seed}|{fam}|{idx}")
+            voc = vocabulary(rng)
+            fam_rng = HashRng(f"{seed}|{fam}|{idx}|family")
+            spec = _family(fam, fam_rng, voc, idx)
+            pair = {"pair": f"{split}-{fam}-{idx:02d}", "family": fam, "index": idx,
+                    "fact": spec["fact"], "anchor": spec["anchor"], "anchor_day": spec["anchor_day"],
+                    "ranks": voc["ranks"], "truth": spec["truth"], "instances": [],
+                    "q_ops": [q["op"] for q in spec["questions"]], "p9": spec.get("p9")}
+            for delay in DELAYS:
+                d_rng = HashRng(f"{seed}|{fam}|{idx}|delay|{delay}")
+                start = spec["last_day"] + 1
+                extra = distractors(d_rng, voc, delay, start, tuple(spec["fact"]), spec["anchor"])
+                base = list(spec["specs"]) + _with_offset(extra, len(spec["specs"]))
+                now = (start + (delay - 1) // PER_DAY + 1) if delay else start
+                inst = {"delay": delay, "now": now}
+                for world in ("A", "B"):
+                    specs = [dict(s) for s in base]
+                    if world == "B":
+                        specs[spec["crit"]].update(spec["b_change"])
+                    reports, ids = finalize(specs, voc["ranks"])
+                    qs = []
+                    for n, q in enumerate(spec["questions"]):
+                        q = dict(q, qid=f"{pair['pair']}-{world}-{delay}-q{n}", now=now,
+                                 subject=spec["fact"][0], attribute=spec["fact"][1])
+                        if q["op"] == "why_changed":
+                            q["k2"] = now
+                        qs.append(q)
+                    inst[world] = {"reports": reports, "questions": qs}
+                    if world == "A":
+                        inst["crit_id"] = ids[spec["crit"]]
+                        inst["iv"] = _resolve_iv(spec["iv"], ids)
+                        inst["n_relevant"] = len(spec["specs"])
+                        inst["distractor_ids"] = sorted(ids[len(spec["specs"]) + k]
+                                                        for k in range(len(extra)))
+                pair["instances"].append(inst)
+            yield pair
+
+
+def _resolve_iv(iv, ids):
+    out = {}
+    for name, op in iv.items():
+        op = dict(op)
+        if "remove" in op:
+            op["remove"] = ids[op["remove"]]
+        if "set_value" in op:
+            op["set_value"] = [ids[op["set_value"][0]], op["set_value"][1]]
+        out[name] = op
+    return out
+
+
+# ------------------------------------------------------------------ interventions
+def remove_with_cascade(reports: list[dict], rid: str) -> tuple[list[dict], list[str]]:
+    """Remove a report and, transitively, every report that refers to a removed one."""
+    removed = {rid}
+    changed = True
+    while changed:
+        changed = False
+        for r in reports:
+            if r["target_report_id"] in removed and r["report_id"] not in removed:
+                removed.add(r["report_id"])
+                changed = True
+    return [dict(r) for r in reports if r["report_id"] not in removed], sorted(removed)
+
+
+def swap_ranks(reports, ranks, s1, s2):
+    new = dict(ranks)
+    new[s1], new[s2] = ranks[s2], ranks[s1]
+    return [dict(r, rank=new[r["source"]]) for r in reports], new
+
+
+def counterfactual(pair: dict, inst: dict, kind: str) -> dict | None:
+    """The counterfactual world of intervention `kind` on world A of one instance:
+    {"reports", "ranks", "removed", "note"} or None if it does not apply."""
+    reports = [dict(r) for r in inst["A"]["reports"]]
+    ranks = dict(pair["ranks"])
+    if kind == "irrelevant_control":
+        if pair["index"] % 2 == 1 and inst["distractor_ids"]:
+            pick = inst["distractor_ids"][pair["index"] % len(inst["distractor_ids"])]
+            reports, removed = remove_with_cascade(reports, pick)
+            return {"reports": reports, "ranks": ranks, "removed": removed, "note": "remove irrelevant"}
+        rid = f"r{len(reports) + 1:05d}"
+        day = inst["now"] - 1
+        reports.append({"report_id": rid, "report_day": day, "source": "self", "rank": ranks["self"],
+                        "origin": "o-" + rid, "subject": "the added parcel", "attribute": "location",
+                        "kind": "assert", "value": "nowhere", "valid_from": day,
+                        "target_report_id": None})
+        return {"reports": reports, "ranks": ranks, "removed": [], "note": f"add irrelevant {rid}"}
+    op = inst["iv"].get(kind)
+    if op is None:
+        return None
+    if "remove" in op:
+        reports, removed = remove_with_cascade(reports, op["remove"])
+        return {"reports": reports, "ranks": ranks, "removed": removed, "note": f"remove {op['remove']}"}
+    if "set_value" in op:
+        rid, value = op["set_value"]
+        reports = [dict(r, value=value) if r["report_id"] == rid else r for r in reports]
+        return {"reports": reports, "ranks": ranks, "removed": [], "note": f"{rid} value -> {value}"}
+    if "swap_with" in op:
+        crit = next(r for r in reports if r["report_id"] == inst["crit_id"])
+        s1, s2 = crit["source"], op["swap_with"]
+        if ranks[s1] == ranks[s2]:
+            s2 = "self" if s1 != "self" else s2
+        if s1 == s2 or ranks[s1] == ranks[s2]:
+            return None
+        reports, ranks = swap_ranks(reports, ranks, s1, s2)
+        return {"reports": reports, "ranks": ranks, "removed": [], "note": f"swap ranks {s1}<->{s2}"}
+    raise ValueError(op)
+
+
+# ------------------------------------------------------------------ audit
+def _effective_fields(reports):
+    """(subject, attribute, valid_from, value) a claim-creating report would carry,
+    following correction chains for missing fields (static, independent of ranks)."""
+    by_id = {r["report_id"]: r for r in reports}
+    out = {}
+    for r in reports:
+        if r["kind"] == "retract":
+            continue
+        vf, val, cur = r["valid_from"], r["value"], r
+        while (vf is None or val is None) and cur["kind"] == "correct":
+            cur = by_id.get(cur["target_report_id"])
+            if cur is None or cur["kind"] == "retract":
+                break
+            vf = cur["valid_from"] if vf is None else vf
+            val = cur["value"] if val is None else val
+        out[r["report_id"]] = (r["subject"], r["attribute"], vf, val)
+    return out
+
+
+def audit_world(reports: list[dict], ranks: dict, anchor: str | None, fact,
+                original: bool) -> list[str]:
+    """General generator audit (section 3); returns the list of violations."""
+    bad = []
+    seen = set()
+    for r in reports:
+        try:
+            check_report(r)
+        except ValueError as e:
+            bad.append(str(e))
+        if r["report_id"] in seen:
+            bad.append(f"duplicate id {r['report_id']}")
+        seen.add(r["report_id"])
+        if ranks.get(r["source"]) != r["rank"]:
+            bad.append(f"{r['report_id']}: rank does not match the world's rank table")
+    keys = [order_key(r) for r in reports]
+    if keys != sorted(keys):
+        bad.append("reports not in total order")
+    pos = {r["report_id"]: n for n, r in enumerate(reports)}
+    by_id = {r["report_id"]: r for r in reports}
+    table: list = []
+    for n, r in enumerate(reports):
+        t = r["target_report_id"]
+        if t is not None:
+            if t not in by_id:
+                bad.append(f"{r['report_id']}: dangling reference {t}")
+            elif pos[t] >= n:
+                bad.append(f"{r['report_id']}: target {t} is not earlier")
+            elif by_id[t]["kind"] == "retract":
+                bad.append(f"{r['report_id']}: target {t} is a retract report")
+            elif (by_id[t]["subject"], by_id[t]["attribute"]) != (r["subject"], r["attribute"]):
+                bad.append(f"{r['report_id']}: target {t} is about another fact")
+            elif original and by_id[t]["kind"] == "correct" \
+                    and not any(row["id"] == t for row in table):
+                bad.append(f"{r['report_id']}: target {t} never created a claim (original world)")
+        if r["subject"].startswith(ANCHOR_PREFIX):
+            if r["kind"] == "assert" and r["valid_from"] != 0:
+                bad.append(f"{r['report_id']}: anchor report needs valid_from 0")
+            if r["kind"] == "correct" and r["valid_from"] is not None:
+                bad.append(f"{r['report_id']}: anchor correction may not set valid_from")
+        _step(table, r)
+    eff = _effective_fields(reports)
+    groups: dict = {}
+    for rid, (s, a, vf, val) in eff.items():
+        r = by_id[rid]
+        groups.setdefault((s, a, vf, r["rank"], r["origin"]), set()).add(val)
+    for key, vals in groups.items():
+        if len(vals) > 1:
+            bad.append(f"equal-rank same-origin claims with different values {key}")
+    if anchor is not None:
+        days = {val for rid, (s, a, vf, val) in eff.items()
+                if s == ANCHOR_PREFIX + anchor and a == ANCHOR_ATTRIBUTE}
+        vfs = {vf for rid, (s, a, vf, val) in eff.items() if (s, a) == tuple(fact)}
+        if days & vfs:
+            bad.append(f"a change of the fact lies on an anchor day {sorted(days & vfs)}")
+    return bad
+
+
+def world_digest(obj) -> str:
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+---END FILE episodic_lab/r40_world.py---
+
+---BEGIN FILE episodic_lab/r40_baselines.py---
+"""Round 4.0 baselines S0-S4 (docs/ROUND_4_0.md section 3).
+
+Every baseline gives an allowed output for every operator. Each also exposes the state
+it can see for a question (`state`), which the audit compares between worlds A and B of
+a pair (B-indistinguishable pairs). S3 and S4 are built from R's policy answers at
+question time (R's history of the fact and of the anchor at `now`), truncated to what
+the baseline may keep.
+"""
+from __future__ import annotations
+
+from .r40_schema import ANCHOR_ATTRIBUTE, ANCHOR_PREFIX
+
+SYSTEMS = ("S0", "S1", "S2", "S3", "S4")
+VALUE_OPS = ("current", "valid_at", "believed_at", "before")
+
+
+def _unknown(reason="no_version"):
+    return {"status": "unknown", "reason": reason}
+
+
+def _from_version(ver):
+    if ver is None:
+        return _unknown()
+    if ver["status"] == "value":
+        return {"status": "value", "value": ver["value"], "ids": list(ver["ids"])}
+    return {"status": "conflict", "values": list(ver["values"]), "ids": list(ver["ids"])}
+
+
+def _asserts(reports, fact, k):
+    return [r for r in reports if r["kind"] == "assert" and r["report_day"] <= k
+            and (r["subject"], r["attribute"]) == tuple(fact)]
+
+
+def _fact(q):
+    return (q["subject"], q["attribute"])
+
+
+def _anchor_fact(q):
+    return (ANCHOR_PREFIX + q["anchor"], ANCHOR_ATTRIBUTE)
+
+
+# ----------------------------------------------------------------------- S0
+def s0(reports, q, ctx):
+    op = q["op"]
+    if op == "before":
+        return _unknown("anchor_not_found")
+    if op in VALUE_OPS:
+        return _unknown()
+    if op == "why_changed":
+        return "unknown"
+    return []
+
+
+# ----------------------------------------------------------------------- S1
+def s1_state(reports, q, ctx):
+    a = _asserts(reports, _fact(q), q["now"])
+    return a[-1]["value"] if a else None
+
+
+def s1(reports, q, ctx):
+    val = s1_state(reports, q, ctx)
+    op = q["op"]
+    if op in VALUE_OPS:
+        return _unknown() if val is None else {"status": "value", "value": val, "ids": []}
+    if op == "why_changed":
+        return "unchanged"
+    if op == "conflicts":
+        return []
+    if val is None:
+        return []
+    return [{"valid_from": None, "valid_to": None, "status": "value", "value": val, "ids": []}]
+
+
+# ----------------------------------------------------------------------- S2
+def s2_state(reports, q, ctx):
+    rows = tuple((r["report_day"], r["report_id"], r["valid_from"], r["value"])
+                 for r in _asserts(reports, _fact(q), q["now"]))
+    anchor = ()
+    if q["op"] == "before":
+        anchor = tuple((r["report_day"], r["report_id"], r["value"])
+                       for r in _asserts(reports, _anchor_fact(q), q["now"]))
+    return (rows, anchor)
+
+
+def _s2_value(rows, v, k):
+    hit = [r for r in rows if r["report_day"] <= k and r["valid_from"] <= v]
+    if not hit:
+        return _unknown()
+    r = hit[-1]                      # the latest in the total order (report_day, report_id)
+    return {"status": "value", "value": r["value"], "ids": [r["report_id"]]}
+
+
+def s2(reports, q, ctx):
+    op, now = q["op"], q["now"]
+    rows = _asserts(reports, _fact(q), now)
+    if op == "current":
+        return _s2_value(rows, now, now)
+    if op == "valid_at":
+        return _s2_value(rows, q["v"], now)
+    if op == "believed_at":
+        return _s2_value(rows, q["t"], q["t"])
+    if op == "before":
+        anchors = _asserts(reports, _anchor_fact(q), now)
+        if not anchors:
+            return _unknown("anchor_not_found")
+        ans = _s2_value(rows, anchors[-1]["value"] - 1, now)
+        return _unknown("no_version_before") if ans["status"] == "unknown" else ans
+    if op == "why_changed":
+        key = lambda a: (a["status"], a.get("value"))  # noqa: E731
+        start = _s2_value(rows, q["v"], q["k1"])
+        if key(start) == key(_s2_value(rows, q["v"], q["k2"])):
+            return "unchanged"
+        ids, last = [], key(start)
+        for r in rows:
+            if q["k1"] < r["report_day"] <= q["k2"]:
+                cur = key(_s2_value([x for x in rows if (x["report_day"], x["report_id"])
+                                     <= (r["report_day"], r["report_id"])], q["v"], q["k2"]))
+                if cur != last:
+                    ids.append(r["report_id"])
+                    last = cur
+        return ids
+    if op == "conflicts":
+        return []
+    days = sorted({r["valid_from"] for r in rows})
+    out = []
+    for n, d in enumerate(days):
+        r = [x for x in rows if x["valid_from"] == d][-1]
+        out.append({"valid_from": d, "valid_to": days[n + 1] - 1 if n + 1 < len(days) else None,
+                    "status": "value", "value": r["value"], "ids": [r["report_id"]]})
+    return out
+
+
+# ----------------------------------------------------------------------- S3
+def _stored(hist):
+    if len(hist) <= 2:
+        return [dict(h) for h in hist]
+    return [dict(hist[0]), dict(hist[-2]), dict(hist[-1])]
+
+
+def s3_state(reports, q, ctx):
+    stored = tuple(tuple(sorted((k, tuple(v) if isinstance(v, list) else v) for k, v in h.items()
+                                if k != "valid_to")) for h in _stored(ctx["hist"]))
+    anchor = None
+    if q["op"] == "before":
+        ah = ctx["anchor_hist"]
+        anchor = None if not ah else tuple(sorted(
+            (k, tuple(v) if isinstance(v, list) else v) for k, v in ah[-1].items() if k != "valid_to"))
+    return (stored, anchor)
+
+
+def _s3_value(stored, v):
+    found = None
+    for h in stored:
+        if h["valid_from"] <= v:
+            found = h
+    return _from_version(found)
+
+
+def s3(reports, q, ctx):
+    stored = _stored(ctx["hist"])
+    op = q["op"]
+    if op == "current":
+        return _s3_value(stored, q["now"])
+    if op == "valid_at":
+        return _s3_value(stored, q["v"])
+    if op == "believed_at":
+        return _s3_value(stored, q["t"])
+    if op == "before":
+        ah = ctx["anchor_hist"]
+        if not ah:
+            return _unknown("anchor_not_found")
+        if ah[-1]["status"] == "conflict":
+            return _unknown("anchor_ambiguous")
+        ans = _s3_value(stored, ah[-1]["value"] - 1)
+        return _unknown("no_version_before") if ans["status"] == "unknown" else ans
+    if op == "why_changed":
+        return "unchanged"
+    if op == "conflicts":
+        return []
+    out = []
+    for n, h in enumerate(stored):
+        h = dict(h)
+        h["valid_to"] = stored[n + 1]["valid_from"] - 1 if n + 1 < len(stored) else None
+        out.append(h)
+    return out
+
+
+# ----------------------------------------------------------------------- S4
+def _current_version(ctx, now):
+    found = None
+    for h in ctx["hist"]:
+        if h["valid_from"] <= now:
+            found = h
+    return found
+
+
+def s4_state(reports, q, ctx):
+    ver = _current_version(ctx, q["now"])
+    return None if ver is None else tuple(sorted(
+        (k, tuple(v) if isinstance(v, list) else v) for k, v in ver.items() if k != "valid_to"))
+
+
+def s4(reports, q, ctx):
+    ver = _current_version(ctx, q["now"])
+    op = q["op"]
+    if op in VALUE_OPS:
+        return _from_version(ver)
+    if op == "why_changed":
+        return "unchanged"
+    if op == "conflicts":
+        if ver is None or ver["status"] != "conflict":
+            return []
+        return [{"valid_from": ver["valid_from"], "values": list(ver["values"]), "ids": list(ver["ids"])}]
+    if ver is None:
+        return []
+    return [dict(ver, valid_to=None)]
+
+
+ANSWER = {"S0": s0, "S1": s1, "S2": s2, "S3": s3, "S4": s4}
+STATE = {"S0": lambda reports, q, ctx: None, "S1": s1_state, "S2": s2_state, "S3": s3_state,
+         "S4": s4_state}
+---END FILE episodic_lab/r40_baselines.py---
+
+---BEGIN FILE episodic_lab/r40_analysis.py---
+"""Round 4.0 scoring, measures, pair conditions and the pass rule (docs/ROUND_4_0.md
+sections 4-5)."""
+from __future__ import annotations
+
+import math
+
+VALUE_OPS = ("current", "valid_at", "believed_at", "before")
+REQUIRED_CELLS = {"S1": ("P1", "P2", "P3", "P5", "P9"), "S2": ("P3", "P5", "P7", "P8"),
+                  "S3": ("P9",), "S4": ("P1", "P2", "P3", "P5", "P9")}
+MIN_PAIRS = {"holdout": 30, "dev": 8}          # dev: ceil(0.75 x 10)
+
+
+def hit(op: str, gold, ans) -> bool:
+    """Hit definitions (section 5): value operators by status and value / value set /
+    reason (report ids do not count); why_changed, conflicts and history exactly."""
+    if op in VALUE_OPS:
+        if not isinstance(ans, dict) or ans.get("status") != gold["status"]:
+            return False
+        if gold["status"] == "value":
+            return ans.get("value") == gold["value"]
+        if gold["status"] == "conflict":
+            return sorted(ans.get("values") or []) == sorted(gold["values"])
+        return ans.get("reason") == gold["reason"]
+    return ans == gold
+
+
+def truth_at(truth, day):
+    val = None
+    for vf, v in truth:
+        if vf <= day:
+            val = v
+    return val
+
+
+def clean_and_agree(q, gold, aux, truth, anchor_day):
+    """(clean report state?, agreement of the policy answer with the truth) for a value
+    question; measurement only."""
+    if q["op"] not in VALUE_OPS or aux is None:
+        return None
+    false = any(truth_at(truth, vf) != val for vf, val in aux["standing"])
+    clean = not false and not aux["open_conflict"]
+    if q["op"] == "before":
+        clean = clean and all(val == anchor_day for _, val in aux.get("anchor_standing", [])) \
+            and bool(aux.get("anchor_standing"))
+        day = anchor_day - 1
+    else:
+        day = {"current": q["now"], "valid_at": q.get("v"), "believed_at": q.get("t")}[q["op"]]
+    agree = gold.get("status") == "value" and gold.get("value") == truth_at(truth, day)
+    return clean, agree
+
+
+def outdated_values(past, gold):
+    if gold["status"] == "value":
+        now_vals = {gold["value"]}
+    elif gold["status"] == "conflict":
+        now_vals = set(gold["values"])
+    else:
+        now_vals = set()
+    return sorted({a["value"] for a in past if a["status"] == "value" and a["value"] not in now_vals})
+
+
+def pair_conditions(fam, gA, gB, qsA, crit_A, crit_B, histA, histB):
+    """Phenomenon conditions on one instance of an original pair (R's gold). Returns a
+    list of violations."""
+    bad = []
+    if not any(not hit(q["op"], gA[q["qid"]], gB[qb["qid"]]) for q, qb in zip(qsA, _twin(qsA, "B"))):
+        bad.append("no question separates A and B")
+    by_op = {q["op"]: q for q in qsA}
+
+    def g(world, op):
+        q = by_op[op]
+        return (gA if world == "A" else gB)[q["qid"] if world == "A" else _bq(q["qid"])]
+    cid = crit_A["report_id"]
+    if fam == "P2" and not (crit_A["valid_from"] < crit_A["report_day"] == crit_B["valid_from"]):
+        bad.append("P2: critical report is not late in A / timely in B")
+    if fam in ("P3", "P5"):
+        if g("A", "why_changed") != [cid] or g("B", "why_changed") != "unchanged":
+            bad.append(f"{fam}: why_changed A must be [crit], B unchanged")
+    if fam in ("P4", "P6"):
+        if g("A", "why_changed") != "unchanged" or g("B", "why_changed") != [cid]:
+            bad.append(f"{fam}: why_changed A must be unchanged, B [crit]")
+    if fam == "P7":
+        op = "current" if "current" in by_op else "valid_at"
+        if g("A", op)["status"] != "conflict" or g("B", op)["status"] != "value":
+            bad.append("P7: A must answer conflict, B a value")
+    if fam == "P8":
+        if g("A", "current")["status"] != "value" or g("B", "current")["status"] != "conflict" \
+                or g("A", "conflicts") != [] or not g("B", "conflicts"):
+            bad.append("P8: A resolved, B open conflict")
+    if fam == "P1":
+        if not (g("A", "valid_at")["status"] == g("B", "valid_at")["status"] == "value"):
+            bad.append("P1: valid_at must be a value in both worlds")
+    if fam == "P9":
+        for world, hist in (("A", histA), ("B", histB)):
+            ans = g(world, "before")
+            held = {hist[0].get("value"), hist[-2].get("value"), hist[-1].get("value")} if len(hist) >= 3 else set()
+            if len(hist) < 5 or ans["status"] != "value" or ans["value"] in held:
+                bad.append(f"P9 {world}: before must be an intermediate value held by none of first/previous/current")
+    return bad
+
+
+def _bq(qid):
+    parts = qid.split("-")
+    parts[-3] = "B"
+    return "-".join(parts)
+
+
+def _twin(qs, world):
+    return [dict(q, qid=_bq(q["qid"])) for q in qs]
+
+
+def min_pairs(split):
+    return MIN_PAIRS[split]
+
+
+def ceil_frac(n, f):
+    return math.ceil(n * f)
+---END FILE episodic_lab/r40_analysis.py---
+
+---BEGIN FILE bench/m3/run_round40.py---
+#!/usr/bin/env python3
+"""Round 4.0 phase A run (docs/ROUND_4_0.md): structured reports, model-free.
+
+Pass 1 generates the split and lets the independent reference R compute every expected
+answer (original worlds and every counterfactual world); for the holdout these and the
+code are compared with the freeze in the request BEFORE M runs. Pass 2 regenerates the
+split and runs M, the baselines S0-S4, the generator audit, the pair conditions, the
+B-indistinguishability marks, the interventions and the persistence test (a separate
+process reloads every store). The conformance set runs on M and R. Writes results.json,
+rows.jsonl, interventions.jsonl, indist_log.jsonl, SUMMARY.md and VERDICT.
+
+usage: run_round40.py --split dev|holdout --request config/round40.json --out DIR
+       run_round40.py --persist-check MANIFEST   (internal: the reload process)
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import time
+import tracemalloc
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from episodic_lab import r40_analysis as A  # noqa: E402
+from episodic_lab import r40_baselines as B  # noqa: E402
+from episodic_lab import r40_world as W  # noqa: E402
+from episodic_lab.r40_memory import Memory, ReportStore  # noqa: E402
+from episodic_lab.r40_reference import reference_answers  # noqa: E402
+from episodic_lab.r40_schema import ANCHOR_ATTRIBUTE, ANCHOR_PREFIX  # noqa: E402
+
+CODE_FILES = ("episodic_lab/r40_schema.py", "episodic_lab/r40_memory.py",
+              "episodic_lab/r40_reference.py", "episodic_lab/r40_baselines.py",
+              "episodic_lab/r40_world.py", "episodic_lab/r40_analysis.py", "episodic_lab/rng.py",
+              "episodic_lab/world.py", "bench/m3/run_round40.py",
+              "tests/fixtures/r40_conformance.json")
+RESULT_SCHEMA = "episodic_lab.round40_result.v1"
+SYSTEMS = ("M",) + B.SYSTEMS
+
+
+def code_hashes() -> dict:
+    return {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in CODE_FILES}
+
+
+def dumps(obj) -> bytes:
+    return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()
+
+
+class Phase:
+    """Wall time and the largest additional traced memory of one kind of work."""
+
+    def __init__(self):
+        self.seconds = 0.0
+        self.peak = 0
+
+    def run(self, fn, *a, **k):
+        base = tracemalloc.get_traced_memory()[0]
+        tracemalloc.reset_peak()
+        t = time.perf_counter()
+        out = fn(*a, **k)
+        self.seconds += time.perf_counter() - t
+        self.peak = max(self.peak, tracemalloc.get_traced_memory()[1] - base)
+        return out
+
+    def report(self):
+        return {"seconds": round(self.seconds, 2), "peak_extra_mb": round(self.peak / 2**20, 2)}
+
+
+def helper_questions(fact, anchor, now):
+    hq = [{"qid": "__hist", "op": "history", "subject": fact[0], "attribute": fact[1], "now": now}]
+    if anchor is not None:
+        hq.append({"qid": "__ahist", "op": "history", "subject": ANCHOR_PREFIX + anchor,
+                   "attribute": ANCHOR_ATTRIBUTE, "now": now})
+    return hq
+
+
+def run_reference(reports, qs, fact, anchor, now):
+    gold, aux, past = reference_answers(reports, qs + helper_questions(fact, anchor, now),
+                                        track_current=[tuple(fact)])
+    return gold, aux, past[tuple(fact)]
+
+
+def applicable(fam):
+    return [k for k, fams in W.INTERVENTIONS.items() if fam in fams]
+
+
+# ------------------------------------------------------------------ pass 1: R
+def pass_reference(split, phases):
+    h = {k: hashlib.sha256() for k in ("worlds", "questions", "gold", "interventions")}
+    store = {}
+    for pair in W.iter_pairs(split):
+        for inst in pair["instances"]:
+            for world in ("A", "B"):
+                w = inst[world]
+                h["worlds"].update(dumps([pair["pair"], inst["delay"], world, pair["ranks"], w["reports"]]))
+                h["questions"].update(dumps(w["questions"]))
+                gold, aux, past = phases["R"].run(run_reference, w["reports"], w["questions"],
+                                                  pair["fact"], pair["anchor"], inst["now"])
+                h["gold"].update(dumps([pair["pair"], inst["delay"], world, gold]))
+                store[(pair["pair"], inst["delay"], world)] = (gold, aux, past)
+            for kind in applicable(pair["family"]):
+                cf = W.counterfactual(pair, inst, kind)
+                if cf is None:
+                    continue
+                gold, _, _ = phases["R_interventions"].run(
+                    run_reference, cf["reports"], inst["A"]["questions"], pair["fact"],
+                    pair["anchor"], inst["now"])
+                h["interventions"].update(dumps([pair["pair"], inst["delay"], kind, cf, gold]))
+                store[(pair["pair"], inst["delay"], kind)] = (gold, None, None)
+    return store, {k: v.hexdigest() for k, v in h.items()}
+
+
+# ------------------------------------------------------------------ conformance
+def conformance():
+    path = ROOT / "tests/fixtures/r40_conformance.json"
+    d = json.loads(path.read_text())
+    fields = ("report_id", "report_day", "source", "rank", "subject", "attribute", "kind",
+              "value", "valid_from", "target_report_id")
+    results = []
+    for name, w in d["worlds"].items():
+        reps = sorted((dict(zip(fields, row), origin="o-" + row[0]) for row in w["reports"]),
+                      key=lambda r: (r["report_day"], r["report_id"]))
+        by_id = {r["report_id"]: r for r in reps}
+        m = Memory(reps)
+        qs = [dict(c[1], qid=c[0], subject="key", attribute="loc") for c in w["checks"]]
+        r_gold = reference_answers(reps, qs)[0]
+        for c, q in zip(w["checks"], qs):
+            got_m = m.answer(q)
+            ok = got_m == c[2] and r_gold[q["qid"]] == c[2]
+            if len(c) > 3:
+                prov = [[i, by_id[i]["source"], by_id[i]["rank"]] for i in got_m.get("ids", [])]
+                ok = ok and prov == c[3]
+            results.append({"case": c[0], "world": name, "ok": ok, "M": got_m, "R": r_gold[q["qid"]]})
+        for c in w.get("interventions", []):
+            cf, removed = W.remove_with_cascade(reps, c[1]["remove"])
+            q = dict(c[3], qid=c[0], subject="key", attribute="loc")
+            got_m, got_r = Memory(cf).answer(q), reference_answers(cf, [q])[0][c[0]]
+            ok = removed == c[2] and got_m == c[4] and got_r == c[4]
+            results.append({"case": c[0], "world": name, "ok": ok, "M": got_m, "R": got_r,
+                            "removed": removed})
+    return results
+
+
+# ------------------------------------------------------------------ persistence
+def persist_check(manifest_path):
+    manifest = json.loads(Path(manifest_path).read_text())
+    out = {}
+    for item in manifest:
+        store = ReportStore(item["path"], expect=item["seal"])
+        m = Memory(store.reports)
+        out[item["path"]] = hashlib.sha256(dumps([m.answer(q) for q in item["questions"]])).hexdigest()
+    print(json.dumps(out))
+
+
+# ------------------------------------------------------------------ pass 2
+def evaluate(split, store, phases, tmpdir):
+    rows, iv_rows, indist_log, violations, persist = [], [], [], [], []
+    indist = {(s, f): set() for s in B.SYSTEMS for f in W.FAMILIES}
+    state_breaks = []
+    for pair in W.iter_pairs(split):
+        fam, pid = pair["family"], pair["pair"]
+        for inst in pair["instances"]:
+            delay, now = inst["delay"], inst["now"]
+            per_world = {}
+            for world in ("A", "B"):
+                w = inst[world]
+                gold, aux, past = store[(pid, delay, world)]
+                ctx = {"hist": gold["__hist"], "anchor_hist": gold.get("__ahist", [])}
+                mem = phases["M"].run(Memory, w["reports"])
+                m_ans = phases["M"].run(lambda: {q["qid"]: mem.answer(q) for q in w["questions"]})
+                b_ans, b_state = phases["baselines"].run(lambda: (
+                    {s: {q["qid"]: B.ANSWER[s](w["reports"], q, ctx) for q in w["questions"]} for s in B.SYSTEMS},
+                    {s: {q["qid"]: B.STATE[s](w["reports"], q, ctx) for q in w["questions"]} for s in B.SYSTEMS}))
+                for v in phases["audit"].run(W.audit_world, w["reports"], pair["ranks"], pair["anchor"],
+                                             pair["fact"], True):
+                    violations.append(f"{pid} d{delay} {world}: {v}")
+                truth = pair["truth"][world]
+                for q in w["questions"]:
+                    g = gold[q["qid"]]
+                    row = {"qid": q["qid"], "pair": pid, "family": fam, "op": q["op"],
+                           "delay": delay, "world": world, "gold": g, "M": m_ans[q["qid"]],
+                           "M_equals_R": m_ans[q["qid"]] == g}
+                    for s in SYSTEMS:
+                        ans = m_ans[q["qid"]] if s == "M" else b_ans[s][q["qid"]]
+                        row[f"hit_{s}"] = A.hit(q["op"], g, ans)
+                    if q["op"] in A.VALUE_OPS:
+                        row["false_conflict_den"] = g["status"] != "conflict"
+                        for s in SYSTEMS:
+                            ans = m_ans[q["qid"]] if s == "M" else b_ans[s][q["qid"]]
+                            row[f"conflict_out_{s}"] = isinstance(ans, dict) and ans.get("status") == "conflict"
+                        ca = A.clean_and_agree(q, g, aux.get(q["qid"]), truth, pair["anchor_day"])
+                        row["clean"], row["truth_agree"] = ca
+                    if q["op"] == "current":
+                        old = A.outdated_values(past, g)
+                        row["stale_den"] = bool(old)
+                        for s in SYSTEMS:
+                            ans = m_ans[q["qid"]] if s == "M" else b_ans[s][q["qid"]]
+                            row[f"stale_{s}"] = bool(old) and isinstance(ans, dict) \
+                                and ans.get("status") == "value" and ans.get("value") in old
+                    rows.append(row)
+                per_world[world] = (gold, b_ans, b_state)
+                path = Path(tmpdir) / f"{pid}_{delay}_{world}.jsonl"
+                st = ReportStore(path)
+                phases["persist_write"].run(st.extend, w["reports"])
+                persist.append({"path": str(path), "seal": st.seal(), "questions": w["questions"],
+                                "expect": hashlib.sha256(dumps([m_ans[q["qid"]] for q in w["questions"]])).hexdigest()})
+            # pair controls and phenomenon conditions
+            ra, rb = inst["A"]["reports"], inst["B"]["reports"]
+            diff = [x["report_id"] for x, y in zip(ra, rb) if x != y]
+            if len(ra) != len(rb) or [x["report_day"] for x in ra] != [y["report_day"] for y in rb] \
+                    or [x["report_id"] for x in ra] != [y["report_id"] for y in rb] or diff != [inst["crit_id"]]:
+                violations.append(f"{pid} d{delay}: pair control (only the critical report may differ): {diff}")
+            qa = [{k: v for k, v in q.items() if k != "qid"} for q in inst["A"]["questions"]]
+            qb = [{k: v for k, v in q.items() if k != "qid"} for q in inst["B"]["questions"]]
+            if qa != qb:
+                violations.append(f"{pid} d{delay}: questions differ between A and B")
+            gA, gB = per_world["A"][0], per_world["B"][0]
+            crit_a = next(r for r in ra if r["report_id"] == inst["crit_id"])
+            crit_b = next(r for r in rb if r["report_id"] == inst["crit_id"])
+            for v in A.pair_conditions(fam, gA, gB, inst["A"]["questions"], crit_a, crit_b,
+                                       gA["__hist"], gB["__hist"]):
+                violations.append(f"{pid} d{delay}: {v}")
+            # B-indistinguishable pairs
+            for s in B.SYSTEMS:
+                for qA, qB in zip(inst["A"]["questions"], inst["B"]["questions"]):
+                    stA, stB = per_world["A"][2][s][qA["qid"]], per_world["B"][2][s][qB["qid"]]
+                    if stA != stB:
+                        continue
+                    ansA, ansB = per_world["A"][1][s][qA["qid"]], per_world["B"][1][s][qB["qid"]]
+                    if ansA != ansB:
+                        state_breaks.append(f"{s} {qA['qid']}: equal state, different answers")
+                    if not A.hit(qA["op"], gA[qA["qid"]], gB[qB["qid"]]):
+                        if pid not in indist[(s, fam)]:
+                            indist_log.append({"system": s, "pair": pid, "delay": delay, "question": qA,
+                                               "state": repr(stA), "gold_A": gA[qA["qid"]],
+                                               "gold_B": gB[qB["qid"]]})
+                        indist[(s, fam)].add(pid)
+            # interventions
+            for kind in applicable(fam):
+                cf = W.counterfactual(pair, inst, kind)
+                if cf is None:
+                    continue
+                for v in W.audit_world(cf["reports"], cf["ranks"], pair["anchor"], pair["fact"], False):
+                    violations.append(f"{pid} d{delay} {kind}: {v}")
+                cf_gold = store[(pid, delay, kind)][0]
+                mem = phases["M_interventions"].run(Memory, cf["reports"])
+                m_cf = {q["qid"]: mem.answer(q) for q in inst["A"]["questions"]}
+                qs = inst["A"]["questions"]
+                informative = any(not A.hit(q["op"], gA[q["qid"]], cf_gold[q["qid"]]) for q in qs)
+                unchanged = all(gA[q["qid"]] == cf_gold[q["qid"]] for q in qs)
+                iv_rows.append({"pair": pid, "family": fam, "delay": delay, "kind": kind,
+                                "note": cf["note"], "removed": cf["removed"],
+                                "informative": informative, "unchanged": unchanged,
+                                "M_equals_R": all(m_cf[q["qid"]] == cf_gold[q["qid"]] for q in qs),
+                                "R": {q["qid"]: cf_gold[q["qid"]] for q in qs},
+                                "M": {q["qid"]: m_cf[q["qid"]] for q in qs}})
+    return rows, iv_rows, indist, indist_log, violations, persist, state_breaks
+
+
+def run_persistence(persist, tmpdir, phases):
+    manifest = Path(tmpdir) / "manifest.json"
+    manifest.write_text(json.dumps([{k: v for k, v in p.items() if k != "expect"} for p in persist]))
+    t = time.perf_counter()
+    proc = subprocess.run([sys.executable, "-B", str(Path(__file__).resolve()), "--persist-check",
+                           str(manifest)], capture_output=True, text=True, timeout=3600)
+    phases["persist_reload"].seconds += time.perf_counter() - t
+    if proc.returncode != 0:
+        return {"ok": False, "error": proc.stderr[-2000:], "stores": len(persist)}
+    got = json.loads(proc.stdout)
+    bad = [p["path"] for p in persist if got.get(p["path"]) != p["expect"]]
+    return {"ok": not bad and len(got) == len(persist), "stores": len(persist), "mismatches": bad[:20]}
+
+
+# ------------------------------------------------------------------ summary
+def summarize(split, rows, iv_rows, indist, violations, persist_res, conf, state_breaks):
+    def rate(sel, key):
+        sel = list(sel)
+        return {"right": sum(1 for r in sel if r[key]), "n": len(sel)}
+    out = {"systems": {}, "cells": {}, "pairs": {}}
+    for s in SYSTEMS:
+        out["systems"][s] = {
+            "answers": rate(rows, f"hit_{s}"),
+            "stale": {"stale": sum(1 for r in rows if r.get(f"stale_{s}")),
+                      "denominator": sum(1 for r in rows if r.get("stale_den"))},
+            "false_conflicts": {"conflict_outputs": sum(1 for r in rows if r.get("false_conflict_den") and r.get(f"conflict_out_{s}")),
+                                "denominator": sum(1 for r in rows if r.get("false_conflict_den"))},
+        }
+        fams = {}
+        for f in W.FAMILIES:
+            pids = sorted({r["pair"] for r in rows if r["family"] == f})
+            ok = [p for p in pids if all(r[f"hit_{s}"] for r in rows if r["pair"] == p)]
+            fams[f] = {"pairs_right": len(ok), "pairs": len(pids)}
+        out["pairs"][s] = fams
+    for r in rows:
+        key = f"{r['family']}|{r['op']}|{r['delay']}"
+        c = out["cells"].setdefault(key, {"n": 0, **{s: 0 for s in SYSTEMS}})
+        c["n"] += 1
+        for s in SYSTEMS:
+            c[s] += int(r[f"hit_{s}"])
+    out["value_outputs"] = {who: {k: sum(1 for r in rows if r["op"] in A.VALUE_OPS and r[who]["status"] == k)
+                                  for k in ("value", "conflict", "unknown")} for who in ("gold", "M")}
+    clean = [r for r in rows if r.get("clean")]
+    out["truth_measure"] = {"clean_questions": len(clean),
+                            "policy_agrees_with_truth": sum(1 for r in clean if r["truth_agree"]),
+                            "value_questions": sum(1 for r in rows if "clean" in r)}
+    need = A.min_pairs(split)
+    out["indistinguishable"] = {f"{s}|{f}": len(v) for (s, f), v in sorted(indist.items())}
+    out["required_cells"] = {f"{s}|{f}": {"pairs": len(indist[(s, f)]), "required": need,
+                                          "ok": len(indist[(s, f)]) >= need}
+                             for s, fams in A.REQUIRED_CELLS.items() for f in fams}
+    ivs = {}
+    for kind in W.INTERVENTIONS:
+        sel = [r for r in iv_rows if r["kind"] == kind]
+        d0 = [r for r in sel if r["delay"] == 0]
+        ivs[kind] = {"cases": len(sel), "pairs_at_delay_0": len(d0),
+                     "informative_pairs_at_delay_0": sum(1 for r in d0 if r["informative"]),
+                     "M_equals_R": sum(1 for r in sel if r["M_equals_R"]),
+                     "unchanged": sum(1 for r in sel if r["unchanged"]),
+                     "removed_more_than_one": sum(1 for r in sel if len(r["removed"]) > 1)}
+    out["interventions"] = ivs
+    m_errors = [r["qid"] for r in rows if not r["hit_M"]]
+    m_vs_r = [r["qid"] for r in rows if not r["M_equals_R"]]
+    criteria = {
+        "M_zero_errors": not m_errors,
+        "conformance_100": all(c["ok"] for c in conf),
+        "M_equals_R_everywhere": not m_vs_r and all(r["M_equals_R"] for r in iv_rows),
+        "interventions_as_predicted": all(r["M_equals_R"] for r in iv_rows)
+            and all(v["informative_pairs_at_delay_0"] >= need for k, v in ivs.items() if k != "irrelevant_control")
+            and ivs["irrelevant_control"]["unchanged"] == ivs["irrelevant_control"]["cases"] > 0,
+        "persistence": persist_res["ok"],
+        "audit_clean": not violations and not state_breaks,
+        "required_cells_filled": all(v["ok"] for v in out["required_cells"].values()),
+    }
+    out.update(criteria=criteria, M_errors=m_errors[:50], M_vs_R=m_vs_r[:50],
+               violations=violations[:50], n_violations=len(violations), state_breaks=state_breaks[:20],
+               conformance={"cases": len(conf), "ok": sum(1 for c in conf if c["ok"]),
+                            "failed": [c for c in conf if not c["ok"]][:10]},
+               persistence=persist_res, min_pairs=need)
+    return out
+
+
+def write_summary(path, res):
+    s = res["summary"]
+    lines = [f"# Round 4.0 phase A - {res['split']} (attempt {res['attempt']}{', repeat' if res['repeat_of'] else ''})", "",
+             f"Verdict: **{res['verdict']}**", "", "| criterion | ok |", "|---|---|"]
+    lines += [f"| {k} | {'yes' if v else 'NO'} |" for k, v in s["criteria"].items()]
+    lines += ["", "| system | answers right | stale / den. | false conflicts / den. |", "|---|---|---|---|"]
+    for k, v in s["systems"].items():
+        lines.append(f"| {k} | {v['answers']['right']}/{v['answers']['n']} | {v['stale']['stale']}/{v['stale']['denominator']} | "
+                     f"{v['false_conflicts']['conflict_outputs']}/{v['false_conflicts']['denominator']} |")
+    lines += ["", "Pairs right (all answers of both worlds at all four delays):", "",
+              "| system | " + " | ".join(W.FAMILIES) + " |", "|---|" + "---|" * len(W.FAMILIES)]
+    for k, fams in s["pairs"].items():
+        lines.append(f"| {k} | " + " | ".join(f"{fams[f]['pairs_right']}/{fams[f]['pairs']}" for f in W.FAMILIES) + " |")
+    lines += ["", f"Required B-indistinguishable cells (min {s['min_pairs']} pairs):", ""]
+    lines += [f"- {k}: {v['pairs']}" + ("" if v["ok"] else " (TOO FEW)") for k, v in s["required_cells"].items()]
+    lines += ["", "| intervention | cases | informative pairs (delay 0) | M = R | unchanged | cascades |", "|---|---|---|---|---|---|"]
+    for k, v in s["interventions"].items():
+        lines.append(f"| {k} | {v['cases']} | {v['informative_pairs_at_delay_0']}/{v['pairs_at_delay_0']} | {v['M_equals_R']} | {v['unchanged']} | {v['removed_more_than_one']} |")
+    tm = s["truth_measure"]
+    lines += ["", f"Truth (measurement only): clean report state in {tm['clean_questions']} of {tm['value_questions']} value questions; "
+              f"policy answer = world truth in {tm['policy_agrees_with_truth']} of them.",
+              f"Conformance: {s['conformance']['ok']}/{s['conformance']['cases']}. Persistence: {s['persistence']['stores']} stores, ok = {s['persistence']['ok']}. "
+              f"Audit violations: {s['n_violations']}.", "", "Resources:", ""]
+    lines += [f"- {k}: {v['seconds']} s, peak +{v['peak_extra_mb']} MB" for k, v in res["resources"].items()]
+    Path(path).write_text("\n".join(lines) + "\n")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--split", choices=("dev", "holdout"))
+    ap.add_argument("--request")
+    ap.add_argument("--out")
+    ap.add_argument("--persist-check")
+    a = ap.parse_args()
+    if a.persist_check:
+        persist_check(a.persist_check)
+        return 0
+    req = json.loads(Path(a.request).read_text())
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    tracemalloc.start()
+    phases = {k: Phase() for k in ("R", "R_interventions", "M", "M_interventions", "baselines", "audit",
+                                   "persist_write", "persist_reload")}
+    t0 = time.perf_counter()
+    store, digests = pass_reference(a.split, phases)
+    code = code_hashes()
+    freeze_now = {"generator": W.GENERATOR_VERSION, "digests": digests, "code": code}
+    res = {"schema": RESULT_SCHEMA, "split": a.split, "attempt": req.get("attempt", 1),
+           "repeat_of": req.get("repeat_of"), "freeze_now": freeze_now,
+           "commit": os.environ.get("GITHUB_SHA", "")}
+    if a.split == "holdout":
+        frozen = req.get("freeze")
+        if frozen != freeze_now:
+            res["verdict"] = "FREEZE_MISMATCH"
+            res["frozen"] = frozen
+            (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
+            (out / "VERDICT").write_text("FREEZE_MISMATCH\n")
+            print("FREEZE_MISMATCH")
+            return 1
+    conf = conformance()
+    with tempfile.TemporaryDirectory() as tmp:
+        rows, iv_rows, indist, indist_log, violations, persist, state_breaks = evaluate(a.split, store, phases, tmp)
+        persist_res = run_persistence(persist, tmp, phases)
+    summary = summarize(a.split, rows, iv_rows, indist, violations, persist_res, conf, state_breaks)
+    passed = all(summary["criteria"].values())
+    res.update(summary=summary, resources={k: v.report() for k, v in phases.items()},
+               total_seconds=round(time.perf_counter() - t0, 1),
+               verdict=("PASS" if passed else "FAIL") if a.split == "holdout" else ("DEV_OK" if passed else "DEV_PROBLEMS"))
+    (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
+    with open(out / "rows.jsonl", "w") as fh:
+        for r in rows:
+            fh.write(json.dumps(r, sort_keys=True) + "\n")
+    with open(out / "interventions.jsonl", "w") as fh:
+        for r in iv_rows:
+            fh.write(json.dumps(r, sort_keys=True) + "\n")
+    with open(out / "indist_log.jsonl", "w") as fh:
+        for r in indist_log:
+            fh.write(json.dumps(r, sort_keys=True) + "\n")
+    write_summary(out / "SUMMARY.md", res)
+    (out / "VERDICT").write_text(res["verdict"] + "\n")
+    print(res["verdict"], json.dumps(summary["criteria"]))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/run_round40.py---
+
+---BEGIN FILE bench/m3/freeze40.py---
+#!/usr/bin/env python3
+"""Round 4.0 holdout freeze (docs/ROUND_4_0.md section 7): generates the holdout, lets the
+reference R compute every expected answer (original and counterfactual worlds) and
+records the digests of worlds, questions, expected answers and interventions together
+with the SHA-256 of every code file. M is NOT run. With --write the freeze is stored in
+the request; the holdout run refuses to start unless the freeze matches.
+
+usage: freeze40.py config/round40.json [--write]
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round40 as R  # noqa: E402
+
+
+def main():
+    path = Path(sys.argv[1])
+    phases = {k: R.Phase() for k in ("R", "R_interventions")}
+    R.tracemalloc.start()
+    _, digests = R.pass_reference("holdout", phases)
+    freeze = {"generator": R.W.GENERATOR_VERSION, "digests": digests, "code": R.code_hashes()}
+    print(json.dumps(freeze, indent=1, sort_keys=True))
+    if "--write" in sys.argv[2:]:
+        req = json.loads(path.read_text())
+        req["freeze"] = freeze
+        path.write_text(json.dumps(req, indent=1) + "\n")
+        print(f"freeze written to {path}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/freeze40.py---
+
+---BEGIN FILE tests/test_round40.py---
+"""Round 4.0 phase A: memory M, reference R, generator, audit, interventions, baselines."""
+from __future__ import annotations
+
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from episodic_lab import r40_analysis as A
+from episodic_lab import r40_baselines as B
+from episodic_lab import r40_world as W
+from episodic_lab.r40_memory import Memory, ReportStore, StoreCorrupted
+from episodic_lab.r40_reference import reference_answers
+from episodic_lab.r40_schema import ReportError, check_report
+from episodic_lab.rng import HashRng
+
+ROOT = Path(__file__).resolve().parents[1]
+FIELDS = ("report_id", "report_day", "source", "rank", "subject", "attribute", "kind", "value",
+          "valid_from", "target_report_id")
+
+
+def rep(row, origin=None):
+    r = dict(zip(FIELDS, row))
+    r["origin"] = origin or "o-" + row[0]
+    return r
+
+
+def conformance_worlds():
+    d = json.loads((ROOT / "tests/fixtures/r40_conformance.json").read_text())
+    for name, w in d["worlds"].items():
+        reps = sorted((rep(row) for row in w["reports"]), key=lambda r: (r["report_day"], r["report_id"]))
+        yield name, reps, w
+
+
+class Conformance(unittest.TestCase):
+    def test_hand_checked_cases_m_and_r(self):
+        n = 0
+        for name, reps, w in conformance_worlds():
+            by_id = {r["report_id"]: r for r in reps}
+            m = Memory(reps)
+            qs = [dict(c[1], qid=c[0], subject="key", attribute="loc") for c in w["checks"]]
+            gold = reference_answers(reps, qs)[0]          # R on the FULL world (later reports exist)
+            for c, q in zip(w["checks"], qs):
+                with self.subTest(case=c[0]):
+                    self.assertEqual(m.answer(q), c[2])
+                    self.assertEqual(gold[c[0]], c[2])
+                    if len(c) > 3:
+                        prov = [[i, by_id[i]["source"], by_id[i]["rank"]] for i in m.answer(q)["ids"]]
+                        self.assertEqual(prov, c[3])
+                n += 1
+            for c in w.get("interventions", []):
+                cf, removed = W.remove_with_cascade(reps, c[1]["remove"])
+                q = dict(c[3], qid=c[0], subject="key", attribute="loc")
+                self.assertEqual(removed, c[2])
+                self.assertEqual(Memory(cf).answer(q), c[4])
+                self.assertEqual(reference_answers(cf, [q])[0][c[0]], c[4])
+                n += 1
+        self.assertGreaterEqual(n, 50)
+
+
+def random_world(seed):
+    rng = HashRng(seed)
+    ranks = {"self": 3, "a": 2, "b": 2, "c": 1, "d": 1}
+    names = list(ranks)
+    facts = [("k", "loc"), ("k", "hold"), ("event:x", "day")]
+    reps = []
+    for n in range(rng.below(25) + 1):
+        day = 1 + n // 2
+        s, a = facts[rng.below(3)]
+        src = names[rng.below(5)]
+        kind = ("assert", "assert", "correct", "retract")[rng.below(4)]
+        prior = [r for r in reps if (r["subject"], r["attribute"]) == (s, a)]
+        if kind != "assert" and not prior:
+            kind = "assert"
+        rid = f"r{n + 1:05d}"
+        r = {"report_id": rid, "report_day": day, "source": src, "rank": ranks[src], "origin": "o" + rid,
+             "subject": s, "attribute": a, "kind": kind, "value": None, "valid_from": None,
+             "target_report_id": None}
+        vals = ["A", "B", "C"] if s == "k" else [2, 3, 4, 5]
+        if kind == "assert":
+            r["value"] = vals[rng.below(len(vals))]
+            r["valid_from"] = 0 if s.startswith("event") else rng.below(day + 1)
+        else:
+            r["target_report_id"] = prior[rng.below(len(prior))]["report_id"]
+            if kind == "correct":
+                ch = rng.below(3)
+                if ch != 1:
+                    r["value"] = vals[rng.below(len(vals))]
+                if ch != 0 and not s.startswith("event"):
+                    r["valid_from"] = rng.below(day + 1)
+                if r["value"] is None and r["valid_from"] is None:
+                    r["value"] = vals[0]
+        reps.append(r)
+    return reps
+
+
+class MemoryVsReference(unittest.TestCase):
+    def test_random_worlds_agree_on_every_operator(self):
+        for i in range(400):
+            reps = random_world(f"t{i}")
+            now = reps[-1]["report_day"] + 1
+            rng = HashRng(f"tq{i}")
+            qs = []
+            for a in ("loc", "hold"):
+                base = {"subject": "k", "attribute": a, "now": now}
+                qs += [dict(base, op="current"), dict(base, op="history"), dict(base, op="conflicts"),
+                       dict(base, op="before", anchor="x")]
+                for _ in range(2):
+                    k1 = rng.below(now)
+                    qs += [dict(base, op="valid_at", v=rng.below(now + 1)),
+                           dict(base, op="believed_at", t=rng.below(now + 1)),
+                           dict(base, op="why_changed", v=rng.below(now + 1), k1=k1,
+                                k2=k1 + 1 + rng.below(now - k1))]
+            for n, q in enumerate(qs):
+                q["qid"] = f"q{n}"
+            m, gold = Memory(reps), reference_answers(reps, qs)[0]
+            for q in qs:
+                self.assertEqual(m.answer(q), gold[q["qid"]], (i, q))
+
+
+class Store(unittest.TestCase):
+    def setUp(self):
+        _, self.reps, _ = next(conformance_worlds())
+
+    def test_roundtrip_and_tamper(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "s.jsonl"
+            st = ReportStore(p)
+            st.extend(self.reps)
+            seal = st.seal()
+            self.assertEqual(ReportStore(p, expect=seal).reports, self.reps)
+            lines = p.read_text().splitlines()
+            p.write_text("\n".join(lines[:-1]) + "\n")
+            with self.assertRaises(StoreCorrupted):
+                ReportStore(p, expect=seal)                 # cut-off tail
+            p.write_text("\n".join([lines[0].replace("old mill", "old mall")] + lines[1:]) + "\n")
+            with self.assertRaises(StoreCorrupted):
+                ReportStore(p)                              # changed record
+            p.write_text("\n".join([lines[1], lines[0]] + lines[2:]) + "\n")
+            with self.assertRaises(StoreCorrupted):
+                ReportStore(p)                              # reordered
+
+    def test_order_enforced(self):
+        st = ReportStore()
+        st.extend(self.reps[:2])
+        with self.assertRaises(ValueError):
+            st.extend([self.reps[0]])
+
+    def test_report_shape(self):
+        good = dict(self.reps[0])
+        check_report(good)
+        for bad in (dict(good, kind="assert", value=None), dict(good, kind="retract"),
+                    dict(good, rank=4), dict(good, report_id="x1"), dict(good, extra=1),
+                    dict(good, kind="correct", target_report_id="r00001", value=None, valid_from=None)):
+            with self.assertRaises(ReportError):
+                check_report(bad)
+
+
+class Generator(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.pairs = W.generate_split("dev")
+
+    def test_deterministic(self):
+        again = W.generate_split("dev")
+        self.assertEqual(W.world_digest(self.pairs), W.world_digest(again))
+        self.assertEqual(len(self.pairs), 9 * W.PAIRS["dev"])
+
+    def test_pairs_differ_only_in_the_critical_report(self):
+        for pair in self.pairs:
+            for inst in pair["instances"]:
+                ra, rb = inst["A"]["reports"], inst["B"]["reports"]
+                self.assertEqual([r["report_id"] for r in ra], [r["report_id"] for r in rb])
+                self.assertEqual([r["report_day"] for r in ra], [r["report_day"] for r in rb])
+                self.assertEqual([x["report_id"] for x, y in zip(ra, rb) if x != y], [inst["crit_id"]])
+                self.assertEqual(len(inst["A"]["questions"]), len(W.QUESTION_TABLE[pair["family"]]))
+
+    def test_case_table_counts(self):
+        kinds = sum(len(v) for v in W.QUESTION_TABLE.values())
+        self.assertEqual(kinds, 30)
+        self.assertEqual(kinds * 2 * len(W.DELAYS) * W.PAIRS["holdout"], 9600)
+
+    def test_delays_and_audit(self):
+        for pair in self.pairs:
+            for inst in pair["instances"]:
+                n_irrelevant = len(inst["A"]["reports"]) - inst["n_relevant"]
+                self.assertEqual(n_irrelevant, inst["delay"])
+                for world in ("A", "B"):
+                    self.assertEqual(W.audit_world(inst[world]["reports"], pair["ranks"], pair["anchor"],
+                                                   pair["fact"], True), [])
+                    self.assertTrue(all(r["report_day"] < inst["now"] for r in inst[world]["reports"]))
+
+
+class Audit(unittest.TestCase):
+    ranks = {"self": 3, "ana": 2, "bo": 2, "cy": 1}
+
+    def audit(self, rows, original=True, anchor=None):
+        return W.audit_world([rep(r) for r in rows], self.ranks, anchor, ("key", "loc"), original)
+
+    def test_detects_violations(self):
+        base = ["r00001", 1, "self", 3, "key", "loc", "assert", "A", 1, None]
+        cases = {
+            "dangling": [base, ["r00002", 2, "ana", 2, "key", "loc", "retract", None, None, "r00009"]],
+            "retract target": [base, ["r00002", 2, "self", 3, "key", "loc", "retract", None, None, "r00001"],
+                               ["r00003", 3, "self", 3, "key", "loc", "correct", "B", None, "r00002"]],
+            "other fact": [base, ["r00002", 2, "self", 3, "key", "hold", "correct", "B", None, "r00001"]],
+            "rank table": [["r00001", 1, "self", 2, "key", "loc", "assert", "A", 1, None]],
+            "claimless target": [base, ["r00002", 2, "cy", 1, "key", "loc", "correct", "B", None, "r00001"],
+                                 ["r00003", 3, "self", 3, "key", "loc", "correct", "C", None, "r00002"]],
+        }
+        for name, rows in cases.items():
+            with self.subTest(name):
+                self.assertNotEqual(self.audit(rows), [])
+        # a claimless target is allowed in a counterfactual world
+        self.assertEqual(self.audit(cases["claimless target"], original=False), [])
+        same_origin = [rep(base), rep(["r00002", 2, "self", 3, "key", "loc", "assert", "B", 1, None], "o-r00001")]
+        self.assertNotEqual(W.audit_world(same_origin, self.ranks, None, ("key", "loc"), True), [])
+        anchor_clash = [base, ["r00002", 2, "self", 3, "event:met", "day", "assert", 1, 0, None]]
+        self.assertNotEqual(self.audit(anchor_clash, anchor="met"), [])
+        self.assertEqual(self.audit([base]), [])
+
+
+class Baselines(unittest.TestCase):
+    def test_outputs_and_states(self):
+        name, reps, w = next(conformance_worlds())
+        qs = [dict(c[1], qid=c[0], subject="key", attribute="loc") for c in w["checks"]]
+        hq = [{"qid": "__hist", "op": "history", "subject": "key", "attribute": "loc", "now": 11}]
+        gold = reference_answers(reps, qs + hq)[0]
+        ctx = {"hist": gold["__hist"], "anchor_hist": []}
+        q_now = dict(op="valid_at", v=5, now=11, qid="x", subject="key", attribute="loc")
+        self.assertEqual(B.s1(reps, q_now, ctx)["value"], "library")          # last assert received
+        self.assertEqual(B.s2(reps, q_now, ctx)["value"], "harbour")          # ignores the correction
+        self.assertEqual(B.s3(reps, q_now, ctx)["value"], "bridge")           # first / previous / current (3 versions)
+        self.assertEqual(B.s4(reps, q_now, ctx)["value"], "library")          # current only
+        for s in B.SYSTEMS:
+            for q in qs:
+                B.ANSWER[s](reps, q, ctx)                                     # an output for every operator
+
+    def test_hit_ignores_ids_for_value_operators(self):
+        g = {"status": "value", "value": "X", "ids": ["r00001"]}
+        self.assertTrue(A.hit("current", g, {"status": "value", "value": "X", "ids": []}))
+        self.assertFalse(A.hit("history", [g], [dict(g, ids=[])]))
+        self.assertFalse(A.hit("current", g, {"status": "conflict", "values": ["X"], "ids": []}))
+
+
+class Interventions(unittest.TestCase):
+    def test_counterfactuals_are_valid_and_cascade(self):
+        for pair in W.generate_split("dev")[::7]:
+            inst = pair["instances"][1]
+            for kind, fams in W.INTERVENTIONS.items():
+                if pair["family"] not in fams:
+                    continue
+                cf = W.counterfactual(pair, inst, kind)
+                if cf is None:
+                    continue
+                self.assertEqual(W.audit_world(cf["reports"], cf["ranks"], pair["anchor"], pair["fact"], False), [])
+                ids = {r["report_id"] for r in cf["reports"]}
+                self.assertTrue(all(r["target_report_id"] in ids for r in cf["reports"] if r["target_report_id"]))
+                self.assertTrue(set(cf["removed"]).isdisjoint(ids))
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_round40.py---
+
+---BEGIN FILE tests/fixtures/r40_conformance.json---
+{
+ "schema": "episodic_lab.r40_conformance.v1",
+ "note": "Hand-computed before any run of M or R (docs/ROUND_4_0.md section 4). Report rows: [id, day, source, rank, subject, attribute, kind, value, valid_from, target]; origin = 'o-' + id. Fact 'key'/'loc'; anchors are subject 'event:<content>', attribute 'day'. Expected answers include the deciding report ids; 'prov' lists [id, source, rank] of the deciding claims where the provenance is the point of the case. W10 pins the definition before = value_at(d_Y - 1, now) with a change ON the anchor day, which the generator never produces (definitional case, not a generated world).",
+ "worlds": {
+  "W1_reference_case": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "old mill", 1, null],
+    ["r00002", 6, "ana", 2, "key", "loc", "assert", "harbour", 4, null],
+    ["r00003", 8, "ben", 1, "key", "loc", "assert", "forge", 7, null],
+    ["r00004", 9, "self", 3, "key", "loc", "assert", "library", 7, null],
+    ["r00005", 10, "ana", 2, "key", "loc", "correct", "bridge", 4, "r00002"]
+   ],
+   "checks": [
+    ["c01", {"op": "valid_at", "v": 5, "now": 7}, {"status": "value", "value": "harbour", "ids": ["r00002"]}],
+    ["c02", {"op": "valid_at", "v": 5, "now": 11}, {"status": "value", "value": "bridge", "ids": ["r00005"]}, [["r00005", "ana", 2]]],
+    ["c03", {"op": "valid_at", "v": 8, "now": 8}, {"status": "value", "value": "forge", "ids": ["r00003"]}],
+    ["c04", {"op": "valid_at", "v": 8, "now": 9}, {"status": "value", "value": "library", "ids": ["r00004"]}],
+    ["c05", {"op": "believed_at", "t": 7, "now": 11}, {"status": "value", "value": "harbour", "ids": ["r00002"]}],
+    ["c06", {"op": "believed_at", "t": 5, "now": 11}, {"status": "value", "value": "old mill", "ids": ["r00001"]}],
+    ["c07", {"op": "valid_at", "v": 2, "now": 11}, {"status": "value", "value": "old mill", "ids": ["r00001"]}],
+    ["c08", {"op": "why_changed", "v": 5, "k1": 7, "k2": 11, "now": 11}, ["r00005"]],
+    ["c09", {"op": "why_changed", "v": 8, "k1": 8, "k2": 9, "now": 11}, ["r00004"]],
+    ["c10", {"op": "history", "now": 11}, [
+      {"valid_from": 1, "valid_to": 3, "status": "value", "value": "old mill", "ids": ["r00001"]},
+      {"valid_from": 4, "valid_to": 6, "status": "value", "value": "bridge", "ids": ["r00005"]},
+      {"valid_from": 7, "valid_to": null, "status": "value", "value": "library", "ids": ["r00004"]}]],
+    ["c11", {"op": "current", "now": 11}, {"status": "value", "value": "library", "ids": ["r00004"]}],
+    ["c12", {"op": "valid_at", "v": 0, "now": 11}, {"status": "unknown", "reason": "no_version"}]
+   ]
+  },
+  "W2_correction_authority": {
+   "reports": [
+    ["r00001", 1, "cy", 1, "key", "loc", "assert", "A", 3, null],
+    ["r00002", 2, "self", 3, "key", "loc", "correct", "B", null, "r00001"],
+    ["r00003", 3, "ana", 2, "key", "loc", "assert", "C", 3, null],
+    ["r00004", 4, "cy", 1, "key", "loc", "retract", null, null, "r00001"],
+    ["r00005", 5, "cy", 1, "key", "loc", "retract", null, null, "r00002"],
+    ["r00006", 6, "self", 3, "key", "loc", "retract", null, null, "r00002"]
+   ],
+   "checks": [
+    ["c13", {"op": "current", "now": 3}, {"status": "value", "value": "B", "ids": ["r00002"]}, [["r00002", "self", 3]]],
+    ["c14", {"op": "current", "now": 5}, {"status": "value", "value": "B", "ids": ["r00002"]}, [["r00002", "self", 3]]],
+    ["c15", {"op": "why_changed", "v": 3, "k1": 3, "k2": 5, "now": 6}, "unchanged"],
+    ["c16", {"op": "history", "now": 5}, [{"valid_from": 3, "valid_to": null, "status": "value", "value": "B", "ids": ["r00002"]}]],
+    ["c17", {"op": "current", "now": 6}, {"status": "value", "value": "C", "ids": ["r00003"]}, [["r00003", "ana", 2]]],
+    ["c18", {"op": "why_changed", "v": 3, "k1": 5, "k2": 6, "now": 6}, ["r00006"]],
+    ["c19", {"op": "believed_at", "t": 5, "now": 6}, {"status": "value", "value": "B", "ids": ["r00002"]}]
+   ],
+   "interventions": [
+    ["c20", {"remove": "r00002"}, ["r00002", "r00005", "r00006"],
+     {"op": "current", "now": 6}, {"status": "value", "value": "C", "ids": ["r00003"]}]
+   ]
+  },
+  "W3_correction_chains": {
+   "reports": [
+    ["r00001", 1, "ana", 2, "key", "loc", "assert", "A", 1, null],
+    ["r00002", 2, "bo", 2, "key", "loc", "correct", "B", null, "r00001"],
+    ["r00003", 3, "ana", 2, "key", "loc", "correct", "C", null, "r00001"],
+    ["r00004", 4, "self", 3, "key", "loc", "correct", "D", 2, "r00002"],
+    ["r00005", 5, "cy", 1, "key", "loc", "correct", "E", null, "r00004"],
+    ["r00006", 6, "self", 3, "key", "loc", "correct", "F", null, "r00005"],
+    ["r00007", 7, "bo", 2, "key", "loc", "retract", null, null, "r00003"]
+   ],
+   "checks": [
+    ["c21", {"op": "current", "now": 2}, {"status": "value", "value": "B", "ids": ["r00002"]}, [["r00002", "bo", 2]]],
+    ["c22", {"op": "current", "now": 3}, {"status": "value", "value": "B", "ids": ["r00002"]}],
+    ["c23", {"op": "valid_at", "v": 1, "now": 4}, {"status": "unknown", "reason": "no_version"}],
+    ["c24", {"op": "current", "now": 7}, {"status": "value", "value": "D", "ids": ["r00004"]}, [["r00004", "self", 3]]],
+    ["c25", {"op": "history", "now": 7}, [{"valid_from": 2, "valid_to": null, "status": "value", "value": "D", "ids": ["r00004"]}]],
+    ["c26", {"op": "why_changed", "v": 1, "k1": 3, "k2": 4, "now": 7}, ["r00004"]],
+    ["c27", {"op": "why_changed", "v": 5, "k1": 4, "k2": 7, "now": 7}, "unchanged"],
+    ["c28", {"op": "believed_at", "t": 1, "now": 7}, {"status": "value", "value": "A", "ids": ["r00001"]}]
+   ],
+   "interventions": [
+    ["c29", {"remove": "r00002"}, ["r00002", "r00004", "r00005", "r00006"],
+     {"op": "current", "now": 7}, {"status": "value", "value": "C", "ids": ["r00003"]}]
+   ]
+  },
+  "W4_conflict_resolved_by_correction_outside": {
+   "reports": [
+    ["r00001", 1, "cy", 1, "key", "loc", "assert", "A", 1, null],
+    ["r00002", 2, "ana", 2, "key", "loc", "assert", "B", 1, null],
+    ["r00003", 3, "bo", 2, "key", "loc", "assert", "C", 1, null],
+    ["r00004", 4, "bo", 2, "key", "loc", "assert", "B", 1, null],
+    ["r00005", 5, "self", 3, "key", "loc", "correct", "D", null, "r00001"]
+   ],
+   "checks": [
+    ["c30", {"op": "current", "now": 3}, {"status": "conflict", "values": ["B", "C"], "ids": ["r00002", "r00003"]}],
+    ["c31", {"op": "conflicts", "now": 4}, [{"valid_from": 1, "values": ["B", "C"], "ids": ["r00002", "r00003", "r00004"]}]],
+    ["c32", {"op": "current", "now": 5}, {"status": "value", "value": "D", "ids": ["r00005"]}, [["r00005", "self", 3]]],
+    ["c33", {"op": "conflicts", "now": 5}, []],
+    ["c34", {"op": "why_changed", "v": 1, "k1": 3, "k2": 4, "now": 5}, "unchanged"],
+    ["c35", {"op": "why_changed", "v": 1, "k1": 1, "k2": 5, "now": 5}, ["r00002", "r00003", "r00005"]],
+    ["c36", {"op": "history", "now": 5}, [{"valid_from": 1, "valid_to": null, "status": "value", "value": "D", "ids": ["r00005"]}]]
+   ]
+  },
+  "W5_equal_rank_correction_resolves": {
+   "reports": [
+    ["r00001", 1, "ana", 2, "key", "loc", "assert", "B", 1, null],
+    ["r00002", 2, "bo", 2, "key", "loc", "assert", "C", 1, null],
+    ["r00003", 3, "bo", 2, "key", "loc", "correct", "B", null, "r00002"],
+    ["r00004", 4, "ana", 2, "key", "loc", "retract", null, null, "r00001"],
+    ["r00005", 5, "bo", 2, "key", "loc", "retract", null, null, "r00003"]
+   ],
+   "checks": [
+    ["c37", {"op": "current", "now": 3}, {"status": "value", "value": "B", "ids": ["r00001", "r00003"]}],
+    ["c38", {"op": "why_changed", "v": 1, "k1": 2, "k2": 3, "now": 5}, ["r00003"]],
+    ["c39", {"op": "current", "now": 4}, {"status": "value", "value": "B", "ids": ["r00003"]}, [["r00003", "bo", 2]]],
+    ["c40", {"op": "why_changed", "v": 1, "k1": 3, "k2": 4, "now": 5}, "unchanged"],
+    ["c41", {"op": "current", "now": 5}, {"status": "unknown", "reason": "no_version"}]
+   ]
+  },
+  "W6_why_changed_edges": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+    ["r00002", 2, "self", 3, "key", "loc", "correct", "Y", null, "r00001"],
+    ["r00003", 3, "self", 3, "key", "loc", "correct", "X", null, "r00002"],
+    ["r00004", 4, "ana", 2, "key", "loc", "assert", "X", 1, null],
+    ["r00005", 5, "self", 3, "key", "loc", "assert", "X", 1, null]
+   ],
+   "checks": [
+    ["c42", {"op": "why_changed", "v": 1, "k1": 1, "k2": 3, "now": 5}, "unchanged"],
+    ["c43", {"op": "why_changed", "v": 1, "k1": 1, "k2": 2, "now": 5}, ["r00002"]],
+    ["c44", {"op": "why_changed", "v": 1, "k1": 3, "k2": 5, "now": 5}, "unchanged"],
+    ["c45", {"op": "current", "now": 5}, {"status": "value", "value": "X", "ids": ["r00003", "r00005"]}],
+    ["c46", {"op": "history", "now": 2}, [{"valid_from": 1, "valid_to": null, "status": "value", "value": "Y", "ids": ["r00002"]}]]
+   ]
+  },
+  "W7_anchor_corrections": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "P", 1, null],
+    ["r00002", 4, "self", 3, "key", "loc", "assert", "Q", 4, null],
+    ["r00003", 6, "self", 3, "event:met Ida at the mill", "day", "assert", 6, 0, null],
+    ["r00004", 8, "self", 3, "key", "loc", "assert", "R", 8, null],
+    ["r00005", 10, "self", 3, "event:met Ida at the mill", "day", "correct", 3, null, "r00003"],
+    ["r00006", 11, "self", 3, "event:met Ida at the mill", "day", "retract", null, null, "r00005"],
+    ["r00007", 12, "ana", 2, "event:met Ida at the mill", "day", "assert", 9, 0, null],
+    ["r00008", 12, "bo", 2, "event:met Ida at the mill", "day", "assert", 7, 0, null]
+   ],
+   "checks": [
+    ["c47", {"op": "before", "anchor": "met Ida at the mill", "now": 9}, {"status": "value", "value": "Q", "ids": ["r00002"]}],
+    ["c48", {"op": "before", "anchor": "met Ida at the mill", "now": 10}, {"status": "value", "value": "P", "ids": ["r00001"]}],
+    ["c49", {"op": "before", "anchor": "met Ida at the mill", "now": 11}, {"status": "unknown", "reason": "anchor_not_found"}],
+    ["c50", {"op": "before", "anchor": "met Ida at the mill", "now": 12}, {"status": "unknown", "reason": "anchor_ambiguous"}]
+   ]
+  },
+  "W8_anchor_edges": {
+   "reports": [
+    ["r00001", 3, "self", 3, "event:met Ida at the mill", "day", "assert", 2, 0, null],
+    ["r00002", 5, "self", 3, "key", "loc", "assert", "P", 4, null],
+    ["r00003", 6, "ana", 2, "key", "loc", "assert", "P2", 1, null],
+    ["r00004", 6, "bo", 2, "key", "loc", "assert", "P3", 1, null]
+   ],
+   "checks": [
+    ["c51", {"op": "before", "anchor": "met Ida at the mill", "now": 5}, {"status": "unknown", "reason": "no_version_before"}],
+    ["c52", {"op": "before", "anchor": "met Ida at the mill", "now": 7}, {"status": "conflict", "values": ["P2", "P3"], "ids": ["r00003", "r00004"]}],
+    ["c53", {"op": "before", "anchor": "met Ole at the forge", "now": 7}, {"status": "unknown", "reason": "anchor_not_found"}]
+   ]
+  },
+  "W10_change_on_the_anchor_day": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "P", 1, null],
+    ["r00002", 3, "self", 3, "key", "loc", "assert", "Q", 3, null],
+    ["r00003", 3, "self", 3, "event:met Ida at the mill", "day", "assert", 3, 0, null]
+   ],
+   "checks": [
+    ["c56", {"op": "before", "anchor": "met Ida at the mill", "now": 4}, {"status": "value", "value": "P", "ids": ["r00001"]}]
+   ]
+  },
+  "W9_forbidden_references": {
+   "reports": [
+    ["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+    ["r00002", 2, "ana", 2, "key", "loc", "retract", null, null, "r00099"],
+    ["r00003", 3, "self", 3, "key", "loc", "correct", "Z", null, "r00099"],
+    ["r00004", 4, "self", 3, "key", "loc", "retract", null, null, "r00001"],
+    ["r00005", 5, "self", 3, "key", "loc", "correct", "Y", null, "r00004"]
+   ],
+   "checks": [
+    ["c54", {"op": "current", "now": 3}, {"status": "value", "value": "X", "ids": ["r00001"]}],
+    ["c55", {"op": "current", "now": 5}, {"status": "unknown", "reason": "no_version"}]
+   ]
+  }
+ }
+}
+---END FILE tests/fixtures/r40_conformance.json---
+
+---BEGIN FILE .github/workflows/round40.yml---
+name: round40
+# Round 4.0 phase A (docs/ROUND_4_0.md): structured reports, model-free. Runs the split in
+# config/round40.json only if "enabled": true; the holdout refuses to start unless the
+# freeze in the request matches. Results go to the results branch. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round40.json"
+permissions:
+  contents: read
+concurrency:
+  group: round40
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: plan
+        run: |
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("config/round40.json"))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"enabled={'true' if r.get('enabled') is True else 'false'}\n")
+              out.write(f"split={r['split']}\n")
+          PY
+      - name: Unit tests
+        if: steps.plan.outputs.enabled == 'true'
+        run: python -B -m unittest tests.test_round40
+      - name: Run
+        if: steps.plan.outputs.enabled == 'true'
+        run: |
+          mkdir -p out
+          python -B bench/m3/run_round40.py --split "${{ steps.plan.outputs.split }}" --request config/round40.json --out out || true
+      - name: Store results on the results branch
+        if: always() && steps.plan.outputs.enabled == 'true'
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r out "$RUNNER_TEMP/out"
+          cp config/round40.json "$RUNNER_TEMP/request.json"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round40/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp -r "$RUNNER_TEMP/out/." "$dest/"
+          cp "$RUNNER_TEMP/request.json" "$dest/request.json"
+          [ -f "$dest/VERDICT" ] || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} split ${{ steps.plan.outputs.split }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add round40
+          git commit --quiet -m "Round 4.0 results (${{ steps.plan.outputs.split }}), run ${GITHUB_RUN_ID}, ${verdict}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+          case "$verdict" in PASS|DEV_OK) exit 0;; *) exit 1;; esac
+---END FILE .github/workflows/round40.yml---
+
+---BEGIN FILE config/round40.json---
+{
+ "schema": "episodic_lab.round40_request.v1",
+ "enabled": false,
+ "note": "Round 4.0 phase A: dev run done (run 39573228533, DEV_OK, commit 5a44447). Next: implementation review by Astra; then the holdout freeze (bench/m3/freeze40.py --write) and one holdout run.",
+ "split": "dev",
+ "attempt": 1,
+ "repeat_of": null,
+ "freeze": null
+}
+---END FILE config/round40.json---
+
+---BEGIN FILE docs/ROUND_4_0_dev_SUMMARY.md---
+<!-- Copied from the results branch: round40/run_39573228533_1/SUMMARY.md (commit 5a44447, GitHub Actions, Python 3.12). Identical to the local run (Python 3.13) except the timings. -->
+# Round 4.0 phase A - dev (attempt 1)
+
+Verdict: **DEV_OK**
+
+| criterion | ok |
+|---|---|
+| M_zero_errors | yes |
+| conformance_100 | yes |
+| M_equals_R_everywhere | yes |
+| interventions_as_predicted | yes |
+| persistence | yes |
+| audit_clean | yes |
+| required_cells_filled | yes |
+
+| system | answers right | stale / den. | false conflicts / den. |
+|---|---|---|---|
+| M | 2400/2400 | 0/520 | 0/1360 |
+| S0 | 80/2400 | 0/520 | 0/1360 |
+| S1 | 736/2400 | 0/520 | 0/1360 |
+| S2 | 1588/2400 | 0/520 | 0/1360 |
+| S3 | 1832/2400 | 0/520 | 0/1360 |
+| S4 | 900/2400 | 0/520 | 0/1360 |
+
+Pairs right (all answers of both worlds at all four delays):
+
+| system | P1 | P2 | P3 | P4 | P5 | P6 | P7 | P8 | P9 |
+|---|---|---|---|---|---|---|---|---|---|
+| M | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 |
+| S0 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+| S1 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+| S2 | 5/10 | 10/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 10/10 |
+| S3 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+| S4 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+
+Required B-indistinguishable cells (min 8 pairs):
+
+- S1|P1: 10
+- S1|P2: 10
+- S1|P3: 10
+- S1|P5: 10
+- S1|P9: 10
+- S2|P3: 10
+- S2|P5: 10
+- S2|P7: 10
+- S2|P8: 10
+- S3|P9: 10
+- S4|P1: 10
+- S4|P2: 10
+- S4|P3: 10
+- S4|P5: 10
+- S4|P9: 10
+
+| intervention | cases | informative pairs (delay 0) | M = R | unchanged | cascades |
+|---|---|---|---|---|---|
+| remove_update | 40 | 10/10 | 40 | 0 | 0 |
+| remove_late_report | 40 | 10/10 | 40 | 0 | 0 |
+| remove_correction | 40 | 10/10 | 40 | 0 | 0 |
+| remove_retraction | 40 | 10/10 | 40 | 0 | 0 |
+| swap_ranks | 160 | 34/40 | 160 | 24 | 0 |
+| remove_conflict_resolver | 40 | 10/10 | 40 | 0 | 0 |
+| move_anchor | 40 | 10/10 | 40 | 0 | 0 |
+| remove_anchor | 40 | 10/10 | 40 | 0 | 0 |
+| remove_obs_before_anchor | 40 | 10/10 | 40 | 0 | 0 |
+| irrelevant_control | 360 | 0/90 | 360 | 360 | 50 |
+
+Truth (measurement only): clean report state in 1080 of 1440 value questions; policy answer = world truth in 1028 of them.
+Conformance: 56/56. Persistence: 720 stores, ok = True. Audit violations: 0.
+
+Resources:
+
+- R: 2.15 s, peak +0.13 MB
+- R_interventions: 2.43 s, peak +0.16 MB
+- M: 0.74 s, peak +0.07 MB
+- M_interventions: 0.74 s, peak +0.07 MB
+- baselines: 0.4 s, peak +0.01 MB
+- audit: 1.37 s, peak +0.34 MB
+- persist_write: 15.06 s, peak +1.18 MB
+- persist_reload: 1.59 s, peak +0.0 MB
+---END FILE docs/ROUND_4_0_dev_SUMMARY.md---
+
+---BEGIN FILE docs/ROUND_4_0_mutation.json---
+{
+ "schema": "episodic_lab.round40_mutation.v1",
+ "protocol": "Each mutant changes one place of episodic_lab/r40_memory.py (M) in a fresh copy of the lab at commit 8ef4a4d (fixture with 56 checks); the full dev run (bench/m3/run_round40.py --split dev) runs in a new process with -B. A mutant is killed if any pass criterion fails.",
+ "mutants": {
+  "m01_correct_needs_higher_rank": {
+   "old": "if rep[\"rank\"] < tgt.rank:",
+   "new": "if rep[\"rank\"] <= tgt.rank:",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2148
+    },
+    "conformance_ok": [
+     35,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m02_correction_keeps_target_rank": {
+   "old": "\n            rep[\"rank\"], rep[\"source\"], rep[\"origin\"])",
+   "new": "\n            tgt.rank, rep[\"source\"], rep[\"origin\"])",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2340
+    },
+    "conformance_ok": [
+     47,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m03_retract_any_source": {
+   "old": "if rep[\"source\"] != tgt.source:\n        return False",
+   "new": "if False:\n        return False",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2240
+    },
+    "conformance_ok": [
+     50,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m04_why_counts_ids": {
+   "old": "def _key(ans: dict) -> tuple:\n",
+   "new": "def _key(ans: dict) -> tuple:\n    return repr(ans)\n",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     51,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m05_before_no_minus_one": {
+   "old": "ans = self.value_at(fact, a[\"value\"] - 1, now)",
+   "new": "ans = self.value_at(fact, a[\"value\"], now)",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     55,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m06_latest_wins_not_rank": {
+   "old": "top = max(c.rank for c in by_day[d])\n        tops = [c for c in by_day[d] if c.rank == top]",
+   "new": "tops = [max(by_day[d], key=lambda c: c.cid)]",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2072
+    },
+    "conformance_ok": [
+     43,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m07_conflict_picks_first": {
+   "old": "if len(values) == 1:",
+   "new": "if True:",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2200
+    },
+    "conformance_ok": [
+     50,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m08_withdrawn_can_be_corrected": {
+   "old": "if tgt is None or not tgt.standing:",
+   "new": "if tgt is None:",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     53,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m09_valid_at_uses_v_as_known_time": {
+   "old": "return self.value_at(fact, q[\"v\"], now)",
+   "new": "return self.value_at(fact, q[\"v\"], q[\"v\"])",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2156
+    },
+    "conformance_ok": [
+     52,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m10_believed_at_uses_now": {
+   "old": "return self.value_at(fact, q[\"t\"], q[\"t\"])",
+   "new": "return self.value_at(fact, q[\"t\"], now)",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2232
+    },
+    "conformance_ok": [
+     52,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m11_ineffective_correction_still_withdraws": {
+   "old": "        if rep[\"rank\"] < tgt.rank:\n            return False\n        tgt.standing = False",
+   "new": "        tgt.standing = False\n        if rep[\"rank\"] < tgt.rank:\n            return False",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2124
+    },
+    "conformance_ok": [
+     53,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m12_anchor_conflict_as_found": {
+   "old": "if a[\"status\"] == \"conflict\":\n            return {\"status\": \"unknown\", \"reason\": \"anchor_ambiguous\"}",
+   "new": "if a[\"status\"] == \"conflict\":\n            a = {\"value\": a[\"values\"][0]}",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     55,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m13_history_merges_nothing_but_drops_ids": {
+   "old": "ids = sorted(c.cid for c in tops)",
+   "new": "ids = sorted(c.cid for c in tops)[:1]",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2280
+    },
+    "conformance_ok": [
+     51,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  }
+ },
+ "killed": 13,
+ "total": 13,
+ "only_by_conformance": [
+  "m04_why_counts_ids",
+  "m05_before_no_minus_one",
+  "m08_withdrawn_can_be_corrected",
+  "m12_anchor_conflict_as_found"
+ ],
+ "note": "Four mutants are killed only by the hand-checked conformance set, because the generated worlds never exercise these paths: why_changed when only report ids change (m04), a change on the anchor day (m05, excluded by design), correcting an already withdrawn claim of the asked fact (m08), an ambiguous anchor (m12). The conformance set is a pass criterion, so all 13 are killed; the generated holdout alone would not detect these four."
+}
+---END FILE docs/ROUND_4_0_mutation.json---
+
+=== END OF LAB ROUND 4.0 IMPLEMENTATION REVIEW ===
