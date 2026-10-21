@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round40_request.v1",
- "enabled": true,
- "note": "Round 4.0 phase A (docs/ROUND_4_0.md): dev run on GitHub Actions before the implementation review. The holdout runs only with a freeze (code, worlds, questions, expected answers) recorded here after review.",
+ "enabled": false,
+ "note": "Round 4.0 phase A: dev run done (run 39573228533, DEV_OK, commit 5a44447). Next: implementation review by Astra; then the holdout freeze (bench/m3/freeze40.py --write) and one holdout run.",
  "split": "dev",
  "attempt": 1,
  "repeat_of": null,

@@ -387,3 +387,27 @@ review before the holdout freeze.
   per kind of work (R, R on interventions, M, M on interventions, baselines, audit,
   persistence write and reload).
 
+Dev run (2026-10-21, GitHub Actions run 39573228533, commit 5a44447; summary in
+docs/ROUND_4_0_dev_SUMMARY.md; identical to a local run under another Python version
+except the timings): DEV_OK on every criterion - M 2,400 / 2,400 answers right and equal
+to R everywhere, 56 / 56 conformance checks, all 840 counterfactual cases as predicted
+by R, 720 stores reloaded identically in a new process, no audit violation, all 15
+required cells filled (10 / 10 pairs each). Baselines: S0 80, S1 736, S2 1,588, S3 1,832,
+S4 900 of 2,400 answers; no baseline gets every pair of a required cell right. Run time
+about 25 s plus 17 s for the persistence test; peak extra traced memory below 2 MB per
+kind of work; the holdout (4 x the dev size) needs a few minutes.
+Mutation check (docs/ROUND_4_0_mutation.json): 13 single changes of M, each run through
+the full dev run in a fresh copy - all 13 fail at least one pass criterion.
+Known limits of the generated data, stated before the holdout:
+- Four mutants are caught ONLY by the hand-checked conformance set, because the
+  generated worlds never exercise these paths: why_changed when only report ids change,
+  a change on the anchor day (excluded by design), correcting an already withdrawn claim
+  of the asked fact, an ambiguous anchor. The conformance set is a pass criterion, so the
+  round covers them, but the generated holdout alone would not.
+- The stale-answer measure is 0 for every system: every world ends with a fresh own
+  observation, which all baselines pick up. It does not discriminate here.
+- Truth measurement: 1,028 of 1,080 clean value questions agree with the world truth; all
+  52 others are believed_at questions asked before a change was reported (Astra's v2
+  counterexample) - by design, not an error.
+- S2 is right on every P2 and P9 pair and S3 on most families except P9: the
+  dissociation rests on the required cells, not on overall baseline scores.
