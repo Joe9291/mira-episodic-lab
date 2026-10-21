@@ -465,7 +465,8 @@ Claim (fixed limits): within this generator, M implements the GIVEN source polic
 exactly - current state, the past as reconstructed today, what was believed earlier, the
 reports that changed an answer, open conflicts, history and the state before an anchor
 event - under state changes, late news, corrections, retractions, conflicts and up to 500
-interleaved irrelevant reports, and the predicted interventions show that its answers
+irrelevant reports placed between the last relevant report and the question, and the
+predicted interventions show that its answers
 use the stored history causally. This is the pass rule of a finite test suite: zero
 errors on 40 pairs per phenomenon establish no general error rate below 1 %. Not shown:
 learned source reliability, truth finding, free-text reports or questions in language
