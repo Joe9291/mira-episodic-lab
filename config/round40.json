@@ -1,8 +1,8 @@
 {
  "schema": "episodic_lab.round40_request.v1",
- "enabled": false,
- "note": "Round 4.0 phase A: dev run done (run 39573228533, DEV_OK, commit 5a44447). Next: implementation review by Astra; then the holdout freeze (bench/m3/freeze40.py --write) and one holdout run.",
- "split": "dev",
+ "enabled": true,
+ "note": "Round 4.0 phase A holdout, attempt 1 (the only planned run). Freeze written in commit 1aa5ad1 after Astra's APPROVE of the implementation (reviews/2026-10-21_r40impl_astra.txt); the runner stops with FREEZE_MISMATCH before M if anything differs.",
+ "split": "holdout",
  "attempt": 1,
  "repeat_of": null,
  "freeze": {
