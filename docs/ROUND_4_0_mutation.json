@@ -1,0 +1,276 @@
+{
+ "schema": "episodic_lab.round40_mutation.v1",
+ "protocol": "Each mutant changes one place of episodic_lab/r40_memory.py (M) in a fresh copy of the lab at commit 8ef4a4d (fixture with 56 checks); the full dev run (bench/m3/run_round40.py --split dev) runs in a new process with -B. A mutant is killed if any pass criterion fails.",
+ "mutants": {
+  "m01_correct_needs_higher_rank": {
+   "old": "if rep[\"rank\"] < tgt.rank:",
+   "new": "if rep[\"rank\"] <= tgt.rank:",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2148
+    },
+    "conformance_ok": [
+     35,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m02_correction_keeps_target_rank": {
+   "old": "\n            rep[\"rank\"], rep[\"source\"], rep[\"origin\"])",
+   "new": "\n            tgt.rank, rep[\"source\"], rep[\"origin\"])",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2340
+    },
+    "conformance_ok": [
+     47,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m03_retract_any_source": {
+   "old": "if rep[\"source\"] != tgt.source:\n        return False",
+   "new": "if False:\n        return False",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2240
+    },
+    "conformance_ok": [
+     50,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m04_why_counts_ids": {
+   "old": "def _key(ans: dict) -> tuple:\n",
+   "new": "def _key(ans: dict) -> tuple:\n    return repr(ans)\n",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     51,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m05_before_no_minus_one": {
+   "old": "ans = self.value_at(fact, a[\"value\"] - 1, now)",
+   "new": "ans = self.value_at(fact, a[\"value\"], now)",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     55,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m06_latest_wins_not_rank": {
+   "old": "top = max(c.rank for c in by_day[d])\n        tops = [c for c in by_day[d] if c.rank == top]",
+   "new": "tops = [max(by_day[d], key=lambda c: c.cid)]",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2072
+    },
+    "conformance_ok": [
+     43,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m07_conflict_picks_first": {
+   "old": "if len(values) == 1:",
+   "new": "if True:",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2200
+    },
+    "conformance_ok": [
+     50,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m08_withdrawn_can_be_corrected": {
+   "old": "if tgt is None or not tgt.standing:",
+   "new": "if tgt is None:",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     53,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m09_valid_at_uses_v_as_known_time": {
+   "old": "return self.value_at(fact, q[\"v\"], now)",
+   "new": "return self.value_at(fact, q[\"v\"], q[\"v\"])",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2156
+    },
+    "conformance_ok": [
+     52,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m10_believed_at_uses_now": {
+   "old": "return self.value_at(fact, q[\"t\"], q[\"t\"])",
+   "new": "return self.value_at(fact, q[\"t\"], now)",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2232
+    },
+    "conformance_ok": [
+     52,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m11_ineffective_correction_still_withdraws": {
+   "old": "        if rep[\"rank\"] < tgt.rank:\n            return False\n        tgt.standing = False",
+   "new": "        tgt.standing = False\n        if rep[\"rank\"] < tgt.rank:\n            return False",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2124
+    },
+    "conformance_ok": [
+     53,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m12_anchor_conflict_as_found": {
+   "old": "if a[\"status\"] == \"conflict\":\n            return {\"status\": \"unknown\", \"reason\": \"anchor_ambiguous\"}",
+   "new": "if a[\"status\"] == \"conflict\":\n            a = {\"value\": a[\"values\"][0]}",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2400
+    },
+    "conformance_ok": [
+     55,
+     56
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m13_history_merges_nothing_but_drops_ids": {
+   "old": "ids = sorted(c.cid for c in tops)",
+   "new": "ids = sorted(c.cid for c in tops)[:1]",
+   "result": {
+    "M_answers_right": {
+     "n": 2400,
+     "right": 2280
+    },
+    "conformance_ok": [
+     51,
+     56
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  }
+ },
+ "killed": 13,
+ "total": 13,
+ "only_by_conformance": [
+  "m04_why_counts_ids",
+  "m05_before_no_minus_one",
+  "m08_withdrawn_can_be_corrected",
+  "m12_anchor_conflict_as_found"
+ ],
+ "note": "Four mutants are killed only by the hand-checked conformance set, because the generated worlds never exercise these paths: why_changed when only report ids change (m04), a change on the anchor day (m05, excluded by design), correcting an already withdrawn claim of the asked fact (m08), an ambiguous anchor (m12). The conformance set is a pass criterion, so all 13 are killed; the generated holdout alone would not detect these four."
+}
