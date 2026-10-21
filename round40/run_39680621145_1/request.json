@@ -1,0 +1,29 @@
+{
+ "schema": "episodic_lab.round40_request.v1",
+ "enabled": true,
+ "note": "Round 4.0 phase A holdout, attempt 1 (the only planned run). Freeze written in commit 1aa5ad1 after Astra's APPROVE of the implementation (reviews/2026-10-21_r40impl_astra.txt); the runner stops with FREEZE_MISMATCH before M if anything differs.",
+ "split": "holdout",
+ "attempt": 1,
+ "repeat_of": null,
+ "freeze": {
+  "generator": "r40.g1",
+  "digests": {
+   "worlds": "3ca94d952b33200884926bb423a3e47a83b25b451e30b59d1afaa454c9348e9a",
+   "questions": "a9826e2d533aaca68cfb2d9a8c375a8241235586f2218d8ecdd4562858b4e784",
+   "gold": "9a9061882be7b290cb3080eabe36a75359ecd4bc63de95f45929d8571e5b6e42",
+   "interventions": "c77a4d8cfd432a06581744583bb0beffef27a5aee5a07256023f9e4c9af35f77"
+  },
+  "code": {
+   "episodic_lab/r40_schema.py": "6ec2c55ed7b863a664d542e8aa52d1b33b587b9dea70cecda7a316564457e34c",
+   "episodic_lab/r40_memory.py": "bdd3da396c22e1060e8ca6de09ba81d42d7d5053cb48c3b9aad88144e8bbfb4c",
+   "episodic_lab/r40_reference.py": "9dac06abd3cf106fd6bb47550756f90f9bd474356166743cb33d6479ce64a8df",
+   "episodic_lab/r40_baselines.py": "3f4c1a84bf93e97fe42ceeeab41b0c3c567035e8db00cd65429a806bb7b326a8",
+   "episodic_lab/r40_world.py": "88152b2f6567e95b49c371405265037bd5814735f49085b605d2410eebc63a33",
+   "episodic_lab/r40_analysis.py": "9e96d7de7af8da1495e7346bd3882383b9e3fc6bedd8616dde359f621ddf9cb3",
+   "episodic_lab/rng.py": "4c807caf9a5da36c0fb97e0771567dcbf483135f8129369301b598c17b74f5c8",
+   "episodic_lab/world.py": "fc688ff240a977a849c4e7686f7d54fbc099c9f46b38766a50f8126440a10142",
+   "bench/m3/run_round40.py": "5c7e4898e3b05c22ffc73c64b9d38d4ac1de0fbc64004ae2bd762082369b060e",
+   "tests/fixtures/r40_conformance.json": "de057160506865ea1b4ddf686053bb0a999078f1e10b6d6306d940425e23563a"
+  }
+ }
+}
