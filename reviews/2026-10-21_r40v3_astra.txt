@@ -1,0 +1,38 @@
+Design Runde 4.0 v3: REQUEST CHANGES.
+
+Die Änderungen beantworten die vier Hauptpunkte aus v2 weitgehend überzeugend: Korrekturen bekommen jetzt eine eigene Autorität und Provenienz; „clean report state“ enthält keine unbegründete Wahrheitsgarantie; die Vergleichspaare werden über ihre Eingaben definiert; und die Zählung ergibt korrekt 9.600 Holdout-Antworten mit null erlaubten Fehlern. Zwei Punkte brauchen noch eine Änderung.
+
+1. Die zusätzliche Konfliktregel widerspricht der neuen Korrektursemantik.
+
+Laut Text kann eine Korrektur einen Konflikt nur auflösen, wenn sie einen der widersprechenden Claims betrifft. Nach dem eigentlichen Resolver kann aber auch die Korrektur eines bisher nicht entscheidenden Claims einen neuen, höher gewichteten Claim erzeugen.
+
+Beispiel, alles mit demselben valid_from:
+
+- r1: Rang 1 behauptet A.
+- r2 und r3: unabhängige Quellen mit Rang 2 behaupten B beziehungsweise C → Konflikt.
+- r4: Rang 3 korrigiert r1 auf D.
+
+Die neue Korrektursemantik erzeugt D mit Rang 3. Damit entscheidet D, obwohl r1 kein entscheidender Konfliktteilnehmer war. Die einschränkende Konfliktregel lässt diesen Fall dagegen nicht zu.
+
+Erforderliche Änderung: Nach jeder wirksamen Änderung werden die stehenden Claims erneut nach Rang aufgelöst. Beschreibt ausdrücklich, dass auch ein neu erzeugter Korrekturclaim einen Konflikt auflösen kann, und ergänzt dieses Beispiel im Konformitätssatz.
+
+2. S2 muss auf wirkungslosen Eingriffen nicht scheitern.
+
+Die Pflichtmatrix verlangt mindestens 30 S2-ununterscheidbare Paare auch für P4: wirkungslose Korrektur und P6: wirkungslose Rücknahme.
+
+S2 ignoriert Korrekturen und Rücknahmen. Bei einem tatsächlich wirkungslosen Eingriff ist genau dieses unveränderte Verhalten richtig. Unterscheiden sich zwei Welten nur im Inhalt eines weiterhin wirkungslosen Berichts, bleiben auch ihre Politikantworten gleich. Daraus entsteht kein Paar mit unterschiedlichen Goldantworten.
+
+Solche Paare lassen sich dort durch zusätzliche Rang- oder andere wirksame Unterschiede herstellen. Der zusätzliche Informationsbedarf wäre dann aber diesen Unterschieden zuzuschreiben.
+
+Erforderliche Änderung: S2/P4 und S2/P6 aus der verpflichtenden Ununterscheidbarkeitsmatrix nehmen. Beide Familien als negative Kontrollen behalten: M muss auf wirkungslose Eingriffe unverändert reagieren. S2-Ergebnisse werden dort weiterhin vollständig berichtet. Ein Erfolg verlangt keine Überlegenheit gegenüber einer Baseline, die auf der jeweiligen Kontrollaufgabe richtig liegt.
+
+Verbesserungsideen zum Design — keine zusätzlichen Freigabebedingungen
+
+- Korrekturziele ohne Claim: Legt ausdrücklich fest, was passiert, wenn eine spätere Korrektur auf einen früheren, selbst wirkungslosen Korrekturbericht verweist. Dieser Bericht existiert, besitzt aber keinen Claim. Alternativ diesen Fall ausdrücklich ausschließen und auditieren.
+- Entfernungskaskaden dokumentieren: Bei Interventionen die vollständige Liste entfernter Bericht-IDs ausgeben. So bleibt sichtbar, wann ein Ergebnis auf dem Entfernen einer ganzen Abhängigkeit statt eines einzelnen Berichts beruht.
+- Baseline-Zustände nachvollziehbar machen: Die verglichenen Zustände und Fragen für markierte Paare protokollieren. Bericht-IDs gehören dazu, soweit eine Baseline sie für ihre Ausgaben verwendet.
+- Referenzauswertung sparsam halten: Welten nacheinander verarbeiten und Antworten an benötigten Präfixen ablegen. Vollständige Zustandskopien für jeden irrelevanten Bericht würden unnötig RAM verbrauchen.
+
+Die Bewertung betrifft den Entwurf; Runde-4-Code liegt laut Paket noch nicht vor.
+
+[The second part of this review - Astra's APPROVE of the private phase 1 audit report v3 - is not archived here, because the audit stays out of the public lab.]

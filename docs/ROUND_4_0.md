@@ -1,4 +1,4 @@
-# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v3, draft for review)
+# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v4, draft for review)
 
 Context: the experiment's five-phase plan (2026-10-20) puts the external long-term memory
 first, with the milestone "B1 long-term test with real updates, contradictory statements,
@@ -16,6 +16,11 @@ the full semantics of corrections and retractions incl. chains, withdrawn and mi
 targets (section 2); "truth-determinable" replaced by a measured "clean report state"
 (section 1); baseline failures defined by pre-fixed pair properties instead of by the
 baselines' answers (section 3); one fixed case table with zero allowed errors (section 5).
+v4 answers her review of v3 (reviews/2026-10-21_r40v3_astra.txt): the day's value is
+re-decided by rank after every effective report, so a new correction claim can resolve a
+conflict (section 2); S2 on P4 / P6 removed from the required cells, both families are
+negative controls (section 4); targets without a claim defined; removal cascades, baseline
+states and R's memory use specified (section 3).
 
 Uncertainty removed: does an external episodic memory, following a FIXED source policy,
 keep apart (a) the best-supported state now, (b) the state at an earlier valid time as
@@ -89,17 +94,25 @@ Transition rules (complete for 4.0):
 | assert, same valid_from, different value, higher rank than every standing claim there | - | its value decides that day (the lower claims stay stored, not deciding) |
 | assert, same valid_from, different value, lower rank | - | stored, not deciding |
 | assert, same valid_from, different value, equal to the highest rank | different origin from the deciding claim(s) | OPEN CONFLICT for that day |
-| same, but the same origin | - | cannot occur: the generator never emits it (audit check) |
+| same, but the same origin | - | cannot occur: the generator never emits it, also not via a correction claim (audit check) |
 | correct (target t) | t's claim stands and the corrector's rank >= the rank of t's claim | t's claim is withdrawn; a NEW claim is created with the correction's value and valid_from (t's valid_from if none is given) and with the CORRECTOR's source, rank and origin; its report id is the correction's id |
 | correct | lower rank than t's claim | stored as an ineffective correction (no change) |
 | retract (target t) | t's claim stands and the retracting source is the source of t's claim | t's claim is withdrawn |
 | retract | another source | stored as an ineffective retraction (no change) |
 | correct or retract | t's claim is already withdrawn (retracted or corrected before) | ineffective (no change), stored |
+| correct or retract | t exists but never created a claim (t is a correct report that was itself ineffective) | ineffective (no change), stored - the generator does not emit it in original worlds; it can arise legitimately in a counterfactual world (for example after swapping ranks) and is then resolved by this row |
 | correct or retract | t does not exist in the store | ineffective, stored with the flag "dangling reference" - the generator never emits it, and no intervention may create it (audit) |
 | correct or retract | t is a retract report | cannot occur: the generator never emits it (audit) |
-An open conflict is resolved only by (i) an assert of higher rank for the same valid_from,
-or (ii) an effective correct / retract of one of the conflicting claims. A further assert
-of equal rank resolves nothing (majorities are not used in 4.0).
+Conflicts are not a separate state machine: after EVERY effective report the value of
+each affected valid_from day is decided again from the claims standing then (step 3). A
+conflict therefore ends exactly when the highest-rank standing claims of that day agree
+in value - through a higher-rank assert, a higher-rank claim created by a correction
+(also when the corrected claim was not part of the conflict: r1 rank 1 asserts A; r2 and
+r3, rank 2, independent, assert B and C -> conflict; r4 rank 3 corrects r1 to D -> D
+decides, deciding id r4), a correction that changes or moves a conflicting claim, or a
+retraction of a conflicting claim. A further claim of equal rank resolves nothing
+(majorities are not used in 4.0); a correction claim of equal rank takes part in the
+conflict like any claim.
 Consequences of the correction rule (fixed policy: a correction is a withdrawal plus a new
 claim on the corrector's authority): (a) example r1 rank 1 asserts A; r2 rank 3 corrects r1
 to B; r3 rank 2 asserts C for the same valid_from -> B decides (r2's claim has rank 3), the
@@ -158,8 +171,9 @@ from the truth (bridge) - right by the policy then, wrong by the world.
   outcomes - a separate, deliberately simple implementation (day-by-day replay over a full
   table, no indexes, no shared resolver logic or state preparation with M, only the report
   schema); it processes each report prefix once and answers all questions of that prefix
-  (Astra's saving idea); M and R must agree on every question (a disagreement is a
-  problem, not an error of M alone).
+  (Astra's saving idea); it processes the worlds one after another and keeps only the
+  answers at the prefixes that are needed, no state copy per irrelevant report; M and R
+  must agree on every question (a disagreement is a problem, not an error of M alone).
 - S0 no memory: always unknown (why_changed: unknown; conflicts: none; history: empty).
 - S1 state-only: one value per (s, a) - the value of the last assert received wins (rank,
   valid_from, corrections and retractions ignored); every value question is answered with
@@ -187,7 +201,9 @@ report; remove the correction; remove the retraction; swap the ranks of two sour
 remove the report that resolves a conflict; move the anchor to another day; remove the
 anchor (-> unknown); remove the relevant observation before the anchor; add or remove an
 irrelevant report (no change). The expected outcome of each is computed by R on the
-counterfactual world before any run.
+counterfactual world before any run. Every intervention record lists the complete set of
+removed report ids (the removal cascade below), so a result that rests on removing a
+whole dependency is visible as such.
 Control of the baseline-visible input: in a pair, worlds A and B have the same question
 (text, structured fields, metadata), the same number of reports and the same report days;
 only the content of the one critical report differs.
@@ -198,7 +214,9 @@ valid_from, for S1 the single value, for S2 the asserts with report_day, valid_f
 value, for S4 the current answer) and the question - while
 the gold answer of at least one question of the phenomenon (same operator, same arguments,
 same delay) differs between A and B. This is a property of the inputs, fixed before any
-run and checked by the audit; on such a pair B can be right in at most one world. The
+run and checked by the audit; on such a pair B can be right in at most one world. For
+every marked pair the compared baseline states and the question are logged (including
+report ids where the baseline uses them for its outputs). The
 design (section 4) fixes in advance which (B, P) cells must contain at least 30
 B-indistinguishable pairs (and which are not applicable by design); the evidence is that
 M solves these pairs. Baseline results are reported on ALL cases (answers right and pair
@@ -240,9 +258,12 @@ pair asks its phenomenon's questions in both worlds at each of the four delays (
 phenomenon -> 30 x 2 x 4 x 40 = 9,600 answers. A pair is one unit; the four delays are not
 independent replications.
 Minimum B-indistinguishable pairs (>= 30 of the 40 holdout pairs): S1 on P1-P3, P5, P9;
-S2 on P3-P8; S3 on P9; S4 on P1-P3, P5, P9; other (B, P) cells are reported, not
-required.
-Conformance set: about 45 hand-checkable cases, each with the expected answer AND the
+S2 on P3, P5, P7, P8; S3 on P9; S4 on P1-P3, P5, P9; other (B, P) cells are reported, not
+required. P4 and P6 are NEGATIVE CONTROLS: an ineffective correction or retraction must
+change nothing, which a baseline that ignores corrections and retractions also gets
+right; M must match the gold there exactly (the ineffective report changes no answer;
+why_changed "unchanged"), and no superiority over a baseline is required there.
+Conformance set: about 50 hand-checkable cases, each with the expected answer AND the
 expected provenance (deciding report ids, source, rank) written down by hand before any
 run - every row of the transition table; the reference case of section 2 at every (v, k)
 shown; the correction consequences (a)-(d) of section 2 (rank of a corrected claim,
@@ -251,7 +272,9 @@ correction of the same target, a correction chain, correcting or retracting a wi
 claim, correcting a correction); why_changed edge cases (A -> B -> A, a supporting report
 with an unchanged value, a change of conflict evidence only); before(...) with every
 unknown reason, a corrected anchor date, a retracted anchor and conflicting anchor dates;
-interventions with cascading removal (removing a report that a correction targets).
+interventions with cascading removal (removing a report that a correction targets); a
+conflict resolved by a higher-rank correction of a claim outside the conflict (section 2);
+a correction targeting an ineffective correction report.
 
 ## 5. Measures and pass rule (fixed before any run)
 
