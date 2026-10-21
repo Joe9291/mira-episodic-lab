@@ -1,0 +1,9 @@
+{
+ "schema": "episodic_lab.round40_request.v1",
+ "enabled": true,
+ "note": "Round 4.0 phase A (docs/ROUND_4_0.md): dev run on GitHub Actions before the implementation review. The holdout runs only with a freeze (code, worlds, questions, expected answers) recorded here after review.",
+ "split": "dev",
+ "attempt": 1,
+ "repeat_of": null,
+ "freeze": null
+}
