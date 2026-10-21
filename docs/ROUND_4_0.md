@@ -393,9 +393,10 @@ except the timings): DEV_OK on every criterion - M 2,400 / 2,400 answers right a
 to R everywhere, 56 / 56 conformance checks, all 840 counterfactual cases as predicted
 by R, 720 stores reloaded identically in a new process, no audit violation, all 15
 required cells filled (10 / 10 pairs each). Baselines: S0 80, S1 736, S2 1,588, S3 1,832,
-S4 900 of 2,400 answers; no baseline gets every pair of a required cell right. Run time
-about 25 s plus 17 s for the persistence test; peak extra traced memory below 2 MB per
-kind of work; the holdout (4 x the dev size) needs a few minutes.
+S4 900 of 2,400 answers; no baseline gets a single pair of a required cell right. Run
+time on the runner 36.6 s in total (R 4.6 s with interventions, M 1.5 s, baselines 0.4 s,
+audit 1.4 s, persistence 16.7 s); peak extra traced memory below 2 MB per kind of work;
+the holdout (4 x the dev size) should need about 2.5 minutes.
 Mutation check (docs/ROUND_4_0_mutation.json): 13 single changes of M, each run through
 the full dev run in a fresh copy - all 13 fail at least one pass criterion.
 Known limits of the generated data, stated before the holdout:
