@@ -258,6 +258,13 @@ Controls:
   correct quote is not counted. With two model reviewers, one of them the author,
   deterministic checks (tests, mutation tests, reference worlds) take precedence over
   model judgements, and independent replication remains required (section 11).
+- Reviews are archived in `reviews/` without any part that concerns the private
+  repository or its audits (findings, open limits, version or key details); the archived
+  file states that such a part was left out. Rule added on 2026-10-21: the archived
+  review reviews/2026-10-20_r40v1b_astra.txt (and its history) contains Astra's notes on
+  the phase 1 audit; it stays as it is, because removing it from the history would need
+  a rewrite of the published history and break commit references and archive checksums,
+  while it contains no secrets.
 
 ## 11. Known limits
 
