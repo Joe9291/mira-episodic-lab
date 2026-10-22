@@ -186,3 +186,40 @@ follow-up test; store the baselines' raw answers in the rows; failure classes an
 denominators per family x delay in the summary; table headers without "|" inside cells
 (the generated summary uses "T1|A", which a Markdown table splits).
 
+## 8. Holdout result (attempt 1 - the only run)
+
+GitHub Actions run 39786249333 on commit b589794, 2026-10-22; freeze matched (written in
+commit f876478 after the implementation APPROVE; the round 4.0 files have the same
+SHA-256 as in the 4.0 freeze); summary with every table generated from the rows in
+docs/ROUND_4_1_holdout_SUMMARY.md, all rows on the results branch
+(round41/run_39786249333_1). Verdict: PASS on every criterion of section 5.
+- M: 400 / 400 BEFORE and 1,600 / 1,600 AFTER answers right, equal to R on every
+  question; all 200 pairs right; 0 stale answers (denominator 800), over-update 0 in every
+  family (denominators 160).
+- Conformance 56 / 56 (4.0) and 19 / 19 (4.1); S4 right on every current question
+  (positive control); remove_change changed the answer in all 800 cases and restored the
+  BEFORE answer each time; the irrelevant control left all 800 cases unchanged; M equal
+  to R in all 1,600 intervention cases; 1,600 stores reloaded identically; no audit
+  violation; all 15 required cells filled with 40 / 40 pairs (required 30).
+- Baselines (AFTER answers right of 1,600; stale of 800): S1 and S2 536, stale 320 each
+  (all A answers of T1 and T2), over-update 160 / 160 in T4 and T5 (T3 not evaluable);
+  S5 640, never stale, over-update 160 / 160 in T1, T2, T4 and T5 (T3 not evaluable);
+  S3 and S4 (oracles) 1,600; S0 80 (the T2 worlds without X, where "unknown" is right).
+- Run time 117.7 s. Resource note: the reported maximum resident memory of the reload
+  subprocess (57.2 MB) equals that of the main process, as already in the dev run; on
+  Linux the child's figure can include the memory it inherited at fork time, so it is no
+  reliable measurement of the subprocess itself.
+Claim (fixed limits): on the frozen holdout of this test - 200 pairs, each evaluated on a
+BEFORE prefix and on AFTER worlds at four delays, plus 1,600 counterfactual worlds - and
+on both conformance sets, M switched its current answer immediately after every report
+that changes the policy answer (effective correction, retraction, conflict creation,
+conflict resolution, higher-rank override) and kept it after every report that does not
+(ineffective or neutral), also after up to 500 irrelevant reports that follow the change;
+it was never stale and never over-updated. Limits: every question was answered by a NEW
+memory instance built from the respective report prefix - an already queried,
+long-running instance that receives c afterwards is not tested (Astra's limit; stale
+caches would stay hidden); the GIVEN source policy within this generator only; a finite
+test suite, no general error rate; S1 and S2 are not separated here; S3 and S4 are
+controls; no language, no learned trust, no real conversations.
+Next: the small follow-up Astra proposed (one instance continued from BEFORE to AFTER),
+then phase B.

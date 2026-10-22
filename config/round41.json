@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round41_request.v1",
- "enabled": true,
- "note": "Round 4.1 holdout, attempt 1 (the only planned run). Freeze written in commit f876478 after Astra's APPROVE of the implementation (reviews/2026-10-22_r41impl_astra.txt); the runner stops with FREEZE_MISMATCH before M if anything differs.",
+ "enabled": false,
+ "note": "DONE: round 4.1 holdout attempt 1 (run 39786249333, commit b589794): PASS. Freeze kept below. No further run planned.",
  "split": "holdout",
  "attempt": 1,
  "repeat_of": null,
