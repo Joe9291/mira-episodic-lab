@@ -1,0 +1,443 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.1b CONTINUED MEMORY INSTANCE (design, code and dev check in one package)
+
+Review request (Astra; Claude is lead reviewer). Round 4.1 is closed with your APPROVE (archived as reviews/2026-10-22_r41result_astra.txt; your four ideas are applied: the claim opens with the prefix limit, a readable family x delay table with denominators and headers without "|" is in docs/ROUND_4_1_holdout_tables.md, derived from the rows without a new run, and the gain of the round is named: correct source and revision logic against these baselines, no need of a full history for current questions - S4 is right everywhere). This package is the small follow-up you proposed. Because it is small and dev-only, design, code and dev result come together; please answer APPROVE (the follow-up is complete and its claim may stand) or REQUEST CHANGES with concrete reasons, then separately improvement ideas and your view on starting phase B. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.1b REVIEW ===".
+
+STATE: lab main = 082e2cd. M's files are unchanged; the new class LiveMemory lives in its own module.
+
+POINTS FOR YOUR CHECK
+1. Finding: M had no ingest step and caches results per (fact, knowledge time); LiveMemory adds ingest() that drops all cached results of the affected fact for all knowledge times.
+2. Your same-time variant: Q3 asks at the same query time as Q2, after c arrived. The mutation check confirms its value - without cache invalidation the instance fails ONLY at Q3 (200 / 400, the A worlds); questions at new query times hide the stale cache.
+3. Dev only, no frozen holdout, as you proposed for this follow-up; the claim is limited accordingly (section 4).
+
+
+---BEGIN FILE docs/ROUND_4_1b.md---
+# Round 4.1b - Continued memory instance (design, implementation and dev check, for review)
+
+Context: Astra's limit for round 4.1 (reviews/2026-10-22_r41impl_astra.txt and
+2026-10-22_r41result_astra.txt): rounds 4.0 and 4.1 built a NEW memory instance for
+every question, so they show correct reconstruction from each report prefix, but not that
+one long-running instance, already queried, updates correctly when further reports
+arrive; stale caches would stay hidden. She proposed a small follow-up on dev and hand
+cases of the five 4.1 families, including a variant with an UNCHANGED query time, so that
+a different time key cannot hide a stale cache. Rounds 4.0 and 4.1 and their holdouts
+stay closed.
+
+Finding before the test: M (episodic_lab/r40_memory.py) had no way to receive reports
+after construction, and it caches resolved versions per (fact, knowledge time). A
+long-running M therefore needs an ingest step, and that step must drop cached results.
+
+## 1. Implementation
+
+episodic_lab/r41b_memory.py - LiveMemory = M (unchanged class) plus ingest(): every new
+report is appended to the hash-chained ReportStore (written to disk; shape and total
+order are checked, a report out of order is refused), added to the per-fact index, and
+every cached result of its fact is dropped for ALL knowledge times (a report of day d can
+change the answer for any knowledge time >= d that was already asked; dropping all is the
+simple safe rule). M's files are unchanged.
+
+## 2. Protocol (bench/m3/run_round41b.py)
+
+Per world of the round 4.1 dev split (5 families x 10 pairs x worlds A / B x 4 delays =
+400 worlds), ONE LiveMemory on a file store:
+- start with the reports of days <= d3 - 1;
+- Q1 current @ d3 - 1; Q2 current @ d3 (c not yet received);
+- ingest c; Q3 current @ d3 - the SAME query time as Q2; Q4 current @ d3 + 1;
+- ingest the irrelevant reports of the delay; Q5 current @ now, Q6 history @ now,
+  Q7 believed_at(d3 - 1) @ now (its cached knowledge time precedes c and must stay
+  valid), Q8 why_changed(v = d3, k1 = d3 - 1, k2 = now);
+- afterwards a second process reloads every final store (seal checked) and answers
+  Q5-Q8 again.
+Gold for every question: R on exactly the reports received so far.
+Hand cases (tests/test_round41b.py): the 19 hand-computed checks of round 4.1 fed day by
+day into one instance; before each new report day the instance is queried at that day,
+and every check is answered both at its own time and at that earlier same query time;
+plus an explicit same-time case and a disk reload.
+
+## 3. Dev result (local, Python 3.13; docs/ROUND_4_1b_dev_SUMMARY.md)
+
+DEV_OK: Q1-Q8 3,200 / 3,200 answers equal to R (400 per step); in 200 of the 400
+Q2 / Q3 pairs (the A worlds) c changes the gold at the same query time, and the instance
+followed every time; 400 stores reloaded identically in a second process. Unit tests: 4 / 4,
+including the hand cases through one instance.
+Mutation check (docs/ROUND_4_1b_mutation.json): without cache invalidation the instance
+fails exactly at Q3 (200 / 400 wrong, the A worlds) and nowhere else - questions at a new
+query time hide the stale cache, which is why the same-time variant matters; without the
+index update it fails at Q3-Q6 and Q8. Both are caught; the hand-case test also catches
+the missing invalidation.
+
+## 4. Claim and limits
+
+Claim: on the 400 dev worlds of round 4.1 and the 19 hand cases, ONE continued instance
+that was queried before c arrived answered every later question - at the same and at
+later query times, current and historical operators - exactly as R on the reports
+received so far, and its store reloaded identically. Limits: dev data only, no frozen
+holdout (as proposed for this small follow-up); reports arrive in total order (out-of-order
+arrival is refused, not handled); single process, no concurrent writers; no latency
+measured; the GIVEN source policy within this generator.
+Next: phase B - natural-language reports with structured questions, the resolver and
+the source policy unchanged, and a parallel control with the correct structured reports
+to separate extraction errors from memory errors (Astra's recommendation).
+---END FILE docs/ROUND_4_1b.md---
+
+---BEGIN FILE episodic_lab/r41b_memory.py---
+"""Round 4.1b: a long-running memory instance (docs/ROUND_4_1b.md).
+
+LiveMemory is M (r40_memory.Memory, unchanged) plus ingest(): new reports are appended
+to the hash-chained ReportStore (written to disk), added to the per-fact index, and every
+cached result of the affected fact is dropped - for all knowledge times, because a late
+report can change the answer for a knowledge time that was already asked.
+"""
+from __future__ import annotations
+
+from .r40_memory import Memory, ReportStore
+
+
+class LiveMemory(Memory):
+    def __init__(self, store: ReportStore):
+        super().__init__(store.reports)
+        self.store = store
+
+    def ingest(self, reports) -> None:
+        for r in reports:
+            self.store.extend([r])                  # checks shape and total order, writes
+            fact = (r["subject"], r["attribute"])
+            self._by_fact.setdefault(fact, []).append(dict(r))
+            self._cache = {key: v for key, v in self._cache.items() if key[0] != fact}
+---END FILE episodic_lab/r41b_memory.py---
+
+---BEGIN FILE bench/m3/run_round41b.py---
+#!/usr/bin/env python3
+"""Round 4.1b continued-instance check (docs/ROUND_4_1b.md), dev worlds of round 4.1.
+
+Per world (pair side A / B, each delay) ONE LiveMemory instance on a file store:
+  start with the reports of days <= d3 - 1
+  Q1 current @ d3 - 1            Q2 current @ d3   (c not yet received)
+  ingest c
+  Q3 current @ d3 (same query time as Q2)          Q4 current @ d3 + 1
+  ingest the irrelevant reports of the delay
+  Q5 current @ now   Q6 history @ now   Q7 believed_at(d3 - 1) @ now
+  Q8 why_changed(v = d3, k1 = d3 - 1, k2 = now) @ now
+Gold for every question: R on exactly the reports received so far. Afterwards a second
+process reloads every final store (seal checked) and answers Q5-Q8 again.
+
+usage: run_round41b.py --out DIR
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round40 as R40  # noqa: E402
+from episodic_lab import r41_world as W  # noqa: E402
+from episodic_lab.r40_memory import ReportStore  # noqa: E402
+from episodic_lab.r40_reference import reference_answers  # noqa: E402
+from episodic_lab.r41b_memory import LiveMemory  # noqa: E402
+
+CODE_FILES = ("episodic_lab/r41b_memory.py", "bench/m3/run_round41b.py", "episodic_lab/r40_memory.py",
+              "episodic_lab/r40_reference.py", "episodic_lab/r41_world.py", "tests/test_round41b.py")
+
+
+def sequence(pair, inst, world, tmp):
+    """Run one world through the live protocol; returns rows and the persistence item."""
+    reports = inst[world]["reports"]
+    d3, now = pair["d3"], inst["now"]
+    fact = {"subject": pair["fact"][0], "attribute": pair["fact"][1]}
+    crit = next(r for r in reports if r["report_id"] == inst["crit_id"])
+    first = [r for r in reports if r["report_day"] <= d3 - 1]
+    rest = [r for r in reports if r["report_day"] > d3]
+    path = Path(tmp) / f"{pair['pair']}_{inst['delay']}_{world}.jsonl"
+    store = ReportStore(path)
+    store.extend(first)
+    live = LiveMemory(store)
+    received = list(first)
+    rows = []
+
+    def ask(name, q):
+        q = dict(q, qid=f"{pair['pair']}-{world}-{inst['delay']}-{name}", **fact)
+        gold = reference_answers(received, [q])[0][q["qid"]]
+        got = live.answer(q)
+        rows.append({"qid": q["qid"], "family": pair["family"], "world": world, "delay": inst["delay"],
+                     "step": name, "op": q["op"], "gold": gold, "M": got, "ok": got == gold})
+        return q
+    ask("Q1", {"op": "current", "now": d3 - 1})
+    ask("Q2", {"op": "current", "now": d3})
+    live.ingest([crit])
+    received.append(crit)
+    ask("Q3", {"op": "current", "now": d3})
+    ask("Q4", {"op": "current", "now": d3 + 1})
+    live.ingest(rest)
+    received.extend(rest)
+    final = [ask("Q5", {"op": "current", "now": now}), ask("Q6", {"op": "history", "now": now}),
+             ask("Q7", {"op": "believed_at", "t": d3 - 1, "now": now}),
+             ask("Q8", {"op": "why_changed", "v": d3, "k1": d3 - 1, "k2": now, "now": now})]
+    expect = hashlib.sha256(R40.dumps([r["M"] for r in rows[-4:]])).hexdigest()
+    return rows, {"path": str(path), "seal": store.seal(), "questions": final, "expect": expect}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", required=True)
+    a = ap.parse_args()
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    t0 = time.perf_counter()
+    rows, persist = [], []
+    phases = {"persist_reload": R40.Phase()}
+    with tempfile.TemporaryDirectory() as tmp:
+        for pair in W.iter_pairs("dev"):
+            for inst in pair["instances"]:
+                for world in ("A", "B"):
+                    r, p = sequence(pair, inst, world, tmp)
+                    rows += r
+                    persist.append(p)
+        persist_res = R40.run_persistence(persist, tmp, phases)
+    by_step = {s: {"ok": sum(r["ok"] for r in rows if r["step"] == s), "n": sum(1 for r in rows if r["step"] == s)}
+               for s in ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8")}
+    changed_by_c = sum(1 for r2, r3 in zip([r for r in rows if r["step"] == "Q2"], [r for r in rows if r["step"] == "Q3"])
+                       if r2["gold"] != r3["gold"])
+    res = {"schema": "episodic_lab.round41b_result.v1", "split": "dev", "by_step": by_step,
+           "all_ok": all(r["ok"] for r in rows), "persistence": persist_res,
+           "same_time_cases_where_c_changes_the_gold": changed_by_c,
+           "worlds": len(persist), "seconds": round(time.perf_counter() - t0, 1),
+           "code": {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in CODE_FILES}}
+    res["verdict"] = "DEV_OK" if res["all_ok"] and persist_res["ok"] else "DEV_PROBLEMS"
+    (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
+    with open(out / "rows.jsonl", "w") as fh:
+        for r in rows:
+            fh.write(json.dumps(r, sort_keys=True) + "\n")
+    lines = [f"# Round 4.1b continued-instance check - dev", "", f"Verdict: **{res['verdict']}**", "",
+             "| step | right / n |", "|---|---|"]
+    lines += [f"| {s} | {v['ok']}/{v['n']} |" for s, v in by_step.items()]
+    lines += ["", f"Worlds (one live instance each): {res['worlds']}. Same-time pairs Q2 / Q3 where c changes the gold: "
+              f"{changed_by_c}. Reload in a second process: {persist_res['stores']} stores, ok = {persist_res['ok']}. "
+              f"{res['seconds']} s."]
+    (out / "SUMMARY.md").write_text("\n".join(lines) + "\n")
+    (out / "VERDICT").write_text(res["verdict"] + "\n")
+    print(res["verdict"], json.dumps(by_step))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/run_round41b.py---
+
+---BEGIN FILE tests/test_round41b.py---
+"""Round 4.1b: one long-running instance receives reports after it was queried."""
+from __future__ import annotations
+
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from episodic_lab.r40_memory import Memory, ReportStore
+from episodic_lab.r41b_memory import LiveMemory
+
+ROOT = Path(__file__).resolve().parents[1]
+FIELDS = ("report_id", "report_day", "source", "rank", "subject", "attribute", "kind", "value",
+          "valid_from", "target_report_id")
+
+
+def worlds():
+    d = json.loads((ROOT / "tests/fixtures/r41_conformance.json").read_text())
+    for name, w in d["worlds"].items():
+        reps = sorted((dict(zip(FIELDS, row), origin="o-" + row[0]) for row in w["reports"]),
+                      key=lambda r: (r["report_day"], r["report_id"]))
+        yield name, reps, sorted(w["checks"], key=lambda c: (c[1], c[2]))
+
+
+def q(now):
+    return {"qid": "q", "op": "current", "now": now, "subject": "key", "attribute": "loc"}
+
+
+class NoInvalidation(LiveMemory):
+    """A deliberately broken instance: new reports are indexed, but caches are kept."""
+
+    def ingest(self, reports):
+        for r in reports:
+            self.store.extend([r])
+            self._by_fact.setdefault((r["subject"], r["attribute"]), []).append(dict(r))
+
+
+def run_live(cls, reps, checks):
+    """Feed the reports day by day into ONE instance; before each new report day, ask the
+    question at the day of the coming report, and ask every check both at its own time and
+    at that same earlier query time (in these worlds no claim starts between the two, so
+    both answers must equal the hand-computed one)."""
+    first_day = checks[0][1]
+    live = cls(ReportStore())
+    live.ingest([r for r in reps if r["report_day"] <= first_day])
+    got = {}
+    pending = [r for r in reps if r["report_day"] > first_day]
+    for cid, last, now, exp, _ in checks:
+        while pending and pending[0]["report_day"] <= last:
+            day = pending[0]["report_day"]
+            live.answer(q(day))                        # warms the cache for this query time
+            batch = [r for r in pending if r["report_day"] == day]
+            pending = pending[len(batch):]
+            live.ingest(batch)
+        got[cid] = (live.answer(q(now)), live.answer(q(last)))
+    return got
+
+
+class LiveInstance(unittest.TestCase):
+    def test_hand_cases_through_one_instance(self):
+        for name, reps, checks in worlds():
+            got = run_live(LiveMemory, reps, checks)
+            for cid, last, now, exp, _ in checks:
+                with self.subTest(case=cid):
+                    self.assertEqual(got[cid], (exp, exp))
+
+    def test_same_query_time_after_ingest(self):
+        reps = [dict(zip(FIELDS, row), origin="o-" + row[0]) for row in (
+            ["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, None],
+            ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, None],
+            ["r00003", 4, "bo", 2, "key", "loc", "correct", "Z", None, "r00002"])]
+        for cls, expect_after in ((LiveMemory, "Z"), (NoInvalidation, "Y")):
+            live = cls(ReportStore())
+            live.ingest(reps[:2])
+            self.assertEqual(live.answer(q(4))["value"], "Y")     # c not yet received
+            live.ingest(reps[2:])
+            self.assertEqual(live.answer(q(4))["value"], expect_after)
+
+    def test_broken_instance_is_caught_by_the_hand_cases(self):
+        caught = 0
+        for name, reps, checks in worlds():
+            got = run_live(NoInvalidation, reps, checks)
+            caught += any(got[c[0]] != (c[3], c[3]) for c in checks)
+        self.assertGreater(caught, 0)
+
+    def test_store_on_disk_matches_and_rejects_disorder(self):
+        name, reps, checks = next(worlds())
+        with tempfile.TemporaryDirectory() as tmp:
+            live = LiveMemory(ReportStore(Path(tmp) / "s.jsonl"))
+            live.ingest(reps)
+            reloaded = Memory(ReportStore(Path(tmp) / "s.jsonl", expect=live.store.seal()).reports)
+            self.assertEqual(reloaded.answer(q(9)), live.answer(q(9)))
+            with self.assertRaises(ValueError):
+                live.ingest([reps[0]])
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_round41b.py---
+
+---BEGIN FILE docs/ROUND_4_1b_dev_SUMMARY.md---
+# Round 4.1b continued-instance check - dev
+
+Verdict: **DEV_OK**
+
+| step | right / n |
+|---|---|
+| Q1 | 400/400 |
+| Q2 | 400/400 |
+| Q3 | 400/400 |
+| Q4 | 400/400 |
+| Q5 | 400/400 |
+| Q6 | 400/400 |
+| Q7 | 400/400 |
+| Q8 | 400/400 |
+
+Worlds (one live instance each): 400. Same-time pairs Q2 / Q3 where c changes the gold: 200. Reload in a second process: 400 stores, ok = True. 27.2 s.
+---END FILE docs/ROUND_4_1b_dev_SUMMARY.md---
+
+---BEGIN FILE docs/ROUND_4_1b_mutation.json---
+{
+ "schema": "episodic_lab.round41b_mutation.v1",
+ "protocol": "Two single changes of LiveMemory (episodic_lab/r41b_memory.py), each through the full dev check bench/m3/run_round41b.py in a fresh copy of the lab, new process with -B.",
+ "mutants": {
+  "no_cache_invalidation": {
+   "change": "ingest() keeps the cached results of the affected fact",
+   "result": {
+    "verdict": "DEV_PROBLEMS",
+    "by_step": {
+     "Q1": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q2": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q3": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q4": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q5": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q6": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q7": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q8": {
+      "n": 400,
+      "ok": 400
+     }
+    }
+   }
+  },
+  "no_index_update": {
+   "change": "ingest() writes the store but does not add the report to the per-fact index",
+   "result": {
+    "verdict": "DEV_PROBLEMS",
+    "by_step": {
+     "Q1": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q2": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q3": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q4": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q5": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q6": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q7": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q8": {
+      "n": 400,
+      "ok": 200
+     }
+    }
+   }
+  }
+ },
+ "note": "Both are caught. The missing cache invalidation shows up ONLY at Q3, the question asked at the same query time as before c arrived (200 of 400 wrong: the A worlds); questions at a new query time hide it. This is why the same-time variant (Astra's request) is part of the protocol."
+}
+---END FILE docs/ROUND_4_1b_mutation.json---
+
+=== END OF LAB ROUND 4.1b REVIEW ===
