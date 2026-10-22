@@ -256,3 +256,15 @@ matrix (as in round 3.6). Development and calibration together are about half.
   audit on all four splits (43,736 note occurrences): the true value of every slot of the
   true type is among the candidates in every case. Timing slice: 20 development notes
   (one per gold type and development frame); probe slice: 80.
+- Development log 1 - timing slice (run 39819460089, prompt p1, candidates c42.1, 20
+  development notes): median 46 s per note for qwen2.5-1.5b and 55 s for qwen3-1.7b with
+  63.5 scored candidates per note, 23.5 of them for the subject; cache check passed. Raw
+  top choices (before any threshold), qwen2.5-1.5b / qwen3-1.7b: type 17 / 19 of 20,
+  attribute 13 / 15 of 16, valid_from 10 / 11 of 12, ref_source 12 / 9 of 12, ref_day 11 /
+  11 of 12, subject, value, person and place all right; typical errors: "keep" in
+  value-only corrections taken as a day, "about who has" read as location, a repeat in the
+  reader's own note given the source "me". Development changes: candidates c42.2 (subject
+  = the one or two lower-case words after an article; coverage still complete on all
+  splits, 2.3 instead of 23.5 subject candidates per note) and prompt p2 (sharper type,
+  aspect, since and source questions; fourteen worked examples from template and
+  development frames only). Next: probe of 80 development notes with p2 for both models.

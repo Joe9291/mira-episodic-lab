@@ -6,8 +6,10 @@ Contract (the round 3.5 token rules):
 - tokens: maximal runs of letters, digits and apostrophes; a span never crosses
   punctuation; candidate spans are 1-3 consecutive tokens;
 - name candidates (value, person, place): spans whose tokens all begin with a capital
-  letter; object candidates (subject): spans of lower-case letters, a leading article
-  removed (canonical value = the rest, lower case);
+  letter; object candidates (subject; version c42.2, a development change after the
+  timing slice, which showed 23 subject candidates per note dominating the run time): the
+  one or two lower-case words directly after an article ("the", "a", "an"), never
+  crossing punctuation (canonical value = those words);
 - day candidates: the numbers of the note and the words "today" / "yesterday" (canonical:
   the report day / the day before); "not stated" (statement) has the canonical value of
   the report day (a statement without a day speaks about the day it is written);
@@ -27,7 +29,7 @@ import re
 
 from .cands35 import decide, merge, ranking, spans  # noqa: F401 (re-exported, unchanged rules)
 
-CANDIDATE_VERSION = "c42.1"
+CANDIDATE_VERSION = "c42.2"
 TYPES = {"statement": "it says where a thing is or who has it",
          "repeated statement": "the author passes on what another person reported",
          "correction": "the author corrects an earlier report",
@@ -107,6 +109,16 @@ def candidates(slot: str, note: str, ctx: dict) -> list[tuple[str, object]]:
             surf += [w for w in ("today", "yesterday") if re.search(r"\b" + w + r"\b", low)]
         if slot == "valid_from":
             surf += [NOT_STATED, KEEP]
+    elif slot == "subject":
+        surf = []
+        for seg in re.findall(r"[^,.;:!?()\-]+", note):
+            toks = re.findall(r"[A-Za-z0-9']+", seg)
+            for i, tok in enumerate(toks[:-1]):
+                if tok.lower() in ("the", "a", "an"):
+                    nxt = toks[i + 1:i + 3]
+                    for n in range(1, len(nxt) + 1):
+                        if all(t.isalpha() and t.islower() for t in nxt[:n]):
+                            surf.append(" ".join(nxt[:n]))
     else:
         surf = spans(note)
         if slot == "value":
