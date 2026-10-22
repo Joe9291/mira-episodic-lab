@@ -442,17 +442,29 @@ docs/ROUND_4_0_holdout_SUMMARY.md, all rows on the results branch
 (round40/run_39680621145_1). Verdict: PASS on every criterion of section 5.
 - M: 9,600 / 9,600 answers right, equal to R on every question; all 360 pairs right in
   both worlds at all four delays.
-- Conformance 56 / 56; 3,360 counterfactual cases all as predicted by R (informative
-  pairs at delay 0: 40 / 40 for every removal type, the moved anchor and the removed
-  anchor, 135 / 160 for swap_ranks; the irrelevant control left all 1,440 cases
-  unchanged); 2,880 stores reloaded identically in a second process; 0 audit violations.
+- Conformance 56 / 56; 2,880 stores reloaded identically in a second process; 0 audit
+  violations.
+- Interventions, reported in two groups (the 3,360 cases are no 3,360 independent
+  repetitions: one pair is the unit, the four delays are dependent):
+  informative changes - 40 / 40 pairs at delay 0 informative for every removal type,
+  the moved anchor and the removed anchor, 135 / 160 for swap_ranks; M equal to R's
+  prediction in all 1,920 cases of these types; invariance control - adding or removing
+  an irrelevant report left all 1,440 cases unchanged, M equal to R in all of them.
 - Required cells: all 15 filled with 40 / 40 B-indistinguishable pairs (required 30).
   No baseline gets a single pair of a required cell right.
-- Baselines, answers right of 9,600: S0 320, S1 2,936, S2 6,356, S3 7,324, S4 3,600.
-  Per operator (M / S1 / S2 / S3 / S4): current 2,080 of 2,080 / 1,656 / 1,656 / 2,080 /
-  2,080; valid_at 2,080 / 0 / 1,176 / 2,080 / 0; believed_at 1,280 / 0 / 1,176 / 604 / 0;
-  why_changed 1,920 / 960 / 1,120 / 960 / 960; conflicts 640 / 320 / 320 / 320 / 560;
-  history 1,280 / 0 / 588 / 1,280 / 0; before 320 / 0 / 320 / 0 / 0.
+- Answers right per operator (holdout; S0-S4 as defined in section 3):
+
+| operator | n | M | S0 | S1 | S2 | S3 | S4 |
+|---|---|---|---|---|---|---|---|
+| current | 2,080 | 2,080 | 0 | 1,656 | 1,656 | 2,080 | 2,080 |
+| valid_at | 2,080 | 2,080 | 0 | 0 | 1,176 | 2,080 | 0 |
+| believed_at | 1,280 | 1,280 | 0 | 0 | 1,176 | 604 | 0 |
+| why_changed | 1,920 | 1,920 | 0 | 960 | 1,120 | 960 | 960 |
+| conflicts | 640 | 640 | 320 | 320 | 320 | 320 | 560 |
+| history | 1,280 | 1,280 | 0 | 0 | 588 | 1,280 | 0 |
+| before | 320 | 320 | 0 | 0 | 320 | 0 | 0 |
+| all | 9,600 | 9,600 | 320 | 2,936 | 6,356 | 7,324 | 3,600 |
+
 - Truth (measurement only): on the clean report state, today's reconstruction agrees
   with the world truth everywhere (current 1,440 / 1,440, valid_at 1,760 / 1,760, before
   320 / 320); believed_at agrees in 588 of 800 - all 212 deviations are believed_at
@@ -461,23 +473,43 @@ docs/ROUND_4_0_holdout_SUMMARY.md, all rows on the results branch
 - Stale answers 0 / 2,080 and false conflicts 0 / 5,440 for every system
   (non-discriminating, see section 7).
 - Run time 258 s in total.
-Claim (fixed limits): within this generator, M implements the GIVEN source policy
-exactly - current state, the past as reconstructed today, what was believed earlier, the
-reports that changed an answer, open conflicts, history and the state before an anchor
-event - under state changes, late news, corrections, retractions, conflicts and up to 500
-irrelevant reports placed between the last relevant report and the question, and the
-predicted interventions show that its answers
-use the stored history causally. This is the pass rule of a finite test suite: zero
-errors on 40 pairs per phenomenon establish no general error rate below 1 %. Not shown:
-learned source reliability, truth finding, free-text reports or questions in language
-(phases B and C), real conversations, compaction.
-What the baselines show, read precisely: S3 (first / previous / current version from
-R) holds the complete history whenever a fact has at most three versions, so it answers
-valid_at and history fully right here; its dissociation from M lies in P9 (more versions)
-and in believed_at (no knowledge times). S2 handles late news and anchors (P2, P9 fully
-right) and fails where ranks, corrections, retractions or conflicts decide. S1 and S4 fail
-on every historical question. The four paths covered only by the conformance set keep
-their evidence there; the generated holdout adds none for them (section 7).
-Next: phase B (reports as free-text notes read by an LM extractor, with its own
-extraction qualification), a targeted stale test, compaction later; process memory
-including the reload subprocess will be measured in the next round's runner.
+Claim (fixed limits): on the frozen holdout of this generator - its 720 worlds at four
+delays and its 3,360 counterfactual worlds - and on the 56 conformance checks, M
+answered every question exactly as the GIVEN source policy prescribes: current state,
+the past as reconstructed today, what was believed earlier, the reports that changed an
+answer, open conflicts, history and the state before an anchor event, under state
+changes, late news, corrections, retractions, conflicts and up to 500 irrelevant reports
+placed between the last relevant report and the question. Under the fixed interventions
+its answers changed exactly as predicted, so they depend on the stored reports. This is
+the pass rule of a finite test suite: zero errors on 40 pairs per phenomenon establish
+no general error rate below 1 %, and nothing is claimed for worlds outside this frozen
+sample. Not shown: learned source reliability, truth finding, free-text reports or
+questions in language (phases B and C), real conversations, compaction.
+What the baselines show, read precisely:
+- S3 (first / previous / current version from R) differs from M for three different
+  reasons, which must not be mixed: (i) loss of information - before 0 / 320, all in P9,
+  where the asked version is none of the three kept ones; this is the targeted and
+  strongest evidence against S3, and the required cell S3 / P9 is filled with 40 / 40
+  pairs; (ii) no knowledge times - believed_at 604 / 1,280; (iii) a restricted output
+  rule - why_changed 960 / 1,920 (S3 always answers "unchanged") and conflicts 320 / 640
+  (S3 always answers the empty list, although its kept versions can contain the conflict).
+  Errors of kind (iii) show no necessary advantage of a larger memory. Wherever the
+  asked fact has at most three versions, S3 holds its complete history: valid_at
+  2,080 / 2,080 and history 1,280 / 1,280 (history is not asked in P9). This does not
+  weaken the design, whose required separation from S3 was fixed on P9.
+- S2 gets every P2 and P9 pair fully right (late news, anchors) and no pair in P3-P8,
+  where ranks, corrections, retractions or conflicts decide.
+- S1 and S4 answer none of the historical value questions valid_at, believed_at and
+  before correctly; both answer 960 / 1,920 why_changed questions right by always saying
+  "unchanged".
+- The four paths covered only by the conformance set keep their evidence there; the
+  generated holdout adds none for them (section 7).
+Next (Astra's recommendation): first a small targeted stale test - current questions
+immediately before and after a correction, retraction or conflict resolution, before a
+further own observation confirms the state again, with S4 as the current-state oracle as
+positive control; then phase B as the main step - natural reports with still structured
+questions and the fixed resolver, with its own extraction qualification for source,
+origin, valid time, report kind and target references (in particular: which information
+the extractor actually receives about origins), so that extraction errors and memory
+errors stay separable; compaction afterwards. Total process memory (including the reload
+subprocess) and the complete answer computation will be measured in the next runner.

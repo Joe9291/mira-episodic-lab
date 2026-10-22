@@ -1,0 +1,59 @@
+4m 31s nachgedacht
+
+}
+---END FILE config/round40.json---
+
+REQUEST CHANGES für die Aussagefassung. Die dokumentierten Zahlen sind intern konsistent und erfüllen den freigegebenen Testvertrag. Die erforderlichen Änderungen betreffen die Interpretation im Bericht; dafür ist kein weiterer Holdout-Lauf nötig.
+
+Meine Bewertung beruht auf dem Ergebnispaket und der zuvor geprüften Implementierung.
+
+1. Ergebnis und Aussage
+
+Der dokumentierte PASS ist nachvollziehbar: 9.600 richtige Antworten, alle 360 Paare vollständig richtig, erfüllte Pflichtzellen, passende Interventionsergebnisse und erfolgreiche Persistenzprüfungen. Die Einschränkungen zu Verzögerungen, Oracle-Baselines und statistischer Verallgemeinerung sind angemessen.
+
+Zwei Formulierungen bitte korrigieren:
+
+- „Within this generator, M implements … exactly“ sollte ausdrücklich auf die geprüften Welten und Gegenwelten begrenzt werden. Der Test belegt fehlerfreie Übereinstimmung in diesem eingefrorenen Ausschnitt. Die nachfolgende Einschränkung zur endlichen Testsuite ist richtig; diese Begrenzung gehört bereits in den Kernsatz.
+- „S1 and S4 fail on every historical question“ stimmt so nicht: Beide beantworten jeweils 960/1.920 why_changed-Fragen richtig. Zutreffend wäre: S1 und S4 beantworten hier keine der historischen Wertfragen valid_at, believed_at und before richtig.
+
+Die Interventionen stützen die behauptete Abhängigkeit der Antworten von den gespeicherten Berichten unter den festgelegten Eingriffen.
+
+2. S3: wichtiger Befund, aber die Beschreibung ist noch unvollständig
+
+Dass S3 bei valid_at 2.080/2.080 und bei history 1.280/1.280 erreicht, ist korrekt eingeordnet. In diesen abgefragten Fällen reichen seine gespeicherten Versionen aus. Bei P9 wird history dagegen gar nicht abgefragt.
+
+Das schwächt das freigegebene Design nicht: Die verpflichtende Trennung gegenüber S3 war auf P9 festgelegt und ist mit 40/40 passenden Paaren erfüllt.
+
+Die Aussage, S3 unterscheide sich von M nur bei P9 und believed_at, muss jedoch ergänzt werden:
+
+Operator	S3 richtig	Einordnung
+
+before	0/320	Gezielter Informationsverlust bei P9
+believed_at	604/1.280	Frühere Wissensstände fehlen
+why_changed	960/1.920	S3 antwortet stets unchanged
+conflicts	320/640	S3 liefert stets die leere Konfliktliste
+
+
+Besonders die letzte Zeile ist wichtig: S3 kann Konfliktinformation bereits in seinen gespeicherten Versionen besitzen. Seine festgelegte Ausgaberegel nutzt sie hier nicht. Dieser Fehler belegt daher keinen notwendigen Vorteil eines größeren Gedächtnisses.
+
+Bitte trennt im Absatz entsprechend Informationsverlust, fehlende Wissenszeit und eingeschränkte Ausgabestrategie. Der stärkste gezielte Nachweis gegenüber S3 bleibt P9.
+
+3. Vier ausschließlich durch Konformitätsfälle abgesicherte Pfade
+
+Das ist jetzt ausreichend transparent dargestellt. Die 56 festen Konformitätsprüfungen sind Teil des Bestehens; zugleich wird ausdrücklich gesagt, dass der generierte Holdout für diese vier Pfade keine zusätzliche Abdeckung liefert.
+
+Hier sind keine Änderungen erforderlich. Auch die 212 Abweichungen von der Weltwahrheit werden durch die getrennte Darstellung von believed_at verständlich und korrekt eingeordnet.
+
+Verbesserungsideen
+
+- Die Ergebnisse nach Operator aus Abschnitt 8 als Tabelle darstellen. Dadurch werden Gleichstände und tatsächliche Unterschiede unmittelbar sichtbar.
+- Bei den Interventionen die informativen Änderungen und die Invarianzkontrollen weiterhin getrennt berichten. Die 3.360 Fälle bilden keine entsprechend große Zahl unabhängiger Wiederholungen.
+- Für Ressourcenvergleiche künftig Gesamtprozessspeicher und vollständige Antwortberechnung erfassen. Die bisherigen Messlücken sind ausreichend offengelegt.
+
+Meine Einschätzung zum nächsten Schritt
+
+Ich würde zuerst den kleinen gezielten Stale-Test durchführen: aktuelle Fragen unmittelbar vor und nach einer Korrektur, Rücknahme oder Konfliktauflösung stellen, bevor eine weitere Eigenbeobachtung den Zustand erneut bestätigt. Das schließt die klar benannte Lücke schnell. S4 dient dabei als aktuelle Oracle-Positivkontrolle.
+
+Danach sollte Phase B der Hauptschritt sein: natürliche Berichte bei weiterhin korrekten strukturierten Fragen und festem Resolver. Quellen, Ursprung, Gültigkeitszeit, Berichtstyp und Zielverweise brauchen eine eigene Extraktionsqualifikation. Besonders beim Ursprung muss klar sein, welche Information der Extraktor tatsächlich erhält. So lassen sich Extraktionsfehler und Gedächtnisfehler sauber zuordnen.
+
+Verdichtung würde ich anschließend angehen.
