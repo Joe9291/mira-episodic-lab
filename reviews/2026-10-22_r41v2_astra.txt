@@ -1,0 +1,21 @@
+1m 56s nachgedacht
+
+complete answer computation are measured in this runner (Astra's idea from round 4.0).
+---END FILE docs/ROUND_4_1.md---
+
+APPROVE für Design v2.
+
+Die offenen Punkte aus v1 sind ausreichend umgesetzt:
+
+- Vorher-/Nachher-Vergleich: Alle Systeme beantworten echte current-Fragen auf dem jeweiligen Berichtsprefix. Damit wird ihre tatsächliche Vorherantwort erfasst.
+- 2.000 Antworten: Die Änderung ist fachlich sinnvoll: 400 BEFORE + 1.600 AFTER. Der identische BEFORE-Prefix muss nicht für jede Verzögerung erneut ausgewertet werden. Die irrelevanten Berichte können wie geplant nach c bleiben.
+- S5: Die Definition auf Prefixen und der exportierte Zustand passen jetzt zu den verwendeten Abfragen.
+- T3 und Auswertung: Die gemeinsame Eigenschaft der B-Welten ist korrekt formuliert. Die priorisierten Fehlerklassen und das zusätzliche Over-update-Kennzeichen unterscheiden die Fehlerarten sinnvoll.
+- Wiederverwendung: Unveränderte M-/R-Dateien und getrennte neue Konformitätsfälle ermöglichen eine saubere Erweiterung mit eigenem Freeze.
+
+Die fünf Familien und 15 Pflichtzellen reichen für diesen begrenzten Test.
+
+Verbesserungsideen — keine zusätzlichen Freigabebedingungen
+
+- Beim Over-update-Kennzeichen den Nenner B-Fälle mit richtiger BEFORE-Antwort ausweisen. Gerade bei T3 liefert S5 bereits vorher keine korrekte Konfliktantwort; dort kann das Kennzeichen deshalb trotz falscher AFTER-Antwort ausbleiben. Einen leeren Nenner als „nicht auswertbar" berichten.
+- Bei Unsicherheitsangaben das Paar als Auswertungseinheit verwenden. Auch die BEFORE-Antworten von A und B beruhen auf identischen Prefixen; die 2.000 Antworten sind keine 2.000 unabhängigen Wiederholungen.

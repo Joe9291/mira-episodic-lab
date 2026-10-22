@@ -1,0 +1,63 @@
+name: round41
+# Round 4.1 targeted stale test (docs/ROUND_4_1.md), model-free. Runs the split in
+# config/round41.json only if "enabled": true; the holdout refuses to start unless the
+# freeze in the request matches. Results go to the results branch. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round41.json"
+permissions:
+  contents: read
+concurrency:
+  group: round41
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: plan
+        run: |
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("config/round41.json"))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"enabled={'true' if r.get('enabled') is True else 'false'}\n")
+              out.write(f"split={r['split']}\n")
+          PY
+      - name: Unit tests
+        if: steps.plan.outputs.enabled == 'true'
+        run: python -B -m unittest tests.test_round40 tests.test_round41
+      - name: Run
+        if: steps.plan.outputs.enabled == 'true'
+        run: |
+          mkdir -p out
+          python -B bench/m3/run_round41.py --split "${{ steps.plan.outputs.split }}" --request config/round41.json --out out || true
+      - name: Store results on the results branch
+        if: always() && steps.plan.outputs.enabled == 'true'
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r out "$RUNNER_TEMP/out"
+          cp config/round41.json "$RUNNER_TEMP/request.json"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round41/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp -r "$RUNNER_TEMP/out/." "$dest/"
+          cp "$RUNNER_TEMP/request.json" "$dest/request.json"
+          [ -f "$dest/VERDICT" ] || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} split ${{ steps.plan.outputs.split }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add round41
+          git commit --quiet -m "Round 4.1 results (${{ steps.plan.outputs.split }}), run ${GITHUB_RUN_ID}, ${verdict}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+          case "$verdict" in PASS|DEV_OK) exit 0;; *) exit 1;; esac

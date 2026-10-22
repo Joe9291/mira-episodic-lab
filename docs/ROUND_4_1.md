@@ -1,4 +1,4 @@
-# Round 4.1 - Targeted stale-answer test (design v2, draft for review)
+# Round 4.1 - Targeted stale-answer test (design v2, approved 2026-10-22 - reviews/2026-10-22_r41v2_astra.txt)
 
 Context: round 4.0 phase A passed (docs/ROUND_4_0.md section 8), but its stale-answer
 measure did not discriminate: 0 stale answers for every system, because the worlds mostly
@@ -119,3 +119,30 @@ before M runs; one holdout run; any repeat is labelled as a repeat.
   tested only on the AFTER answer.
 - Resource figures: total process memory (including the reload subprocess) and the
   complete answer computation are measured in this runner (Astra's idea from round 4.0).
+
+## 7. Implementation notes (after the APPROVE of v2)
+
+- Astra's v2 ideas: the over-update flag is reported with its denominator (B worlds whose
+  BEFORE answer of that system was right; an empty denominator is reported as "not
+  evaluable" - e.g. S5 in T3, which answers no conflict right even before c); any
+  uncertainty statement uses the pair as the unit (the 2,000 answers are no 2,000
+  independent repetitions; BEFORE of A and B rests on identical prefixes).
+- Code: episodic_lab/r41_world.py (families T1-T5, built from the round 4.0 generator
+  blocks), episodic_lab/r41_baselines.py (S5), bench/m3/run_round41.py (imports the
+  round 4.0 runner for R, the persistence check and the 4.0 conformance set),
+  bench/m3/freeze41.py, tests/test_round41.py, tests/fixtures/r41_conformance.json (19
+  hand-computed checks in 15 worlds, each with the expected answer of M / R and of S5;
+  the T2 variant without X and all three T3 variants included), .github/workflows/round41.yml.
+  M, R, the 4.0 baselines and the 4.0 fixture are unchanged (same SHA-256 as in the 4.0
+  freeze).
+- Choices left open by the design: T1's effective corrector is the trusted source itself,
+  the other trusted person or "self" (random per pair); T2 drops X in odd pairs; T3
+  variants by pair index mod 3; the BEFORE question is asked at day d3 - 1 on the prefix
+  of all reports up to that day (identical in A and B, checked); interventions
+  remove_change (remove c) and the irrelevant control (as in round 4.0) on world A at all
+  four delays; "returns to previous answer" checks that removing c restores the BEFORE
+  answer.
+- Resources: the M answers on counterfactual worlds are now inside the timed phase, and
+  the run reports the maximum resident memory of the process and of the reload
+  subprocess (resource.getrusage), next to the traced memory per phase.
+

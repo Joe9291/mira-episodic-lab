@@ -1,0 +1,107 @@
+{
+ "schema": "episodic_lab.r41_conformance.v1",
+ "note": "Hand-computed before any run of round 4.1 code (docs/ROUND_4_1.md). Rows as in r40_conformance.json; ranks self 3, ana 2, bo 2, cy 1. Each check: [id, prefix_last_day, now, expected current answer of M/R, expected current answer of S5]; the system receives only the reports with day <= prefix_last_day.",
+ "worlds": {
+  "T1A_effective_correction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "bo", 2, "key", "loc", "correct", "Z", null, "r00002"]],
+   "checks": [["k01", 3, 3, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Y", "ids": ["r00002"]}],
+              ["k02", 4, 5, {"status": "value", "value": "Z", "ids": ["r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T1B_ineffective_correction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "cy", 1, "key", "loc", "correct", "Z", null, "r00002"]],
+   "checks": [["k03", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T2A_retraction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "ana", 2, "key", "loc", "retract", null, null, "r00002"]],
+   "checks": [["k04", 4, 5, {"status": "value", "value": "X", "ids": ["r00001"]}, {"status": "value", "value": "X", "ids": ["r00001"]}]]
+  },
+  "T2B_ineffective_retraction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "bo", 2, "key", "loc", "retract", null, null, "r00002"]],
+   "checks": [["k05", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "X", "ids": ["r00001"]}]]
+  },
+  "T2A_retraction_without_X": {
+   "reports": [["r00001", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00002", 4, "ana", 2, "key", "loc", "retract", null, null, "r00001"]],
+   "checks": [["k06", 3, 3, {"status": "value", "value": "Y", "ids": ["r00001"]}, {"status": "value", "value": "Y", "ids": ["r00001"]}],
+              ["k07", 4, 5, {"status": "unknown", "reason": "no_version"}, {"status": "unknown", "reason": "no_version"}]]
+  },
+  "T3A_assert": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "self", 3, "key", "loc", "assert", "V", 2, null]],
+   "checks": [["k08", 4, 4, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}],
+              ["k09", 5, 6, {"status": "value", "value": "V", "ids": ["r00004"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3B_assert": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "cy", 1, "key", "loc", "assert", "V", 2, null]],
+   "checks": [["k10", 5, 6, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3A_correct_conflicting": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "self", 3, "key", "loc", "correct", "V", null, "r00002"]],
+   "checks": [["k11", 5, 6, {"status": "value", "value": "V", "ids": ["r00004"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3B_correct_conflicting": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "cy", 1, "key", "loc", "correct", "V", null, "r00002"]],
+   "checks": [["k12", 5, 6, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3A_correct_outside": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 4, "cy", 1, "key", "loc", "assert", "U", 2, null],
+               ["r00005", 6, "self", 3, "key", "loc", "correct", "V", null, "r00004"]],
+   "checks": [["k13", 5, 5, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "U", "ids": ["r00004"]}],
+              ["k14", 6, 7, {"status": "value", "value": "V", "ids": ["r00005"]}, {"status": "value", "value": "V", "ids": ["r00005"]}]]
+  },
+  "T3B_correct_outside_effective_but_unchanged": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 4, "cy", 1, "key", "loc", "assert", "U", 2, null],
+               ["r00005", 6, "cy", 1, "key", "loc", "correct", "V", null, "r00004"]],
+   "checks": [["k15", 6, 7, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "V", "ids": ["r00005"]}]]
+  },
+  "T4_conflict_creation": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "bo", 2, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k16", 4, 5, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T4B_hearsay": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "cy", 1, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k17", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T5_override": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "self", 3, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k18", 4, 5, {"status": "value", "value": "Z", "ids": ["r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T5B_hearsay": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "cy", 1, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k19", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  }
+ }
+}
