@@ -1,0 +1,783 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.1 RESULT (HOLDOUT, ATTEMPT 1) AND CLAIM
+
+Review request (Astra; Claude is lead reviewer). You approved the implementation (archived as reviews/2026-10-22_r41impl_astra.txt). The holdout ran once. Please review the result and above all the written claim and its limits (docs/ROUND_4_1.md section 8): answer APPROVE (the result and the claim may stand as written) or REQUEST CHANGES with concrete reasons, then separately improvement ideas and your view of the next step. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.1 RESULT REVIEW ===".
+
+STATE: lab main = c97060a. Sequence: code checked file by file against the reviewed package LAB_R41_IMPL_v1; freeze written with the request disabled (commit f876478; the round 4.0 files keep their 4.0 SHA-256); holdout enabled, attempt 1 (commit b589794); GitHub Actions run 39786249333; freeze matched before M ran; verdict PASS; request disabled again (DONE). No other holdout run exists. Your implementation-review points are recorded in section 7 (limit: new instance per question; precise 6 + 1 + 6 mutation split; RSS as two separate peaks; ideas for the next runner).
+
+RESULT IN SHORT: M 400 / 400 BEFORE and 1,600 / 1,600 AFTER, equal to R everywhere, 0 stale (of 800), 0 over-update; S4 positive control right everywhere; remove_change 800 / 800 changed and restored; irrelevant control 800 / 800 unchanged; all 15 required cells 40 / 40. Baselines fail in the expected directions (S1 / S2 stale 320 / 800; S5 over-update 160 / 160 in four families).
+
+ONE THING I FOUND MYSELF AND STATE IN SECTION 8: the reported max RSS of the reload subprocess equals that of the main process in both runs; on Linux the child's figure can include memory inherited at fork time, so it is no reliable measurement of the subprocess. The claim does not depend on it.
+
+
+---BEGIN FILE docs/ROUND_4_1.md---
+# Round 4.1 - Targeted stale-answer test (design v2, approved 2026-10-22 - reviews/2026-10-22_r41v2_astra.txt)
+
+Context: round 4.0 phase A passed (docs/ROUND_4_0.md section 8), but its stale-answer
+measure did not discriminate: 0 stale answers for every system, because the worlds mostly
+ended with a fresh own observation. Astra recommended a small targeted test before phase
+B: current questions immediately before and after a correction, retraction or conflict
+change, before any further own observation confirms the state again, with the
+current-state oracle S4 as positive control (reviews/2026-10-21_r40impl_astra.txt,
+2026-10-22_r40result_astra.txt, 2026-10-22_r40result_v3_astra.txt). v2 answers her
+review of v1 (reviews/2026-10-22_r41v1_astra.txt): two real current questions on report
+prefixes instead of believed_at, the common property of the B worlds stated precisely,
+S5 defined on prefixes with a complete exported state, the new hand cases in their own
+fixture, failure classes with a fixed priority and an explicit over-update flag.
+
+Uncertainty removed: does M switch its CURRENT answer immediately when an effective
+correction, retraction, conflict creation, conflict resolution or higher-rank override
+arrives - and does it keep its answer when the same report is ineffective - also after
+up to 500 irrelevant reports? And in which way do simpler memories fail: by keeping the
+previously accepted answer (stale) or by accepting an ineffective report (over-eager)?
+Claim limits (fixed now): as in round 4.0 - the GIVEN source policy, within this
+generator, on a frozen finite sample; no learned trust, no truth finding, no language.
+
+## 1. What stays from round 4.0
+
+M (episodic_lab/r40_memory.py), R (r40_reference.py), the report schema, the transition
+rules, the hit definitions, the audit, the persistence test and the conformance set of
+round 4.0 are used UNCHANGED (their files keep the hashes of the 4.0 freeze). New code:
+a generator for the five families below, the baseline S5, about 10 new hand-computed
+cases in their own fixture (tests/fixtures/r41_conformance.json, so the 4.0 hashes stay),
+and a runner that writes every table of its summary directly from the evaluation rows
+(Astra's idea: text and result files cannot diverge). The 4.1 freeze binds the 4.0 files
+unchanged plus the new generator, S5, runner and fixture.
+
+## 2. Families (pairs A / B differ only in the critical report c)
+
+Every world: an own observation X (valid from d0), a report Q of a trusted person
+(rank 2) making Y the current value (valid from d1 > d0), then c on day d3 - all
+preparatory relevant reports lie on days <= d3 - 1, and there is NO relevant report
+after c. The irrelevant reports of the delay (0, 50, 200, 500) follow c. Common property
+of the worlds: in A, c changes the current policy answer; in B, the current policy answer
+stays as it was before c (c itself may be ineffective, or effective without changing the
+answer - see T3).
+- T1 correction of the current claim: c corrects Q's report to Z; A: corrector of rank
+  >= 2 (effective -> Z), B: hearsay (ineffective -> Y).
+- T2 retraction of the current claim: c retracts Q's report; A: by Q (effective -> back
+  to X; in every second pair there is no X, so the answer becomes unknown / no_version),
+  B: by the other trusted person (ineffective -> Y).
+- T3 conflict resolution: before c a second trusted person states Z for the same
+  valid_from (open conflict {Y, Z}); c brings V: A: own observation (assert, or a
+  correction of a conflicting claim, or of a lower hearsay claim outside the conflict -
+  pair index mod 3; -> V), B: the same report from a hearsay source - an ineffective
+  assert or correction in the first two variants; in the third the hearsay corrector may
+  effectively correct the rank-1 claim, but the rank-2 conflict stays, so the current
+  policy answer is unchanged in every B world.
+- T4 conflict creation: c states Z for the same valid_from; A: the other trusted person
+  with a different origin (-> conflict {Y, Z}), B: hearsay (-> Y).
+- T5 higher-rank override: c states Z for the same valid_from; A: own observation
+  (-> Z), B: hearsay (-> Y).
+
+## 3. Questions, logged values and failure classes
+
+Per world two real CURRENT questions, each evaluated by every system on a report prefix
+(Astra's v1 review): BEFORE - current on the prefix of all reports with day <= d3 - 1
+(question day d3 - 1); AFTER - current on the full world (c and the irrelevant reports of
+the delay; question day now). Because the irrelevant reports follow c, the BEFORE prefix is
+the same at all four delays; it is therefore evaluated once per world, not four times.
+Holdout: 5 families x 40 pairs x 2 worlds = 400 BEFORE answers plus 400 worlds x 4 delays
+= 1,600 AFTER answers, 2,000 in total (dev: 10 pairs per family, 500 answers). believed_at
+is not used (it would measure a baseline's historical strategy, not its state before c).
+For every AFTER question the run logs the PREVIOUSLY ACCEPTED ANSWER (Astra's v1 idea) -
+the gold BEFORE answer of the same world - and classifies every answer of every system in
+this priority order (Astra's v1 idea): right; stale (equal to the previously accepted
+answer under the hit definition); wrong conflict output; wrong abstention (unknown);
+other wrong value. Stale rate: denominator = AFTER questions whose gold differs from the
+previously accepted answer (the A worlds); numerator = stale answers. Over-update flag
+(Astra's v1 idea): in a B world, the system's BEFORE answer was right and its AFTER
+answer is wrong - the neutral report changed its answer.
+
+## 4. Systems
+
+M; S0-S4 as in round 4.0 (S3 and S4 are oracle baselines built from R; S4 is the positive
+control: it must answer every current question right, otherwise the generator or R is
+wrong); new S5 naive updater: on the report prefix it receives, it applies EVERY
+correction and retraction to its target regardless of rank and source, and the latest
+standing claim in the total order wins (rank, valid_from and conflicts ignored). Every
+system answers BEFORE and AFTER from its own processing of the respective prefix; S3 and
+S4 use R's history on that prefix.
+Expected failure directions (not pass criteria): S1 and S2 stale on T1 / T2 in world A;
+S5 over-eager in world B of T1, T2, T3, T5.
+Visible states for B-indistinguishability (AFTER question, full world): S1 its value;
+S2 its assert list (report day, id, valid_from, value); S5 its standing claims (id, value)
+in total order - for each system exactly the information its answer uses.
+
+## 5. Pass rule (fixed before any run)
+
+Zero errors of M on all 2,000 holdout answers; M equal to R on every question; the round
+4.0 conformance set plus about 10 new hand-computed cases (one per family and world
+type, with the T2 variant without X and all three T3 variants; written before any run;
+own fixture) 100 %; S4 right on every current question (positive
+control); interventions as predicted by R - remove_change (remove c, with cascade:
+world A must return to the previously accepted answer; >= 30 changed pairs at delay 0
+per family) and the irrelevant control (all unchanged), reported per type with the
+columns "answer changed" / "unchanged"; persistence test; audit clean; required
+B-indistinguishable cells: S1, S2 and S5 on each of T1-T5 (15 cells) with >= 30 of the
+40 holdout pairs (dev: 8 of 10). No other numeric threshold; failure classes and stale
+rates of all systems are reported per family and delay.
+Freeze as in round 4.0: worlds, questions, expected answers, intervention outcomes and
+code hashes are written into the request after the implementation review, compared
+before M runs; one holdout run; any repeat is labelled as a repeat.
+
+## 6. Limits known in advance
+
+- The test is narrow by design: one fact per world, the change is the last relevant
+  report, no free text. It closes the gap of the non-discriminating stale measure of
+  round 4.0, nothing more.
+- S3 and S4 are oracles for the current answer; they will be right on current questions
+  and are reported as controls, not as competitors.
+- The BEFORE answer has no delay (the irrelevant reports follow c); delayed recall is
+  tested only on the AFTER answer.
+- Resource figures: total process memory (including the reload subprocess) and the
+  complete answer computation are measured in this runner (Astra's idea from round 4.0).
+
+## 7. Implementation notes (after the APPROVE of v2)
+
+- Astra's v2 ideas: the over-update flag is reported with its denominator (B worlds whose
+  BEFORE answer of that system was right; an empty denominator is reported as "not
+  evaluable" - e.g. S5 in T3, which answers no conflict right even before c); any
+  uncertainty statement uses the pair as the unit (the 2,000 answers are no 2,000
+  independent repetitions; BEFORE of A and B rests on identical prefixes).
+- Code: episodic_lab/r41_world.py (families T1-T5, built from the round 4.0 generator
+  blocks), episodic_lab/r41_baselines.py (S5), bench/m3/run_round41.py (imports the
+  round 4.0 runner for R, the persistence check and the 4.0 conformance set),
+  bench/m3/freeze41.py, tests/test_round41.py, tests/fixtures/r41_conformance.json (19
+  hand-computed checks in 15 worlds, each with the expected answer of M / R and of S5;
+  the T2 variant without X and all three T3 variants included), .github/workflows/round41.yml.
+  M, R, the 4.0 baselines and the 4.0 fixture are unchanged (same SHA-256 as in the 4.0
+  freeze).
+- Choices left open by the design: T1's effective corrector is the trusted source itself,
+  the other trusted person or "self" (random per pair); T2 drops X in odd pairs; T3
+  variants by pair index mod 3; the BEFORE question is asked at day d3 - 1 on the prefix
+  of all reports up to that day (identical in A and B, checked); interventions
+  remove_change (remove c) and the irrelevant control (as in round 4.0) on world A at all
+  four delays; "returns to previous answer" checks that removing c restores the BEFORE
+  answer.
+- Resources: the M answers on counterfactual worlds are now inside the timed phase, and
+  the run reports the maximum resident memory of the process and of the reload
+  subprocess (resource.getrusage), next to the traced memory per phase.
+
+Dev run (GitHub Actions run 39782254200, commit e9ef61b; summary with every table in
+docs/ROUND_4_1_dev_SUMMARY.md, generated from the rows; identical to a local run under
+another Python version except the resource lines): DEV_OK on every criterion. M 100 / 100
+BEFORE and 400 / 400 AFTER answers right, equal to R everywhere; conformance 56 / 56
+(round 4.0) and 19 / 19 (round 4.1); S4 right on every current question; remove_change
+changed the answer in all 200 cases and restored the BEFORE answer each time; the
+irrelevant control left all 200 cases unchanged; 400 stores reloaded identically; no
+audit violation; all 15 required cells 10 / 10. Failure directions as expected: S1 and
+S2 stale in all 80 A answers of T1 and T2 (stale 80 / 200 each); S5 never stale but
+over-updating in every evaluable B family (T1, T2, T4, T5: 40 / 40; T3 not evaluable,
+because S5 answers no conflict right even before c); S1 and S2 also over-update in T4 and
+T5 (they take the hearsay assert). 32.1 s on the runner; maximum resident memory 34.7 MB
+for the main process and 34.7 MB for the reload subprocess - two separate peaks, not a
+simultaneously measured total.
+Mutation check (docs/ROUND_4_1_mutation.json): the 13 changes of M from round 4.0 run
+through the 4.1 dev run - 13 / 13 killed: 6 give wrong current answers in the generated
+worlds (rank of corrections, correction keeping the target's rank, retraction by any
+source, latest-wins, conflict ignored, ineffective correction still withdrawing); 1 gives
+wrong deciding ids only (caught by M = R); 6 are caught only by the 4.0 conformance set
+(why_changed counting ids, before without -1, correcting a withdrawn claim, valid_at and
+believed_at with the wrong knowledge time, an anchor conflict treated as found).
+Known limits, stated before the holdout:
+- S1 and S2 have identical results in this round (the same failure class for every
+  answer) (c is never an assert in T1 / T2, and
+  the asserts of T3-T5 are the latest ones); the round does not separate them.
+- S3 and S4 are oracles and are right everywhere, as intended (controls).
+- Correcting an already withdrawn claim and the other non-current paths are not
+  generated here; they stay covered only by the 4.0 conformance set.
+
+Implementation review: APPROVE by Astra on 2026-10-22 (reviews/2026-10-22_r41impl_astra.txt)
+- the holdout may be frozen with this code (lab main 46979eb) and run once. Her limit,
+recorded here: evaluate() builds a NEW memory instance for every question, so the round
+shows the correct reconstruction from each report prefix; it does not show that one
+long-running instance, already asked BEFORE, updates correctly when c and the irrelevant
+reports arrive (stale caches would stay hidden). Her ideas for later (frozen code, not
+changed before the holdout): continue the same instance across BEFORE and AFTER as a small
+follow-up test; store the baselines' raw answers in the rows; failure classes and stale
+denominators per family x delay in the summary; table headers without "|" inside cells
+(the generated summary uses "T1|A", which a Markdown table splits).
+
+## 8. Holdout result (attempt 1 - the only run)
+
+GitHub Actions run 39786249333 on commit b589794, 2026-10-22; freeze matched (written in
+commit f876478 after the implementation APPROVE; the round 4.0 files have the same
+SHA-256 as in the 4.0 freeze); summary with every table generated from the rows in
+docs/ROUND_4_1_holdout_SUMMARY.md, all rows on the results branch
+(round41/run_39786249333_1). Verdict: PASS on every criterion of section 5.
+- M: 400 / 400 BEFORE and 1,600 / 1,600 AFTER answers right, equal to R on every
+  question; all 200 pairs right; 0 stale answers (denominator 800), over-update 0 in every
+  family (denominators 160).
+- Conformance 56 / 56 (4.0) and 19 / 19 (4.1); S4 right on every current question
+  (positive control); remove_change changed the answer in all 800 cases and restored the
+  BEFORE answer each time; the irrelevant control left all 800 cases unchanged; M equal
+  to R in all 1,600 intervention cases; 1,600 stores reloaded identically; no audit
+  violation; all 15 required cells filled with 40 / 40 pairs (required 30).
+- Baselines (AFTER answers right of 1,600; stale of 800): S1 and S2 536, stale 320 each
+  (all A answers of T1 and T2), over-update 160 / 160 in T4 and T5 (T3 not evaluable);
+  S5 640, never stale, over-update 160 / 160 in T1, T2, T4 and T5 (T3 not evaluable);
+  S3 and S4 (oracles) 1,600; S0 80 (the T2 worlds without X, where "unknown" is right).
+- Run time 117.7 s. Resource note: the reported maximum resident memory of the reload
+  subprocess (57.2 MB) equals that of the main process, as already in the dev run; on
+  Linux the child's figure can include the memory it inherited at fork time, so it is no
+  reliable measurement of the subprocess itself.
+Claim (fixed limits): on the frozen holdout of this test - 200 pairs, each evaluated on a
+BEFORE prefix and on AFTER worlds at four delays, plus 1,600 counterfactual worlds - and
+on both conformance sets, M switched its current answer immediately after every report
+that changes the policy answer (effective correction, retraction, conflict creation,
+conflict resolution, higher-rank override) and kept it after every report that does not
+(ineffective or neutral), also after up to 500 irrelevant reports that follow the change;
+it was never stale and never over-updated. Limits: every question was answered by a NEW
+memory instance built from the respective report prefix - an already queried,
+long-running instance that receives c afterwards is not tested (Astra's limit; stale
+caches would stay hidden); the GIVEN source policy within this generator only; a finite
+test suite, no general error rate; S1 and S2 are not separated here; S3 and S4 are
+controls; no language, no learned trust, no real conversations.
+Next: the small follow-up Astra proposed (one instance continued from BEFORE to AFTER),
+then phase B.
+---END FILE docs/ROUND_4_1.md---
+
+---BEGIN FILE docs/ROUND_4_1_holdout_SUMMARY.md---
+<!-- Copied from the results branch: round41/run_39786249333_1/SUMMARY.md (commit b589794, GitHub Actions run 39786249333, holdout attempt 1, the only run). -->
+# Round 4.1 stale test - holdout (attempt 1)
+
+Verdict: **PASS**
+
+| criterion | ok |
+|---|---|
+| M_zero_errors | yes |
+| conformance_100 | yes |
+| M_equals_R_everywhere | yes |
+| S4_positive_control | yes |
+| interventions_as_predicted | yes |
+| persistence | yes |
+| audit_clean | yes |
+| required_cells_filled | yes |
+
+Answers right (BEFORE: once per world; AFTER: per world and delay):
+
+| system | BEFORE | AFTER | stale / denominator |
+|---|---|---|---|
+| M | 400/400 | 1600/1600 | 0/800 |
+| S0 | 0/400 | 80/1600 | 0/800 |
+| S1 | 320/400 | 536/1600 | 320/800 |
+| S2 | 320/400 | 536/1600 | 320/800 |
+| S3 | 400/400 | 1600/1600 | 0/800 |
+| S4 | 400/400 | 1600/1600 | 0/800 |
+| S5 | 320/400 | 640/1600 | 0/800 |
+
+AFTER answers by failure class (priority right > stale > conflict > abstain > other), per family and world:
+
+| system | class | T1|A | T1|B | T2|A | T2|B | T3|A | T3|B | T4|A | T4|B | T5|A | T5|B |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| M | right | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 |
+| M | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| M | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| M | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| M | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | right | 0 | 0 | 80 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | abstain | 160 | 160 | 80 | 160 | 160 | 160 | 160 | 160 | 160 | 160 |
+| S0 | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | right | 0 | 160 | 0 | 160 | 56 | 0 | 0 | 0 | 160 | 0 |
+| S1 | stale | 160 | 0 | 160 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | other | 0 | 0 | 0 | 0 | 104 | 160 | 160 | 160 | 0 | 160 |
+| S2 | right | 0 | 160 | 0 | 160 | 56 | 0 | 0 | 0 | 160 | 0 |
+| S2 | stale | 160 | 0 | 160 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S2 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S2 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S2 | other | 0 | 0 | 0 | 0 | 104 | 160 | 160 | 160 | 0 | 160 |
+| S3 | right | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 |
+| S3 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S3 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S3 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S3 | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | right | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 | 160 |
+| S4 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | right | 160 | 0 | 160 | 0 | 160 | 0 | 0 | 0 | 160 | 0 |
+| S5 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | abstain | 0 | 0 | 0 | 80 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | other | 0 | 160 | 0 | 80 | 0 | 160 | 160 | 160 | 0 | 160 |
+
+Over-update flag (world B: BEFORE right, AFTER wrong) - flagged / denominator:
+
+| system | T1 | T2 | T3 | T4 | T5 |
+|---|---|---|---|---|---|
+| M | 0/160 | 0/160 | 0/160 | 0/160 | 0/160 |
+| S0 | not evaluable | not evaluable | not evaluable | not evaluable | not evaluable |
+| S1 | 0/160 | 0/160 | not evaluable | 160/160 | 160/160 |
+| S2 | 0/160 | 0/160 | not evaluable | 160/160 | 160/160 |
+| S3 | 0/160 | 0/160 | 0/160 | 0/160 | 0/160 |
+| S4 | 0/160 | 0/160 | 0/160 | 0/160 | 0/160 |
+| S5 | 160/160 | 160/160 | not evaluable | 160/160 | 160/160 |
+
+Pairs fully right (BEFORE and AFTER, both worlds, all delays):
+
+| system | T1 | T2 | T3 | T4 | T5 |
+|---|---|---|---|---|---|
+| M | 40/40 | 40/40 | 40/40 | 40/40 | 40/40 |
+| S0 | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+| S1 | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+| S2 | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+| S3 | 40/40 | 40/40 | 40/40 | 40/40 | 40/40 |
+| S4 | 40/40 | 40/40 | 40/40 | 40/40 | 40/40 |
+| S5 | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+
+Required B-indistinguishable cells (AFTER; min 30 pairs):
+
+- S1|T1: 40
+- S1|T2: 40
+- S1|T3: 40
+- S1|T4: 40
+- S1|T5: 40
+- S2|T1: 40
+- S2|T2: 40
+- S2|T3: 40
+- S2|T4: 40
+- S2|T5: 40
+- S5|T1: 40
+- S5|T2: 40
+- S5|T3: 40
+- S5|T4: 40
+- S5|T5: 40
+
+| intervention | cases | answer changed | unchanged | M = R | returns to previous answer |
+|---|---|---|---|---|---|
+| remove_change | 800 | 800 | 0 | 800 | 800 |
+| irrelevant_control | 800 | 0 | 800 | 800 | 0 |
+
+Conformance: round 4.0 set 56/56, round 4.1 set 19/19. Persistence: 1600 stores, ok = True. Audit violations: 0.
+
+Resources:
+
+- R: 3.35 s, peak +0.13 MB traced
+- R_interventions: 3.24 s, peak +0.13 MB traced
+- M: 2.65 s, peak +0.09 MB traced
+- M_interventions: 2.55 s, peak +0.07 MB traced
+- baselines: 0.44 s, peak +0.01 MB traced
+- audit: 5.29 s, peak +0.35 MB traced
+- persist_write: 47.42 s, peak +1.17 MB traced
+- persist_reload: 6.46 s, peak +0.0 MB traced
+- process max RSS: 57.2 MB; reload subprocess max RSS: 57.2 MB
+---END FILE docs/ROUND_4_1_holdout_SUMMARY.md---
+
+---BEGIN FILE docs/ROUND_4_1_mutation.json---
+{
+ "schema": "episodic_lab.round41_mutation.v1",
+ "protocol": "The 13 single changes of M from docs/ROUND_4_0_mutation.json, each run through the full round 4.1 dev run (bench/m3/run_round41.py --split dev) in a fresh copy of the lab at commit ce419f7, new process with -B. Killed if any pass criterion fails.",
+ "mutants": {
+  "m01_correct_needs_higher_rank": {
+   "old": "if rep[\"rank\"] < tgt.rank:",
+   "new": "if rep[\"rank\"] <= tgt.rank:",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 376
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     35,
+     56,
+     18,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m02_correction_keeps_target_rank": {
+   "old": "\n            rep[\"rank\"], rep[\"source\"], rep[\"origin\"])",
+   "new": "\n            tgt.rank, rep[\"source\"], rep[\"origin\"])",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 376
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     47,
+     56,
+     17,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m03_retract_any_source": {
+   "old": "if rep[\"source\"] != tgt.source:\n        return False",
+   "new": "if False:\n        return False",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 360
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     50,
+     56,
+     18,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m04_why_counts_ids": {
+   "old": "def _key(ans: dict) -> tuple:\n",
+   "new": "def _key(ans: dict) -> tuple:\n    return repr(ans)\n",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     51,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m05_before_no_minus_one": {
+   "old": "ans = self.value_at(fact, a[\"value\"] - 1, now)",
+   "new": "ans = self.value_at(fact, a[\"value\"], now)",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     55,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m06_latest_wins_not_rank": {
+   "old": "top = max(c.rank for c in by_day[d])\n        tops = [c for c in by_day[d] if c.rank == top]",
+   "new": "tops = [max(by_day[d], key=lambda c: c.cid)]",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 240
+     },
+     "before": {
+      "n": 100,
+      "right": 80
+     }
+    },
+    "conformance": [
+     43,
+     56,
+     11,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m07_conflict_picks_first": {
+   "old": "if len(values) == 1:",
+   "new": "if True:",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 320
+     },
+     "before": {
+      "n": 100,
+      "right": 80
+     }
+    },
+    "conformance": [
+     50,
+     56,
+     13,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m08_withdrawn_can_be_corrected": {
+   "old": "if tgt is None or not tgt.standing:",
+   "new": "if tgt is None:",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     53,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m09_valid_at_uses_v_as_known_time": {
+   "old": "return self.value_at(fact, q[\"v\"], now)",
+   "new": "return self.value_at(fact, q[\"v\"], q[\"v\"])",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     52,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m10_believed_at_uses_now": {
+   "old": "return self.value_at(fact, q[\"t\"], q[\"t\"])",
+   "new": "return self.value_at(fact, q[\"t\"], now)",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     52,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m11_ineffective_correction_still_withdraws": {
+   "old": "        if rep[\"rank\"] < tgt.rank:\n            return False\n        tgt.standing = False",
+   "new": "        tgt.standing = False\n        if rep[\"rank\"] < tgt.rank:\n            return False",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 348
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     53,
+     56,
+     17,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m12_anchor_conflict_as_found": {
+   "old": "if a[\"status\"] == \"conflict\":\n            return {\"status\": \"unknown\", \"reason\": \"anchor_ambiguous\"}",
+   "new": "if a[\"status\"] == \"conflict\":\n            a = {\"value\": a[\"values\"][0]}",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     55,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m13_history_merges_nothing_but_drops_ids": {
+   "old": "ids = sorted(c.cid for c in tops)",
+   "new": "ids = sorted(c.cid for c in tops)[:1]",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     51,
+     56,
+     13,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  }
+ },
+ "killed": 13,
+ "total": 13,
+ "killed_by_generated_round41_answers": [
+  "m01_correct_needs_higher_rank",
+  "m02_correction_keeps_target_rank",
+  "m03_retract_any_source",
+  "m06_latest_wins_not_rank",
+  "m07_conflict_picks_first",
+  "m11_ineffective_correction_still_withdraws"
+ ],
+ "note": "Round 4.1 asks only current questions. Split of the 13 kills: 6 mutants give wrong current answers in the generated worlds (m01, m02, m03, m06, m07, m11; caught by M_zero_errors); 1 mutant gives wrong deciding ids only (m13; caught by M = R); 6 mutants are caught only by the round 4.0 conformance set, which is part of the pass rule (m04 why_changed counts ids, m05 before without -1, m08 correcting a withdrawn claim, m09 valid_at with the wrong knowledge time, m10 believed_at with the wrong knowledge time, m12 anchor conflict treated as found)."
+}
+---END FILE docs/ROUND_4_1_mutation.json---
+
+---BEGIN FILE config/round41.json---
+{
+ "schema": "episodic_lab.round41_request.v1",
+ "enabled": false,
+ "note": "DONE: round 4.1 holdout attempt 1 (run 39786249333, commit b589794): PASS. Freeze kept below. No further run planned.",
+ "split": "holdout",
+ "attempt": 1,
+ "repeat_of": null,
+ "freeze": {
+  "generator": "r41.g1",
+  "digests": {
+   "worlds": "0d912e7b24769b0cbb52eb34694e33338aafd7301cf54e594bc30d69670d5ec1",
+   "questions": "14acbd54012f4f5af677e09784c116821cf137a60644794813dcb8b7257e53d3",
+   "gold": "b26e860899fea5d072c016f9999c2b1dffd47925af6936f8c46c7d7b2e52d929",
+   "interventions": "62debba3fa19329bd524ed453d6797a9ff4389577150e2fba32a3394e92d35d1"
+  },
+  "code": {
+   "episodic_lab/r40_schema.py": "6ec2c55ed7b863a664d542e8aa52d1b33b587b9dea70cecda7a316564457e34c",
+   "episodic_lab/r40_memory.py": "bdd3da396c22e1060e8ca6de09ba81d42d7d5053cb48c3b9aad88144e8bbfb4c",
+   "episodic_lab/r40_reference.py": "9dac06abd3cf106fd6bb47550756f90f9bd474356166743cb33d6479ce64a8df",
+   "episodic_lab/r40_baselines.py": "3f4c1a84bf93e97fe42ceeeab41b0c3c567035e8db00cd65429a806bb7b326a8",
+   "episodic_lab/r40_world.py": "88152b2f6567e95b49c371405265037bd5814735f49085b605d2410eebc63a33",
+   "episodic_lab/r40_analysis.py": "9e96d7de7af8da1495e7346bd3882383b9e3fc6bedd8616dde359f621ddf9cb3",
+   "episodic_lab/rng.py": "4c807caf9a5da36c0fb97e0771567dcbf483135f8129369301b598c17b74f5c8",
+   "episodic_lab/world.py": "fc688ff240a977a849c4e7686f7d54fbc099c9f46b38766a50f8126440a10142",
+   "bench/m3/run_round40.py": "5c7e4898e3b05c22ffc73c64b9d38d4ac1de0fbc64004ae2bd762082369b060e",
+   "tests/fixtures/r40_conformance.json": "de057160506865ea1b4ddf686053bb0a999078f1e10b6d6306d940425e23563a",
+   "episodic_lab/r41_world.py": "e3e95f971d2cc364b6be2d14deb356b46e30ad41a7730bb17f84eedd562f1019",
+   "episodic_lab/r41_baselines.py": "eb8b76b002dc410a81e1552cc747e60bc2bd00f48a52b162524eed8e6cdcd239",
+   "bench/m3/run_round41.py": "b532572ecf1d953a45c6aece1b9f6f96796839a8f3ef63cac0d8982ac99c22a0",
+   "tests/fixtures/r41_conformance.json": "582b8a046698223581d2cacdf84447c0a459efc4ac8278c6629d13a52315b53f"
+  }
+ }
+}
+---END FILE config/round41.json---
+
+=== END OF LAB ROUND 4.1 RESULT REVIEW ===
