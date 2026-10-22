@@ -4,8 +4,8 @@ their own seeds, delays 0 and 20, every report rendered as a note (r42_wordings)
 Phase B needs references that can be resolved from (source, day, subject, attribute):
 the irrelevant reports of a delay are drawn again (deterministically, attempt k = 0, 1,
 ...) until every correction, retraction and repeat in both worlds of the pair has exactly
-one earlier report with that key. The relevant reports of the families never need it
-(checked by the same rule).
+one earlier report with that key, and no repeat is written by the speaker it repeats.
+The relevant reports of the families never need it (checked by the same rules).
 """
 from __future__ import annotations
 
@@ -44,6 +44,37 @@ def ambiguous_references(reports: list[dict]) -> list[str]:
     return bad
 
 
+def self_repeats(reports: list[dict]) -> list[str]:
+    """Repeats whose author is the original speaker - a person "repeating" their own
+    statement has no sensible wording ("As Ilsen told me ..." in Ilsen's own note), so
+    phase B worlds contain none."""
+    by_id = {r["report_id"]: r for r in reports}
+    return [r["report_id"] for r in reports if WD.note_type(r, by_id)[0] == "repeat"
+            and by_id[r["origin"][2:]]["source"] == r["source"]]
+
+
+def future_days(reports: list[dict]) -> list[str]:
+    """Reports that name a day after their own report day (e.g. a correction "from day 9"
+    written on day 8) - no sensible wording, so phase B worlds contain none."""
+    return [r["report_id"] for r in reports
+            if (r["valid_from"] is not None and r["valid_from"] > r["report_day"])
+            or (r["subject"].startswith("event:") and isinstance(r["value"], int) and r["value"] > r["report_day"])]
+
+
+def phase_b_vocabulary(rng_seed: str) -> dict:
+    """The round 4.0 vocabulary, but the four sources get the four first names that no
+    person of the world carries, so an author's name never appears inside a person's
+    name ("note from Brenna" next to "Brenna Lunsey")."""
+    voc = W40.vocabulary(HashRng(rng_seed))
+    used = {p.split()[0] for p in voc["people"]}
+    free = [n for n in sorted(W40.FIRST) if n not in used]
+    old = voc["trusted"] + voc["hearsay"]
+    new = dict(zip(old, free[:4]))
+    voc = dict(voc, trusted=[new[n] for n in voc["trusted"]], hearsay=[new[n] for n in voc["hearsay"]])
+    voc["ranks"] = {new.get(k, k): v for k, v in voc["ranks"].items()}
+    return voc
+
+
 def notes_of(reports: list[dict], split: str, pair_seed: str) -> list[dict]:
     by_id = {r["report_id"]: r for r in reports}
     out = []
@@ -61,8 +92,17 @@ def iter_pairs(split: str):
     for fam in FAMILIES:
         for idx in range(PAIRS[split]):
             pair_seed = f"{seed}|{fam}|{idx}"
-            voc = W40.vocabulary(HashRng(pair_seed))
-            spec = W40._family(fam, HashRng(f"{pair_seed}|family"), voc, idx)
+            voc = phase_b_vocabulary(pair_seed)
+            for fam_attempt in range(MAX_ATTEMPTS):
+                spec = W40._family(fam, HashRng(f"{pair_seed}|family|{fam_attempt}"), voc, idx)
+                probe, _ = W40.finalize([dict(s) for s in spec["specs"]], voc["ranks"])
+                b_specs = [dict(s) for s in spec["specs"]]
+                b_specs[spec["crit"]].update(spec["b_change"])
+                probe_b, _ = W40.finalize(b_specs, voc["ranks"])
+                if not future_days(probe) and not future_days(probe_b):
+                    break
+            else:
+                raise RuntimeError(f"{fam} {idx}: no family draw without future days")
             pair = {"pair": f"{split}-{fam}-{idx:02d}", "family": fam, "index": idx, "fact": spec["fact"],
                     "anchor": spec["anchor"], "anchor_day": spec["anchor_day"], "ranks": voc["ranks"],
                     "truth": spec["truth"], "sources": sorted(voc["ranks"]), "instances": []}
@@ -78,7 +118,8 @@ def iter_pairs(split: str):
                         if world == "B":
                             specs[spec["crit"]].update(spec["b_change"])
                         worlds[world] = W40.finalize(specs, voc["ranks"])
-                    if not any(ambiguous_references(worlds[w][0]) for w in worlds):
+                    if not any(ambiguous_references(worlds[w][0]) or self_repeats(worlds[w][0])
+                               or future_days(worlds[w][0]) for w in worlds):
                         break
                 else:
                     raise RuntimeError(f"{pair['pair']} d{delay}: no unambiguous irrelevant set")

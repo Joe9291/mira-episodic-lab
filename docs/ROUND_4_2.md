@@ -229,3 +229,16 @@ matrix (as in round 3.6). Development and calibration together are about half.
   frame "Meeting on day 8 with ..." in a note by another person does not say whose
   meeting it was - it now reads "Your meeting ..." / "My meeting ...". All other frames
   unchanged; round-trip tests re-run.
+- Joe confirmed the four changed examples ("passen") and asked for one more own check.
+  An automatic scan of ALL generated notes of all four splits found three data problems
+  (no frame problem), all fixed in the world generation and checked by tests: (c) a
+  person "repeating" their own statement ("As Ilsen told me on day 14 ..." in Ilsen's own
+  note; "According to I ...") - phase B worlds now contain no repeat by the speaker it
+  repeats (the irrelevant set is drawn again); (d) a correction naming a day after its own
+  report day ("from day 9" written on day 8; it came from the P3 / P4 family draw) - the
+  family draw is repeated until no report names a future day; (e) an author's first name
+  inside a person's name ("note from Brenna" next to "Brenna Lunsey") - the four sources
+  now get the four first names that no person of the world carries. After the fixes the
+  scan finds none of these and no doubled words, "on yesterday", "day 0" or self-named
+  authors; distinct notes: development 2,270, calibration 6,836, audit 1,133, holdout
+  9,107; the meaning-check sheet was regenerated with the unchanged frames.

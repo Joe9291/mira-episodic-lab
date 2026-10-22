@@ -6,193 +6,193 @@ Jede Satzvorlage kommt genau einmal vor (Vorlage, 3 Entwicklung, 3 Holdout, 3 Re
 
 ## Aussage - Ort
 
-1. _Day 12, note from Quillon._ **The blue umbrella has been at Thornby Mill since day 10.**   _(Vorlage)_  
-   Bedeutung: AUSSAGE: the blue umbrella - Ort = Thornby Mill, gültig ab Tag 10.
+1. _Day 14, note from Yelda._ **The blue umbrella has been at Thornby Mill since day 12.**   _(Vorlage)_  
+   Bedeutung: AUSSAGE: the blue umbrella - Ort = Thornby Mill, gültig ab Tag 12.
 
-2. _Day 15, note from Elvie._ **Update: the cracked ledger has been kept at Quarrel Bridge since day 10.**   _(Entwicklung)_  
-   Bedeutung: AUSSAGE: the cracked ledger - Ort = Quarrel Bridge, gültig ab Tag 10.
+2. _Day 17, note from Sabeth._ **Update: the cracked ledger has been kept at Quarrel Bridge since day 12.**   _(Entwicklung)_  
+   Bedeutung: AUSSAGE: the cracked ledger - Ort = Quarrel Bridge, gültig ab Tag 12.
 
-3. _Day 16, note from Quillon._ **I can tell you that the copper basket has been at Carrow Garden since day 11.**   _(Entwicklung)_  
-   Bedeutung: AUSSAGE: the copper basket - Ort = Carrow Garden, gültig ab Tag 11.
+3. _Day 12, your own note._ **I can tell you that the copper basket has been at Ellsmere Mill since day 9.**   _(Entwicklung)_  
+   Bedeutung: AUSSAGE: the copper basket - Ort = Ellsmere Mill, gültig ab Tag 9.
 
-4. _Day 13, note from Marit._ **Lindmere Chapel is where the silver ladder has been since yesterday.**   _(Entwicklung)_  
-   Bedeutung: AUSSAGE: the silver ladder - Ort = Lindmere Chapel, gültig ab Tag 12.
+4. _Day 12, note from Marit._ **Wyndle Market is where the cracked ledger has been since day 10.**   _(Entwicklung)_  
+   Bedeutung: AUSSAGE: the cracked ledger - Ort = Wyndle Market, gültig ab Tag 10.
 
-5. _Day 16, your own note._ **Note for the record: the tiny umbrella has been sitting at Pellan Bridge since day 11.**   _(Holdout)_  
-   Bedeutung: AUSSAGE: the tiny umbrella - Ort = Pellan Bridge, gültig ab Tag 11.
+5. _Day 14, note from Varo._ **Note for the record: the cracked ledger has been sitting at Thornby Harbour since day 10.**   _(Holdout)_  
+   Bedeutung: AUSSAGE: the cracked ledger - Ort = Thornby Harbour, gültig ab Tag 10.
 
-6. _Day 2, note from Ilsen._ **The wooden clock has been located at Thornby Chapel since today.**   _(Holdout)_  
-   Bedeutung: AUSSAGE: the wooden clock - Ort = Thornby Chapel, gültig ab Tag 2.
+6. _Day 11, note from Juno._ **The striped telescope has been located at Ellsmere Bridge.**   _(Holdout)_  
+   Bedeutung: AUSSAGE: the striped telescope - Ort = Ellsmere Bridge, gültig ab Tag 11.
 
-7. _Day 17, your own note._ **Where is the striped ledger? At Ellsmere Bridge since day 12.**   _(Holdout)_  
-   Bedeutung: AUSSAGE: the striped ledger - Ort = Ellsmere Bridge, gültig ab Tag 12.
+7. _Day 3, note from Brenna._ **Where is the wooden kettle? At Sorrow Station since day 3.**   _(Holdout)_  
+   Bedeutung: AUSSAGE: the wooden kettle - Ort = Sorrow Station, gültig ab Tag 3.
 
-8. _Day 16, note from Juno._ **The wooden basket has been lying at Ashgrove Garden since day 14.**   _(Reserve)_  
-   Bedeutung: AUSSAGE: the wooden basket - Ort = Ashgrove Garden, gültig ab Tag 14.
+8. _Day 14, note from Quillon._ **The tiny clock has been lying at Pellan Market since day 10.**   _(Reserve)_  
+   Bedeutung: AUSSAGE: the tiny clock - Ort = Pellan Market, gültig ab Tag 10.
 
-9. _Day 12, note from Dorran._ **The blue umbrella has stayed at Ellsmere Harbour since day 9.**   _(Reserve)_  
-   Bedeutung: AUSSAGE: the blue umbrella - Ort = Ellsmere Harbour, gültig ab Tag 9.
+9. _Day 17, note from Brenna._ **The striped violin has stayed at Brannick Garden since day 14.**   _(Reserve)_  
+   Bedeutung: AUSSAGE: the striped violin - Ort = Brannick Garden, gültig ab Tag 14.
 
-10. _Day 1, note from Casimo._ **For your information, the copper ladder has been at Ellsmere Harbour since today.**   _(Reserve)_  
-   Bedeutung: AUSSAGE: the copper ladder - Ort = Ellsmere Harbour, gültig ab Tag 1.
+10. _Day 11, your own note._ **For your information, the copper ladder has been at Pellan Chapel since day 9.**   _(Reserve)_  
+   Bedeutung: AUSSAGE: the copper ladder - Ort = Pellan Chapel, gültig ab Tag 9.
 
 ## Aussage - Besitzer
 
-11. _Day 3, note from Brenna._ **Gorvin Quist has had the copper mirror since today.**   _(Vorlage)_  
-   Bedeutung: AUSSAGE: the copper mirror - Besitzer = Gorvin Quist, gültig ab Tag 3.
+11. _Day 3, note from Sabeth._ **Fenwick Marrow has had the copper mirror since today.**   _(Vorlage)_  
+   Bedeutung: AUSSAGE: the copper mirror - Besitzer = Fenwick Marrow, gültig ab Tag 3.
 
-12. _Day 12, note from Brenna._ **Update: the blue umbrella has been with Fenwick Marrow since day 7.**   _(Entwicklung)_  
-   Bedeutung: AUSSAGE: the blue umbrella - Besitzer = Fenwick Marrow, gültig ab Tag 7.
+12. _Day 14, note from Marit._ **Update: the blue umbrella has been with Fenwick Marrow since day 9.**   _(Entwicklung)_  
+   Bedeutung: AUSSAGE: the blue umbrella - Besitzer = Fenwick Marrow, gültig ab Tag 9.
 
-13. _Day 15, note from Brenna._ **I can tell you that Quillon Pellow has had the tiny kettle since day 14.**   _(Entwicklung)_  
-   Bedeutung: AUSSAGE: the tiny kettle - Besitzer = Quillon Pellow, gültig ab Tag 14.
+13. _Day 17, note from Marit._ **I can tell you that Quillon Pellow has had the tiny kettle since yesterday.**   _(Entwicklung)_  
+   Bedeutung: AUSSAGE: the tiny kettle - Besitzer = Quillon Pellow, gültig ab Tag 16.
 
-14. _Day 18, note from Juno._ **Dorran Brack is the one who has had the blue clock since day 14.**   _(Entwicklung)_  
-   Bedeutung: AUSSAGE: the blue clock - Besitzer = Dorran Brack, gültig ab Tag 14.
+14. _Day 14, note from Tamric._ **Gorvin Vesk is the one who has had the copper basket since day 9.**   _(Entwicklung)_  
+   Bedeutung: AUSSAGE: the copper basket - Besitzer = Gorvin Vesk, gültig ab Tag 9.
 
-15. _Day 12, your own note._ **Note for the record: the blue compass has been in the hands of Sabeth Pellow since day 11.**   _(Holdout)_  
-   Bedeutung: AUSSAGE: the blue compass - Besitzer = Sabeth Pellow, gültig ab Tag 11.
+15. _Day 1, note from Brenna._ **Note for the record: the blue compass has been in the hands of Yelda Ambery since today.**   _(Holdout)_  
+   Bedeutung: AUSSAGE: the blue compass - Besitzer = Yelda Ambery, gültig ab Tag 1.
 
-16. _Day 15, note from Odile._ **The silver violin has been kept by Ilsen Ostrin since day 9.**   _(Holdout)_  
-   Bedeutung: AUSSAGE: the silver violin - Besitzer = Ilsen Ostrin, gültig ab Tag 9.
+16. _Day 13, note from Marit._ **The cracked ledger has been kept by Dorran Lunsey since day 7.**   _(Holdout)_  
+   Bedeutung: AUSSAGE: the cracked ledger - Besitzer = Dorran Lunsey, gültig ab Tag 7.
 
-17. _Day 6, your own note._ **Who has the tiny compass? Yelda Lunsey.**   _(Holdout)_  
-   Bedeutung: AUSSAGE: the tiny compass - Besitzer = Yelda Lunsey, gültig ab Tag 6.
+17. _Day 10, your own note._ **Who has the wooden clock? Sabeth Drummet since day 9.**   _(Holdout)_  
+   Bedeutung: AUSSAGE: the wooden clock - Besitzer = Sabeth Drummet, gültig ab Tag 9.
 
-18. _Day 14, note from Elvie._ **The heavy clock has been staying with Varo Tellin since day 8.**   _(Reserve)_  
-   Bedeutung: AUSSAGE: the heavy clock - Besitzer = Varo Tellin, gültig ab Tag 8.
+18. _Day 2, note from Brenna._ **The tiny compass has been staying with Halsey Ambery since day 2.**   _(Reserve)_  
+   Bedeutung: AUSSAGE: the tiny compass - Besitzer = Halsey Ambery, gültig ab Tag 2.
 
-19. _Day 13, note from Odile._ **The silver ladder has stayed with Halsey Marrow since day 7.**   _(Reserve)_  
-   Bedeutung: AUSSAGE: the silver ladder - Besitzer = Halsey Marrow, gültig ab Tag 7.
+19. _Day 11, note from Quillon._ **The wooden basket has stayed with Yelda Lunsey since day 9.**   _(Reserve)_  
+   Bedeutung: AUSSAGE: the wooden basket - Besitzer = Yelda Lunsey, gültig ab Tag 9.
 
-20. _Day 13, your own note._ **For your information, Casimo Vesk has had the blue lantern since day 11.**   _(Reserve)_  
-   Bedeutung: AUSSAGE: the blue lantern - Besitzer = Casimo Vesk, gültig ab Tag 11.
+20. _Day 14, note from Quillon._ **For your information, Dorran Lunsey has had the wooden kettle since today.**   _(Reserve)_  
+   Bedeutung: AUSSAGE: the wooden kettle - Besitzer = Dorran Lunsey, gültig ab Tag 14.
 
 ## Wiederholte Aussage
 
-21. _Day 16, note from Marit._ **Quillon reported on day 16 that the copper basket has been at Carrow Garden since day 11.**   _(Vorlage)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Quillon vom Tag 16: the copper basket - Ort = Carrow Garden, gültig ab Tag 11.
+21. _Day 2, note from Quillon._ **Fenwick reported on day 1 that the heavy mirror has been at Pellan Forge since day 1.**   _(Vorlage)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Fenwick vom Tag 1: the heavy mirror - Ort = Pellan Forge, gültig ab Tag 1.
 
-22. _Day 4, note from Tamric._ **Passing on what Dorran said on day 3: Sabeth Corland has had the heavy telescope since day 3.**   _(Entwicklung)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Dorran vom Tag 3: the heavy telescope - Besitzer = Sabeth Corland, gültig ab Tag 3.
+22. _Day 4, note from Yelda._ **Passing on what Halsey said on day 3: Dorran Marrow has had the cracked basket since day 3.**   _(Entwicklung)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Halsey vom Tag 3: the cracked basket - Besitzer = Dorran Marrow, gültig ab Tag 3.
 
-23. _Day 13, your own note._ **According to Brenna on day 12, the tiny map has been at Fenhollow Market since day 8.**   _(Entwicklung)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Brenna vom Tag 12: the tiny map - Ort = Fenhollow Market, gültig ab Tag 8.
+23. _Day 12, note from Gorvin._ **According to Marit on day 11, the tiny ladder has been at Ellsmere Library since day 8.**   _(Entwicklung)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Marit vom Tag 11: the tiny ladder - Ort = Ellsmere Library, gültig ab Tag 8.
 
-24. _Day 15, note from Varo._ **As Marit told me on day 15, Dorran Brack has had the blue telescope since day 10.**   _(Entwicklung)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Marit vom Tag 15: the blue telescope - Besitzer = Dorran Brack, gültig ab Tag 10.
+24. _Day 16, note from Elvie._ **As Marit told me on day 15, Odile Lunsey has had the heavy violin since day 13.**   _(Entwicklung)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Marit vom Tag 15: the heavy violin - Besitzer = Odile Lunsey, gültig ab Tag 13.
 
-25. _Day 13, note from Yelda._ **I am only repeating Sabeth's report of day 12: the wooden lantern has been at Quarrel Harbour since day 10.**   _(Holdout)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Sabeth vom Tag 12: the wooden lantern - Ort = Quarrel Harbour, gültig ab Tag 10.
+25. _Day 17, note from Tamric._ **I am only repeating Marit's report of day 16: the heavy violin has been at Ashgrove Market since day 13.**   _(Holdout)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Marit vom Tag 16: the heavy violin - Ort = Ashgrove Market, gültig ab Tag 13.
 
-26. _Day 16, your own note._ **Varo mentioned on day 14 that Juno Lunsey has had the cracked lantern since day 13; I pass it on.**   _(Holdout)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Varo vom Tag 14: the cracked lantern - Besitzer = Juno Lunsey, gültig ab Tag 13.
+26. _Day 17, your own note._ **Tamric mentioned on day 15 that Juno Lunsey has had the cracked lantern since day 14; I pass it on.**   _(Holdout)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Tamric vom Tag 15: the cracked lantern - Besitzer = Juno Lunsey, gültig ab Tag 14.
 
-27. _Day 14, note from Ilsen._ **Heard from Quillon on day 11: the tiny telescope at Lindmere Chapel since day 10.**   _(Holdout)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Quillon vom Tag 11: the tiny telescope - Ort = Lindmere Chapel, gültig ab Tag 10.
+27. _Day 10, note from Gorvin._ **Heard from Halsey on day 8: the wooden ladder at Brannick Mill since day 7.**   _(Holdout)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Halsey vom Tag 8: the wooden ladder - Ort = Brannick Mill, gültig ab Tag 7.
 
-28. _Day 10, note from Halsey._ **Relaying your note from day 8: Fenwick Quist has had the blue umbrella since day 8.**   _(Reserve)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Mira selbst vom Tag 8: the blue umbrella - Besitzer = Fenwick Quist, gültig ab Tag 8.
+28. _Day 10, note from Brenna._ **Relaying Halsey's note from day 10: Gorvin Tellin has had the silver clock since day 6.**   _(Reserve)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Halsey vom Tag 10: the silver clock - Besitzer = Gorvin Tellin, gültig ab Tag 6.
 
-29. _Day 3, note from Sabeth._ **Second-hand, from Ilsen on day 2: the wooden clock has been at Thornby Chapel since day 2.**   _(Reserve)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Ilsen vom Tag 2: the wooden clock - Ort = Thornby Chapel, gültig ab Tag 2.
+29. _Day 4, note from Yelda._ **Second-hand, from Marit on day 3: the copper ladder has been at Lindmere Mill since day 3.**   _(Reserve)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Marit vom Tag 3: the copper ladder - Ort = Lindmere Mill, gültig ab Tag 3.
 
-30. _Day 4, note from Quillon._ **Brenna said on day 3 that since day 3, Gorvin Quist has had the copper mirror.**   _(Reserve)_  
-   Bedeutung: WIEDERHOLUNG der Meldung von Brenna vom Tag 3: the copper mirror - Besitzer = Gorvin Quist, gültig ab Tag 3.
+30. _Day 3, note from Juno._ **Dorran said on day 2 that since day 2, Marit Marrow has had the wooden clock.**   _(Reserve)_  
+   Bedeutung: WIEDERHOLUNG der Meldung von Dorran vom Tag 2: the wooden clock - Besitzer = Marit Marrow, gültig ab Tag 2.
 
 ## Korrektur
 
-31. _Day 17, note from Marit._ **Correction to Quillon's report of day 16: the copper basket was actually at Ashgrove Bridge.**   _(Vorlage)_  
-   Bedeutung: KORREKTUR der Meldung von Quillon vom Tag 16 über the copper basket (Ort): neuer Ort: Ashgrove Bridge (Gültigkeitsbeginn bleibt).
+31. _Day 12, note from Juno._ **Correction to Halsey's report of day 11: the heavy map was actually at Quarrel Orchard.**   _(Vorlage)_  
+   Bedeutung: KORREKTUR der Meldung von Halsey vom Tag 11 über the heavy map (Ort): neuer Ort: Quarrel Orchard (Gültigkeitsbeginn bleibt).
 
-32. _Day 8, note from Marit._ **Fenwick's report of day 5 was wrong: the handover of the wooden clock actually happened on day 7.**   _(Entwicklung)_  
-   Bedeutung: KORREKTUR der Meldung von Fenwick vom Tag 5 über the wooden clock (Besitzer): neuer Gültigkeitsbeginn: Tag 7 (Wert bleibt).
+32. _Day 10, note from Tamric._ **Odile's report of day 7 was wrong: the handover of the blue ledger actually happened on day 8.**   _(Entwicklung)_  
+   Bedeutung: KORREKTUR der Meldung von Odile vom Tag 7 über the blue ledger (Besitzer): neuer Gültigkeitsbeginn: Tag 8 (Wert bleibt).
 
-33. _Day 9, note from Gorvin._ **Correcting Quillon's note from day 7: the cracked basket was actually at Fenhollow Library from day 8.**   _(Entwicklung)_  
-   Bedeutung: KORREKTUR der Meldung von Quillon vom Tag 7 über the cracked basket (Ort): neuer Ort: Fenhollow Library, gültig ab Tag 8.
+33. _Day 7, note from Odile._ **Correcting Juno's note from day 4: the blue compass was actually at Fenhollow Garden from day 5.**   _(Entwicklung)_  
+   Bedeutung: KORREKTUR der Meldung von Juno vom Tag 4 über the blue compass (Ort): neuer Ort: Fenhollow Garden, gültig ab Tag 5.
 
-34. _Day 13, note from Casimo._ **Please fix Ilsen's report of day 13 - the silver basket was actually with Fenwick Vesk.**   _(Entwicklung)_  
-   Bedeutung: KORREKTUR der Meldung von Ilsen vom Tag 13 über the silver basket (Besitzer): neuer Besitzer: Fenwick Vesk (Gültigkeitsbeginn bleibt).
+34. _Day 17, note from Dorran._ **Please fix Sabeth's report of day 17 - the silver basket was actually with Fenwick Vesk.**   _(Entwicklung)_  
+   Bedeutung: KORREKTUR der Meldung von Sabeth vom Tag 17 über the silver basket (Besitzer): neuer Besitzer: Fenwick Vesk (Gültigkeitsbeginn bleibt).
 
-35. _Day 10, your own note._ **About Ilsen's report of day 6: that was a mistake, the move of the silver map actually happened on day 7.**   _(Holdout)_  
-   Bedeutung: KORREKTUR der Meldung von Ilsen vom Tag 6 über the silver map (Ort): neuer Gültigkeitsbeginn: Tag 7 (Wert bleibt).
+35. _Day 10, your own note._ **About Dorran's report of day 6: that was a mistake, the move of the wooden ladder actually happened on day 8.**   _(Holdout)_  
+   Bedeutung: KORREKTUR der Meldung von Dorran vom Tag 6 über the wooden ladder (Ort): neuer Gültigkeitsbeginn: Tag 8 (Wert bleibt).
 
-36. _Day 8, note from Juno._ **Elvie's entry of day 6 needs a correction: the copper umbrella was actually with Sabeth Drummet from day 6.**   _(Holdout)_  
-   Bedeutung: KORREKTUR der Meldung von Elvie vom Tag 6 über the copper umbrella (Besitzer): neuer Besitzer: Sabeth Drummet, gültig ab Tag 6.
+36. _Day 9, note from Gorvin._ **Casimo's entry of day 5 needs a correction: the copper clock was actually with Dorran Quist from day 8.**   _(Holdout)_  
+   Bedeutung: KORREKTUR der Meldung von Casimo vom Tag 5 über the copper clock (Besitzer): neuer Besitzer: Dorran Quist, gültig ab Tag 8.
 
-37. _Day 13, your own note._ **Not quite right in Quillon's report of day 13; the silver map was actually at Brannick Chapel.**   _(Holdout)_  
-   Bedeutung: KORREKTUR der Meldung von Quillon vom Tag 13 über the silver map (Ort): neuer Ort: Brannick Chapel (Gültigkeitsbeginn bleibt).
+37. _Day 8, note from Gorvin._ **Not quite right in Elvie's report of day 7; the cracked map was actually at Mossgate Station.**   _(Holdout)_  
+   Bedeutung: KORREKTUR der Meldung von Elvie vom Tag 7 über the cracked map (Ort): neuer Ort: Mossgate Station (Gültigkeitsbeginn bleibt).
 
-38. _Day 8, note from Gorvin._ **Amendment to my report of day 4: the handover of the striped clock actually happened on day 7.**   _(Reserve)_  
-   Bedeutung: KORREKTUR der Meldung von Gorvin (= Verfasser) vom Tag 4 über the striped clock (Besitzer): neuer Gültigkeitsbeginn: Tag 7 (Wert bleibt).
+38. _Day 9, note from Yelda._ **Amendment to Fenwick's report of day 5: the handover of the striped compass actually happened on day 7.**   _(Reserve)_  
+   Bedeutung: KORREKTUR der Meldung von Fenwick vom Tag 5 über the striped compass (Besitzer): neuer Gültigkeitsbeginn: Tag 7 (Wert bleibt).
 
-39. _Day 9, note from Ilsen._ **I have to correct my report of day 7: the blue ledger was actually at Sorrow Mill from day 7.**   _(Reserve)_  
-   Bedeutung: KORREKTUR der Meldung von Ilsen (= Verfasser) vom Tag 7 über the blue ledger (Ort): neuer Ort: Sorrow Mill, gültig ab Tag 7.
+39. _Day 7, note from Odile._ **I have to correct Juno's report of day 4: the blue compass was actually at Fenhollow Garden from day 5.**   _(Reserve)_  
+   Bedeutung: KORREKTUR der Meldung von Juno vom Tag 4 über the blue compass (Ort): neuer Ort: Fenhollow Garden, gültig ab Tag 5.
 
-40. _Day 14, your own note._ **Regarding Elvie's report of day 13, the truth is that the copper ledger was actually with Halsey Brack.**   _(Reserve)_  
-   Bedeutung: KORREKTUR der Meldung von Elvie vom Tag 13 über the copper ledger (Besitzer): neuer Besitzer: Halsey Brack (Gültigkeitsbeginn bleibt).
+40. _Day 12, note from Odile._ **Regarding Brenna's report of day 10, the truth is that the copper clock was actually with Dorran Lunsey.**   _(Reserve)_  
+   Bedeutung: KORREKTUR der Meldung von Brenna vom Tag 10 über the copper clock (Besitzer): neuer Besitzer: Dorran Lunsey (Gültigkeitsbeginn bleibt).
 
 ## Rücknahme
 
-41. _Day 15, note from Tamric._ **Please disregard my report of day 13 about where the striped map is.**   _(Vorlage)_  
-   Bedeutung: RÜCKNAHME der Meldung von Tamric (= Verfasser) vom Tag 13 über the striped map (Ort).
+41. _Day 13, note from Quillon._ **Please disregard Brenna's report of day 13 about where the silver map is.**   _(Vorlage)_  
+   Bedeutung: RÜCKNAHME der Meldung von Brenna vom Tag 13 über the silver map (Ort).
 
-42. _Day 16, note from Sabeth._ **Withdraw Ilsen's report of day 15 about who has the heavy umbrella.**   _(Entwicklung)_  
-   Bedeutung: RÜCKNAHME der Meldung von Ilsen vom Tag 15 über the heavy umbrella (Besitzer).
+42. _Day 16, your own note._ **Withdraw my report of day 14 about who has the heavy kettle.**   _(Entwicklung)_  
+   Bedeutung: RÜCKNAHME der Meldung von ich (Mira, eigene Notiz) vom Tag 14 über the heavy kettle (Besitzer).
 
-43. _Day 12, note from Fenwick._ **Withdrawn: my report of day 11 about where the wooden kettle is.**   _(Entwicklung)_  
-   Bedeutung: RÜCKNAHME der Meldung von Fenwick (= Verfasser) vom Tag 11 über the wooden kettle (Ort).
+43. _Day 15, note from Ilsen._ **Withdrawn: your report of day 13 about where the cracked compass is.**   _(Entwicklung)_  
+   Bedeutung: RÜCKNAHME der Meldung von Mira selbst vom Tag 13 über the cracked compass (Ort).
 
-44. _Day 13, your own note._ **Forget my report of day 13 about who has the silver violin.**   _(Entwicklung)_  
-   Bedeutung: RÜCKNAHME der Meldung von ich (Mira, eigene Notiz) vom Tag 13 über the silver violin (Besitzer).
+44. _Day 14, your own note._ **Forget my report of day 14 about who has the striped mirror.**   _(Entwicklung)_  
+   Bedeutung: RÜCKNAHME der Meldung von ich (Mira, eigene Notiz) vom Tag 14 über the striped mirror (Besitzer).
 
-45. _Day 12, note from Tamric._ **Cancel your report of day 12 about where the cracked ladder is.**   _(Holdout)_  
-   Bedeutung: RÜCKNAHME der Meldung von Mira selbst vom Tag 12 über the cracked ladder (Ort).
+45. _Day 10, note from Sabeth._ **Cancel my report of day 8 about where the striped basket is.**   _(Holdout)_  
+   Bedeutung: RÜCKNAHME der Meldung von Sabeth (= Verfasser) vom Tag 8 über the striped basket (Ort).
 
-46. _Day 10, note from Elvie._ **Retracted: my report of day 8 about who has the striped basket.**   _(Holdout)_  
-   Bedeutung: RÜCKNAHME der Meldung von Elvie (= Verfasser) vom Tag 8 über the striped basket (Besitzer).
+46. _Day 7, note from Quillon._ **Retracted: my report of day 4 about who has the wooden lantern.**   _(Holdout)_  
+   Bedeutung: RÜCKNAHME der Meldung von Quillon (= Verfasser) vom Tag 4 über the wooden lantern (Besitzer).
 
-47. _Day 7, note from Brenna._ **Strike from the record Fenwick's report of day 4 about where the blue compass is.**   _(Holdout)_  
-   Bedeutung: RÜCKNAHME der Meldung von Fenwick vom Tag 4 über the blue compass (Ort).
+47. _Day 12, note from Varo._ **Strike from the record Gorvin's report of day 11 about where the blue clock is.**   _(Holdout)_  
+   Bedeutung: RÜCKNAHME der Meldung von Gorvin vom Tag 11 über the blue clock (Ort).
 
-48. _Day 15, note from Brenna._ **Ignore my report of day 12 about who has the copper lantern.**   _(Reserve)_  
-   Bedeutung: RÜCKNAHME der Meldung von Brenna (= Verfasser) vom Tag 12 über the copper lantern (Besitzer).
+48. _Day 9, note from Brenna._ **Ignore Elvie's report of day 5 about who has the wooden clock.**   _(Reserve)_  
+   Bedeutung: RÜCKNAHME der Meldung von Elvie vom Tag 5 über the wooden clock (Besitzer).
 
-49. _Day 9, your own note._ **Please drop my report of day 9 about where the wooden umbrella is.**   _(Reserve)_  
-   Bedeutung: RÜCKNAHME der Meldung von ich (Mira, eigene Notiz) vom Tag 9 über the wooden umbrella (Ort).
+49. _Day 11, note from Dorran._ **Please drop Gorvin's report of day 11 about where the striped map is.**   _(Reserve)_  
+   Bedeutung: RÜCKNAHME der Meldung von Gorvin vom Tag 11 über the striped map (Ort).
 
-50. _Day 13, note from Marit._ **Retract my report of day 12 about who has the heavy ladder, please.**   _(Reserve)_  
-   Bedeutung: RÜCKNAHME der Meldung von Marit (= Verfasser) vom Tag 12 über the heavy ladder (Besitzer).
+50. _Day 11, note from Juno._ **Retract my report of day 9 about who has the tiny kettle, please.**   _(Reserve)_  
+   Bedeutung: RÜCKNAHME der Meldung von Juno (= Verfasser) vom Tag 9 über the tiny kettle (Besitzer).
 
 ## Treffen (Ankerereignis)
 
-51. _Day 15, note from Brenna._ **You met Elvie Tellin at Mossgate Garden on day 13.**   _(Vorlage)_  
-   Bedeutung: TREFFEN: Mira hat Elvie Tellin am Ort Mossgate Garden getroffen, an Tag 13.
+51. _Day 17, note from Marit._ **You met Elvie Tellin at Mossgate Garden on day 15.**   _(Vorlage)_  
+   Bedeutung: TREFFEN: Mira hat Elvie Tellin am Ort Mossgate Garden getroffen, an Tag 15.
 
-52. _Day 14, note from Brenna._ **Today, you met Elvie Brack at Quarrel Library.**   _(Entwicklung)_  
-   Bedeutung: TREFFEN: Mira hat Elvie Brack am Ort Quarrel Library getroffen, an Tag 14.
+52. _Day 16, your own note._ **On day 12, I met Juno Corland at Lindmere Forge.**   _(Entwicklung)_  
+   Bedeutung: TREFFEN: Mira hat Juno Corland am Ort Lindmere Forge getroffen, an Tag 12.
 
-53. _Day 19, note from Tamric._ **You ran into Marit Brack at Brannick Harbour today.**   _(Entwicklung)_  
-   Bedeutung: TREFFEN: Mira hat Marit Brack am Ort Brannick Harbour getroffen, an Tag 19.
+53. _Day 15, note from Gorvin._ **You ran into Varo Vesk at Brannick Mill on day 13.**   _(Entwicklung)_  
+   Bedeutung: TREFFEN: Mira hat Varo Vesk am Ort Brannick Mill getroffen, an Tag 13.
 
-54. _Day 12, note from Sabeth._ **Your meeting on day 8 with Tamric Quist at Brannick Garden.**   _(Entwicklung)_  
-   Bedeutung: TREFFEN: Mira hat Tamric Quist am Ort Brannick Garden getroffen, an Tag 8.
+54. _Day 14, note from Halsey._ **Your meeting on day 14 with Marit Haverl at Pellan Chapel.**   _(Entwicklung)_  
+   Bedeutung: TREFFEN: Mira hat Marit Haverl am Ort Pellan Chapel getroffen, an Tag 14.
 
-55. _Day 15, your own note._ **I had a meeting with Casimo Brack at Sorrow Bridge yesterday.**   _(Holdout)_  
-   Bedeutung: TREFFEN: Mira hat Casimo Brack am Ort Sorrow Bridge getroffen, an Tag 14.
+55. _Day 14, note from Gorvin._ **You had a meeting with Dorran Quist at Mossgate Library on day 12.**   _(Holdout)_  
+   Bedeutung: TREFFEN: Mira hat Dorran Quist am Ort Mossgate Library getroffen, an Tag 12.
 
-56. _Day 15, note from Marit._ **It was on day 14 that you met Elvie Drummet at Quarrel Garden.**   _(Holdout)_  
-   Bedeutung: TREFFEN: Mira hat Elvie Drummet am Ort Quarrel Garden getroffen, an Tag 14.
+56. _Day 12, note from Yelda._ **It was on day 10 that you met Odile Corland at Carrow Market.**   _(Holdout)_  
+   Bedeutung: TREFFEN: Mira hat Odile Corland am Ort Carrow Market getroffen, an Tag 10.
 
-57. _Day 12, note from Casimo._ **Casimo Vesk and you met at Carrow Station yesterday.**   _(Holdout)_  
-   Bedeutung: TREFFEN: Mira hat Casimo Vesk am Ort Carrow Station getroffen, an Tag 11.
+57. _Day 12, note from Ilsen._ **Halsey Ambery and you met at Pellan Market on day 8.**   _(Holdout)_  
+   Bedeutung: TREFFEN: Mira hat Halsey Ambery am Ort Pellan Market getroffen, an Tag 8.
 
-58. _Day 12, note from Casimo._ **You saw Ilsen Tellin at Ellsmere Chapel on day 8 and talked for a while.**   _(Reserve)_  
-   Bedeutung: TREFFEN: Mira hat Ilsen Tellin am Ort Ellsmere Chapel getroffen, an Tag 8.
+58. _Day 11, your own note._ **I saw Odile Tellin at Lindmere Bridge on day 7 and talked for a while.**   _(Reserve)_  
+   Bedeutung: TREFFEN: Mira hat Odile Tellin am Ort Lindmere Bridge getroffen, an Tag 7.
 
-59. _Day 9, your own note._ **At Lindmere Market, I met Odile Tellin on day 6.**   _(Reserve)_  
-   Bedeutung: TREFFEN: Mira hat Odile Tellin am Ort Lindmere Market getroffen, an Tag 6.
+59. _Day 15, your own note._ **At Sorrow Garden, I met Halsey Drummet on day 13.**   _(Reserve)_  
+   Bedeutung: TREFFEN: Mira hat Halsey Drummet am Ort Sorrow Garden getroffen, an Tag 13.
 
-60. _Day 23, your own note._ **On day 23 I met with Sabeth Ostrin at Ashgrove Chapel.**   _(Reserve)_  
-   Bedeutung: TREFFEN: Mira hat Sabeth Ostrin am Ort Ashgrove Chapel getroffen, an Tag 23.
+60. _Day 12, your own note._ **Yesterday I met with Varo Corland at Lindmere Chapel.**   _(Reserve)_  
+   Bedeutung: TREFFEN: Mira hat Varo Corland am Ort Lindmere Chapel getroffen, an Tag 11.
 

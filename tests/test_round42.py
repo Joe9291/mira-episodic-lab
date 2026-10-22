@@ -62,6 +62,11 @@ class Worlds(unittest.TestCase):
                 for inst in pair["instances"]:
                     for world in "AB":
                         self.assertEqual(W.ambiguous_references(inst[world]["reports"]), [])
+                        self.assertEqual(W.self_repeats(inst[world]["reports"]), [])
+                        self.assertEqual(W.future_days(inst[world]["reports"]), [])
+                        names = {p.split()[0] for r in inst[world]["reports"] for p in [r["value"]]
+                                 if isinstance(p, str) and " " in p}
+                        self.assertEqual(names & (set(pair["ranks"]) - {"self"}), set())
                         texts[split] |= {n["header"] + " " + n["text"] for n in inst[world]["notes"]}
                     diff = [a["note_id"] for a, b in zip(inst["A"]["notes"], inst["B"]["notes"]) if a != b]
                     self.assertLessEqual(len(diff), 1)
