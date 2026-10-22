@@ -1,0 +1,1558 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.1 IMPLEMENTATION AND DEV RUN (before the holdout freeze)
+
+Review request (Astra; Claude is lead reviewer). You approved design v2 (archived as reviews/2026-10-22_r41v2_astra.txt). This package contains the implementation of the targeted stale test, the dev run and a mutation check. Please answer APPROVE (= the holdout may be frozen with this code and run once) or REQUEST CHANGES with concrete reasons, then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.1 IMPLEMENTATION REVIEW ===".
+
+STATE: lab main = 3045b12. Holdout not frozen; M has never run on it; config/round41.json disabled. M, R, the 4.0 baselines and the 4.0 fixture are unchanged (their files are not in this package; their SHA-256 are bound by the freeze again).
+
+WHAT IS BUILT
+- episodic_lab/r41_world.py: families T1-T5 from the round 4.0 generator blocks; per pair a BEFORE world per side (all reports with day <= d3 - 1, question day d3 - 1, identical for A and B) and an AFTER world per side and delay.
+- episodic_lab/r41_baselines.py: S5 on the prefix it receives; exported state = standing claims (id, value) in total order.
+- bench/m3/run_round41.py: R first (+ freeze check), then M, S0-S5, failure classes in the fixed priority, stale rate, over-update flag with denominator ("not evaluable" if empty), S4 positive control, pair conditions (BEFORE gold equal in A and B; c changes the answer in A and not in B at every delay; pair control; no relevant report after c), B-indistinguishability on AFTER, interventions remove_change / irrelevant control with "answer changed" / "unchanged" / "returns to previous answer", persistence, both conformance sets; every table of SUMMARY.md is generated from the rows; resource lines include the process and reload-subprocess max RSS, and M on counterfactual worlds is now timed.
+- tests/fixtures/r41_conformance.json: 19 hand-computed checks in 15 worlds, each with the expected answer of M / R and of S5 (T2 without X, all three T3 variants incl. the effective-but-unchanged hearsay correction).
+
+DEV RUN (GitHub Actions run 39782254200, commit e9ef61b; identical to a local run except the resource lines): DEV_OK on every criterion - details and every table in docs/ROUND_4_1_dev_SUMMARY.md below. MUTATION CHECK: 13 / 13 of the round 4.0 M mutants killed by the 4.1 dev run; six through the generated current answers. Full lab test suite: 179 / 179 (local, Python 3.13).
+
+KNOWN LIMITS (section 7 of docs/ROUND_4_1.md): S1 and S2 have identical results here; S3 / S4 are oracles and right everywhere (controls); non-current paths (e.g. correcting a withdrawn claim) are covered only by the 4.0 conformance set.
+
+
+---BEGIN FILE docs/ROUND_4_1.md---
+# Round 4.1 - Targeted stale-answer test (design v2, approved 2026-10-22 - reviews/2026-10-22_r41v2_astra.txt)
+
+Context: round 4.0 phase A passed (docs/ROUND_4_0.md section 8), but its stale-answer
+measure did not discriminate: 0 stale answers for every system, because the worlds mostly
+ended with a fresh own observation. Astra recommended a small targeted test before phase
+B: current questions immediately before and after a correction, retraction or conflict
+change, before any further own observation confirms the state again, with the
+current-state oracle S4 as positive control (reviews/2026-10-21_r40impl_astra.txt,
+2026-10-22_r40result_astra.txt, 2026-10-22_r40result_v3_astra.txt). v2 answers her
+review of v1 (reviews/2026-10-22_r41v1_astra.txt): two real current questions on report
+prefixes instead of believed_at, the common property of the B worlds stated precisely,
+S5 defined on prefixes with a complete exported state, the new hand cases in their own
+fixture, failure classes with a fixed priority and an explicit over-update flag.
+
+Uncertainty removed: does M switch its CURRENT answer immediately when an effective
+correction, retraction, conflict creation, conflict resolution or higher-rank override
+arrives - and does it keep its answer when the same report is ineffective - also after
+up to 500 irrelevant reports? And in which way do simpler memories fail: by keeping the
+previously accepted answer (stale) or by accepting an ineffective report (over-eager)?
+Claim limits (fixed now): as in round 4.0 - the GIVEN source policy, within this
+generator, on a frozen finite sample; no learned trust, no truth finding, no language.
+
+## 1. What stays from round 4.0
+
+M (episodic_lab/r40_memory.py), R (r40_reference.py), the report schema, the transition
+rules, the hit definitions, the audit, the persistence test and the conformance set of
+round 4.0 are used UNCHANGED (their files keep the hashes of the 4.0 freeze). New code:
+a generator for the five families below, the baseline S5, about 10 new hand-computed
+cases in their own fixture (tests/fixtures/r41_conformance.json, so the 4.0 hashes stay),
+and a runner that writes every table of its summary directly from the evaluation rows
+(Astra's idea: text and result files cannot diverge). The 4.1 freeze binds the 4.0 files
+unchanged plus the new generator, S5, runner and fixture.
+
+## 2. Families (pairs A / B differ only in the critical report c)
+
+Every world: an own observation X (valid from d0), a report Q of a trusted person
+(rank 2) making Y the current value (valid from d1 > d0), then c on day d3 - all
+preparatory relevant reports lie on days <= d3 - 1, and there is NO relevant report
+after c. The irrelevant reports of the delay (0, 50, 200, 500) follow c. Common property
+of the worlds: in A, c changes the current policy answer; in B, the current policy answer
+stays as it was before c (c itself may be ineffective, or effective without changing the
+answer - see T3).
+- T1 correction of the current claim: c corrects Q's report to Z; A: corrector of rank
+  >= 2 (effective -> Z), B: hearsay (ineffective -> Y).
+- T2 retraction of the current claim: c retracts Q's report; A: by Q (effective -> back
+  to X; in every second pair there is no X, so the answer becomes unknown / no_version),
+  B: by the other trusted person (ineffective -> Y).
+- T3 conflict resolution: before c a second trusted person states Z for the same
+  valid_from (open conflict {Y, Z}); c brings V: A: own observation (assert, or a
+  correction of a conflicting claim, or of a lower hearsay claim outside the conflict -
+  pair index mod 3; -> V), B: the same report from a hearsay source - an ineffective
+  assert or correction in the first two variants; in the third the hearsay corrector may
+  effectively correct the rank-1 claim, but the rank-2 conflict stays, so the current
+  policy answer is unchanged in every B world.
+- T4 conflict creation: c states Z for the same valid_from; A: the other trusted person
+  with a different origin (-> conflict {Y, Z}), B: hearsay (-> Y).
+- T5 higher-rank override: c states Z for the same valid_from; A: own observation
+  (-> Z), B: hearsay (-> Y).
+
+## 3. Questions, logged values and failure classes
+
+Per world two real CURRENT questions, each evaluated by every system on a report prefix
+(Astra's v1 review): BEFORE - current on the prefix of all reports with day <= d3 - 1
+(question day d3 - 1); AFTER - current on the full world (c and the irrelevant reports of
+the delay; question day now). Because the irrelevant reports follow c, the BEFORE prefix is
+the same at all four delays; it is therefore evaluated once per world, not four times.
+Holdout: 5 families x 40 pairs x 2 worlds = 400 BEFORE answers plus 400 worlds x 4 delays
+= 1,600 AFTER answers, 2,000 in total (dev: 10 pairs per family, 500 answers). believed_at
+is not used (it would measure a baseline's historical strategy, not its state before c).
+For every AFTER question the run logs the PREVIOUSLY ACCEPTED ANSWER (Astra's v1 idea) -
+the gold BEFORE answer of the same world - and classifies every answer of every system in
+this priority order (Astra's v1 idea): right; stale (equal to the previously accepted
+answer under the hit definition); wrong conflict output; wrong abstention (unknown);
+other wrong value. Stale rate: denominator = AFTER questions whose gold differs from the
+previously accepted answer (the A worlds); numerator = stale answers. Over-update flag
+(Astra's v1 idea): in a B world, the system's BEFORE answer was right and its AFTER
+answer is wrong - the neutral report changed its answer.
+
+## 4. Systems
+
+M; S0-S4 as in round 4.0 (S3 and S4 are oracle baselines built from R; S4 is the positive
+control: it must answer every current question right, otherwise the generator or R is
+wrong); new S5 naive updater: on the report prefix it receives, it applies EVERY
+correction and retraction to its target regardless of rank and source, and the latest
+standing claim in the total order wins (rank, valid_from and conflicts ignored). Every
+system answers BEFORE and AFTER from its own processing of the respective prefix; S3 and
+S4 use R's history on that prefix.
+Expected failure directions (not pass criteria): S1 and S2 stale on T1 / T2 in world A;
+S5 over-eager in world B of T1, T2, T3, T5.
+Visible states for B-indistinguishability (AFTER question, full world): S1 its value;
+S2 its assert list (report day, id, valid_from, value); S5 its standing claims (id, value)
+in total order - for each system exactly the information its answer uses.
+
+## 5. Pass rule (fixed before any run)
+
+Zero errors of M on all 2,000 holdout answers; M equal to R on every question; the round
+4.0 conformance set plus about 10 new hand-computed cases (one per family and world
+type, with the T2 variant without X and all three T3 variants; written before any run;
+own fixture) 100 %; S4 right on every current question (positive
+control); interventions as predicted by R - remove_change (remove c, with cascade:
+world A must return to the previously accepted answer; >= 30 changed pairs at delay 0
+per family) and the irrelevant control (all unchanged), reported per type with the
+columns "answer changed" / "unchanged"; persistence test; audit clean; required
+B-indistinguishable cells: S1, S2 and S5 on each of T1-T5 (15 cells) with >= 30 of the
+40 holdout pairs (dev: 8 of 10). No other numeric threshold; failure classes and stale
+rates of all systems are reported per family and delay.
+Freeze as in round 4.0: worlds, questions, expected answers, intervention outcomes and
+code hashes are written into the request after the implementation review, compared
+before M runs; one holdout run; any repeat is labelled as a repeat.
+
+## 6. Limits known in advance
+
+- The test is narrow by design: one fact per world, the change is the last relevant
+  report, no free text. It closes the gap of the non-discriminating stale measure of
+  round 4.0, nothing more.
+- S3 and S4 are oracles for the current answer; they will be right on current questions
+  and are reported as controls, not as competitors.
+- The BEFORE answer has no delay (the irrelevant reports follow c); delayed recall is
+  tested only on the AFTER answer.
+- Resource figures: total process memory (including the reload subprocess) and the
+  complete answer computation are measured in this runner (Astra's idea from round 4.0).
+
+## 7. Implementation notes (after the APPROVE of v2)
+
+- Astra's v2 ideas: the over-update flag is reported with its denominator (B worlds whose
+  BEFORE answer of that system was right; an empty denominator is reported as "not
+  evaluable" - e.g. S5 in T3, which answers no conflict right even before c); any
+  uncertainty statement uses the pair as the unit (the 2,000 answers are no 2,000
+  independent repetitions; BEFORE of A and B rests on identical prefixes).
+- Code: episodic_lab/r41_world.py (families T1-T5, built from the round 4.0 generator
+  blocks), episodic_lab/r41_baselines.py (S5), bench/m3/run_round41.py (imports the
+  round 4.0 runner for R, the persistence check and the 4.0 conformance set),
+  bench/m3/freeze41.py, tests/test_round41.py, tests/fixtures/r41_conformance.json (19
+  hand-computed checks in 15 worlds, each with the expected answer of M / R and of S5;
+  the T2 variant without X and all three T3 variants included), .github/workflows/round41.yml.
+  M, R, the 4.0 baselines and the 4.0 fixture are unchanged (same SHA-256 as in the 4.0
+  freeze).
+- Choices left open by the design: T1's effective corrector is the trusted source itself,
+  the other trusted person or "self" (random per pair); T2 drops X in odd pairs; T3
+  variants by pair index mod 3; the BEFORE question is asked at day d3 - 1 on the prefix
+  of all reports up to that day (identical in A and B, checked); interventions
+  remove_change (remove c) and the irrelevant control (as in round 4.0) on world A at all
+  four delays; "returns to previous answer" checks that removing c restores the BEFORE
+  answer.
+- Resources: the M answers on counterfactual worlds are now inside the timed phase, and
+  the run reports the maximum resident memory of the process and of the reload
+  subprocess (resource.getrusage), next to the traced memory per phase.
+
+Dev run (GitHub Actions run 39782254200, commit e9ef61b; summary with every table in
+docs/ROUND_4_1_dev_SUMMARY.md, generated from the rows; identical to a local run under
+another Python version except the resource lines): DEV_OK on every criterion. M 100 / 100
+BEFORE and 400 / 400 AFTER answers right, equal to R everywhere; conformance 56 / 56
+(round 4.0) and 19 / 19 (round 4.1); S4 right on every current question; remove_change
+changed the answer in all 200 cases and restored the BEFORE answer each time; the
+irrelevant control left all 200 cases unchanged; 400 stores reloaded identically; no
+audit violation; all 15 required cells 10 / 10. Failure directions as expected: S1 and
+S2 stale in all 80 A answers of T1 and T2 (stale 80 / 200 each); S5 never stale but
+over-updating in every evaluable B family (T1, T2, T4, T5: 40 / 40; T3 not evaluable,
+because S5 answers no conflict right even before c); S1 and S2 also over-update in T4 and
+T5 (they take the hearsay assert). 32.1 s on the runner; process max RSS 34.7 MB, reload
+subprocess 34.7 MB.
+Mutation check (docs/ROUND_4_1_mutation.json): the 13 changes of M from round 4.0 run
+through the 4.1 dev run - 13 / 13 killed; six of them (rank of corrections, retraction
+by any source, latest-wins, conflict ignored, ineffective correction still withdrawing)
+change current answers in the generated worlds; the others concern operators this round
+does not ask and are caught by the 4.0 conformance set.
+Known limits, stated before the holdout:
+- S1 and S2 have identical results in this round (the same failure class for every
+  answer) (c is never an assert in T1 / T2, and
+  the asserts of T3-T5 are the latest ones); the round does not separate them.
+- S3 and S4 are oracles and are right everywhere, as intended (controls).
+- Correcting an already withdrawn claim and the other non-current paths are not
+  generated here; they stay covered only by the 4.0 conformance set.
+---END FILE docs/ROUND_4_1.md---
+
+---BEGIN FILE episodic_lab/r41_world.py---
+"""Round 4.1 generator (docs/ROUND_4_1.md): the five families T1-T5 of the targeted
+stale-answer test. Uses the round 4.0 building blocks (vocabulary, report specs, ids,
+irrelevant reports) unchanged.
+
+Every world: own observation X (valid from d0; missing in every second T2 pair), a
+trusted report Q making Y current (valid from d1), in T3 a second trusted report Z for d1
+(open conflict) and in its third variant a hearsay claim U for d1, then the critical
+report c on day d3; all preparatory relevant reports lie on days <= d3 - 1; no relevant
+report after c; the irrelevant reports of the delay follow c. In A, c changes the current
+policy answer; in B it does not.
+"""
+from __future__ import annotations
+
+from . import r40_world as W40
+from .rng import HashRng
+
+GENERATOR_VERSION = "r41.g1"
+FAMILIES = ("T1", "T2", "T3", "T4", "T5")
+DELAYS = W40.DELAYS
+PAIRS = {"dev": 10, "holdout": 40}
+SEEDS = {"dev": "r41-dev-1", "holdout": "r41-holdout-1"}
+_g = W40._g
+
+
+def _family(fam, rng, voc, idx):
+    b = W40._Builder()
+    attribute = ("location", "holder")[rng.below(2)]
+    subject = voc["objects"][0]
+    pool = rng.shuffled(voc["values"][attribute])
+    X, Y, Z, V, U = pool[:5]
+    T1, T2 = voc["trusted"]
+    H1, H2 = voc["hearsay"]
+    Q, Q2 = (T1, T2) if rng.below(2) else (T2, T1)
+    H = (H1, H2)[rng.below(2)]
+    A = lambda *a, **k: b.add(*a, subject=subject, attribute=attribute, **k)  # noqa: E731
+    d0 = _g(rng, 1, 2)
+    with_x = not (fam == "T2" and idx % 2 == 1)
+    if with_x:
+        A(d0, "self", "assert", value=X, vf=d0)
+    d1 = d0 + _g(rng, 2, 4)
+    last = d1 + _g(rng, 0, 1)
+    r1 = A(last, Q, "assert", value=Y, vf=d1)
+    variant = None
+    if fam == "T3":
+        last = last + _g(rng, 0, 1)
+        A(last, Q2, "assert", value=Z, vf=d1)
+        variant = idx % 3
+        if variant == 2:
+            last = last + _g(rng, 0, 1)
+            rl = A(last, H, "assert", value=U, vf=d1)
+    d3 = last + _g(rng, 1, 3)
+    if fam == "T1":
+        a_src = (Q, Q2, "self")[rng.below(3)]
+        c = A(d3, a_src, "correct", value=Z, target=r1)
+        b_src = H
+    elif fam == "T2":
+        c = A(d3, Q, "retract", target=r1)
+        b_src = Q2
+    elif fam == "T3":
+        if variant == 0:
+            c = A(d3, "self", "assert", value=V, vf=d1)
+        else:
+            c = A(d3, "self", "correct", value=V, target=r1 if variant == 1 else rl)
+        b_src = H
+    elif fam == "T4":
+        c = A(d3, Q2, "assert", value=Z, vf=d1)
+        b_src = H
+    elif fam == "T5":
+        c = A(d3, "self", "assert", value=Z, vf=d1)
+        b_src = H
+    else:
+        raise ValueError(fam)
+    return {"fact": [subject, attribute], "specs": b.specs, "crit": c, "b_change": {"source": b_src},
+            "d3": d3, "variant": variant, "with_x": with_x}
+
+
+def iter_pairs(split: str):
+    """Pairs of a split, one at a time. Each pair has a BEFORE world per side (reports with
+    day <= d3 - 1, question day d3 - 1) and an AFTER world per side and delay."""
+    seed = SEEDS[split]
+    for fam in FAMILIES:
+        for idx in range(PAIRS[split]):
+            voc = W40.vocabulary(HashRng(f"{seed}|{fam}|{idx}"))
+            spec = _family(fam, HashRng(f"{seed}|{fam}|{idx}|family"), voc, idx)
+            pid = f"{split}-{fam}-{idx:02d}"
+            fact = spec["fact"]
+            pair = {"pair": pid, "family": fam, "index": idx, "fact": fact, "anchor": None,
+                    "ranks": voc["ranks"], "variant": spec["variant"], "with_x": spec["with_x"],
+                    "d3": spec["d3"], "before": {}, "instances": []}
+            for delay in DELAYS:
+                d_rng = HashRng(f"{seed}|{fam}|{idx}|delay|{delay}")
+                start = spec["d3"] + 1
+                extra = W40.distractors(d_rng, voc, delay, start, tuple(fact), None)
+                base = list(spec["specs"]) + W40._with_offset(extra, len(spec["specs"]))
+                now = (start + (delay - 1) // W40.PER_DAY + 1) if delay else start
+                inst = {"delay": delay, "now": now}
+                for world in ("A", "B"):
+                    specs = [dict(s) for s in base]
+                    if world == "B":
+                        specs[spec["crit"]].update(spec["b_change"])
+                    reports, ids = W40.finalize(specs, voc["ranks"])
+                    q = {"qid": f"{pid}-{world}-{delay}-after", "op": "current", "now": now,
+                         "subject": fact[0], "attribute": fact[1]}
+                    inst[world] = {"reports": reports, "questions": [q]}
+                    if world == "A":
+                        inst["crit_id"] = ids[spec["crit"]]
+                        inst["n_relevant"] = len(spec["specs"])
+                        inst["distractor_ids"] = sorted(ids[len(spec["specs"]) + k] for k in range(len(extra)))
+                        inst["iv"] = {"remove_change": {"remove": ids[spec["crit"]]}}
+                    if delay == 0:
+                        prefix = [r for r in reports if r["report_day"] <= spec["d3"] - 1]
+                        pair["before"][world] = {
+                            "reports": prefix,
+                            "questions": [{"qid": f"{pid}-{world}-before", "op": "current",
+                                           "now": spec["d3"] - 1, "subject": fact[0], "attribute": fact[1]}]}
+                pair["instances"].append(inst)
+            yield pair
+
+
+def generate_split(split):
+    return list(iter_pairs(split))
+---END FILE episodic_lab/r41_world.py---
+
+---BEGIN FILE episodic_lab/r41_baselines.py---
+"""Round 4.1 baseline S5, the naive updater (docs/ROUND_4_1.md section 4).
+
+On the report prefix it receives, S5 applies EVERY correction and retraction to its
+target regardless of rank and source; the latest standing claim in the total order wins
+(rank, valid_from and conflicts ignored). Its exported state - the standing claims (id,
+value) in total order - is exactly what its answer uses. The other baselines are those of
+round 4.0 (r40_baselines.py), unchanged.
+"""
+from __future__ import annotations
+
+
+def _standing(reports, fact, now):
+    claims = {}                                   # report id -> value, in insertion order
+    for r in sorted(reports, key=lambda r: (r["report_day"], r["report_id"])):
+        if r["report_day"] > now or (r["subject"], r["attribute"]) != tuple(fact):
+            continue
+        if r["kind"] == "assert":
+            claims[r["report_id"]] = r["value"]
+            continue
+        t = r["target_report_id"]
+        if t not in claims:
+            continue                              # no standing claim to act on
+        old = claims.pop(t)
+        if r["kind"] == "correct":
+            claims[r["report_id"]] = old if r["value"] is None else r["value"]
+    return list(claims.items())
+
+
+def s5_state(reports, q, ctx=None):
+    return tuple(_standing(reports, (q["subject"], q["attribute"]), q["now"]))
+
+
+def s5(reports, q, ctx=None):
+    if q["op"] != "current":
+        raise ValueError("S5 is defined for current questions only (round 4.1)")
+    st = _standing(reports, (q["subject"], q["attribute"]), q["now"])
+    if not st:
+        return {"status": "unknown", "reason": "no_version"}
+    rid, value = st[-1]
+    return {"status": "value", "value": value, "ids": [rid]}
+---END FILE episodic_lab/r41_baselines.py---
+
+---BEGIN FILE bench/m3/run_round41.py---
+#!/usr/bin/env python3
+"""Round 4.1 targeted stale-answer test (docs/ROUND_4_1.md), model-free.
+
+M, R, the round 4.0 baselines, the audit, the persistence check and the 4.0 conformance
+set are used unchanged. Pass 1: R computes every expected answer (BEFORE and AFTER worlds,
+counterfactual worlds); for the holdout these and the code are compared with the freeze
+before M runs. Pass 2: M, S0-S5, failure classes, stale rate, over-update flag, S4
+positive control, audit, pair conditions, B-indistinguishability, interventions,
+persistence; every table of SUMMARY.md is generated from the rows.
+
+usage: run_round41.py --split dev|holdout --request config/round41.json --out DIR
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import resource
+import subprocess
+import sys
+import tempfile
+import time
+import tracemalloc
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round40 as R40  # noqa: E402
+from episodic_lab import r40_analysis as A  # noqa: E402
+from episodic_lab import r40_baselines as B  # noqa: E402
+from episodic_lab import r40_world as W40  # noqa: E402
+from episodic_lab import r41_world as W  # noqa: E402
+from episodic_lab.r40_memory import Memory, ReportStore  # noqa: E402
+from episodic_lab.r40_reference import reference_answers  # noqa: E402
+from episodic_lab.r41_baselines import s5, s5_state  # noqa: E402
+
+CODE_FILES = R40.CODE_FILES + ("episodic_lab/r41_world.py", "episodic_lab/r41_baselines.py",
+                               "bench/m3/run_round41.py", "tests/fixtures/r41_conformance.json")
+RESULT_SCHEMA = "episodic_lab.round41_result.v1"
+BASELINES = B.SYSTEMS + ("S5",)
+SYSTEMS = ("M",) + BASELINES
+REQUIRED = {"S1": W.FAMILIES, "S2": W.FAMILIES, "S5": W.FAMILIES}
+KINDS = ("remove_change", "irrelevant_control")
+CLASSES = ("right", "stale", "conflict", "abstain", "other")
+
+
+def code_hashes():
+    return {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in CODE_FILES}
+
+
+def answer(system, reports, q, ctx):
+    if system == "S5":
+        return s5(reports, q, ctx)
+    return B.ANSWER[system](reports, q, ctx)
+
+
+def state(system, reports, q, ctx):
+    if system == "S5":
+        return s5_state(reports, q, ctx)
+    return B.STATE[system](reports, q, ctx)
+
+
+def classify(gold, ans, prev):
+    """Priority: right, stale, wrong conflict output, wrong abstention, other wrong value."""
+    if A.hit("current", gold, ans):
+        return "right"
+    if prev is not None and A.hit("current", prev, ans):
+        return "stale"
+    status = ans.get("status") if isinstance(ans, dict) else None
+    if status == "conflict":
+        return "conflict"
+    if status == "unknown":
+        return "abstain"
+    return "other"
+
+
+def units(pair):
+    """(key, side, delay, reports, question, now) for every evaluated question of a pair."""
+    for world in ("A", "B"):
+        w = pair["before"][world]
+        yield ("before", world, None), w["reports"], w["questions"][0], w["questions"][0]["now"]
+    for inst in pair["instances"]:
+        for world in ("A", "B"):
+            w = inst[world]
+            yield ("after", world, inst["delay"]), w["reports"], w["questions"][0], inst["now"]
+
+
+def shim_counterfactual(pair, inst, kind):
+    return W40.counterfactual(pair, inst, kind)
+
+
+# ------------------------------------------------------------------ pass 1
+def pass_reference(split, phases):
+    h = {k: hashlib.sha256() for k in ("worlds", "questions", "gold", "interventions")}
+    store = {}
+    for pair in W.iter_pairs(split):
+        for key, reports, q, now in units(pair):
+            h["worlds"].update(R40.dumps([pair["pair"], key, pair["ranks"], reports]))
+            h["questions"].update(R40.dumps(q))
+            gold, aux, past = phases["R"].run(R40.run_reference, reports, [q], pair["fact"], None, now)
+            h["gold"].update(R40.dumps([pair["pair"], key, gold]))
+            store[(pair["pair"],) + key] = gold
+        for inst in pair["instances"]:
+            for kind in KINDS:
+                cf = W40.counterfactual(pair, inst, kind)
+                gold, _, _ = phases["R_interventions"].run(R40.run_reference, cf["reports"], inst["A"]["questions"],
+                                                           pair["fact"], None, inst["now"])
+                h["interventions"].update(R40.dumps([pair["pair"], inst["delay"], kind, cf, gold]))
+                store[(pair["pair"], kind, inst["delay"])] = gold
+    return store, {k: v.hexdigest() for k, v in h.items()}
+
+
+# ------------------------------------------------------------------ conformance
+def conformance41():
+    d = json.loads((ROOT / "tests/fixtures/r41_conformance.json").read_text())
+    fields = ("report_id", "report_day", "source", "rank", "subject", "attribute", "kind", "value",
+              "valid_from", "target_report_id")
+    out = []
+    for name, w in d["worlds"].items():
+        reps = sorted((dict(zip(fields, row), origin="o-" + row[0]) for row in w["reports"]),
+                      key=lambda r: (r["report_day"], r["report_id"]))
+        for cid, last, now, exp, exp5 in w["checks"]:
+            pre = [r for r in reps if r["report_day"] <= last]
+            q = {"qid": cid, "op": "current", "now": now, "subject": "key", "attribute": "loc"}
+            got = {"M": Memory(pre).answer(q), "R": reference_answers(pre, [q])[0][cid], "S5": s5(pre, q)}
+            ok = got["M"] == exp and got["R"] == exp and got["S5"] == exp5
+            out.append({"case": cid, "world": name, "ok": ok, **got})
+    return out
+
+
+# ------------------------------------------------------------------ pass 2
+def evaluate(split, store, phases, tmpdir):
+    rows, iv_rows, violations, persist, state_breaks, indist_log = [], [], [], [], [], []
+    indist = {(s, f): set() for s in BASELINES for f in W.FAMILIES}
+    for pair in W.iter_pairs(split):
+        pid, fam = pair["pair"], pair["family"]
+        before_gold = {w: store[(pid, "before", w, None)][pair["before"][w]["questions"][0]["qid"]] for w in "AB"}
+        if before_gold["A"] != before_gold["B"]:
+            violations.append(f"{pid}: BEFORE gold differs between A and B")
+        before_ans = {}
+        after = {}
+        for key, reports, q, now in units(pair):
+            side, world, delay = key
+            gold_all = store[(pid,) + key]
+            g = gold_all[q["qid"]]
+            ctx = {"hist": gold_all["__hist"], "anchor_hist": []}
+
+            def run_m():
+                return Memory(reports).answer(q)
+            m = phases["M"].run(run_m)
+            ans = phases["baselines"].run(lambda: {s: answer(s, reports, q, ctx) for s in BASELINES})
+            ans["M"] = m
+            prev = before_gold[world] if side == "after" else None
+            row = {"qid": q["qid"], "pair": pid, "family": fam, "variant": pair["variant"], "side": side,
+                   "world": world, "delay": delay, "gold": g, "previously_accepted": prev, "M": m,
+                   "M_equals_R": m == g, "stale_den": side == "after" and prev is not None and not A.hit("current", g, prev)}
+            for s in SYSTEMS:
+                row[f"class_{s}"] = classify(g, ans[s], prev if side == "after" else None)
+                row[f"hit_{s}"] = row[f"class_{s}"] == "right"
+            if side == "before":
+                before_ans[world] = ans
+            else:
+                for s in SYSTEMS:
+                    if world == "B":
+                        row[f"overupdate_den_{s}"] = A.hit("current", before_gold["B"], before_ans["B"][s])
+                        row[f"overupdate_{s}"] = row[f"overupdate_den_{s}"] and not row[f"hit_{s}"]
+                after[(world, delay)] = (g, {s: state(s, reports, q, ctx) for s in BASELINES}, ans, q)
+                for v in phases["audit"].run(W40.audit_world, reports, pair["ranks"], None, pair["fact"], True):
+                    violations.append(f"{pid} d{delay} {world}: {v}")
+                path = Path(tmpdir) / f"{pid}_{delay}_{world}.jsonl"
+                st = ReportStore(path)
+                phases["persist_write"].run(st.extend, reports)
+                persist.append({"path": str(path), "seal": st.seal(), "questions": [q],
+                                "expect": hashlib.sha256(R40.dumps([m])).hexdigest()})
+            rows.append(row)
+        for inst in pair["instances"]:
+            delay = inst["delay"]
+            gA, gB = after[("A", delay)][0], after[("B", delay)][0]
+            if A.hit("current", gA, before_gold["A"]):
+                violations.append(f"{pid} d{delay}: c does not change the answer in A")
+            if not A.hit("current", gB, before_gold["B"]):
+                violations.append(f"{pid} d{delay}: c changes the answer in B")
+            ra, rb = inst["A"]["reports"], inst["B"]["reports"]
+            diff = [x["report_id"] for x, y in zip(ra, rb) if x != y]
+            if len(ra) != len(rb) or [x["report_day"] for x in ra] != [y["report_day"] for y in rb] \
+                    or diff != [inst["crit_id"]]:
+                violations.append(f"{pid} d{delay}: pair control {diff}")
+            if any(r["report_day"] > pair["d3"] for r in ra[:inst["n_relevant"]] if r["report_id"] != inst["crit_id"]):
+                violations.append(f"{pid}: a relevant report after c")
+            for s in BASELINES:
+                stA, stB = after[("A", delay)][1][s], after[("B", delay)][1][s]
+                ansA, ansB = after[("A", delay)][2][s], after[("B", delay)][2][s]
+                if stA == stB:
+                    if ansA != ansB:
+                        state_breaks.append(f"{s} {pid} d{delay}: equal state, different answers")
+                    if not A.hit("current", gA, gB):
+                        if pid not in indist[(s, fam)]:
+                            indist_log.append({"system": s, "pair": pid, "delay": delay, "state": repr(stA),
+                                               "gold_A": gA, "gold_B": gB})
+                        indist[(s, fam)].add(pid)
+            for kind in KINDS:
+                cf = W40.counterfactual(pair, inst, kind)
+                for v in W40.audit_world(cf["reports"], cf["ranks"], None, pair["fact"], False):
+                    violations.append(f"{pid} d{delay} {kind}: {v}")
+                q = inst["A"]["questions"][0]
+                cf_gold = store[(pid, kind, delay)][q["qid"]]
+                m_cf = phases["M_interventions"].run(lambda: Memory(cf["reports"]).answer(q))
+                iv_rows.append({"pair": pid, "family": fam, "delay": delay, "kind": kind, "note": cf["note"],
+                                "removed": cf["removed"], "changed": not A.hit("current", gA, cf_gold),
+                                "unchanged": cf_gold == gA, "M_equals_R": m_cf == cf_gold,
+                                "returns_to_previous": A.hit("current", before_gold["A"], cf_gold),
+                                "R": cf_gold, "M": m_cf})
+    return rows, iv_rows, indist, indist_log, violations, persist, state_breaks
+
+
+# ------------------------------------------------------------------ summary (tables from rows)
+def summarize(split, rows, iv_rows, indist, violations, persist_res, conf40, conf41, state_breaks):
+    need = A.min_pairs(split)
+    out = {"min_pairs": need}
+    out["answers"] = {s: {side: {"right": sum(r[f"hit_{s}"] for r in rows if r["side"] == side),
+                                 "n": sum(1 for r in rows if r["side"] == side)} for side in ("before", "after")}
+                      for s in SYSTEMS}
+    out["classes_after"] = {s: {f"{f}|{w}": {c: sum(1 for r in rows if r["side"] == "after" and r["family"] == f
+                                                     and r["world"] == w and r[f"class_{s}"] == c) for c in CLASSES}
+                                for f in W.FAMILIES for w in "AB"} for s in SYSTEMS}
+    out["stale"] = {s: {"stale": sum(1 for r in rows if r["stale_den"] and r[f"class_{s}"] == "stale"),
+                        "denominator": sum(1 for r in rows if r["stale_den"])} for s in SYSTEMS}
+    out["over_update"] = {s: {f: (lambda den, num: {"flagged": num, "denominator": den} if den else "not evaluable")(
+        sum(1 for r in rows if r["side"] == "after" and r["world"] == "B" and r["family"] == f and r[f"overupdate_den_{s}"]),
+        sum(1 for r in rows if r["side"] == "after" and r["world"] == "B" and r["family"] == f and r[f"overupdate_{s}"]))
+        for f in W.FAMILIES} for s in SYSTEMS}
+    out["pairs_right"] = {s: {f: {"right": sum(1 for p in {r["pair"] for r in rows if r["family"] == f}
+                                               if all(r[f"hit_{s}"] for r in rows if r["pair"] == p)),
+                                  "pairs": len({r["pair"] for r in rows if r["family"] == f})} for f in W.FAMILIES}
+                          for s in SYSTEMS}
+    out["by_delay_after"] = {s: {str(d): sum(r[f"hit_{s}"] for r in rows if r["side"] == "after" and r["delay"] == d)
+                                 for d in W.DELAYS} for s in SYSTEMS}
+    out["indistinguishable"] = {f"{s}|{f}": len(v) for (s, f), v in sorted(indist.items())}
+    out["required_cells"] = {f"{s}|{f}": {"pairs": len(indist[(s, f)]), "required": need, "ok": len(indist[(s, f)]) >= need}
+                             for s, fams in REQUIRED.items() for f in fams}
+    ivs = {}
+    for kind in KINDS:
+        sel = [r for r in iv_rows if r["kind"] == kind]
+        ivs[kind] = {"cases": len(sel), "answer_changed": sum(r["changed"] for r in sel),
+                     "unchanged": sum(r["unchanged"] for r in sel), "M_equals_R": sum(r["M_equals_R"] for r in sel),
+                     "returns_to_previous": sum(r["returns_to_previous"] for r in sel),
+                     "changed_pairs_at_delay_0": {f: sum(1 for r in sel if r["delay"] == 0 and r["family"] == f and r["changed"])
+                                                  for f in W.FAMILIES}}
+    out["interventions"] = ivs
+    s4_ok = all(r["hit_S4"] for r in rows)
+    m_errors = [r["qid"] for r in rows if not r["hit_M"]]
+    criteria = {
+        "M_zero_errors": not m_errors,
+        "conformance_100": all(c["ok"] for c in conf40) and all(c["ok"] for c in conf41),
+        "M_equals_R_everywhere": all(r["M_equals_R"] for r in rows) and all(r["M_equals_R"] for r in iv_rows),
+        "S4_positive_control": s4_ok,
+        "interventions_as_predicted": all(r["M_equals_R"] for r in iv_rows)
+            and all(v >= need for v in ivs["remove_change"]["changed_pairs_at_delay_0"].values())
+            and ivs["remove_change"]["returns_to_previous"] == ivs["remove_change"]["cases"]
+            and ivs["irrelevant_control"]["unchanged"] == ivs["irrelevant_control"]["cases"] > 0,
+        "persistence": persist_res["ok"],
+        "audit_clean": not violations and not state_breaks,
+        "required_cells_filled": all(v["ok"] for v in out["required_cells"].values()),
+    }
+    out.update(criteria=criteria, M_errors=m_errors[:50], violations=violations[:50], n_violations=len(violations),
+               state_breaks=state_breaks[:20], persistence=persist_res,
+               conformance={"r40": [sum(c["ok"] for c in conf40), len(conf40)],
+                            "r41": [sum(c["ok"] for c in conf41), len(conf41)],
+                            "failed": [c for c in conf40 + conf41 if not c["ok"]][:10]})
+    return out
+
+
+def write_summary(path, res):
+    s = res["summary"]
+    L = [f"# Round 4.1 stale test - {res['split']} (attempt {res['attempt']}{', repeat' if res['repeat_of'] else ''})", "",
+         f"Verdict: **{res['verdict']}**", "", "| criterion | ok |", "|---|---|"]
+    L += [f"| {k} | {'yes' if v else 'NO'} |" for k, v in s["criteria"].items()]
+    L += ["", "Answers right (BEFORE: once per world; AFTER: per world and delay):", "",
+          "| system | BEFORE | AFTER | stale / denominator |", "|---|---|---|---|"]
+    for k in SYSTEMS:
+        a = s["answers"][k]
+        L.append(f"| {k} | {a['before']['right']}/{a['before']['n']} | {a['after']['right']}/{a['after']['n']} | "
+                 f"{s['stale'][k]['stale']}/{s['stale'][k]['denominator']} |")
+    L += ["", "AFTER answers by failure class (priority right > stale > conflict > abstain > other), per family and world:", ""]
+    cols = [f"{f}|{w}" for f in W.FAMILIES for w in "AB"]
+    L += ["| system | class | " + " | ".join(cols) + " |", "|---|---|" + "---|" * len(cols)]
+    for k in SYSTEMS:
+        for c in CLASSES:
+            L.append(f"| {k} | {c} | " + " | ".join(str(s["classes_after"][k][x][c]) for x in cols) + " |")
+    L += ["", "Over-update flag (world B: BEFORE right, AFTER wrong) - flagged / denominator:", "",
+          "| system | " + " | ".join(W.FAMILIES) + " |", "|---|" + "---|" * len(W.FAMILIES)]
+    for k in SYSTEMS:
+        cells = []
+        for f in W.FAMILIES:
+            v = s["over_update"][k][f]
+            cells.append(v if isinstance(v, str) else f"{v['flagged']}/{v['denominator']}")
+        L.append(f"| {k} | " + " | ".join(cells) + " |")
+    L += ["", "Pairs fully right (BEFORE and AFTER, both worlds, all delays):", "",
+          "| system | " + " | ".join(W.FAMILIES) + " |", "|---|" + "---|" * len(W.FAMILIES)]
+    for k in SYSTEMS:
+        L.append(f"| {k} | " + " | ".join(f"{s['pairs_right'][k][f]['right']}/{s['pairs_right'][k][f]['pairs']}" for f in W.FAMILIES) + " |")
+    L += ["", f"Required B-indistinguishable cells (AFTER; min {s['min_pairs']} pairs):", ""]
+    L += [f"- {k}: {v['pairs']}" + ("" if v["ok"] else " (TOO FEW)") for k, v in s["required_cells"].items()]
+    L += ["", "| intervention | cases | answer changed | unchanged | M = R | returns to previous answer |", "|---|---|---|---|---|---|"]
+    for k, v in s["interventions"].items():
+        L.append(f"| {k} | {v['cases']} | {v['answer_changed']} | {v['unchanged']} | {v['M_equals_R']} | {v['returns_to_previous']} |")
+    L += ["", f"Conformance: round 4.0 set {s['conformance']['r40'][0]}/{s['conformance']['r40'][1]}, round 4.1 set "
+              f"{s['conformance']['r41'][0]}/{s['conformance']['r41'][1]}. Persistence: {s['persistence']['stores']} stores, "
+              f"ok = {s['persistence']['ok']}. Audit violations: {s['n_violations']}.", "", "Resources:", ""]
+    L += [f"- {k}: {v['seconds']} s, peak +{v['peak_extra_mb']} MB traced" for k, v in res["resources"]["phases"].items()]
+    L += [f"- process max RSS: {res['resources']['max_rss_mb_self']} MB; reload subprocess max RSS: "
+          f"{res['resources']['max_rss_mb_children']} MB"]
+    Path(path).write_text("\n".join(L) + "\n")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--split", choices=("dev", "holdout"), required=True)
+    ap.add_argument("--request", required=True)
+    ap.add_argument("--out", required=True)
+    a = ap.parse_args()
+    req = json.loads(Path(a.request).read_text())
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    tracemalloc.start()
+    phases = {k: R40.Phase() for k in ("R", "R_interventions", "M", "M_interventions", "baselines", "audit",
+                                       "persist_write", "persist_reload")}
+    t0 = time.perf_counter()
+    store, digests = pass_reference(a.split, phases)
+    freeze_now = {"generator": W.GENERATOR_VERSION, "digests": digests, "code": code_hashes()}
+    res = {"schema": RESULT_SCHEMA, "split": a.split, "attempt": req.get("attempt", 1),
+           "repeat_of": req.get("repeat_of"), "freeze_now": freeze_now, "commit": os.environ.get("GITHUB_SHA", "")}
+    if a.split == "holdout" and req.get("freeze") != freeze_now:
+        res.update(verdict="FREEZE_MISMATCH", frozen=req.get("freeze"))
+        (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
+        (out / "VERDICT").write_text("FREEZE_MISMATCH\n")
+        print("FREEZE_MISMATCH")
+        return 1
+    conf40, conf41 = R40.conformance(), conformance41()
+    with tempfile.TemporaryDirectory() as tmp:
+        rows, iv_rows, indist, indist_log, violations, persist, state_breaks = evaluate(a.split, store, phases, tmp)
+        persist_res = R40.run_persistence(persist, tmp, phases)
+    summary = summarize(a.split, rows, iv_rows, indist, violations, persist_res, conf40, conf41, state_breaks)
+    passed = all(summary["criteria"].values())
+    res.update(summary=summary, total_seconds=round(time.perf_counter() - t0, 1),
+               resources={"phases": {k: v.report() for k, v in phases.items()},
+                          "max_rss_mb_self": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1),
+                          "max_rss_mb_children": round(resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss / 1024, 1)},
+               verdict=("PASS" if passed else "FAIL") if a.split == "holdout" else ("DEV_OK" if passed else "DEV_PROBLEMS"))
+    (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
+    for name, data in (("rows.jsonl", rows), ("interventions.jsonl", iv_rows), ("indist_log.jsonl", indist_log)):
+        with open(out / name, "w") as fh:
+            for r in data:
+                fh.write(json.dumps(r, sort_keys=True) + "\n")
+    write_summary(out / "SUMMARY.md", res)
+    (out / "VERDICT").write_text(res["verdict"] + "\n")
+    print(res["verdict"], json.dumps(summary["criteria"]))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/run_round41.py---
+
+---BEGIN FILE bench/m3/freeze41.py---
+#!/usr/bin/env python3
+"""Round 4.1 holdout freeze (docs/ROUND_4_1.md section 5): generates the holdout, lets R
+compute every expected answer (BEFORE, AFTER, counterfactual) and records the digests
+plus the SHA-256 of every code file. M is NOT run. With --write the freeze is stored in
+the request.
+
+usage: freeze41.py config/round41.json [--write]
+"""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round41 as R  # noqa: E402
+
+
+def main():
+    path = Path(sys.argv[1])
+    phases = {k: R.R40.Phase() for k in ("R", "R_interventions")}
+    R.tracemalloc.start()
+    _, digests = R.pass_reference("holdout", phases)
+    freeze = {"generator": R.W.GENERATOR_VERSION, "digests": digests, "code": R.code_hashes()}
+    print(json.dumps(freeze, indent=1, sort_keys=True))
+    if "--write" in sys.argv[2:]:
+        req = json.loads(path.read_text())
+        req["freeze"] = freeze
+        path.write_text(json.dumps(req, indent=1) + "\n")
+        print(f"freeze written to {path}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/freeze41.py---
+
+---BEGIN FILE tests/test_round41.py---
+"""Round 4.1 targeted stale test: generator, S5, failure classes, hand cases."""
+from __future__ import annotations
+
+import json
+import sys
+import unittest
+from pathlib import Path
+
+from episodic_lab import r40_world as W40
+from episodic_lab import r41_world as W
+from episodic_lab.r40_memory import Memory
+from episodic_lab.r40_reference import reference_answers
+from episodic_lab.r41_baselines import s5, s5_state
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "bench/m3"))
+import run_round41 as RUN  # noqa: E402
+
+FIELDS = ("report_id", "report_day", "source", "rank", "subject", "attribute", "kind", "value",
+          "valid_from", "target_report_id")
+
+
+class HandCases(unittest.TestCase):
+    def test_m_r_and_s5(self):
+        d = json.loads((ROOT / "tests/fixtures/r41_conformance.json").read_text())
+        n = 0
+        for name, w in d["worlds"].items():
+            reps = sorted((dict(zip(FIELDS, row), origin="o-" + row[0]) for row in w["reports"]),
+                          key=lambda r: (r["report_day"], r["report_id"]))
+            for cid, last, now, exp, exp5 in w["checks"]:
+                pre = [r for r in reps if r["report_day"] <= last]
+                q = {"qid": cid, "op": "current", "now": now, "subject": "key", "attribute": "loc"}
+                with self.subTest(case=cid):
+                    self.assertEqual(Memory(pre).answer(q), exp)
+                    self.assertEqual(reference_answers(pre, [q])[0][cid], exp)
+                    self.assertEqual(s5(pre, q), exp5)
+                n += 1
+        self.assertGreaterEqual(n, 10)
+        self.assertTrue(all(c["ok"] for c in RUN.conformance41()))
+
+
+class Generator(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.pairs = W.generate_split("dev")
+
+    def test_deterministic_and_sizes(self):
+        self.assertEqual(W40.world_digest(self.pairs), W40.world_digest(W.generate_split("dev")))
+        self.assertEqual(len(self.pairs), 5 * W.PAIRS["dev"])
+        self.assertEqual(5 * W.PAIRS["holdout"] * 2 * (1 + len(W.DELAYS)), 2000)
+
+    def test_structure(self):
+        for p in self.pairs:
+            for world in "AB":
+                before = p["before"][world]
+                self.assertTrue(all(r["report_day"] <= p["d3"] - 1 for r in before["reports"]))
+                self.assertEqual(before["questions"][0]["now"], p["d3"] - 1)
+            self.assertEqual(p["before"]["A"]["reports"], p["before"]["B"]["reports"])
+            for inst in p["instances"]:
+                ra, rb = inst["A"]["reports"], inst["B"]["reports"]
+                self.assertEqual([x["report_id"] for x, y in zip(ra, rb) if x != y], [inst["crit_id"]])
+                crit = next(r for r in ra if r["report_id"] == inst["crit_id"])
+                self.assertEqual(crit["report_day"], p["d3"])
+                relevant = [r for r in ra if (r["subject"], r["attribute"]) == tuple(p["fact"])]
+                self.assertEqual(max(r["report_day"] for r in relevant), p["d3"])
+                self.assertEqual(len(ra) - inst["n_relevant"], inst["delay"])
+                for world in "AB":
+                    self.assertEqual(W40.audit_world(inst[world]["reports"], p["ranks"], None, p["fact"], True), [])
+
+
+class Classes(unittest.TestCase):
+    def test_priority(self):
+        g = {"status": "value", "value": "Z", "ids": []}
+        prev = {"status": "conflict", "values": ["Y", "Z"], "ids": []}
+        self.assertEqual(RUN.classify(g, dict(g), prev), "right")
+        self.assertEqual(RUN.classify(g, {"status": "conflict", "values": ["Z", "Y"], "ids": []}, prev), "stale")
+        self.assertEqual(RUN.classify(g, {"status": "conflict", "values": ["Q", "Y"], "ids": []}, prev), "conflict")
+        self.assertEqual(RUN.classify(g, {"status": "unknown", "reason": "no_version"}, prev), "abstain")
+        self.assertEqual(RUN.classify(g, {"status": "value", "value": "Q", "ids": []}, prev), "other")
+
+    def test_s5_state_determines_answer(self):
+        reps = [dict(zip(FIELDS, row), origin="o-" + row[0]) for row in (
+            ["r00001", 1, "ana", 2, "key", "loc", "assert", "Y", 1, None],
+            ["r00002", 2, "cy", 1, "key", "loc", "retract", None, None, "r00001"])]
+        q = {"qid": "x", "op": "current", "now": 3, "subject": "key", "attribute": "loc"}
+        self.assertEqual(s5_state(reps, q), ())
+        self.assertEqual(s5(reps, q)["status"], "unknown")       # naive: any source retracts
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_round41.py---
+
+---BEGIN FILE tests/fixtures/r41_conformance.json---
+{
+ "schema": "episodic_lab.r41_conformance.v1",
+ "note": "Hand-computed before any run of round 4.1 code (docs/ROUND_4_1.md). Rows as in r40_conformance.json; ranks self 3, ana 2, bo 2, cy 1. Each check: [id, prefix_last_day, now, expected current answer of M/R, expected current answer of S5]; the system receives only the reports with day <= prefix_last_day.",
+ "worlds": {
+  "T1A_effective_correction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "bo", 2, "key", "loc", "correct", "Z", null, "r00002"]],
+   "checks": [["k01", 3, 3, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Y", "ids": ["r00002"]}],
+              ["k02", 4, 5, {"status": "value", "value": "Z", "ids": ["r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T1B_ineffective_correction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "cy", 1, "key", "loc", "correct", "Z", null, "r00002"]],
+   "checks": [["k03", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T2A_retraction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "ana", 2, "key", "loc", "retract", null, null, "r00002"]],
+   "checks": [["k04", 4, 5, {"status": "value", "value": "X", "ids": ["r00001"]}, {"status": "value", "value": "X", "ids": ["r00001"]}]]
+  },
+  "T2B_ineffective_retraction": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "bo", 2, "key", "loc", "retract", null, null, "r00002"]],
+   "checks": [["k05", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "X", "ids": ["r00001"]}]]
+  },
+  "T2A_retraction_without_X": {
+   "reports": [["r00001", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00002", 4, "ana", 2, "key", "loc", "retract", null, null, "r00001"]],
+   "checks": [["k06", 3, 3, {"status": "value", "value": "Y", "ids": ["r00001"]}, {"status": "value", "value": "Y", "ids": ["r00001"]}],
+              ["k07", 4, 5, {"status": "unknown", "reason": "no_version"}, {"status": "unknown", "reason": "no_version"}]]
+  },
+  "T3A_assert": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "self", 3, "key", "loc", "assert", "V", 2, null]],
+   "checks": [["k08", 4, 4, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}],
+              ["k09", 5, 6, {"status": "value", "value": "V", "ids": ["r00004"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3B_assert": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "cy", 1, "key", "loc", "assert", "V", 2, null]],
+   "checks": [["k10", 5, 6, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3A_correct_conflicting": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "self", 3, "key", "loc", "correct", "V", null, "r00002"]],
+   "checks": [["k11", 5, 6, {"status": "value", "value": "V", "ids": ["r00004"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3B_correct_conflicting": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 5, "cy", 1, "key", "loc", "correct", "V", null, "r00002"]],
+   "checks": [["k12", 5, 6, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "V", "ids": ["r00004"]}]]
+  },
+  "T3A_correct_outside": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 4, "cy", 1, "key", "loc", "assert", "U", 2, null],
+               ["r00005", 6, "self", 3, "key", "loc", "correct", "V", null, "r00004"]],
+   "checks": [["k13", 5, 5, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "U", "ids": ["r00004"]}],
+              ["k14", 6, 7, {"status": "value", "value": "V", "ids": ["r00005"]}, {"status": "value", "value": "V", "ids": ["r00005"]}]]
+  },
+  "T3B_correct_outside_effective_but_unchanged": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 3, "bo", 2, "key", "loc", "assert", "Z", 2, null],
+               ["r00004", 4, "cy", 1, "key", "loc", "assert", "U", 2, null],
+               ["r00005", 6, "cy", 1, "key", "loc", "correct", "V", null, "r00004"]],
+   "checks": [["k15", 6, 7, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "V", "ids": ["r00005"]}]]
+  },
+  "T4_conflict_creation": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "bo", 2, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k16", 4, 5, {"status": "conflict", "values": ["Y", "Z"], "ids": ["r00002", "r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T4B_hearsay": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "cy", 1, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k17", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T5_override": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "self", 3, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k18", 4, 5, {"status": "value", "value": "Z", "ids": ["r00003"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  },
+  "T5B_hearsay": {
+   "reports": [["r00001", 1, "self", 3, "key", "loc", "assert", "X", 1, null],
+               ["r00002", 2, "ana", 2, "key", "loc", "assert", "Y", 2, null],
+               ["r00003", 4, "cy", 1, "key", "loc", "assert", "Z", 2, null]],
+   "checks": [["k19", 4, 5, {"status": "value", "value": "Y", "ids": ["r00002"]}, {"status": "value", "value": "Z", "ids": ["r00003"]}]]
+  }
+ }
+}
+---END FILE tests/fixtures/r41_conformance.json---
+
+---BEGIN FILE .github/workflows/round41.yml---
+name: round41
+# Round 4.1 targeted stale test (docs/ROUND_4_1.md), model-free. Runs the split in
+# config/round41.json only if "enabled": true; the holdout refuses to start unless the
+# freeze in the request matches. Results go to the results branch. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round41.json"
+permissions:
+  contents: read
+concurrency:
+  group: round41
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: plan
+        run: |
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("config/round41.json"))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"enabled={'true' if r.get('enabled') is True else 'false'}\n")
+              out.write(f"split={r['split']}\n")
+          PY
+      - name: Unit tests
+        if: steps.plan.outputs.enabled == 'true'
+        run: python -B -m unittest tests.test_round40 tests.test_round41
+      - name: Run
+        if: steps.plan.outputs.enabled == 'true'
+        run: |
+          mkdir -p out
+          python -B bench/m3/run_round41.py --split "${{ steps.plan.outputs.split }}" --request config/round41.json --out out || true
+      - name: Store results on the results branch
+        if: always() && steps.plan.outputs.enabled == 'true'
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r out "$RUNNER_TEMP/out"
+          cp config/round41.json "$RUNNER_TEMP/request.json"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round41/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          cp -r "$RUNNER_TEMP/out/." "$dest/"
+          cp "$RUNNER_TEMP/request.json" "$dest/request.json"
+          [ -f "$dest/VERDICT" ] || echo INCOMPLETE > "$dest/VERDICT"
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} split ${{ steps.plan.outputs.split }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add round41
+          git commit --quiet -m "Round 4.1 results (${{ steps.plan.outputs.split }}), run ${GITHUB_RUN_ID}, ${verdict}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+          case "$verdict" in PASS|DEV_OK) exit 0;; *) exit 1;; esac
+---END FILE .github/workflows/round41.yml---
+
+---BEGIN FILE config/round41.json---
+{
+ "schema": "episodic_lab.round41_request.v1",
+ "enabled": false,
+ "note": "Round 4.1: dev run done (run 39782254200, DEV_OK, commit e9ef61b). Next: implementation review by Astra; then freeze (bench/m3/freeze41.py --write) and one holdout run.",
+ "split": "dev",
+ "attempt": 1,
+ "repeat_of": null,
+ "freeze": null
+}
+---END FILE config/round41.json---
+
+---BEGIN FILE docs/ROUND_4_1_dev_SUMMARY.md---
+<!-- Copied from the results branch: round41/run_39782254200_1/SUMMARY.md (commit e9ef61b, GitHub Actions, Python 3.12). Identical to the local run (Python 3.13) except the resource lines. -->
+# Round 4.1 stale test - dev (attempt 1)
+
+Verdict: **DEV_OK**
+
+| criterion | ok |
+|---|---|
+| M_zero_errors | yes |
+| conformance_100 | yes |
+| M_equals_R_everywhere | yes |
+| S4_positive_control | yes |
+| interventions_as_predicted | yes |
+| persistence | yes |
+| audit_clean | yes |
+| required_cells_filled | yes |
+
+Answers right (BEFORE: once per world; AFTER: per world and delay):
+
+| system | BEFORE | AFTER | stale / denominator |
+|---|---|---|---|
+| M | 100/100 | 400/400 | 0/200 |
+| S0 | 0/100 | 20/400 | 0/200 |
+| S1 | 80/100 | 136/400 | 80/200 |
+| S2 | 80/100 | 136/400 | 80/200 |
+| S3 | 100/100 | 400/400 | 0/200 |
+| S4 | 100/100 | 400/400 | 0/200 |
+| S5 | 80/100 | 160/400 | 0/200 |
+
+AFTER answers by failure class (priority right > stale > conflict > abstain > other), per family and world:
+
+| system | class | T1|A | T1|B | T2|A | T2|B | T3|A | T3|B | T4|A | T4|B | T5|A | T5|B |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| M | right | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 |
+| M | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| M | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| M | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| M | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | right | 0 | 0 | 20 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S0 | abstain | 40 | 40 | 20 | 40 | 40 | 40 | 40 | 40 | 40 | 40 |
+| S0 | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | right | 0 | 40 | 0 | 40 | 16 | 0 | 0 | 0 | 40 | 0 |
+| S1 | stale | 40 | 0 | 40 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S1 | other | 0 | 0 | 0 | 0 | 24 | 40 | 40 | 40 | 0 | 40 |
+| S2 | right | 0 | 40 | 0 | 40 | 16 | 0 | 0 | 0 | 40 | 0 |
+| S2 | stale | 40 | 0 | 40 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S2 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S2 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S2 | other | 0 | 0 | 0 | 0 | 24 | 40 | 40 | 40 | 0 | 40 |
+| S3 | right | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 |
+| S3 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S3 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S3 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S3 | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | right | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 | 40 |
+| S4 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | abstain | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S4 | other | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | right | 40 | 0 | 40 | 0 | 40 | 0 | 0 | 0 | 40 | 0 |
+| S5 | stale | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | conflict | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | abstain | 0 | 0 | 0 | 20 | 0 | 0 | 0 | 0 | 0 | 0 |
+| S5 | other | 0 | 40 | 0 | 20 | 0 | 40 | 40 | 40 | 0 | 40 |
+
+Over-update flag (world B: BEFORE right, AFTER wrong) - flagged / denominator:
+
+| system | T1 | T2 | T3 | T4 | T5 |
+|---|---|---|---|---|---|
+| M | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+| S0 | not evaluable | not evaluable | not evaluable | not evaluable | not evaluable |
+| S1 | 0/40 | 0/40 | not evaluable | 40/40 | 40/40 |
+| S2 | 0/40 | 0/40 | not evaluable | 40/40 | 40/40 |
+| S3 | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+| S4 | 0/40 | 0/40 | 0/40 | 0/40 | 0/40 |
+| S5 | 40/40 | 40/40 | not evaluable | 40/40 | 40/40 |
+
+Pairs fully right (BEFORE and AFTER, both worlds, all delays):
+
+| system | T1 | T2 | T3 | T4 | T5 |
+|---|---|---|---|---|---|
+| M | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 |
+| S0 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+| S1 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+| S2 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+| S3 | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 |
+| S4 | 10/10 | 10/10 | 10/10 | 10/10 | 10/10 |
+| S5 | 0/10 | 0/10 | 0/10 | 0/10 | 0/10 |
+
+Required B-indistinguishable cells (AFTER; min 8 pairs):
+
+- S1|T1: 10
+- S1|T2: 10
+- S1|T3: 10
+- S1|T4: 10
+- S1|T5: 10
+- S2|T1: 10
+- S2|T2: 10
+- S2|T3: 10
+- S2|T4: 10
+- S2|T5: 10
+- S5|T1: 10
+- S5|T2: 10
+- S5|T3: 10
+- S5|T4: 10
+- S5|T5: 10
+
+| intervention | cases | answer changed | unchanged | M = R | returns to previous answer |
+|---|---|---|---|---|---|
+| remove_change | 200 | 200 | 0 | 200 | 200 |
+| irrelevant_control | 200 | 0 | 200 | 200 | 0 |
+
+Conformance: round 4.0 set 56/56, round 4.1 set 19/19. Persistence: 400 stores, ok = True. Audit violations: 0.
+
+Resources:
+
+- R: 0.87 s, peak +0.12 MB traced
+- R_interventions: 0.82 s, peak +0.12 MB traced
+- M: 0.76 s, peak +0.09 MB traced
+- M_interventions: 0.68 s, peak +0.07 MB traced
+- baselines: 0.12 s, peak +0.01 MB traced
+- audit: 1.46 s, peak +0.36 MB traced
+- persist_write: 13.14 s, peak +1.17 MB traced
+- persist_reload: 1.79 s, peak +0.0 MB traced
+- process max RSS: 34.7 MB; reload subprocess max RSS: 34.7 MB
+---END FILE docs/ROUND_4_1_dev_SUMMARY.md---
+
+---BEGIN FILE docs/ROUND_4_1_mutation.json---
+{
+ "schema": "episodic_lab.round41_mutation.v1",
+ "protocol": "The 13 single changes of M from docs/ROUND_4_0_mutation.json, each run through the full round 4.1 dev run (bench/m3/run_round41.py --split dev) in a fresh copy of the lab at commit ce419f7, new process with -B. Killed if any pass criterion fails.",
+ "mutants": {
+  "m01_correct_needs_higher_rank": {
+   "old": "if rep[\"rank\"] < tgt.rank:",
+   "new": "if rep[\"rank\"] <= tgt.rank:",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 376
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     35,
+     56,
+     18,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m02_correction_keeps_target_rank": {
+   "old": "\n            rep[\"rank\"], rep[\"source\"], rep[\"origin\"])",
+   "new": "\n            tgt.rank, rep[\"source\"], rep[\"origin\"])",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 376
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     47,
+     56,
+     17,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m03_retract_any_source": {
+   "old": "if rep[\"source\"] != tgt.source:\n        return False",
+   "new": "if False:\n        return False",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 360
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     50,
+     56,
+     18,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m04_why_counts_ids": {
+   "old": "def _key(ans: dict) -> tuple:\n",
+   "new": "def _key(ans: dict) -> tuple:\n    return repr(ans)\n",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     51,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m05_before_no_minus_one": {
+   "old": "ans = self.value_at(fact, a[\"value\"] - 1, now)",
+   "new": "ans = self.value_at(fact, a[\"value\"], now)",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     55,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m06_latest_wins_not_rank": {
+   "old": "top = max(c.rank for c in by_day[d])\n        tops = [c for c in by_day[d] if c.rank == top]",
+   "new": "tops = [max(by_day[d], key=lambda c: c.cid)]",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 240
+     },
+     "before": {
+      "n": 100,
+      "right": 80
+     }
+    },
+    "conformance": [
+     43,
+     56,
+     11,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m07_conflict_picks_first": {
+   "old": "if len(values) == 1:",
+   "new": "if True:",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 320
+     },
+     "before": {
+      "n": 100,
+      "right": 80
+     }
+    },
+    "conformance": [
+     50,
+     56,
+     13,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m08_withdrawn_can_be_corrected": {
+   "old": "if tgt is None or not tgt.standing:",
+   "new": "if tgt is None:",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     53,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m09_valid_at_uses_v_as_known_time": {
+   "old": "return self.value_at(fact, q[\"v\"], now)",
+   "new": "return self.value_at(fact, q[\"v\"], q[\"v\"])",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     52,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m10_believed_at_uses_now": {
+   "old": "return self.value_at(fact, q[\"t\"], q[\"t\"])",
+   "new": "return self.value_at(fact, q[\"t\"], now)",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     52,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m11_ineffective_correction_still_withdraws": {
+   "old": "        if rep[\"rank\"] < tgt.rank:\n            return False\n        tgt.standing = False",
+   "new": "        tgt.standing = False\n        if rep[\"rank\"] < tgt.rank:\n            return False",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 348
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     53,
+     56,
+     17,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "M_zero_errors",
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m12_anchor_conflict_as_found": {
+   "old": "if a[\"status\"] == \"conflict\":\n            return {\"status\": \"unknown\", \"reason\": \"anchor_ambiguous\"}",
+   "new": "if a[\"status\"] == \"conflict\":\n            a = {\"value\": a[\"values\"][0]}",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     55,
+     56,
+     19,
+     19
+    ],
+    "failed": [
+     "conformance_100"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  },
+  "m13_history_merges_nothing_but_drops_ids": {
+   "old": "ids = sorted(c.cid for c in tops)",
+   "new": "ids = sorted(c.cid for c in tops)[:1]",
+   "result": {
+    "M_answers": {
+     "after": {
+      "n": 400,
+      "right": 400
+     },
+     "before": {
+      "n": 100,
+      "right": 100
+     }
+    },
+    "conformance": [
+     51,
+     56,
+     13,
+     19
+    ],
+    "failed": [
+     "M_equals_R_everywhere",
+     "conformance_100",
+     "interventions_as_predicted"
+    ],
+    "verdict": "DEV_PROBLEMS"
+   }
+  }
+ },
+ "killed": 13,
+ "total": 13,
+ "killed_by_generated_round41_answers": [
+  "m01_correct_needs_higher_rank",
+  "m02_correction_keeps_target_rank",
+  "m03_retract_any_source",
+  "m06_latest_wins_not_rank",
+  "m07_conflict_picks_first",
+  "m11_ineffective_correction_still_withdraws"
+ ],
+ "note": "Round 4.1 asks only current questions. Six mutants change current answers in the generated worlds and are caught by them (M_zero_errors); m13 (deciding ids) is caught by M = R; the other six concern why_changed, before, valid_at, believed_at, anchors or correcting a withdrawn claim and are caught only by the round 4.0 conformance set, which is part of the pass rule."
+}
+---END FILE docs/ROUND_4_1_mutation.json---
+
+=== END OF LAB ROUND 4.1 IMPLEMENTATION REVIEW ===
