@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from episodic_lab.cands42 import CANDIDATE_VERSION, SLOTS, candidates, ranking  # noqa: E402
-from episodic_lab.encoder42 import encode_note, messages  # noqa: E402
+from episodic_lab.encoder42 import CURRENT, candidate_text, encode_note, messages  # noqa: E402
 from episodic_lab import r42_world as W  # noqa: E402
 
 SCHEMA = "episodic_lab.round42_encode.v1"
@@ -64,7 +64,7 @@ def scorer_of(model):
 def cache_check(model, notes, prompt, slots=None):
     worst, same = 0.0, True
     for n in notes:
-        full = n["header"] + " " + n["text"]
+        full = candidate_text(n["header"], n["text"], prompt)
         for slot in (slots or SLOTS):
             surf = candidates(slot, full, n["ctx"])
             if not surf:
@@ -91,7 +91,7 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     slug, _, prompt = args.model.partition("+")
-    prompt = prompt or "p1"
+    prompt = prompt or CURRENT
     out = {"schema": SCHEMA, "phase": args.phase, "model": args.model, "split": args.split, "chunk": args.chunk,
            "chunks": args.chunks, "prompt_version": prompt, "candidate_version": CANDIDATE_VERSION,
            "generator_version": W.GENERATOR_VERSION, "status": "ERROR", "slots": args.slots or "all",
@@ -102,6 +102,9 @@ def main() -> int:
         slots = [x for x in args.slots.split(",") if x] or None
         if slots and args.phase == "encode":
             raise RuntimeError("--slots is for development probes only")
+        if prompt != CURRENT:
+            raise RuntimeError(f"prompt {prompt} belongs to an earlier candidate version; current: {CURRENT} / "
+                               f"{CANDIDATE_VERSION}")
         if args.split == "holdout":
             raise RuntimeError("the holdout is encoded only after the freeze (not implemented in this job yet)")
         notes = split_notes(args.split)

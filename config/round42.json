@@ -1,15 +1,15 @@
 {
  "schema": "episodic_lab.round42_request.v1",
  "enabled": true,
- "note": "Round 4.2 phase B: development probe 2 (the 80 probe notes), slots type, attribute, valid_from, ref_source only, prompt p3, candidates c42.3.",
+ "note": "Round 4.2 phase B: development probe 3 (the 80 probe notes), all slots, prompt p4 (note text only, aspect 'at a place' / 'with a person', contrastive worked examples), candidates c42.4.",
  "phase": "probe",
  "models": [
-  "qwen2.5-1.5b+p3",
-  "qwen3-1.7b+p3"
+  "qwen2.5-1.5b+p4",
+  "qwen3-1.7b+p4"
  ],
  "splits": [
   "dev"
  ],
  "chunks": 1,
- "slots": "type,attribute,valid_from,ref_source"
+ "slots": ""
 }

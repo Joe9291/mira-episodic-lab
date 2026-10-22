@@ -20,8 +20,15 @@ Contract (the round 3.5 token rules):
   the model is asked to copy the word written in the note (restricting the candidates to
   the words that occur in the text would leave exactly one candidate in every generated
   note, i.e. the rule, not the model, would decide);
-- label slots score a fixed label set; the aspect labels are "place" (canonical
-  "location") and "person" (canonical "holder") since version c42.3;
+- label slots score a fixed label set; the aspect labels are "at a place" (canonical
+  "location") and "with a person" (canonical "holder") since version c42.4 (c42.3:
+  "place" / "person"; probe 2 showed qwen3-1.7b reading "has been with X" / "was actually
+  with X" as a place with margins up to 15);
+- version c42.4 (development change after probe 2): the model sees only the note TEXT
+  (prompt p4); the header (author, date) is used only by the fixed rules (the author for
+  "my", the report day for "today" / "yesterday" / "not stated"), so day candidates are
+  the numbers of the text - probe 2 showed the header words ("your own note", the
+  author's name) copied as the source;
 - surface variants of one canonical value are merged (maximum score); margins are taken
   between DIFFERENT canonical values (cands35.ranking / decide).
 
@@ -34,14 +41,14 @@ import re
 
 from .cands35 import decide, merge, ranking, spans  # noqa: F401 (re-exported, unchanged rules)
 
-CANDIDATE_VERSION = "c42.3"
+CANDIDATE_VERSION = "c42.4"
 TYPES = {"statement": "it says where a thing is or who has it",
          "repeated statement": "the author passes on what another person reported",
          "correction": "the author corrects an earlier report",
          "retraction": "the author withdraws an earlier report",
          "meeting": "it says that the reader met a person somewhere"}
 ATTRIBUTES = {"location": "the note says WHERE the thing is", "holder": "the note says WHO has the thing"}
-ASPECT_LABELS = {"place": "location", "person": "holder"}
+ASPECT_LABELS = {"at a place": "location", "with a person": "holder"}
 NOT_STATED, KEEP = "not stated", "keep"
 SLOTS = ("type", "subject", "attribute", "value", "valid_from", "ref_source", "ref_day", "person", "place", "day")
 USES = {

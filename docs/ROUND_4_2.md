@@ -296,3 +296,25 @@ matrix (as in round 3.6). Development and calibration together are about half.
   denominator test. Her ideas: a greedily reduced repair set is reported next to the full
   one (report only - a joint repair is not a minimal cause); calibration counts per slot
   are reported before the freeze (planned for the calibration encode).
+- Development log 3 - probe 2 (run 39851863283, p3, c42.3, the same 80 development notes,
+  slots type, attribute, valid_from, ref_source only; median 12.6 s / 25.6 s per note):
+  raw top choices qwen2.5-1.5b / qwen3-1.7b - type 76 / 79 of 80, attribute 62 / 55 of 64,
+  valid_from 39 / 48 of 48, ref_source 42 / 45 of 48. Errors: qwen3-1.7b reads
+  EVERY "has been with X" / "was actually with X" as a place (margins up to 15) although a
+  worked example "was actually with Mara Lind" answers person - the nearest example
+  "Correction to Pim's report of day 4: the green box was actually at Fern Hall" (place)
+  wins; both models copy header words as the source ("Day 17, your own note. | Forget
+  Gorvin's report ..." -> your; the author's name for another person's report);
+  qwen2.5-1.5b still answers a day instead of "keep" in value-only corrections (8 of 9
+  wrong cases) and reads "As X told me on day N" as a statement (4 cases). Development
+  changes: candidates c42.4 and prompt p4 - the model sees only the note TEXT (the
+  header's author and date are used only by the fixed rules: "my" -> author, "today" /
+  "yesterday" / "not stated" -> report day; within section 3, whose inputs are the text,
+  the header and the source names); aspect answers "at a place" / "with a person";
+  contrastive worked examples (19, text only, outside the world vocabulary: every example
+  frame that carries an aspect, a named source or a "keep" also appears with the other
+  choice). Model-free checks: coverage on all four splits complete again (43,736 note
+  occurrences), worked examples answer with candidates of their own text and use no world
+  word (tests/test_round42_extractor.py), the encode job refuses any prompt but the current
+  one (p1-p3 need their own candidate versions; they stay in the code for the log). Probe
+  3: all ten slots on the same 80 notes, both models.

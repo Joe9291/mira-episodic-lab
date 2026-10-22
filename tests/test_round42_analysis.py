@@ -6,6 +6,7 @@ import unittest
 
 from episodic_lab import analysis42 as A
 from episodic_lab import cands42 as C
+from episodic_lab import encoder42 as E
 from episodic_lab import r40_world as W40
 from episodic_lab import r42_world as W
 
@@ -31,7 +32,7 @@ def world_inputs(pair, inst, world, wrong_for=None):
     for r, n in zip(reps, inst[world]["notes"]):
         ctx = {"author": n["author"], "report_day": n["report_day"], "sources": pair["sources"]}
         tr = C.truth(n, r, by_id)
-        enc = oracle_encoding(n["header"] + " " + n["text"], ctx, tr, (wrong_for or {}).get(n["note_id"]))
+        enc = oracle_encoding(E.candidate_text(n["header"], n["text"], E.CURRENT), ctx, tr, (wrong_for or {}).get(n["note_id"]))
         decisions[n["note_id"]] = A.decide_note(enc, TAUS)
         truths[n["note_id"]] = tr
         notes.append({"note_id": n["note_id"], "author": n["author"], "report_day": n["report_day"]})
