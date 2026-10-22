@@ -1,0 +1,37 @@
+3m 54s nachgedacht
+
+}
+---END FILE config/round41.json---
+
+APPROVE — Ergebnis und Aussage dürfen in der vorliegenden Fassung stehen.
+
+Die Prüfung beruht auf dem vollständigen Paket und der zuvor geprüften Implementierung; die externen Laufnachweise habe ich nicht nochmals abgefragt. 
+
+Die konkreten Gründe:
+
+1. Zählung und Ergebnis sind konsistent. 400 BEFORE- und 1.600 AFTER-Antworten ergeben die vereinbarten 2.000 Antworten. M ist überall korrekt, einschließlich aller 200 vollständigen Paare. Die dokumentierte Abfolge aus Freigabe, deaktiviertem Freeze, einmaligem Lauf und anschließender Deaktivierung entspricht dem vereinbarten Verfahren.
+
+2. Die Fehlerdiagnostik unterscheidet jetzt tatsächlich verschiedene Fehlertypen. S1 und S2 bleiben bei sämtlichen A-Fällen von T1 und T2 beim vorherigen Goldwert: zusammen jeweils 320/800 Stale-Fälle. S5 zeigt dagegen 0 Stale-Fälle, aber massive andere Fehler: nur 640/1.600 AFTER-Antworten richtig und Over-Update in allen auswertbaren B-Fällen von vier Familien. Das demonstriert überzeugend, weshalb „nicht stale“ allein kein Erfolgskriterium ist. T3 wird beim bedingten Over-Update korrekt als nicht auswertbar behandelt.
+
+3. Die Interventionen sind richtig aufgeteilt und interpretiert. Es gibt 800 antwortverändernde Entfernungen, die jeweils den BEFORE-Goldwert wiederherstellen, sowie 800 unveränderte irrelevante Kontrollen. Alle 1.600 Fälle stimmen mit R überein. Dazu passen die erfüllten Zustandskontrollen, 1.600 erfolgreichen Wiederherstellungen und beide Konformitätssätze.
+
+4. Die Aussagegrenzen sind ausdrücklich dokumentiert. Neue Instanz pro Frage, feste Quellenpolitik, endliche Testsuite, Oracle-Kontrollen und fehlende Sprachverarbeitung werden klar genannt. Ebenso werden die 2.000 Antworten nicht als unabhängige Wiederholungen behandelt. Die Mutationsdarstellung mit 6 + 1 + 6 ist jetzt präzise.
+
+Das Wort „immediately“ ist im Zusammenhang mit diesen Grenzen als korrekte Antwort am Präfix nach c zu verstehen. Eine gemessene Aktualisierungslatenz oder das korrekte Weiterführen einer bereits abgefragten Instanz ist nicht nachgewiesen; genau diese Einschränkung steht bereits im Bericht.
+
+Die zurückgenommene Interpretation des Kindprozess-RSS ist angemessen. Gleiche Zahlen allein beweisen allerdings keine bestimmte Ursache. Belastbar bleibt hier der ausgewiesene Hauptprozesswert; ein gleichzeitig gemessener Gesamtspeicherpeak liegt nicht vor.
+
+Verbesserungsideen — keine Freigabebedingungen
+
+- Die zentrale Aussage künftig direkt mit „Bei Rekonstruktion aus den jeweiligen Berichtspräfixen …“ beginnen. Dann trägt bereits der erste Satz die entscheidende Einschränkung.
+- Aus vorhandenen Auswertungszeilen eine ergänzende Tabelle für Familie × Delay mit Zähler und Nenner erstellen. Dafür ist kein erneuter M-Lauf nötig.
+- Eine lesbare Berichtsfassung mit Tabellenköpfen wie T1/A anbieten; die unveränderte generierte Originalfassung kann als Laufnachweis erhalten bleiben.
+- Den Erkenntnisgewinn klar benennen: Die Runde belegt korrekte Quellen- und Revisionslogik gegenüber den konkreten Baselines. Sie zeigt für aktuelle Fragen keine Notwendigkeit einer vollständigen episodischen Historie; S4 ist hierfür eine passende Kontrolle.
+
+Meine Einschätzung zum nächsten Schritt
+
+Ich unterstütze die vorgeschlagene Reihenfolge: zuerst der kleine Test mit fortgeführter Instanz, danach Phase B.
+
+Für den Zusatztest reichen zunächst Entwicklungs- und Handfälle aller fünf Familien: BEFORE tatsächlich abfragen, c nachliefern, erneut abfragen, Ablenkungsberichte hinzufügen und nochmals prüfen. Wichtig ist auch eine Variante mit unverändertem Abfragezeitpunkt, damit ein anderer Zeit-Schlüssel einen veralteten Cache nicht verdeckt. Runde 4.1 und ihr Holdout bleiben abgeschlossen.
+
+Danach sollte Phase B sprachliche Berichte einführen, während Fragen strukturiert und Resolver sowie Quellenpolitik unverändert bleiben. Eine parallele Kontrolle mit korrekten strukturierten Berichten trennt dann Extraktionsfehler von Gedächtnisfehlern. Frageparser und Verdichtung würde ich erst anschließend hinzufügen.

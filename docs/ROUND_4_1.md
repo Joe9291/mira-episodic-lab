@@ -1,4 +1,4 @@
-# Round 4.1 - Targeted stale-answer test (design v2, approved 2026-10-22 - reviews/2026-10-22_r41v2_astra.txt)
+# Round 4.1 - Targeted stale-answer test (CLOSED 2026-10-22: holdout PASS, result approved by Astra - reviews/2026-10-22_r41result_astra.txt; design v2 approved - reviews/2026-10-22_r41v2_astra.txt)
 
 Context: round 4.0 phase A passed (docs/ROUND_4_0.md section 8), but its stale-answer
 measure did not discriminate: 0 stale answers for every system, because the worlds mostly
@@ -209,7 +209,8 @@ docs/ROUND_4_1_holdout_SUMMARY.md, all rows on the results branch
   subprocess (57.2 MB) equals that of the main process, as already in the dev run; on
   Linux the child's figure can include the memory it inherited at fork time, so it is no
   reliable measurement of the subprocess itself.
-Claim (fixed limits): on the frozen holdout of this test - 200 pairs, each evaluated on a
+Claim (fixed limits): on reconstruction from the respective report prefixes - on the
+frozen holdout of this test, 200 pairs, each evaluated on a
 BEFORE prefix and on AFTER worlds at four delays, plus 1,600 counterfactual worlds - and
 on both conformance sets, M switched its current answer immediately after every report
 that changes the policy answer (effective correction, retraction, conflict creation,
@@ -223,3 +224,13 @@ test suite, no general error rate; S1 and S2 are not separated here; S3 and S4 a
 controls; no language, no learned trust, no real conversations.
 Next: the small follow-up Astra proposed (one instance continued from BEFORE to AFTER),
 then phase B.
+
+Result review: APPROVE by Astra on 2026-10-22 (reviews/2026-10-22_r41result_astra.txt).
+Her reading, recorded: "immediately" means the correct answer on the prefix after c; no
+update latency was measured and the continuation of an already queried instance is not
+shown. Of the subprocess RSS only the main-process value is reliable; equal numbers alone
+prove no particular cause. What the round adds: correct source and revision logic
+against these concrete baselines; for CURRENT questions it shows no need of a full
+episodic history - S4, which knows only the correct current state, is right everywhere.
+Readable tables per family x delay (counts with denominators, headers without "|") are in
+docs/ROUND_4_1_holdout_tables.md, derived from the run rows without a new run of M.
