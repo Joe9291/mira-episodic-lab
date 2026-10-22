@@ -1,0 +1,38 @@
+4m 51s nachgedacht
+
+}
+---END FILE docs/ROUND_4_1b_mutation.json---
+
+REQUEST CHANGES — zwei konkrete Punkte sind vor Abschluss des Zusatztests zu korrigieren.
+
+Der Kernversuch deckt die beabsichtigte Cache-Lücke ab: Q2 und Q3 verwenden dieselbe Instanz und denselben Abfragezeitpunkt. Die berichteten 3.200 Übereinstimmungen mit R und das gezielte Scheitern des Mutanten ohne Invalidierung sind damit aussagekräftig. Meine Prüfung ist statisch; ich habe keine Tests ausgeführt.
+
+1. ingest() muss eindeutige Berichts-IDs erhalten.
+
+Die neue Methode umgeht eine bestehende Prüfung des zuvor geprüften Memory-Konstruktors: Dieser lehnt doppelte report_id ab. ReportStore.extend() prüft dagegen Form und Gesamtordnung, aber keine globale ID-Eindeutigkeit.
+
+Ein statisches Gegenbeispiel: Nach r00001 an Tag 1 wird erneut r00001 an Tag 2 eingeliefert. Der Sortierschlüssel steigt, deshalb akzeptiert der Store den Bericht. LiveMemory übernimmt ihn ebenfalls. Beim anschließenden Neuaufbau lehnt Memory(store.reports) die doppelten IDs jedoch ab. Damit können laufende Instanz und wiederherstellbarer Speicher auseinanderfallen.
+
+Erforderliche Korrektur: Bereits vorhandene IDs vor dem Schreiben zurückweisen, auch bei späterem Berichtstag oder anderem Fakt. Ein gezielter Test sollte zeigen, dass der zurückgewiesene Bericht weder Siegel noch Antworten verändert und der Speicher weiterhin geladen werden kann. Dafür muss das unveränderte M nicht bearbeitet werden.
+
+2. Die Handfall-Ausführung trägt die formulierte Aussage noch nicht vollständig.
+
+In run_live() wird zunächst alles bis checks[0][1] ohne vorherige Abfrage eingelesen. Liegt der erste Check bereits nach c, ist c somit vor der ersten Abfrage vorhanden. Das betrifft beispielsweise die bisherigen T4-/T5-Handfälle.
+
+Diese Fälle prüfen eine richtige Endantwort, aber keinen bereits abgefragten Speicher beim Übergang über c. Die Aussage, auch die 19 Handchecks seien durchgehend mit einer vor c abgefragten Instanz geprüft worden, ist deshalb zu weit.
+
+Bevorzugte Korrektur: Mit leerem Speicher beginnen und auch den anfänglichen Berichtsteil tageweise einlesen; vor jedem Tagesblock den vorgesehenen Abfragezeitpunkt vorwärmen. Alternativ muss die Aussage ausdrücklich zwischen den vollständig fortgeführten Entwicklungssequenzen und den unterschiedlich initialisierten Handfällen unterscheiden.
+
+Die berichteten Ergebnisse auf den gültigen Entwicklungswelten werden durch diese Befunde nicht widerlegt. Für die Korrekturen genügt die bestehende Entwicklungs- und Handfallsuite; die abgeschlossenen Holdouts müssen nicht erneut laufen.
+
+Verbesserungsideen — zusätzlich, nicht freigabebedingend
+
+- DEV_OK auch an die erwarteten Fallzahlen binden: 400 Instanzen, je 400 Antworten pro Schritt und 200 goldverändernde Q2/Q3-Vergleiche. Gegenwärtig werden diese Zahlen berichtet, aber nicht als Erfolgskriterien geprüft.
+- Einen kleinen Wiederanlauftest ergänzen: gespeicherten Zustand als LiveMemory laden, einen weiteren Bericht einliefern und erneut antworten. Bisher wird nach dem Laden ausschließlich gelesen.
+- Für Phase B Berichts-IDs im Collector vergeben und Quellenränge aus der festgelegten Metadatenpolitik beziehen. Diese Verwaltungsdaten sollten zuverlässig außerhalb der sprachlichen Extraktion entstehen.
+
+Einschätzung zum Start von Phase B
+
+Die Designarbeit für Phase B kann jetzt beginnen. Vor Läufen, die auf LiveMemory aufbauen, sollte die ID-Lücke geschlossen und die Handfall-Aussage berichtigt sein.
+
+Danach bleibt die empfohlene Trennung sinnvoll: sprachliche Berichte, korrekte strukturierte Fragen, unveränderter Resolver und feste Quellenpolitik. Parallel laufen dieselben Aufgaben mit korrekten strukturierten Berichten. So lässt sich erkennen, ob Fehler bei der Extraktion oder beim Gedächtnis entstehen. Die ersten Extraktionsprüfungen sollten besonders Korrektur-/Widerrufsbezüge, Quellenzuordnung und Gültigkeitszeiten abdecken.

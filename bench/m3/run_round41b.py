@@ -9,8 +9,13 @@ Per world (pair side A / B, each delay) ONE LiveMemory instance on a file store:
   ingest the irrelevant reports of the delay
   Q5 current @ now   Q6 history @ now   Q7 believed_at(d3 - 1) @ now
   Q8 why_changed(v = d3, k1 = d3 - 1, k2 = now) @ now
+  restart: the store is reopened (seal checked) as a NEW LiveMemory; Q5 is asked again
+  (warming the cache at now), one further own observation of day now arrives;
+  Q9 current @ now (same query time), Q10 history @ now
 Gold for every question: R on exactly the reports received so far. Afterwards a second
-process reloads every final store (seal checked) and answers Q5-Q8 again.
+process reloads every final store (seal checked) and answers Q9-Q10 again.
+DEV_OK requires every answer equal to R, the reload, and the expected counts: 400
+instances, 400 answers per step, 200 Q2 / Q3 pairs in which c changes the gold.
 
 usage: run_round41b.py --out DIR
 """
@@ -52,11 +57,12 @@ def sequence(pair, inst, world, tmp):
     live = LiveMemory(store)
     received = list(first)
     rows = []
+    current = {"m": live}
 
     def ask(name, q):
         q = dict(q, qid=f"{pair['pair']}-{world}-{inst['delay']}-{name}", **fact)
         gold = reference_answers(received, [q])[0][q["qid"]]
-        got = live.answer(q)
+        got = current["m"].answer(q)
         rows.append({"qid": q["qid"], "family": pair["family"], "world": world, "delay": inst["delay"],
                      "step": name, "op": q["op"], "gold": gold, "M": got, "ok": got == gold})
         return q
@@ -68,11 +74,21 @@ def sequence(pair, inst, world, tmp):
     ask("Q4", {"op": "current", "now": d3 + 1})
     live.ingest(rest)
     received.extend(rest)
-    final = [ask("Q5", {"op": "current", "now": now}), ask("Q6", {"op": "history", "now": now}),
-             ask("Q7", {"op": "believed_at", "t": d3 - 1, "now": now}),
-             ask("Q8", {"op": "why_changed", "v": d3, "k1": d3 - 1, "k2": now, "now": now})]
-    expect = hashlib.sha256(R40.dumps([r["M"] for r in rows[-4:]])).hexdigest()
-    return rows, {"path": str(path), "seal": store.seal(), "questions": final, "expect": expect}
+    ask("Q5", {"op": "current", "now": now})
+    ask("Q6", {"op": "history", "now": now})
+    ask("Q7", {"op": "believed_at", "t": d3 - 1, "now": now})
+    ask("Q8", {"op": "why_changed", "v": d3, "k1": d3 - 1, "k2": now, "now": now})
+    current["m"] = LiveMemory(ReportStore(path, expect=store.seal()))          # restart
+    current["m"].answer(dict(fact, qid="warm", op="current", now=now))
+    rid = f"r{len(received) + 1:05d}"
+    extra = {"report_id": rid, "report_day": now, "source": "self", "rank": pair["ranks"]["self"],
+             "origin": "o-" + rid, "subject": fact["subject"], "attribute": fact["attribute"], "kind": "assert",
+             "value": "seen after restart", "valid_from": now, "target_report_id": None}
+    current["m"].ingest([extra])
+    received.append(extra)
+    final = [ask("Q9", {"op": "current", "now": now}), ask("Q10", {"op": "history", "now": now})]
+    expect = hashlib.sha256(R40.dumps([r["M"] for r in rows[-2:]])).hexdigest()
+    return rows, {"path": str(path), "seal": current["m"].store.seal(), "questions": final, "expect": expect}
 
 
 def main():
@@ -93,7 +109,7 @@ def main():
                     persist.append(p)
         persist_res = R40.run_persistence(persist, tmp, phases)
     by_step = {s: {"ok": sum(r["ok"] for r in rows if r["step"] == s), "n": sum(1 for r in rows if r["step"] == s)}
-               for s in ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8")}
+               for s in ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10")}
     changed_by_c = sum(1 for r2, r3 in zip([r for r in rows if r["step"] == "Q2"], [r for r in rows if r["step"] == "Q3"])
                        if r2["gold"] != r3["gold"])
     res = {"schema": "episodic_lab.round41b_result.v1", "split": "dev", "by_step": by_step,
@@ -101,7 +117,9 @@ def main():
            "same_time_cases_where_c_changes_the_gold": changed_by_c,
            "worlds": len(persist), "seconds": round(time.perf_counter() - t0, 1),
            "code": {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in CODE_FILES}}
-    res["verdict"] = "DEV_OK" if res["all_ok"] and persist_res["ok"] else "DEV_PROBLEMS"
+    res["expected_counts"] = (res["worlds"] == 400 and all(v["n"] == 400 for v in by_step.values())
+                              and changed_by_c == 200)
+    res["verdict"] = "DEV_OK" if res["all_ok"] and persist_res["ok"] and res["expected_counts"] else "DEV_PROBLEMS"
     (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
     with open(out / "rows.jsonl", "w") as fh:
         for r in rows:
@@ -110,7 +128,7 @@ def main():
              "| step | right / n |", "|---|---|"]
     lines += [f"| {s} | {v['ok']}/{v['n']} |" for s, v in by_step.items()]
     lines += ["", f"Worlds (one live instance each): {res['worlds']}. Same-time pairs Q2 / Q3 where c changes the gold: "
-              f"{changed_by_c}. Reload in a second process: {persist_res['stores']} stores, ok = {persist_res['ok']}. "
+              f"{changed_by_c}. Expected counts met: {res['expected_counts']}. Reload in a second process: {persist_res['stores']} stores, ok = {persist_res['ok']}. "
               f"{res['seconds']} s."]
     (out / "SUMMARY.md").write_text("\n".join(lines) + "\n")
     (out / "VERDICT").write_text(res["verdict"] + "\n")

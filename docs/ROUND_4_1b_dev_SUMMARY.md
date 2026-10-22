@@ -12,5 +12,7 @@ Verdict: **DEV_OK**
 | Q6 | 400/400 |
 | Q7 | 400/400 |
 | Q8 | 400/400 |
+| Q9 | 400/400 |
+| Q10 | 400/400 |
 
-Worlds (one live instance each): 400. Same-time pairs Q2 / Q3 where c changes the gold: 200. Reload in a second process: 400 stores, ok = True. 27.2 s.
+Worlds (one live instance each): 400. Same-time pairs Q2 / Q3 where c changes the gold: 200. Expected counts met: True. Reload in a second process: 400 stores, ok = True. 8.9 s.

@@ -36,22 +36,22 @@ class NoInvalidation(LiveMemory):
 
 
 def run_live(cls, reps, checks):
-    """Feed the reports day by day into ONE instance; before each new report day, ask the
-    question at the day of the coming report, and ask every check both at its own time and
-    at that same earlier query time (in these worlds no claim starts between the two, so
-    both answers must equal the hand-computed one)."""
-    first_day = checks[0][1]
+    """ONE instance, started EMPTY; the reports arrive day by day. Before each day block
+    the instance is queried at that day (a warmed cache for that query time); each check
+    is answered as soon as all reports up to its prefix day have arrived - at its own time
+    and at its prefix day (in these worlds no claim starts between the two, so both must
+    equal the hand-computed answer)."""
     live = cls(ReportStore())
-    live.ingest([r for r in reps if r["report_day"] <= first_day])
     got = {}
-    pending = [r for r in reps if r["report_day"] > first_day]
-    for cid, last, now, exp, _ in checks:
-        while pending and pending[0]["report_day"] <= last:
-            day = pending[0]["report_day"]
-            live.answer(q(day))                        # warms the cache for this query time
-            batch = [r for r in pending if r["report_day"] == day]
-            pending = pending[len(batch):]
-            live.ingest(batch)
+    days = sorted({r["report_day"] for r in reps})
+    todo = list(checks)
+    for day in days:
+        for cid, last, now, exp, _ in [c for c in todo if c[1] < day]:
+            got[cid] = (live.answer(q(now)), live.answer(q(last)))
+        todo = [c for c in todo if c[1] >= day]
+        live.answer(q(day))
+        live.ingest([r for r in reps if r["report_day"] == day])
+    for cid, last, now, exp, _ in todo:
         got[cid] = (live.answer(q(now)), live.answer(q(last)))
     return got
 
@@ -82,6 +82,36 @@ class LiveInstance(unittest.TestCase):
             got = run_live(NoInvalidation, reps, checks)
             caught += any(got[c[0]] != (c[3], c[3]) for c in checks)
         self.assertGreater(caught, 0)
+
+    def test_duplicate_id_is_refused_without_side_effects(self):
+        name, reps, checks = next(worlds())
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "s.jsonl"
+            live = LiveMemory(ReportStore(path))
+            live.ingest(reps)
+            seal, before = live.store.seal(), live.answer(q(20))
+            later = dict(reps[0], report_day=30, subject="other", valid_from=30)   # same id, later day, other fact
+            with self.assertRaises(ValueError):
+                live.ingest([later])
+            with self.assertRaises(ValueError):                                   # duplicate inside one batch
+                live.ingest([dict(later, report_id="r00090"), dict(later, report_id="r00090", report_day=31)])
+            self.assertEqual(live.store.seal(), seal)
+            self.assertEqual(live.answer(q(20)), before)
+            self.assertEqual(Memory(ReportStore(path, expect=seal).reports).answer(q(20)), before)
+
+    def test_restart_then_ingest(self):
+        name, reps, checks = next(worlds())
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "s.jsonl"
+            first = LiveMemory(ReportStore(path))
+            first.ingest(reps)
+            seal = first.store.seal()
+            again = LiveMemory(ReportStore(path, expect=seal))                   # reload as a live instance
+            self.assertEqual(again.answer(q(9))["value"], "Z")
+            new = dict(zip(FIELDS, ["r00009", 9, "self", 3, "key", "loc", "assert", "W", 9, None]), origin="o-r00009")
+            again.ingest([new])
+            self.assertEqual(again.answer(q(9)), {"status": "value", "value": "W", "ids": ["r00009"]})
+            self.assertEqual(Memory(ReportStore(path).reports).answer(q(9)), again.answer(q(9)))
 
     def test_store_on_disk_matches_and_rejects_disorder(self):
         name, reps, checks = next(worlds())
