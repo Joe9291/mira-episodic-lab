@@ -242,3 +242,17 @@ matrix (as in round 3.6). Development and calibration together are about half.
   scan finds none of these and no doubled words, "on yesterday", "day 0" or self-named
   authors; distinct notes: development 2,270, calibration 6,836, audit 1,133, holdout
   9,107; the meaning-check sheet was regenerated with the unchanged frames.
+- Extractor (before any model run): episodic_lab/cands42.py (candidate contract, slot truth
+  for scoring), episodic_lab/encoder42.py (slot questions and seven worked examples
+  outside the world vocabulary, prompt p1), bench/m3/run_round42_encode.py (phases timing /
+  probe / encode, chunks), bench/m3/collect_round42.py, .github/workflows/round42.yml
+  (the round 3.6 matrix pattern). Every one of the ten slots (type, subject, attribute,
+  value, valid_from, ref_source, ref_day, person, place, day) is scored for every note, so
+  the encoding does not depend on any decision; the slots a note USES and their allowed
+  candidates ("not stated" only for statements, "keep" only for corrections) follow later,
+  model-free, from the PREDICTED type alone. "not stated" has the canonical value of the
+  report day (it merges with an explicit report day), "today" / "yesterday" the report day
+  / the day before, "you" = the reader ("self"), "me" = the author. Model-free coverage
+  audit on all four splits (43,736 note occurrences): the true value of every slot of the
+  true type is among the candidates in every case. Timing slice: 20 development notes
+  (one per gold type and development frame); probe slice: 80.

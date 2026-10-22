@@ -1,0 +1,14 @@
+{
+ "schema": "episodic_lab.round42_request.v1",
+ "enabled": true,
+ "note": "Round 4.2 phase B: timing slice on development notes (20 notes, one per gold type and development frame), both candidate models, prompt p1.",
+ "phase": "timing",
+ "models": [
+  "qwen2.5-1.5b+p1",
+  "qwen3-1.7b+p1"
+ ],
+ "splits": [
+  "dev"
+ ],
+ "chunks": 1
+}
