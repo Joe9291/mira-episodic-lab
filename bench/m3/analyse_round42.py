@@ -71,6 +71,8 @@ def inspect(paths):
         if v != t["type"]:
             errs.append(("type", v, t["type"], txt))
         for slot in C.USES[t["type"]]:
+            if slot not in e:
+                continue
             v, m, _ = C.ranking([tuple(x) for x in e[slot] if C.allowed_surface(slot, x[0], t["type"])])
             n[slot] += 1
             ok[slot] += v == t[slot]

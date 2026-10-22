@@ -268,3 +268,15 @@ matrix (as in round 3.6). Development and calibration together are about half.
   splits, 2.3 instead of 23.5 subject candidates per note) and prompt p2 (sharper type,
   aspect, since and source questions; fourteen worked examples from template and
   development frames only). Next: probe of 80 development notes with p2 for both models.
+- Development log 2 - probe 1 (run 39832819294, p2, c42.2, 80 development notes; median
+  38 s / 42 s per note): raw top choices qwen2.5-1.5b / qwen3-1.7b - type 73 / 75 of 80,
+  attribute 63 / 55 of 64, valid_from 39 / 48 of 48, ref_source 37 / 37 of 48; subject,
+  value, ref_day, person, place, day all right for both. Errors: named sources answered as
+  "you" / "me" (both models, with large margins), repeats in the frames "As X told me",
+  "X reported on day N that", "According to X" taken as statements, "with" / "was
+  actually with" read as location (qwen3), "keep" in value-only corrections taken as a day
+  (qwen2.5). Development changes: candidates c42.3 (source: all world source names plus
+  "my", "your", "you", to be copied from the note; aspect labels "place" / "person") and
+  prompt p3 (type question with the cue phrases of repeats; aspect with cue words; copy
+  instruction for the source). Probe 2 scores only the four affected slots (a development
+  option of the encode job, refused for the real encode phase).

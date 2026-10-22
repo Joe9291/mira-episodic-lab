@@ -61,11 +61,11 @@ def scorer_of(model):
     return getattr(model, "score_candidates_prefixed", None) or model.score_candidates_cached
 
 
-def cache_check(model, notes, prompt):
+def cache_check(model, notes, prompt, slots=None):
     worst, same = 0.0, True
     for n in notes:
         full = n["header"] + " " + n["text"]
-        for slot in SLOTS:
+        for slot in (slots or SLOTS):
             surf = candidates(slot, full, n["ctx"])
             if not surf:
                 continue
@@ -87,17 +87,21 @@ def main() -> int:
     ap.add_argument("--chunks", type=int, default=1)
     ap.add_argument("--pins", default="config/model_pins.json")
     ap.add_argument("--request", default="config/round42.json")
+    ap.add_argument("--slots", default="", help="development probes only: comma-separated slots")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     slug, _, prompt = args.model.partition("+")
     prompt = prompt or "p1"
     out = {"schema": SCHEMA, "phase": args.phase, "model": args.model, "split": args.split, "chunk": args.chunk,
            "chunks": args.chunks, "prompt_version": prompt, "candidate_version": CANDIDATE_VERSION,
-           "generator_version": W.GENERATOR_VERSION, "status": "ERROR",
+           "generator_version": W.GENERATOR_VERSION, "status": "ERROR", "slots": args.slots or "all",
            "provenance": {"code_commit": os.environ.get("GITHUB_SHA", "local"),
                           "request_sha256": hashlib.sha256(Path(args.request).read_bytes()).hexdigest(),
                           "pins_sha256": hashlib.sha256(Path(args.pins).read_bytes()).hexdigest()}}
     try:
+        slots = [x for x in args.slots.split(",") if x] or None
+        if slots and args.phase == "encode":
+            raise RuntimeError("--slots is for development probes only")
         if args.split == "holdout":
             raise RuntimeError("the holdout is encoded only after the freeze (not implemented in this job yet)")
         notes = split_notes(args.split)
@@ -115,13 +119,13 @@ def main() -> int:
         enc, secs = {}, {}
         for n in notes:
             t = time.perf_counter()
-            enc[n["key"]] = encode_note(scorer_of(model), n["header"], n["text"], n["ctx"], prompt)
+            enc[n["key"]] = encode_note(scorer_of(model), n["header"], n["text"], n["ctx"], prompt, slots)
             secs[n["key"]] = round(time.perf_counter() - t, 3)
         out.update(encodings=enc, seconds=secs, notes=len(notes),
                    index={n["key"]: {"header": n["header"], "text": n["text"], "ctx": n["ctx"]} for n in notes})
         if args.phase != "encode":
             t = time.perf_counter()
-            out["cache_check"] = cache_check(model, notes[:5], prompt)
+            out["cache_check"] = cache_check(model, notes[:5], prompt, slots)
             out["cache_check"]["seconds"] = round(time.perf_counter() - t, 1)
         if model.weights_digest(recompute=True) != out["weights_sha256"]:
             raise RuntimeError("weights changed")

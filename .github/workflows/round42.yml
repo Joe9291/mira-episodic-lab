@@ -63,6 +63,7 @@ jobs:
           python bench/m3/run_round42_encode.py --phase "${{ needs.plan.outputs.phase }}" --model "${{ matrix.model }}" \
             --split "${{ matrix.split }}" --chunk "${{ matrix.chunk }}" --chunks "${{ matrix.chunks }}" \
             --pins config/model_pins.json --request config/round42.json \
+            --slots "$(python3 -c 'import json; print(json.load(open("config/round42.json")).get("slots", ""))')" \
             --out "out/r42_${{ needs.plan.outputs.phase }}_${{ matrix.model }}_${{ matrix.split }}_${{ matrix.chunk }}.json"
       - if: always()
         uses: actions/upload-artifact@v4

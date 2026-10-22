@@ -14,9 +14,14 @@ Contract (the round 3.5 token rules):
   the report day / the day before); "not stated" (statement) has the canonical value of
   the report day (a statement without a day speaks about the day it is written);
 - "keep" (corrections: value or day unchanged) is its own canonical value;
-- source candidates: the world's source names, "you" (= the reader, canonical "self") and
-  "me" (= the author);
-- label slots (type, attribute) score a fixed label set;
+- source candidates (version c42.3, a development change after probe 1, where both models
+  answered "me" / "you" for named sources): all world source names, "my" (canonical: the
+  author) and "your" / "you" (canonical: "self") - the words a note writes for a source;
+  the model is asked to copy the word written in the note (restricting the candidates to
+  the words that occur in the text would leave exactly one candidate in every generated
+  note, i.e. the rule, not the model, would decide);
+- label slots score a fixed label set; the aspect labels are "place" (canonical
+  "location") and "person" (canonical "holder") since version c42.3;
 - surface variants of one canonical value are merged (maximum score); margins are taken
   between DIFFERENT canonical values (cands35.ranking / decide).
 
@@ -29,13 +34,14 @@ import re
 
 from .cands35 import decide, merge, ranking, spans  # noqa: F401 (re-exported, unchanged rules)
 
-CANDIDATE_VERSION = "c42.2"
+CANDIDATE_VERSION = "c42.3"
 TYPES = {"statement": "it says where a thing is or who has it",
          "repeated statement": "the author passes on what another person reported",
          "correction": "the author corrects an earlier report",
          "retraction": "the author withdraws an earlier report",
          "meeting": "it says that the reader met a person somewhere"}
 ATTRIBUTES = {"location": "the note says WHERE the thing is", "holder": "the note says WHO has the thing"}
+ASPECT_LABELS = {"place": "location", "person": "holder"}
 NOT_STATED, KEEP = "not stated", "keep"
 SLOTS = ("type", "subject", "attribute", "value", "valid_from", "ref_source", "ref_day", "person", "place", "day")
 USES = {
@@ -60,7 +66,7 @@ def canonical(slot: str, surface: str, ctx: dict):
     if slot == "type":
         return s if s in TYPES else None
     if slot == "attribute":
-        return s if s in ATTRIBUTES else None
+        return ASPECT_LABELS.get(s)
     if slot in ("valid_from", "day", "ref_day"):
         if s.isdigit():
             return int(s)
@@ -74,11 +80,11 @@ def canonical(slot: str, surface: str, ctx: dict):
             return KEEP
         return None
     if slot == "ref_source":
-        if s == "you":
+        if s.lower() in ("you", "your"):
             return "self"
-        if s == "me":
+        if s.lower() == "my":
             return ctx["author"]
-        return s if s in ctx["sources"] else None
+        return s if s in ctx["sources"] and s != "self" else None
     if slot == "subject":
         if not all(t.isalpha() and t.islower() for t in s.split()):
             return None
@@ -99,9 +105,9 @@ def candidates(slot: str, note: str, ctx: dict) -> list[tuple[str, object]]:
     if slot == "type":
         surf = list(TYPES)
     elif slot == "attribute":
-        surf = list(ATTRIBUTES)
+        surf = list(ASPECT_LABELS)
     elif slot == "ref_source":
-        surf = sorted(n for n in ctx["sources"] if n != "self") + ["you", "me"]
+        surf = sorted(n for n in ctx["sources"] if n != "self") + ["my", "your", "you"]
     elif slot in ("valid_from", "day", "ref_day"):
         low = note.lower()
         surf = re.findall(r"\d+", note)

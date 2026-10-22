@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from .cands42 import ATTRIBUTES, SLOTS, TYPES, candidates
 
-PROMPTS = ("p1", "p2")
+PROMPTS = ("p1", "p2", "p3")
 SYSTEM = ("You read one short note and fill in one field of a record about it. In a note written by "
           "someone else, 'you' means the reader. Answer with only the value, nothing else.")
 QUESTIONS = {
@@ -120,6 +120,43 @@ EXAMPLES_P2 = [
 ]
 
 
+# p3 (development change after probe 1, logged in docs/ROUND_4_2.md; needs candidates
+# c42.3): the source is COPIED from the note (a name, my, your / you); the aspect is asked
+# as place / person with cue words; the type question names the cue phrases of repeated
+# statements and says that "Update:" only introduces a statement
+QUESTIONS_P3 = dict(QUESTIONS_P2)
+QUESTIONS_P3.update({
+    "type": ("Field 'type': what kind of note is this? statement = the author says where a thing is or who has it "
+             "(a leading 'Update:' or 'I can tell you that' still makes it a statement); repeated statement = the "
+             "author passes on what ANOTHER person said or reported on an earlier day ('X reported on day N that', "
+             "'according to X on day N', 'as X told me on day N', 'passing on what X said'); correction = the author "
+             "says that an earlier report was wrong and gives the right place, person or day; retraction = the author "
+             "withdraws or cancels an earlier report; meeting = the note says that the reader met a person somewhere. "
+             "Answer with one of: statement, repeated statement, correction, retraction, meeting."),
+    "attribute": ("Field 'aspect': does the note say at which PLACE the thing is (answer: place) or which PERSON has "
+                  "the thing (answer: person)? 'with', 'in the hands of', 'kept by', 'who has', 'had', 'the handover' "
+                  "point to a person; 'at', 'where', 'the move' point to a place. Answer: place or person."),
+    "ref_source": ("Field 'source': whose earlier report or statement does the note repeat, correct or withdraw? Copy "
+                   "the word from the note: that person's first name, or my (the author's own report), or your / you "
+                   "(the reader's report)."),
+})
+_P3_FIX = {"location": "place", "holder": "person", "me": "my"}
+
+
+def _p3(answers: dict, text: str) -> dict:
+    out = dict(answers)
+    if "attribute" in out:
+        out["attribute"] = _P3_FIX[out["attribute"]]
+    if out.get("ref_source") == "me":
+        out["ref_source"] = "my"
+    if out.get("ref_source") == "you":
+        out["ref_source"] = "your" if "your" in text else "you"
+    return out
+
+
+EXAMPLES_P3 = [(h, t, _p3(a, t)) for h, t, a in EXAMPLES_P2]
+
+
 def note_block(header: str, text: str) -> str:
     return f"{header}\nNote: {text}"
 
@@ -127,20 +164,21 @@ def note_block(header: str, text: str) -> str:
 def messages(slot: str, header: str, text: str, prompt: str = "p1") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
-    q = (QUESTIONS_P2 if prompt == "p2" else QUESTIONS)[slot]
+    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3}[prompt][slot]
     turns = [{"role": "system", "content": SYSTEM}]
-    for h, t, answers in (EXAMPLES_P2 if prompt == "p2" else EXAMPLES):
+    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3}[prompt]:
         if slot in answers:
             turns += [{"role": "user", "content": f"{note_block(h, t)}\n\nQuestion: {q}"},
                       {"role": "assistant", "content": answers[slot]}]
     return turns + [{"role": "user", "content": f"{note_block(header, text)}\n\nQuestion: {q}"}]
 
 
-def encode_note(scorer, header: str, text: str, ctx: dict, prompt: str = "p1") -> dict:
-    """{slot: [[surface, canonical, score], ...]} for every slot (the superset)."""
+def encode_note(scorer, header: str, text: str, ctx: dict, prompt: str = "p1", slots=None) -> dict:
+    """{slot: [[surface, canonical, score], ...]} for every slot (the superset); `slots`
+    restricts the slots for development probes only."""
     out = {}
     full = header + " " + text
-    for slot in SLOTS:
+    for slot in (slots or SLOTS):
         cands = candidates(slot, full, ctx)
         scores = scorer(messages(slot, header, text, prompt), [s for s, _ in cands]) if cands else []
         out[slot] = [[s, c, float(x)] for (s, c), x in zip(cands, scores)]
