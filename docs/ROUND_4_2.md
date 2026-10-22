@@ -221,3 +221,11 @@ matrix (as in round 3.6). Development and calibration together are about half.
   splits are disjoint. Distinct notes: development 2,276, calibration 6,825, audit 1,134,
   holdout 9,101. bench/m3/wordings42_sheet.py writes the sheet for Joe's meaning check
   (one example of each of the 60 frames, every clause included).
+- Joe's meaning check (2026-10-22): "passt" for all 60 examples, with the request to
+  check again. Claude's second check found two ambiguities, both fixed and shown to Joe
+  again: (a) a relative day inside a repeated statement ("Passing on what Dorran said on
+  day 3: ... since yesterday") can be read relative to the repeating author's day or to
+  the original speaker's day - repeats now always name the explicit day; (b) the meeting
+  frame "Meeting on day 8 with ..." in a note by another person does not say whose
+  meeting it was - it now reads "Your meeting ..." / "My meeting ...". All other frames
+  unchanged; round-trip tests re-run.

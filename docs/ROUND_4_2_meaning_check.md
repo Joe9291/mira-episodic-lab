@@ -73,7 +73,7 @@ Jede Satzvorlage kommt genau einmal vor (Vorlage, 3 Entwicklung, 3 Holdout, 3 Re
 21. _Day 16, note from Marit._ **Quillon reported on day 16 that the copper basket has been at Carrow Garden since day 11.**   _(Vorlage)_  
    Bedeutung: WIEDERHOLUNG der Meldung von Quillon vom Tag 16: the copper basket - Ort = Carrow Garden, gültig ab Tag 11.
 
-22. _Day 4, note from Tamric._ **Passing on what Dorran said on day 3: Sabeth Corland has had the heavy telescope since yesterday.**   _(Entwicklung)_  
+22. _Day 4, note from Tamric._ **Passing on what Dorran said on day 3: Sabeth Corland has had the heavy telescope since day 3.**   _(Entwicklung)_  
    Bedeutung: WIEDERHOLUNG der Meldung von Dorran vom Tag 3: the heavy telescope - Besitzer = Sabeth Corland, gültig ab Tag 3.
 
 23. _Day 13, your own note._ **According to Brenna on day 12, the tiny map has been at Fenhollow Market since day 8.**   _(Entwicklung)_  
@@ -94,10 +94,10 @@ Jede Satzvorlage kommt genau einmal vor (Vorlage, 3 Entwicklung, 3 Holdout, 3 Re
 28. _Day 10, note from Halsey._ **Relaying your note from day 8: Fenwick Quist has had the blue umbrella since day 8.**   _(Reserve)_  
    Bedeutung: WIEDERHOLUNG der Meldung von Mira selbst vom Tag 8: the blue umbrella - Besitzer = Fenwick Quist, gültig ab Tag 8.
 
-29. _Day 3, note from Sabeth._ **Second-hand, from Ilsen on day 2: the wooden clock has been at Thornby Chapel since yesterday.**   _(Reserve)_  
+29. _Day 3, note from Sabeth._ **Second-hand, from Ilsen on day 2: the wooden clock has been at Thornby Chapel since day 2.**   _(Reserve)_  
    Bedeutung: WIEDERHOLUNG der Meldung von Ilsen vom Tag 2: the wooden clock - Ort = Thornby Chapel, gültig ab Tag 2.
 
-30. _Day 4, note from Quillon._ **Brenna said on day 3 that since yesterday, Gorvin Quist has had the copper mirror.**   _(Reserve)_  
+30. _Day 4, note from Quillon._ **Brenna said on day 3 that since day 3, Gorvin Quist has had the copper mirror.**   _(Reserve)_  
    Bedeutung: WIEDERHOLUNG der Meldung von Brenna vom Tag 3: the copper mirror - Besitzer = Gorvin Quist, gültig ab Tag 3.
 
 ## Korrektur
@@ -175,7 +175,7 @@ Jede Satzvorlage kommt genau einmal vor (Vorlage, 3 Entwicklung, 3 Holdout, 3 Re
 53. _Day 19, note from Tamric._ **You ran into Marit Brack at Brannick Harbour today.**   _(Entwicklung)_  
    Bedeutung: TREFFEN: Mira hat Marit Brack am Ort Brannick Harbour getroffen, an Tag 19.
 
-54. _Day 12, note from Sabeth._ **Meeting on day 8 with Tamric Quist at Brannick Garden.**   _(Entwicklung)_  
+54. _Day 12, note from Sabeth._ **Your meeting on day 8 with Tamric Quist at Brannick Garden.**   _(Entwicklung)_  
    Bedeutung: TREFFEN: Mira hat Tamric Quist am Ort Brannick Garden getroffen, an Tag 8.
 
 55. _Day 15, your own note._ **I had a meeting with Casimo Brack at Sorrow Bridge yesterday.**   _(Holdout)_  

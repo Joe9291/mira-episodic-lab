@@ -98,7 +98,7 @@ MEETING_FRAMES = [
     "{WHO} met {N} at {Q} {DD}.",
     "{DDC}, {WHOL} met {N} at {Q}.",
     "{WHO} ran into {N} at {Q} {DD}.",
-    "Meeting {DD} with {N} at {Q}.",
+    "{WHOP} meeting {DD} with {N} at {Q}.",
     "{WHO} had a meeting with {N} at {Q} {DD}.",
     "It was {DD} that {WHOL} met {N} at {Q}.",
     "{N} and {WHOL} met at {Q} {DD}.",
@@ -166,11 +166,9 @@ def render(report: dict, by_id: dict, frame: int, key: str) -> str:
         dd = day_phrase(report["value"], rd, key)
         dd = "on " + dd if dd.startswith("day") else dd
         f.update(N=m.group(1), Q=m.group(2), DD=dd, DDC=dd[0].upper() + dd[1:],
-                 WHO="I" if author == "self" else "You", WHOL="I" if author == "self" else "you")
-        text = MEETING_FRAMES[frame]
-        if frame == 6:
-            f["WHOL"] = "I" if author == "self" else "you"
-        return text.format(**f)
+                 WHO="I" if author == "self" else "You", WHOL="I" if author == "self" else "you",
+                 WHOP="My" if author == "self" else "Your")
+        return MEETING_FRAMES[frame].format(**f)
     f["O"] = report["subject"] if report["subject"] else ""
     if t == "statement":
         vf = report["valid_from"]
@@ -181,8 +179,9 @@ def render(report: dict, by_id: dict, frame: int, key: str) -> str:
         return s[0].upper() + s[1:]
     if t == "repeat":
         orig = by_id[report["origin"][2:]]
-        d = day_phrase(report["valid_from"], rd, key + "|vf")
-        f.update(P=report["value"], H=report["value"], D=d)
+        # explicit day only: a relative day inside a repeated statement would be ambiguous
+        # (relative to the repeating author's day or to the original speaker's day?)
+        f.update(P=report["value"], H=report["value"], D=f"day {report['valid_from']}")
         cl = {k: v.format(**f) for k, v in REPEAT_CLAUSE[attr].items()}
         sn = _name(orig["source"], author)
         s = REPEAT_FRAMES[frame].format(SN=sn, SP=_poss(orig["source"], author), R=f"day {orig['report_day']}", **cl)
@@ -211,7 +210,7 @@ _PAT = {
     "R": r"day (?P<R>\d+)", "SN": r"(?P<SN>[Yy]ou|I|[A-Z][a-z]+)",
     "SP": r"(?P<SP>my|your|[A-Z][a-z]+'s)", "SPC": r"(?P<SP>My|Your|[A-Z][a-z]+'s)",
     "DD": r"(?P<DD>on day \d+|yesterday|today)", "DDC": r"(?P<DD>On day \d+|Yesterday|Today)",
-    "WHO": r"(?P<WHO>I|You)", "WHOL": r"(?P<WHO>I|you)",
+    "WHO": r"(?P<WHO>I|You)", "WHOL": r"(?P<WHO>I|you)", "WHOP": r"(?P<WHO>My|Your)",
 }
 
 
