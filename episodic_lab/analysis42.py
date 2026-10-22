@@ -230,3 +230,42 @@ def causes(gold, stored, notes, decisions, truths, fact, anchor) -> dict:
             out["injected"].append(r["report_id"])
     out["repair_scope"] = sorted(rid for rid in scope if status[rid] != "correct")
     return out
+
+
+def mark_critical(rows: list[dict]) -> None:
+    """A question is CRITICAL if its gold answer differs between the worlds A and B of its
+    pair at the same delay (same question position), under the round 4.0 hit definition."""
+    from .r40_analysis import hit
+    by = {}
+    for r in rows:
+        pos = r["qid"].rsplit("-", 1)[1]
+        by.setdefault((r["pair"], r["delay"], pos), {})[r["world"]] = r
+    for (_, _, _), ab in by.items():
+        crit = len(ab) == 2 and not hit(ab["A"]["op"], ab["A"]["gold"], ab["B"]["gold"])
+        for r in ab.values():
+            r["critical"] = crit
+
+
+def rule6(rows: list[dict], families, delays, pairs_per_family: int, questions_per_world: dict) -> dict:
+    """Pass rule 6 (design v3 + Astra's late review): in EVERY family x delay cell
+    (a) >= 90 % of all questions right, (b) >= 90 % of the critical questions right,
+    (c) >= 90 % pair success, a pair counting only if both worlds answer ALL critical
+    questions of that delay right; exact denominators, and an empty or unexpected
+    denominator fails the cell."""
+    cells, ok = {}, True
+    for f in families:
+        for d in delays:
+            sel = [r for r in rows if r["family"] == f and r["delay"] == d]
+            crit = [r for r in sel if r["critical"]]
+            pairs = sorted({r["pair"] for r in sel})
+            succ = [p for p in pairs if all(r["e2e"] for r in crit if r["pair"] == p)
+                    and any(r["pair"] == p for r in crit)]
+            n_exp = questions_per_world[f] * 2 * pairs_per_family
+            c = {"all": [sum(r["e2e"] for r in sel), len(sel)], "critical": [sum(r["e2e"] for r in crit), len(crit)],
+                 "pairs": [len(succ), len(pairs)],
+                 "denominators_ok": len(sel) == n_exp and len(crit) > 0 and len(pairs) == pairs_per_family
+                 and all(any(r["pair"] == p for r in crit) for p in pairs)}
+            c["ok"] = c["denominators_ok"] and all(k * 10 >= 9 * n for k, n in (c["all"], c["critical"], c["pairs"]))
+            cells[f"{f}|{d}"] = c
+            ok &= c["ok"]
+    return {"ok": ok, "cells": cells}

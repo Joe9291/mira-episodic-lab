@@ -1,0 +1,27 @@
+(Astra, delivered late by Joe on 2026-10-22 22:57, "Das kam zwischendurch"; a second review of design v3)
+
+REQUEST CHANGES
+
+v3 behebt die beiden Beanstandungen aus v2 überzeugend:
+
+- Der Notiztyp wird nun tatsächlich aus sichtbaren Eingaben vorhergesagt und steuert erst danach Slots und Kandidaten. Generator-Typ, Goldreport und Inversparser liegen nicht im Extraktionspfad.
+- Anchor-Reports sind vollständig definiert.
+- Der Repair-Check erfasst Anchor-Fehler, transitive Referenzabhängigkeiten und Injektionen; Collector-Fehler führen separat zum Scheitern.
+
+Es bleibt jedoch eine materielle Lücke in Passregel 6: Nur die Gesamtgenauigkeit je family × delay muss mindestens 90 % erreichen. Die kritischen Fragen und der Pair Success werden lediglich berichtet. Da zahlreiche nichtkritische Fragen leicht korrekt bleiben, könnte das System gerade jene Fälle verfehlen, in denen sich A und B durch die kritische Notiz unterscheiden, und trotzdem bestehen.
+
+Vor dem ersten Modelllauf sollte Passregel 6 deshalb zusätzlich verbindlich festlegen:
+
+- mindestens 90 % korrekte kritische Fragen in jeder family × delay-Zelle;
+- mindestens 90 % Pair Success je Zelle, wobei ein Paar nur zählt, wenn beide Welten in allen dafür definierten kritischen Fragen korrekt sind;
+- exakte Nenner sowie automatisches Scheitern bei leerem oder unerwartetem Nenner.
+
+Verbesserungsideen
+
+- Zusätzlich zum gemeinsamen Repair einen greedy verkleinerten Repair-Set berichten. Der jetzige Gold-Ersatz aller abweichenden relevanten Notizen zeigt Reparierbarkeit, aber keine minimale Ursache.
+- Kalibrationszählungen pro Slot vor dem Freeze ausgeben, damit die Mindestmenge von 200 akzeptierten Werten insbesondere für Meeting-/Anchor-Slots nachweisbar erreichbar ist.
+- Einen Negativtest hinzufügen, bei dem alle nichtkritischen Fragen korrekt, aber sämtliche kritischen Fragen falsch sind; die endgültige Passregel muss diesen Lauf sicher ablehnen.
+
+Das ist eine wesentliche, aber klar begrenzte Designrevision. Es wurde noch kein Modell ausgeführt und es existiert noch kein Round-4.2-Code.
+
+[Archived without the following part, which concerns the private repository: a status line about its canonical state, and a closing file list.]

@@ -128,10 +128,20 @@ def evaluate(split, enc, taus):
                         fixed = A.repair(gold, stored, set(cz["repair_scope"]), pair["fact"], pair["anchor"])
                         audit = W40.audit_world(fixed, pair["ranks"], pair["anchor"], pair["fact"], False)
                         rep_ans = A.answer_all(fixed, [q])[0][q["qid"]]
+                        repaired = (not audit) and A40.hit(q["op"], r_g[q["qid"]], rep_ans)
+                        minimal = list(cz["repair_scope"])
+                        if repaired:                    # greedy reduction (Astra's idea): report only
+                            for rid in list(minimal):
+                                trial = [x for x in minimal if x != rid]
+                                fx = A.repair(gold, stored, set(trial), pair["fact"], pair["anchor"])
+                                if not W40.audit_world(fx, pair["ranks"], pair["anchor"], pair["fact"], False) and \
+                                        A40.hit(q["op"], r_g[q["qid"]], A.answer_all(fx, [q])[0][q["qid"]]):
+                                    minimal = trial
                         row.update(causes={k: cz[k] for k in ("direct", "follow_up", "injected")},
-                                   repaired=(not audit) and A40.hit(q["op"], r_g[q["qid"]], rep_ans),
-                                   repair_set=cz["repair_scope"], repair_audit=audit)
+                                   repaired=repaired, repair_set=cz["repair_scope"], repair_set_greedy=minimal,
+                                   repair_audit=audit)
                     rows.append(row)
+    A.mark_critical(rows)
     return rows, notes_out, violations
 
 
@@ -182,6 +192,8 @@ def main():
            "pairs_right": sum(1 for p in {r["pair"] for r in rows} if all(r["e2e"] for r in rows if r["pair"] == p)),
            "pairs": len({r["pair"] for r in rows})}
     res["pairs_right_wilson"] = wilson(res["pairs_right"], res["pairs"])
+    res["rule6"] = A.rule6(rows, W.FAMILIES, W.DELAYS, W.PAIRS[a.split],
+                           {f: len(W40.QUESTION_TABLE[f]) for f in W.FAMILIES})
     (out / "evaluation.json").write_text(json.dumps(res, indent=1, sort_keys=True))
     with open(out / "rows.jsonl", "w") as fh:
         for r in rows:

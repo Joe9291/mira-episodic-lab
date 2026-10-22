@@ -176,8 +176,14 @@ On the holdout, all of:
     accepted set has an undefined precision, which never passes (the round 3.5 rule) -
     so a slot without a qualifying tau fails the round;
 (5) arm G right on every question (control);
-(6) end-to-end: E right on >= 0.90 of the questions in EVERY family x delay cell (9 x 2
-    cells); the critical questions and pair success per cell are reported next to it;
+(6) in EVERY family x delay cell (9 x 2 cells), all three: (a) E right on >= 0.90 of all
+    questions; (b) E right on >= 0.90 of the CRITICAL questions (those whose gold differs
+    between the worlds A and B of the pair at that delay); (c) pair success >= 0.90, a
+    pair counting only if both worlds answer all critical questions of that delay right;
+    exact denominators (all questions = questions per world x 2 x 40; every pair has at
+    least one critical question - guaranteed by the round 4.0 pair conditions); an empty
+    or unexpected denominator fails the cell (added after Astra's late review of v3,
+    reviews/2026-10-22_r42v3_astra_late.txt, before any evaluation against the pass rule);
 (7) no collector error.
 1 %, 99 % and 90 % are technical target values fixed in advance; the observed values are
 empirical rates of this holdout. Freeze, single holdout run and repeat labelling as in
@@ -280,3 +286,13 @@ matrix (as in round 3.6). Development and calibration together are about half.
   prompt p3 (type question with the cue phrases of repeats; aspect with cue words; copy
   instruction for the source). Probe 2 scores only the four affected slots (a development
   option of the encode job, refused for the real encode phase).
+- Astra's late review of v3 (delivered after her APPROVE of v3; archived as
+  reviews/2026-10-22_r42v3_astra_late.txt): pass rule 6 now binds the critical questions
+  and pair success per cell (section 6). At that time two development probes had run
+  (prompt development, raw top choices only); nothing had been evaluated against the pass
+  rule. Implemented in analysis42.mark_critical / rule6 with tests, including her negative
+  test (12 questions per world, the one critical question wrong in every pair: 91.7 % of
+  all questions right, rule 6 rejects every cell), a pair-success test and an unexpected
+  denominator test. Her ideas: a greedily reduced repair set is reported next to the full
+  one (report only - a joint repair is not a minimal cause); calibration counts per slot
+  are reported before the freeze (planned for the calibration encode).
