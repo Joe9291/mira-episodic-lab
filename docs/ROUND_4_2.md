@@ -208,4 +208,16 @@ matrix (as in round 3.6). Development and calibration together are about half.
   therefore enlarged to 30 pairs per family (about 270 meetings, 320 repeats, 610
   corrections, 440 retractions - to be confirmed by the model-free audit before any model
   run); development, audit and holdout stay as designed.
-
+- Wordings and worlds (model-free, before any model run): episodic_lab/r42_wordings.py
+  (per note type and attribute ten frames; correction clauses for value / date / both;
+  relative days "today" / "yesterday" chosen by hash; references always "day N"),
+  episodic_lab/r42_world.py (the P1-P9 families with phase B seeds; the irrelevant
+  reports of a delay are drawn again until every correction, retraction and repeat has
+  exactly one earlier report with its (source, day, subject, attribute) - only irrelevant
+  reports ever needed it, at most 5 attempts), tests/test_round42.py: every frame of every
+  note type, attribute and correction subtype round-trips through its exact inverse parser
+  on all development reports (> 10,000 renderings); references unique in all splits;
+  the notes of a pair differ at most in the critical note; header + text sets of the four
+  splits are disjoint. Distinct notes: development 2,276, calibration 6,825, audit 1,134,
+  holdout 9,101. bench/m3/wordings42_sheet.py writes the sheet for Joe's meaning check
+  (one example of each of the 60 frames, every clause included).
