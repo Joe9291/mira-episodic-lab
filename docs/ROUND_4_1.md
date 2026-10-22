@@ -165,7 +165,8 @@ by any source, latest-wins, conflict ignored, ineffective correction still withd
 change current answers in the generated worlds; the others concern operators this round
 does not ask and are caught by the 4.0 conformance set.
 Known limits, stated before the holdout:
-- S1 and S2 give identical answers in this round (c is never an assert in T1 / T2, and
+- S1 and S2 have identical results in this round (the same failure class for every
+  answer) (c is never an assert in T1 / T2, and
   the asserts of T3-T5 are the latest ones); the round does not separate them.
 - S3 and S4 are oracles and are right everywhere, as intended (controls).
 - Correcting an already withdrawn claim and the other non-current paths are not
