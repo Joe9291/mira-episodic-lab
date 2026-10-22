@@ -5,5 +5,29 @@
  "split": "dev",
  "attempt": 1,
  "repeat_of": null,
- "freeze": null
+ "freeze": {
+  "generator": "r41.g1",
+  "digests": {
+   "worlds": "0d912e7b24769b0cbb52eb34694e33338aafd7301cf54e594bc30d69670d5ec1",
+   "questions": "14acbd54012f4f5af677e09784c116821cf137a60644794813dcb8b7257e53d3",
+   "gold": "b26e860899fea5d072c016f9999c2b1dffd47925af6936f8c46c7d7b2e52d929",
+   "interventions": "62debba3fa19329bd524ed453d6797a9ff4389577150e2fba32a3394e92d35d1"
+  },
+  "code": {
+   "episodic_lab/r40_schema.py": "6ec2c55ed7b863a664d542e8aa52d1b33b587b9dea70cecda7a316564457e34c",
+   "episodic_lab/r40_memory.py": "bdd3da396c22e1060e8ca6de09ba81d42d7d5053cb48c3b9aad88144e8bbfb4c",
+   "episodic_lab/r40_reference.py": "9dac06abd3cf106fd6bb47550756f90f9bd474356166743cb33d6479ce64a8df",
+   "episodic_lab/r40_baselines.py": "3f4c1a84bf93e97fe42ceeeab41b0c3c567035e8db00cd65429a806bb7b326a8",
+   "episodic_lab/r40_world.py": "88152b2f6567e95b49c371405265037bd5814735f49085b605d2410eebc63a33",
+   "episodic_lab/r40_analysis.py": "9e96d7de7af8da1495e7346bd3882383b9e3fc6bedd8616dde359f621ddf9cb3",
+   "episodic_lab/rng.py": "4c807caf9a5da36c0fb97e0771567dcbf483135f8129369301b598c17b74f5c8",
+   "episodic_lab/world.py": "fc688ff240a977a849c4e7686f7d54fbc099c9f46b38766a50f8126440a10142",
+   "bench/m3/run_round40.py": "5c7e4898e3b05c22ffc73c64b9d38d4ac1de0fbc64004ae2bd762082369b060e",
+   "tests/fixtures/r40_conformance.json": "de057160506865ea1b4ddf686053bb0a999078f1e10b6d6306d940425e23563a",
+   "episodic_lab/r41_world.py": "e3e95f971d2cc364b6be2d14deb356b46e30ad41a7730bb17f84eedd562f1019",
+   "episodic_lab/r41_baselines.py": "eb8b76b002dc410a81e1552cc747e60bc2bd00f48a52b162524eed8e6cdcd239",
+   "bench/m3/run_round41.py": "b532572ecf1d953a45c6aece1b9f6f96796839a8f3ef63cac0d8982ac99c22a0",
+   "tests/fixtures/r41_conformance.json": "582b8a046698223581d2cacdf84447c0a459efc4ac8278c6629d13a52315b53f"
+  }
+ }
 }
