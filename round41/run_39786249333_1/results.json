@@ -1,0 +1,1184 @@
+{
+ "attempt": 1,
+ "commit": "b5897949cf3d62acd1db30e542769ee4b3a8241d",
+ "freeze_now": {
+  "code": {
+   "bench/m3/run_round40.py": "5c7e4898e3b05c22ffc73c64b9d38d4ac1de0fbc64004ae2bd762082369b060e",
+   "bench/m3/run_round41.py": "b532572ecf1d953a45c6aece1b9f6f96796839a8f3ef63cac0d8982ac99c22a0",
+   "episodic_lab/r40_analysis.py": "9e96d7de7af8da1495e7346bd3882383b9e3fc6bedd8616dde359f621ddf9cb3",
+   "episodic_lab/r40_baselines.py": "3f4c1a84bf93e97fe42ceeeab41b0c3c567035e8db00cd65429a806bb7b326a8",
+   "episodic_lab/r40_memory.py": "bdd3da396c22e1060e8ca6de09ba81d42d7d5053cb48c3b9aad88144e8bbfb4c",
+   "episodic_lab/r40_reference.py": "9dac06abd3cf106fd6bb47550756f90f9bd474356166743cb33d6479ce64a8df",
+   "episodic_lab/r40_schema.py": "6ec2c55ed7b863a664d542e8aa52d1b33b587b9dea70cecda7a316564457e34c",
+   "episodic_lab/r40_world.py": "88152b2f6567e95b49c371405265037bd5814735f49085b605d2410eebc63a33",
+   "episodic_lab/r41_baselines.py": "eb8b76b002dc410a81e1552cc747e60bc2bd00f48a52b162524eed8e6cdcd239",
+   "episodic_lab/r41_world.py": "e3e95f971d2cc364b6be2d14deb356b46e30ad41a7730bb17f84eedd562f1019",
+   "episodic_lab/rng.py": "4c807caf9a5da36c0fb97e0771567dcbf483135f8129369301b598c17b74f5c8",
+   "episodic_lab/world.py": "fc688ff240a977a849c4e7686f7d54fbc099c9f46b38766a50f8126440a10142",
+   "tests/fixtures/r40_conformance.json": "de057160506865ea1b4ddf686053bb0a999078f1e10b6d6306d940425e23563a",
+   "tests/fixtures/r41_conformance.json": "582b8a046698223581d2cacdf84447c0a459efc4ac8278c6629d13a52315b53f"
+  },
+  "digests": {
+   "gold": "b26e860899fea5d072c016f9999c2b1dffd47925af6936f8c46c7d7b2e52d929",
+   "interventions": "62debba3fa19329bd524ed453d6797a9ff4389577150e2fba32a3394e92d35d1",
+   "questions": "14acbd54012f4f5af677e09784c116821cf137a60644794813dcb8b7257e53d3",
+   "worlds": "0d912e7b24769b0cbb52eb34694e33338aafd7301cf54e594bc30d69670d5ec1"
+  },
+  "generator": "r41.g1"
+ },
+ "repeat_of": null,
+ "resources": {
+  "max_rss_mb_children": 57.2,
+  "max_rss_mb_self": 57.2,
+  "phases": {
+   "M": {
+    "peak_extra_mb": 0.09,
+    "seconds": 2.65
+   },
+   "M_interventions": {
+    "peak_extra_mb": 0.07,
+    "seconds": 2.55
+   },
+   "R": {
+    "peak_extra_mb": 0.13,
+    "seconds": 3.35
+   },
+   "R_interventions": {
+    "peak_extra_mb": 0.13,
+    "seconds": 3.24
+   },
+   "audit": {
+    "peak_extra_mb": 0.35,
+    "seconds": 5.29
+   },
+   "baselines": {
+    "peak_extra_mb": 0.01,
+    "seconds": 0.44
+   },
+   "persist_reload": {
+    "peak_extra_mb": 0.0,
+    "seconds": 6.46
+   },
+   "persist_write": {
+    "peak_extra_mb": 1.17,
+    "seconds": 47.42
+   }
+  }
+ },
+ "schema": "episodic_lab.round41_result.v1",
+ "split": "holdout",
+ "summary": {
+  "M_errors": [],
+  "answers": {
+   "M": {
+    "after": {
+     "n": 1600,
+     "right": 1600
+    },
+    "before": {
+     "n": 400,
+     "right": 400
+    }
+   },
+   "S0": {
+    "after": {
+     "n": 1600,
+     "right": 80
+    },
+    "before": {
+     "n": 400,
+     "right": 0
+    }
+   },
+   "S1": {
+    "after": {
+     "n": 1600,
+     "right": 536
+    },
+    "before": {
+     "n": 400,
+     "right": 320
+    }
+   },
+   "S2": {
+    "after": {
+     "n": 1600,
+     "right": 536
+    },
+    "before": {
+     "n": 400,
+     "right": 320
+    }
+   },
+   "S3": {
+    "after": {
+     "n": 1600,
+     "right": 1600
+    },
+    "before": {
+     "n": 400,
+     "right": 400
+    }
+   },
+   "S4": {
+    "after": {
+     "n": 1600,
+     "right": 1600
+    },
+    "before": {
+     "n": 400,
+     "right": 400
+    }
+   },
+   "S5": {
+    "after": {
+     "n": 1600,
+     "right": 640
+    },
+    "before": {
+     "n": 400,
+     "right": 320
+    }
+   }
+  },
+  "by_delay_after": {
+   "M": {
+    "0": 400,
+    "200": 400,
+    "50": 400,
+    "500": 400
+   },
+   "S0": {
+    "0": 20,
+    "200": 20,
+    "50": 20,
+    "500": 20
+   },
+   "S1": {
+    "0": 134,
+    "200": 134,
+    "50": 134,
+    "500": 134
+   },
+   "S2": {
+    "0": 134,
+    "200": 134,
+    "50": 134,
+    "500": 134
+   },
+   "S3": {
+    "0": 400,
+    "200": 400,
+    "50": 400,
+    "500": 400
+   },
+   "S4": {
+    "0": 400,
+    "200": 400,
+    "50": 400,
+    "500": 400
+   },
+   "S5": {
+    "0": 160,
+    "200": 160,
+    "50": 160,
+    "500": 160
+   }
+  },
+  "classes_after": {
+   "M": {
+    "T1|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T1|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    }
+   },
+   "S0": {
+    "T1|A": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T1|B": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 80,
+     "conflict": 0,
+     "other": 0,
+     "right": 80,
+     "stale": 0
+    },
+    "T2|B": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 160,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 0
+    }
+   },
+   "S1": {
+    "T1|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 160
+    },
+    "T1|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 160
+    },
+    "T2|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 104,
+     "right": 56,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    }
+   },
+   "S2": {
+    "T1|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 160
+    },
+    "T1|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 0,
+     "stale": 160
+    },
+    "T2|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 104,
+     "right": 56,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    }
+   },
+   "S3": {
+    "T1|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T1|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    }
+   },
+   "S4": {
+    "T1|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T1|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    }
+   },
+   "S5": {
+    "T1|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T1|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T2|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T2|B": {
+     "abstain": 80,
+     "conflict": 0,
+     "other": 80,
+     "right": 0,
+     "stale": 0
+    },
+    "T3|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T3|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T4|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    },
+    "T5|A": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 0,
+     "right": 160,
+     "stale": 0
+    },
+    "T5|B": {
+     "abstain": 0,
+     "conflict": 0,
+     "other": 160,
+     "right": 0,
+     "stale": 0
+    }
+   }
+  },
+  "conformance": {
+   "failed": [],
+   "r40": [
+    56,
+    56
+   ],
+   "r41": [
+    19,
+    19
+   ]
+  },
+  "criteria": {
+   "M_equals_R_everywhere": true,
+   "M_zero_errors": true,
+   "S4_positive_control": true,
+   "audit_clean": true,
+   "conformance_100": true,
+   "interventions_as_predicted": true,
+   "persistence": true,
+   "required_cells_filled": true
+  },
+  "indistinguishable": {
+   "S0|T1": 40,
+   "S0|T2": 40,
+   "S0|T3": 40,
+   "S0|T4": 40,
+   "S0|T5": 40,
+   "S1|T1": 40,
+   "S1|T2": 40,
+   "S1|T3": 40,
+   "S1|T4": 40,
+   "S1|T5": 40,
+   "S2|T1": 40,
+   "S2|T2": 40,
+   "S2|T3": 40,
+   "S2|T4": 40,
+   "S2|T5": 40,
+   "S3|T1": 0,
+   "S3|T2": 0,
+   "S3|T3": 0,
+   "S3|T4": 0,
+   "S3|T5": 0,
+   "S4|T1": 0,
+   "S4|T2": 0,
+   "S4|T3": 0,
+   "S4|T4": 0,
+   "S4|T5": 0,
+   "S5|T1": 40,
+   "S5|T2": 40,
+   "S5|T3": 40,
+   "S5|T4": 40,
+   "S5|T5": 40
+  },
+  "interventions": {
+   "irrelevant_control": {
+    "M_equals_R": 800,
+    "answer_changed": 0,
+    "cases": 800,
+    "changed_pairs_at_delay_0": {
+     "T1": 0,
+     "T2": 0,
+     "T3": 0,
+     "T4": 0,
+     "T5": 0
+    },
+    "returns_to_previous": 0,
+    "unchanged": 800
+   },
+   "remove_change": {
+    "M_equals_R": 800,
+    "answer_changed": 800,
+    "cases": 800,
+    "changed_pairs_at_delay_0": {
+     "T1": 40,
+     "T2": 40,
+     "T3": 40,
+     "T4": 40,
+     "T5": 40
+    },
+    "returns_to_previous": 800,
+    "unchanged": 0
+   }
+  },
+  "min_pairs": 30,
+  "n_violations": 0,
+  "over_update": {
+   "M": {
+    "T1": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T2": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T3": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T4": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T5": {
+     "denominator": 160,
+     "flagged": 0
+    }
+   },
+   "S0": {
+    "T1": "not evaluable",
+    "T2": "not evaluable",
+    "T3": "not evaluable",
+    "T4": "not evaluable",
+    "T5": "not evaluable"
+   },
+   "S1": {
+    "T1": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T2": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T3": "not evaluable",
+    "T4": {
+     "denominator": 160,
+     "flagged": 160
+    },
+    "T5": {
+     "denominator": 160,
+     "flagged": 160
+    }
+   },
+   "S2": {
+    "T1": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T2": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T3": "not evaluable",
+    "T4": {
+     "denominator": 160,
+     "flagged": 160
+    },
+    "T5": {
+     "denominator": 160,
+     "flagged": 160
+    }
+   },
+   "S3": {
+    "T1": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T2": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T3": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T4": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T5": {
+     "denominator": 160,
+     "flagged": 0
+    }
+   },
+   "S4": {
+    "T1": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T2": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T3": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T4": {
+     "denominator": 160,
+     "flagged": 0
+    },
+    "T5": {
+     "denominator": 160,
+     "flagged": 0
+    }
+   },
+   "S5": {
+    "T1": {
+     "denominator": 160,
+     "flagged": 160
+    },
+    "T2": {
+     "denominator": 160,
+     "flagged": 160
+    },
+    "T3": "not evaluable",
+    "T4": {
+     "denominator": 160,
+     "flagged": 160
+    },
+    "T5": {
+     "denominator": 160,
+     "flagged": 160
+    }
+   }
+  },
+  "pairs_right": {
+   "M": {
+    "T1": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 40
+    }
+   },
+   "S0": {
+    "T1": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 0
+    }
+   },
+   "S1": {
+    "T1": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 0
+    }
+   },
+   "S2": {
+    "T1": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 0
+    }
+   },
+   "S3": {
+    "T1": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 40
+    }
+   },
+   "S4": {
+    "T1": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 40
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 40
+    }
+   },
+   "S5": {
+    "T1": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T2": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T3": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T4": {
+     "pairs": 40,
+     "right": 0
+    },
+    "T5": {
+     "pairs": 40,
+     "right": 0
+    }
+   }
+  },
+  "persistence": {
+   "mismatches": [],
+   "ok": true,
+   "stores": 1600
+  },
+  "required_cells": {
+   "S1|T1": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S1|T2": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S1|T3": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S1|T4": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S1|T5": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S2|T1": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S2|T2": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S2|T3": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S2|T4": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S2|T5": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S5|T1": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S5|T2": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S5|T3": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S5|T4": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   },
+   "S5|T5": {
+    "ok": true,
+    "pairs": 40,
+    "required": 30
+   }
+  },
+  "stale": {
+   "M": {
+    "denominator": 800,
+    "stale": 0
+   },
+   "S0": {
+    "denominator": 800,
+    "stale": 0
+   },
+   "S1": {
+    "denominator": 800,
+    "stale": 320
+   },
+   "S2": {
+    "denominator": 800,
+    "stale": 320
+   },
+   "S3": {
+    "denominator": 800,
+    "stale": 0
+   },
+   "S4": {
+    "denominator": 800,
+    "stale": 0
+   },
+   "S5": {
+    "denominator": 800,
+    "stale": 0
+   }
+  },
+  "state_breaks": [],
+  "violations": []
+ },
+ "total_seconds": 117.7,
+ "verdict": "PASS"
+}
