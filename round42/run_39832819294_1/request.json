@@ -1,0 +1,14 @@
+{
+ "schema": "episodic_lab.round42_request.v1",
+ "enabled": true,
+ "note": "Round 4.2 phase B: development probe (80 notes: 4 per gold type and development frame), both candidate models, prompt p2, candidates c42.2.",
+ "phase": "probe",
+ "models": [
+  "qwen2.5-1.5b+p2",
+  "qwen3-1.7b+p2"
+ ],
+ "splits": [
+  "dev"
+ ],
+ "chunks": 1
+}
