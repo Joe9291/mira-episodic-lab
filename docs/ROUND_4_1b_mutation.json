@@ -1,0 +1,87 @@
+{
+ "schema": "episodic_lab.round41b_mutation.v1",
+ "protocol": "Two single changes of LiveMemory (episodic_lab/r41b_memory.py), each through the full dev check bench/m3/run_round41b.py in a fresh copy of the lab, new process with -B.",
+ "mutants": {
+  "no_cache_invalidation": {
+   "change": "ingest() keeps the cached results of the affected fact",
+   "result": {
+    "verdict": "DEV_PROBLEMS",
+    "by_step": {
+     "Q1": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q2": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q3": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q4": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q5": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q6": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q7": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q8": {
+      "n": 400,
+      "ok": 400
+     }
+    }
+   }
+  },
+  "no_index_update": {
+   "change": "ingest() writes the store but does not add the report to the per-fact index",
+   "result": {
+    "verdict": "DEV_PROBLEMS",
+    "by_step": {
+     "Q1": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q2": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q3": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q4": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q5": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q6": {
+      "n": 400,
+      "ok": 200
+     },
+     "Q7": {
+      "n": 400,
+      "ok": 400
+     },
+     "Q8": {
+      "n": 400,
+      "ok": 200
+     }
+    }
+   }
+  }
+ },
+ "note": "Both are caught. The missing cache invalidation shows up ONLY at Q3, the question asked at the same query time as before c arrived (200 of 400 wrong: the A worlds); questions at a new query time hide it. This is why the same-time variant (Astra's request) is part of the protocol."
+}
