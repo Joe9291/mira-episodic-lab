@@ -369,5 +369,5 @@
   "m07_conflict_picks_first",
   "m11_ineffective_correction_still_withdraws"
  ],
- "note": "Round 4.1 asks only current questions. Six mutants change current answers in the generated worlds and are caught by them (M_zero_errors); m13 (deciding ids) is caught by M = R; the other six concern why_changed, before, valid_at, believed_at, anchors or correcting a withdrawn claim and are caught only by the round 4.0 conformance set, which is part of the pass rule."
+ "note": "Round 4.1 asks only current questions. Split of the 13 kills: 6 mutants give wrong current answers in the generated worlds (m01, m02, m03, m06, m07, m11; caught by M_zero_errors); 1 mutant gives wrong deciding ids only (m13; caught by M = R); 6 mutants are caught only by the round 4.0 conformance set, which is part of the pass rule (m04 why_changed counts ids, m05 before without -1, m08 correcting a withdrawn claim, m09 valid_at with the wrong knowledge time, m10 believed_at with the wrong knowledge time, m12 anchor conflict treated as found)."
 }

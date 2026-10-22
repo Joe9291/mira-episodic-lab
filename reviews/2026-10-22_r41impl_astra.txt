@@ -1,0 +1,32 @@
+6m 47s nachgedacht
+
+}
+---END FILE docs/ROUND_4_1_mutation.json---
+
+APPROVE — der Holdout darf mit dem vorgelegten Code eingefroren und einmal ausgeführt werden.
+
+Grundlage sind die vollständige statische Prüfung des Pakets und die darin dokumentierten Laufnachweise. Ich habe keinen Code ausgeführt und keine externen Laufdaten geprüft. 
+
+Die konkreten Gründe:
+
+1. Das freigegebene Design wird umgesetzt. BEFORE wird auf einem echten früheren Berichtspräfix ausgewertet. Die Zählung bleibt korrekt: 400 BEFORE- und 1.600 AFTER-Antworten im Holdout. Die Paarbildung verändert ausschließlich den kritischen Bericht; dessen unterschiedliche Wirkung in A und B wird zusätzlich geprüft. Auch der wirksame, aber für die aktuelle Antwort neutrale T3-B-Fall ist berücksichtigt.
+
+2. Die Fehlerwertung ist sauber. „Richtig“ hat Vorrang vor „stale“; anschließend folgen falscher Konflikt, falsches Enthalten und sonstiger falscher Wert. Der Stale-Nenner umfasst ausschließlich Fälle mit verändertem Goldwert. Over-Update verwendet systembezogen nur B-Fälle mit korrekter BEFORE-Antwort. Dass S5 bei T3 deshalb „not evaluable“ erhält, ist richtig.
+
+3. S5 und die Zustandskontrollen passen zusammen. Die exportierten stehenden Claims enthalten die Informationen, aus denen S5 seine Antwort bestimmt. Gleiche Zustände bei verschiedenen Goldantworten werden auf Paarebene gezählt; unterschiedliche Antworten trotz gleichen Zustands führen zu einer Prüfverletzung.
+
+4. Die berichteten Entwicklungsergebnisse sind konsistent und ausreichend für diesen nächsten Schritt. M erreicht 500/500 Antworten, die Konformitätsprüfungen 56/56 und 19/19. Die 200 Entfernungsinterventionen ändern die Antwort und stellen jeweils die vorherige Antwort wieder her; die 200 irrelevanten Kontrollen bleiben unverändert. Alle 15 erforderlichen Zellen erreichen 10/10 Paare, und 400 Speicher werden erfolgreich neu geladen.
+
+5. Freeze und Mutationsprüfung liefern passende Absicherung. Der Runner vergleicht Generator, Daten-, Gold- und Interventionsdigests sowie Code-Prüfsummen vor den M-Auswertungen. Die Mutationsnachweise unterscheiden sinnvoll zwischen sechs Mutanten mit falschen generierten Sachantworten, einem weiteren mit falschen Entscheidungs-IDs und sechs ausschließlich durch den alten Konformitätssatz erkannten Mutanten.
+
+Die Freigabe gilt für den vereinbarten endlichen Test strukturierter Präfixe unter vorgegebener Quellenpolitik. Insbesondere baut evaluate() für jede Abfrage eine neue Memory auf. Damit wird die korrekte Rekonstruktion aus dem jeweiligen Präfix geprüft; die Aktualisierung einer bereits abgefragten, dauerhaft laufenden Instanz ist damit noch nicht nachgewiesen.
+
+Verbesserungsideen — keine zusätzlichen Freigabebedingungen
+
+- Als nächster kleiner Zusatztest: dieselbe Instanz weiterführen. BEFORE beantworten lassen, anschließend c und Ablenkungsberichte hinzufügen und erneut abfragen. Das würde insbesondere Fehler durch veraltete Caches erfassen, die beim Neuaufbau jeder Instanz verborgen bleiben können.
+
+- Auswertungsnachweise vollständiger speichern. rows.jsonl enthält die Rohantwort von M, für die Baselines jedoch hauptsächlich Treffer, Fehlerklasse und Flags. Auch deren tatsächliche Antworten zu speichern würde die spätere Prüfung erleichtern. Die Zusammenfassung sollte außerdem Fehlerklassen und Stale-Nenner nach Familie × Delay ausgeben; die nötigen Zeilen sind vorhanden.
+
+- Zwei Darstellungsdetails korrigieren. Tabellenköpfe wie T1|A müssen den senkrechten Strich maskieren oder beispielsweise T1/A verwenden. Im Mutationstext sollte durchgehend die präzise Aufteilung 6 Sachantworten + 1 Entscheidungs-IDs + 6 alte Konformitätsfälle stehen; die gegenwärtige Kurzfassung über „andere Operatoren“ ist zu pauschal.
+
+- Ressourcenangabe präzise begrenzen. Die beiden RSS-Werte sind getrennte Höchststände von Hauptprozess und Kindprozess, kein gleichzeitig gemessener Gesamtspeicherpeak. Der berichtete Entwicklungslauf von 32,1 Sekunden lässt für den viermal größeren Holdout eine Größenordnung von wenigen Minuten erwarten; für das vorgesehene Ressourcenbudget sehe ich hier keinen Engpass.

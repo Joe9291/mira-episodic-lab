@@ -157,13 +157,16 @@ audit violation; all 15 required cells 10 / 10. Failure directions as expected: 
 S2 stale in all 80 A answers of T1 and T2 (stale 80 / 200 each); S5 never stale but
 over-updating in every evaluable B family (T1, T2, T4, T5: 40 / 40; T3 not evaluable,
 because S5 answers no conflict right even before c); S1 and S2 also over-update in T4 and
-T5 (they take the hearsay assert). 32.1 s on the runner; process max RSS 34.7 MB, reload
-subprocess 34.7 MB.
+T5 (they take the hearsay assert). 32.1 s on the runner; maximum resident memory 34.7 MB
+for the main process and 34.7 MB for the reload subprocess - two separate peaks, not a
+simultaneously measured total.
 Mutation check (docs/ROUND_4_1_mutation.json): the 13 changes of M from round 4.0 run
-through the 4.1 dev run - 13 / 13 killed; six of them (rank of corrections, retraction
-by any source, latest-wins, conflict ignored, ineffective correction still withdrawing)
-change current answers in the generated worlds; the others concern operators this round
-does not ask and are caught by the 4.0 conformance set.
+through the 4.1 dev run - 13 / 13 killed: 6 give wrong current answers in the generated
+worlds (rank of corrections, correction keeping the target's rank, retraction by any
+source, latest-wins, conflict ignored, ineffective correction still withdrawing); 1 gives
+wrong deciding ids only (caught by M = R); 6 are caught only by the 4.0 conformance set
+(why_changed counting ids, before without -1, correcting a withdrawn claim, valid_at and
+believed_at with the wrong knowledge time, an anchor conflict treated as found).
 Known limits, stated before the holdout:
 - S1 and S2 have identical results in this round (the same failure class for every
   answer) (c is never an assert in T1 / T2, and
@@ -171,3 +174,15 @@ Known limits, stated before the holdout:
 - S3 and S4 are oracles and are right everywhere, as intended (controls).
 - Correcting an already withdrawn claim and the other non-current paths are not
   generated here; they stay covered only by the 4.0 conformance set.
+
+Implementation review: APPROVE by Astra on 2026-10-22 (reviews/2026-10-22_r41impl_astra.txt)
+- the holdout may be frozen with this code (lab main 46979eb) and run once. Her limit,
+recorded here: evaluate() builds a NEW memory instance for every question, so the round
+shows the correct reconstruction from each report prefix; it does not show that one
+long-running instance, already asked BEFORE, updates correctly when c and the irrelevant
+reports arrive (stale caches would stay hidden). Her ideas for later (frozen code, not
+changed before the holdout): continue the same instance across BEFORE and AFTER as a small
+follow-up test; store the baselines' raw answers in the rows; failure classes and stale
+denominators per family x delay in the summary; table headers without "|" inside cells
+(the generated summary uses "T1|A", which a Markdown table splits).
+
