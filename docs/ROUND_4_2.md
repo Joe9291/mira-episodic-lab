@@ -1,4 +1,4 @@
-# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v1, draft for review)
+# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v2, draft for review)
 
 Context: phase A (rounds 4.0, 4.1, 4.1b) showed that M, the fixed source policy and the
 two-time resolver answer every structured question exactly - on reconstruction from
@@ -9,122 +9,152 @@ policy stay unchanged; a parallel control with the correct structured reports se
 extraction errors from memory errors; administrative data (report ids, ranks) come from
 the collector and the metadata policy, not from the language extraction; the first
 extraction checks must cover correction / retraction references, source attribution and
-valid times.
+valid times. v2 answers her review of v1 (reviews/2026-10-22_r42v1_astra.txt): two
+separate comparisons per question and a cause analysis with follow-up and collector
+errors (section 5); the false claim about declines removed (section 3); references
+resolved only against already stored reports (section 1); an executable origin rule and
+required fields per note type (sections 1-2); thresholds per family and delay with exact
+denominators (section 6); the scope fixed to P1-P9 (section 4).
 
 Uncertainty removed: can "LM-assisted structured extraction with given candidates" (the
 system qualified in round 3.5b for episode notes) turn report notes into reports for M so
-that the memory still answers the structured questions of phase A - and where it fails, is
-every failure explained by an identified extraction error, never by the memory?
+that the memory still answers the structured questions of phase A - and is every wrong
+answer explained by identified extraction (or collector) errors, never by the memory?
 Claim limits (fixed now): the claim is about the whole pre-frozen system (model, prompt,
-candidates, thresholds, collector rules) on generated notes from fixed wording sets; it
-is not about free reading of real conversations, and the memory part stays the GIVEN
-source policy.
+candidates, thresholds, collector rules) on generated notes from fixed wording sets, at
+delays 0 and 20; not about free reading of real conversations; the memory part stays the
+GIVEN source policy.
 
 ## 1. Who decides what
 
 Collector (deterministic, no LM): report_id (arrival order), report_day (the note's date
-header), source (the note's author header), rank (from the fixed metadata policy: own 3,
-trusted 2, hearsay 1), origin (new for every note, unless the extractor finds that the
-note repeats another person's statement - then the origin of that statement, see below),
-and the resolution of every reference the extractor returns.
-Extractor (LM, candidates given): per note
-- kind: assert / correct / retract (fixed label set, each with a one-line description);
-- subject (object span), attribute (location / holder, from the verb frame), value
-  (place or person span; for a correction possibly absent = keep the old value);
-- valid_from (a day number; written explicitly "since day 4", relatively "two days ago",
-  or implicitly = the report day when the note says nothing; possibly absent in a
-  correction = keep the old one);
-- reference (for correct / retract: whose earlier report and of which day is meant;
-  for a repeated statement: whose statement is repeated, and of which day): a source
-  name and a day, never a report id.
-Reference resolution (collector): (source, day, subject, attribute) -> the unique earlier
-report; no match or several matches -> the note is DECLINED (logged, not stored). The
-generator guarantees uniqueness in its worlds (audit), so a declined reference is always
-an extraction error or a decline by the thresholds.
-Anchor events are notes too ("Today I met Ida Voss at the old mill.") with the same
-fields (subject = the event, value = its day).
+header), source = the note's AUTHOR (header), rank from the fixed metadata policy (own 3,
+trusted 2, hearsay 1), origin, and the resolution of every reference.
+Extractor (LM, candidates given) - per note the fields of its note type (section 2):
+kind (assert / correct / retract), repeat (yes / no; only for assert), subject,
+attribute, value or "keep", valid_from or "not stated" / "keep", and a reference given as
+a source NAME and a DAY - never a report id. Three roles are kept apart: the author is
+always the source; the quoted speaker of a repeated statement appears only in the
+repeat's reference; the target of a correction or retraction appears only in its
+reference.
+Reference resolution: (source, day, subject, attribute) is matched ONLY against the
+reports already stored in arm E (a gold reference never stands in for a missing E
+report). Exactly one match -> resolved; none or several -> the note is declined
+(logged with the reason).
+Origin rule: a new note gets a new origin; a repeat (kind assert, repeat yes) gets the
+origin of its resolved reference - which, if that report is itself a repeat, already
+carries the origin of its own reference, so chains are followed automatically.
+valid_from "not stated" means the report day (an assert that names no day speaks about
+the day it is written); "keep" in a correction means the old value / old valid_from.
+Anchor events are notes too ("Today I met Ida Voss at the old mill."): subject = the
+event, value = its day (explicit, relative or "today").
 
-## 2. Notes and wordings
+## 2. Notes, required fields, wordings
 
-Every report of the phase A generators (round 4.0 families P1-P9; round 4.1 families
-T1-T5 as a second set) is rendered as a note from its structured form. Note types:
-timely assert, late assert ("back on day 4 ..."), correction of value / of valid_from /
-of both, retraction, repeated statement, anchor event. Per note type: the template plus 3
-development, 3 holdout and 3 reserve paraphrases, written before any model run; relative
-days ("yesterday", "two days ago") occur in every split. Checks as in round 3.5, all
-before freezing: an exact inverse parser per paraphrase returns exactly the structured
-report (meaning preservation); the wording of a note is chosen by a hash of (pair seed,
-note position), so the worlds of a pair differ only in the critical note; one rendered
-example of EVERY template is checked by Joe against the structured report; per frame and
-split the number of distinct texts is reported (every holdout frame >= 30).
+Every report of the round 4.0 generator (families P1-P9) is rendered as a note from its
+structured form. Note types and their required fields (all other fields are not asked):
+
+| note type | kind / repeat | required fields |
+|---|---|---|
+| timely assert | assert / no | subject, attribute, value, valid_from ("not stated" allowed) |
+| late assert ("back on day 4 ...") | assert / no | subject, attribute, value, valid_from |
+| repeated statement | assert / yes | subject, attribute, value, valid_from, reference |
+| correction | correct | subject, attribute, reference, value or "keep", valid_from or "keep" (not both "keep") |
+| retraction | retract | subject, attribute, reference |
+| anchor event | assert / no | subject (event), value (day) |
+
+Semantically absent ("not stated", "keep") is a CANDIDATE with its own score; an
+uncertain field (margin below its threshold) is a different state and declines the whole
+note. Wordings: per note type the template plus 3 development, 3 holdout and 3 reserve
+paraphrases, written before any model run; relative days ("yesterday", "two days ago")
+occur in every split. Checks before freezing, as in round 3.5: an exact inverse parser per
+paraphrase returns exactly the structured report; the wording of a note is chosen by a
+hash of (pair seed, note position), so the worlds of a pair differ only in the critical
+note; one rendered example of EVERY template is checked by Joe against the structured
+report; per frame and split the number of distinct texts is reported (every holdout frame
+>= 30).
 
 ## 3. Extraction method (from round 3.5b, re-qualified here)
 
 Given candidates: object, place and person spans of the note (1-3 tokens, the round 3.5
 canonicalisation contract), the names of the world's sources, day numbers 0 ... report
-day, the kind and attribute labels, and "absent" where a field may be absent. Score: total
-log-probability of the complete candidate answer after a fixed slot prompt (round 3.5
-S1 procedure, prefix cached). Margin: best canonical value minus the best different one.
-Per slot a threshold tau, calibrated on the calibration split only: the highest
-acceptance with precision of accepted values >= 0.99 and >= 200 accepted values (round
-3.5 rule); below tau the slot is unknown and the note is DECLINED (a report needs every
-required field). Model: qwen2.5-1.5b (pinned; qualified in 3.5b) as the primary model;
-on development only, qwen3-1.7b is compared, and the model with the higher rate of fully
-correct stored notes on development is frozen (rule fixed now). Prompts, normalisation
-and candidate generator are developed on development only.
+day, the kind, repeat and attribute labels, "not stated" / "keep" where the note type
+allows them. Score: total log-probability of the complete candidate answer after a fixed
+slot prompt (round 3.5 S1 procedure, prefix cached); margin: best canonical value minus
+the best different one. Per slot a threshold tau, calibrated on the calibration split
+only: the highest acceptance with precision of accepted values >= 0.99 and >= 200
+accepted values (round 3.5 rule; a slot without a qualifying tau always declines). Any
+required field below its tau -> the note is DECLINED (not stored). Declining is no safe
+default: a declined correction or retraction can leave an outdated answer standing, and
+every such answer counts fully as an end-to-end error (also in the stale measure).
+Model: qwen2.5-1.5b (pinned; qualified in 3.5b) as the primary model; on development
+only, qwen3-1.7b is compared, and the model with the higher rate of fully correct stored
+notes on development is frozen (rule fixed now). Prompts, normalisation and candidate
+generator are developed on development only.
 
-## 4. Splits, worlds, delays
+## 4. Scope, splits, worlds, delays
 
-Splits by whole pairs as in round 3.5: development 10, calibration 10, audit 5 (model-free
-checks), holdout 40 pairs per family; texts of different splits are disjoint (checked).
+Binding scope: the nine round 4.0 families P1-P9 (they contain every note type, including
+anchors and repeats); the round 4.1 families T1-T5 are NOT part of this round. Splits by
+whole pairs as in round 3.5: development 10, calibration 10, audit 5 (model-free checks),
+holdout 40 pairs per family; texts of different splits are disjoint (checked).
 Development, calibration and audit use only the template and development paraphrases;
-holdout uses the holdout paraphrases (unseen during development). Delays: 0 and 20
-irrelevant NOTES (also extracted - a wrongly extracted irrelevant note can contaminate
-the asked fact, which is measured), instead of 0 / 50 / 200 / 500 structured reports:
-each note costs model calls.
+holdout uses the holdout paraphrases. Delays: 0 and 20 irrelevant NOTES (also extracted);
+the finding holds for these delays only.
 
-## 5. Arms and measures
+## 5. Arms, comparisons and cause analysis
 
-Arm G: the generator's correct structured reports (phase A, known to be answered
-exactly). Arm E: the reports the collector stored from the extracted notes. Same worlds,
-same structured questions (the phase A case tables), same M, same R.
-- Extraction, per slot: accepted / declined / wrong accepted (wrong accepted = the
-  critical error), precision of accepted values, acceptance; per note: stored correct,
-  declined (with reason: threshold, unresolved reference), stored wrong; references:
-  resolved correctly / declined / resolved to a wrong report; contamination: stored wrong
-  notes that land in the asked fact.
-- End-to-end: answers right in E, per operator x family x delay, next to G (which is
-  right everywhere); pair success.
-- Attribution (the separation Astra asked for): for every question, its relevant notes
-  are known from the generator; a wrong E answer must have at least one relevant note
-  that is declined or stored wrong (otherwise the memory would be at fault - this would be
-  a failure of the claim).
+Arm G: the generator's correct structured reports. Arm E: the reports the collector
+stored from the extracted notes. Same worlds, same structured questions (the round 4.0
+case table), same M, same R. For every question two separate comparisons:
+- memory correctness: M(E, q) == R(E, q) on exactly the stored E reports - must hold for
+  every question (a failure is a memory failure);
+- end-to-end correctness: M(E, q) against R(G, q) under the round 4.0 hit definition.
+Cause analysis for every end-to-end error, per note of the asked fact and its anchor in
+G, and per note stored into the asked fact or its anchor in E (an injected irrelevant
+note):
+- direct extraction error: a required field wrong (stored wrong) or uncertain (declined);
+- follow-up error: the note's own fields were extracted correctly, but its reference
+  could not be resolved (target declined or stored wrong earlier) or resolved to a wrong
+  report because of an earlier error;
+- injection: an irrelevant note stored into the asked fact (wrong subject or attribute);
+- collector error: all fields extracted correctly, yet the stored report differs from G
+  (should never occur; reported separately).
+Repair check (Astra's idea, deterministic): for every end-to-end error, the erroneous
+notes of the asked fact (direct, follow-up, injected) are replaced by their gold reports
+in E (injected ones removed) and the question is answered again; it must then equal
+R(G, q). An error that this does not repair is unexplained and counts against the claim.
+Hand cases (before any model run, own fixture): a declined correction leaving the old
+value, a missing reference target, a repeat chain, an injected irrelevant note, each with
+the expected E store, answers and causes.
+Measures, per slot: accepted / declined / wrong accepted, precision, acceptance; per note:
+stored correct, declined (threshold / unresolved reference), stored wrong; references
+resolved correctly / declined / resolved wrongly; injections; end-to-end answers right per
+operator x family x delay, with the CRITICAL questions (those whose gold differs between
+the worlds A and B of a pair) and pair success reported separately; uncertainty
+intervals on the level of whole pairs (questions of one pair are not independent).
 
-## 6. Pass rule (proposal - see Q3)
+## 6. Pass rule (fixed before any run)
 
-On the holdout: (1) attribution complete: no wrong E answer without an extraction error
-in its relevant notes (zero exceptions); (2) stored wrong notes <= floor(0.01 n) of all
-holdout notes, and stored wrong notes in the asked facts <= floor(0.01 n_relevant);
-(3) per slot, precision of accepted values >= 0.99 (as calibrated); (4) arm G right on
-every question (control); (5) end-to-end: E right on >= 0.90 of the questions, reported
-per family; declines are allowed (they make the memory say less, not something false) and
-are reported.
-Freeze, single holdout run and repeat labelling as in phase A.
+On the holdout, all of:
+(1) memory correctness on every question (zero exceptions);
+(2) every end-to-end error repaired by the repair check (zero unexplained errors);
+(3) stored wrong notes <= floor(0.01 n) of all holdout notes; and in the asked facts:
+    (relevant notes stored wrong + injected notes) <= floor(0.01 n_relevant), where
+    n_relevant = the notes of the asked facts and their anchors in G;
+(4) per slot, precision of accepted values >= 0.99 on the holdout; a slot with an empty
+    accepted set has an undefined precision, which never passes (the round 3.5 rule) -
+    so a slot without a qualifying tau fails the round;
+(5) arm G right on every question (control);
+(6) end-to-end: E right on >= 0.90 of the questions in EVERY family x delay cell (9 x 2
+    cells); the critical questions and pair success per cell are reported next to it.
+1 %, 99 % and 90 % are technical target values fixed in advance; the observed values are
+empirical rates of this holdout. Freeze, single holdout run and repeat labelling as in
+phase A.
 
 ## 7. Cost estimate
 
 About 27 distinct notes per pair (relevant notes, the critical variant, 20 irrelevant
-notes), 9 families x 40 pairs on the holdout -> about 10,000 notes x 7 slots; at about one
-second per slot with the prefix cache this is ~20 CPU hours, i.e. about an hour on a
-20-job matrix (as in round 3.6). Development and calibration together are about half.
-
-## 8. Questions for review
-
-Q1 Is the division "collector: id, day, source, rank, origin bookkeeping and reference
-resolution; LM: kind, subject, attribute, value, valid_from, reference (source + day)"
-right, in particular for origins (the LM only says WHOSE statement is repeated)?
-Q2 Is declining a whole note when any required slot is uncertain the right semantics
-(versus storing partial reports)?
-Q3 The pass thresholds of section 6 (0.01 wrong stored notes, 0.99 precision, 0.90
-end-to-end): appropriate, or should end-to-end be reported only?
-Q4 Delays 0 and 20 irrelevant notes instead of the phase A delays - acceptable for cost?
+notes), 9 families x 40 pairs on the holdout -> about 10,000 notes x up to 7 slots; at about
+one second per slot with the prefix cache, ~20 CPU hours, i.e. about an hour on a 20-job
+matrix (as in round 3.6). Development and calibration together are about half.

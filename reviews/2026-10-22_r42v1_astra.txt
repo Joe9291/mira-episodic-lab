@@ -1,0 +1,61 @@
+3m 16s nachgedacht
+
+Q4 Delays 0 and 20 irrelevant notes instead of the phase A delays - acceptable for cost?
+---END FILE docs/ROUND_4_2.md---
+
+REQUEST CHANGES
+
+Die Grundanlage passt zum nächsten Untersuchungsschritt: strukturierte Fragen, unveränderter Resolver, paralleler Goldarm und klar begrenzter Sprachanspruch. Vor der Freigabe müssen jedoch Fehlerzuordnung und Freigaberegeln präzisiert werden.
+
+1. Die bisherige Attribution trennt Extraktionsfehler und Gedächtnisfehler nicht zuverlässig. Ein Extraktionsfehler bei einer relevanten Notiz schließt einen zusätzlichen Gedächtnisfehler nicht aus. Umgekehrt kann eine ursprünglich irrelevante Notiz durch falsche Extraktion im abgefragten Fakt landen.
+
+   Erforderlich sind deshalb zwei getrennte Vergleiche für jede Frage:
+
+   - Gedächtniskorrektheit: M(E, q) == R(E, q) auf exakt den tatsächlich gespeicherten E-Berichten.
+   - Ende-zu-Ende-Korrektheit: Vergleich der E-Antwort mit R(G, q).
+
+   Die Ursachenanalyse muss auch eingeschleuste Distraktoren und Referenzabhängigkeiten berücksichtigen. Fehler des Collectors sollten gesondert ausgewiesen werden.
+
+2. Die Aussage über abgelehnte Notizen ist sachlich falsch. Eine Ablehnung kann eine falsche Antwort bestehen lassen: Wird eine Korrektur von „X“ zu „Y“ abgelehnt, kann das Gedächtnis weiterhin „X“ ausgeben. Die Ablehnungsstrategie kann bleiben; die Behauptung „less, not something false“ muss entfallen. Veraltete Antworten zählen vollständig als Ende-zu-Ende-Fehler.
+
+3. Gold-Eindeutigkeit garantiert keine erfolgreiche Referenzauflösung in E. Wurde die Zielnotiz zuvor abgelehnt, kann eine anschließend vollständig korrekt extrahierte Referenz unauflösbar sein. Das ist ein Folgefehler, kein neuer Lesefehler dieser Notiz. Auflösung ausschließlich gegen bereits gespeicherte E-Berichte festlegen und unmittelbare Extraktionsfehler von solchen Folgefehlern unterscheiden.
+
+Die weiteren erforderlichen Präzisierungen ergeben sich aus Q1–Q4:
+
+Q1 – Aufteilung zwischen Collector und LM
+
+Grundsätzlich richtig. Für origin muss die Regel ausführbar eindeutig werden:
+
+- Wiederholung und Referenzrolle müssen aus der Extraktionsausgabe eindeutig hervorgehen; bei eingeschränkten Notiztypen kann dafür eine ausdrücklich definierte Kombination aus kind und reference genügen.
+- Bei Wiederholungen übernimmt der Collector die origin des aufgelösten Zielberichts, auch über Wiederholungsketten.
+- Notizautor, zitierter Sprecher und korrektes Korrekturziel müssen auseinandergehalten werden. source und rank folgen weiterhin dem festgelegten Vertrag.
+
+Eine Goldreferenz darf fehlende E-Berichte nicht ersetzen.
+
+Q2 – Ganze Notiz ablehnen
+
+Ja. Das erhält die bestehende Berichtssemantik. Definiere dafür die erforderlichen Felder je Notiztyp ausdrücklich. Semantisch abwesend und unsicher extrahiert müssen unterschiedliche Zustände bleiben: Ein zulässiges fehlendes Korrekturfeld bedeutet „alten Wert behalten“; Unsicherheit führt zur Ablehnung.
+
+Q3 – Freigabeschwellen
+
+Als vorab gesetzte technische Zielwerte sind 1 % beziehungsweise 99 % vertretbar. Sie sind zunächst empirische Quoten auf diesem Holdout.
+
+Ich würde 90 % Ende-zu-Ende-Korrektheit als Freigabekriterium beibehalten. Vor dem Freeze festlegen:
+
+- Gilt die Schwelle insgesamt oder je Familie? Meine Empfehlung: je Familie und Delay.
+- Welche Notizen zählen zu n_relevant, und wie werden eingeschleuste Distraktoren gezählt?
+- Wie werden leere Präzisionsnenner und nicht kalibrierbare Slots behandelt?
+
+Kritische Vergleichsfragen und Paarerfolg zusätzlich separat ausweisen, damit viele einfache Kontrollfragen Schwächen nicht verdecken.
+
+Q4 – Delays 0 und 20
+
+Ja, für diesen begrenzten Sprachtest akzeptabel. Der Befund gilt anschließend für diese Verzögerungen.
+
+Der Umfang ist allerdings widersprüchlich: P1–P9 plus T1–T5 ergeben 14 Familien, die Kostenschätzung berücksichtigt neun. Festlegen, ob T1–T5 verbindlich dazugehören oder eine separate Zusatzprüfung bilden. Bei allen 14 Familien ergeben die eigenen Annahmen ungefähr 15.120 Notizen und 29,4 CPU-Stunden.
+
+Verbesserungsideen, nicht zusätzlich freigabeblockierend
+
+- Kleine Handfälle für abgelehnte Korrekturen, fehlende Referenzziele, Wiederholungsketten und eingeschleuste Distraktoren ergänzen.
+- Für einzelne Fehler die betroffenen Extraktionen durch Gold ersetzen und prüfen, ob dadurch die Antwort repariert wird.
+- Unsicherheitsintervalle auf Ebene ganzer Paare berichten; Fragen desselben Paares sind keine unabhängigen Beobachtungen.
