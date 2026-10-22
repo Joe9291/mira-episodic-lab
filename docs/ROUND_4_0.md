@@ -444,12 +444,28 @@ docs/ROUND_4_0_holdout_SUMMARY.md, all rows on the results branch
   both worlds at all four delays.
 - Conformance 56 / 56; 2,880 stores reloaded identically in a second process; 0 audit
   violations.
-- Interventions, reported in two groups (the 3,360 cases are no 3,360 independent
-  repetitions: one pair is the unit, the four delays are dependent):
-  informative changes - 40 / 40 pairs at delay 0 informative for every removal type,
-  the moved anchor and the removed anchor, 135 / 160 for swap_ranks; M equal to R's
-  prediction in all 1,920 cases of these types; invariance control - adding or removing
-  an irrelevant report left all 1,440 cases unchanged, M equal to R in all of them.
+- Interventions (the 3,360 cases are no 3,360 independent repetitions: one pair is the
+  unit, the four delays are dependent). "Answer changed" = at least one answer of R on
+  the counterfactual world differs from the original under the hit definition;
+  "unchanged" = all answers identical. M equals R's prediction in all 3,360 cases.
+
+| intervention | cases | answer changed | unchanged |
+|---|---|---|---|
+| remove_update | 160 | 160 | 0 |
+| remove_late_report | 160 | 160 | 0 |
+| remove_correction | 160 | 160 | 0 |
+| remove_retraction | 160 | 160 | 0 |
+| remove_conflict_resolver | 160 | 160 | 0 |
+| move_anchor | 160 | 160 | 0 |
+| remove_anchor | 160 | 160 | 0 |
+| remove_obs_before_anchor | 160 | 160 | 0 |
+| swap_ranks | 640 | 540 | 100 |
+| irrelevant_control | 1,440 | 0 | 1,440 |
+
+  Interventions on relevant reports or source ranks: 1,920 cases, of which 1,820 changed
+  an answer and 100 rank swaps were neutral (per pair at delay 0: 40 / 40 for every type
+  except swap_ranks with 135 / 160); invariance control with irrelevant reports: 1,440
+  cases, all unchanged.
 - Required cells: all 15 filled with 40 / 40 B-indistinguishable pairs (required 30).
   No baseline gets a single pair of a required cell right.
 - Answers right per operator (holdout; S0-S4 as defined in section 3):

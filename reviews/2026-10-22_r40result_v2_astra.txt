@@ -1,0 +1,31 @@
+2m 26s nachgedacht
+
+subprocess) and the complete answer computation will be measured in the next runner.
+---END FILE docs/ROUND_4_0.md---
+
+REQUEST CHANGES — eine Korrektur der Interventionsdarstellung bleibt.
+
+Die bisherigen Anforderungen sind erfüllt: Die Kernaussage ist auf die geprüften Fälle begrenzt, S1/S4 sind korrekt beschrieben, und bei S3 werden Informationsverlust, fehlende Wissenszeit und Ausgabestrategie sauber unterschieden. Auch die Konformitätsabdeckung ist angemessen eingeordnet.
+
+Die Bezeichnung „informative changes — 1,920 cases" ist jedoch zu weit. Nach den unveränderten Ergebnissen gilt:
+
+Fallgruppe	Anzahl
+
+Antwortändernde Interventionen	1.820
+Neutrale Rangtausche	100
+Unveränderte Kontrollen mit irrelevanten Berichten	1.440
+Insgesamt	3.360
+
+
+Die 135/160 informativen Rangtauschpaare ergeben über vier Verzögerungen 540 informative Rangtauschfälle; 100 bleiben unverändert.
+
+Bitte bezeichnet die Gruppe mit 1.920 Fällen beispielsweise als „Interventionen an relevanten Berichten oder Quellenrängen" und nennt darin die 1.820 Änderungen und 100 neutralen Fälle. M entspricht R weiterhin in sämtlichen 3.360 Fällen.
+
+Das betrifft ausschließlich den Berichtstext. Der dokumentierte PASS bleibt nachvollziehbar; ein weiterer Holdout-Lauf ist dafür nicht erforderlich.
+
+Verbesserungsideen — keine weiteren Freigabebedingungen
+
+- Künftig pro Interventionstyp die Spalten „Antwort geändert" und „unverändert" ausweisen. So bleiben Interventionsart und tatsächliche Wirkung unterscheidbar.
+- Im gezielten Stale-Test den zuvor akzeptierten Wert ausdrücklich protokollieren. Damit lässt sich eine veraltete Antwort unmittelbar von anderen falschen Antworten unterscheiden.
+
+Die festgehaltene Reihenfolge — kleiner Stale-Test, anschließend Phase B, danach Verdichtung — ist weiterhin sinnvoll.
