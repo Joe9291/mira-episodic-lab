@@ -58,11 +58,15 @@ def run_live(cls, reps, checks):
 
 class LiveInstance(unittest.TestCase):
     def test_hand_cases_through_one_instance(self):
+        n_worlds = n_checks = 0
         for name, reps, checks in worlds():
+            n_worlds += 1
+            n_checks += len(checks)
             got = run_live(LiveMemory, reps, checks)
             for cid, last, now, exp, _ in checks:
                 with self.subTest(case=cid):
                     self.assertEqual(got[cid], (exp, exp))
+        self.assertEqual((n_worlds, n_checks), (15, 19))
 
     def test_same_query_time_after_ingest(self):
         reps = [dict(zip(FIELDS, row), origin="o-" + row[0]) for row in (
@@ -120,8 +124,15 @@ class LiveInstance(unittest.TestCase):
             live.ingest(reps)
             reloaded = Memory(ReportStore(Path(tmp) / "s.jsonl", expect=live.store.seal()).reports)
             self.assertEqual(reloaded.answer(q(9)), live.answer(q(9)))
+            seal = live.store.seal()
+            late = dict(reps[0], report_id="r00090")                     # new id, but an earlier order key
             with self.assertRaises(ValueError):
-                live.ingest([reps[0]])
+                live.ingest([late])
+            a = dict(reps[0], report_id="r00091", report_day=40)
+            b = dict(reps[0], report_id="r00092", report_day=39)
+            with self.assertRaises(ValueError):                           # unsorted batch
+                live.ingest([a, b])
+            self.assertEqual(live.store.seal(), seal)
 
 
 if __name__ == "__main__":

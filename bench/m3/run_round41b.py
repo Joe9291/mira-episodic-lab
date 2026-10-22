@@ -118,7 +118,7 @@ def main():
            "worlds": len(persist), "seconds": round(time.perf_counter() - t0, 1),
            "code": {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in CODE_FILES}}
     res["expected_counts"] = (res["worlds"] == 400 and all(v["n"] == 400 for v in by_step.values())
-                              and changed_by_c == 200)
+                              and changed_by_c == 200 and persist_res.get("stores") == 400)
     res["verdict"] = "DEV_OK" if res["all_ok"] and persist_res["ok"] and res["expected_counts"] else "DEV_PROBLEMS"
     (out / "results.json").write_text(json.dumps(res, indent=1, sort_keys=True))
     with open(out / "rows.jsonl", "w") as fh:

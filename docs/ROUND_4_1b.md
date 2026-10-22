@@ -1,4 +1,4 @@
-# Round 4.1b - Continued memory instance (design, implementation and dev check, v2 for review)
+# Round 4.1b - Continued memory instance (CLOSED 2026-10-22: v2 approved by Astra - reviews/2026-10-22_r41b_v2_astra.txt)
 
 Context: Astra's limit for round 4.1 (reviews/2026-10-22_r41impl_astra.txt and
 2026-10-22_r41result_astra.txt): rounds 4.0 and 4.1 built a NEW memory instance for
@@ -82,3 +82,9 @@ measured; the GIVEN source policy within this generator.
 Next: phase B - natural-language reports with structured questions, the resolver and
 the source policy unchanged, and a parallel control with the correct structured reports
 to separate extraction errors from memory errors (Astra's recommendation).
+
+Closing (after the APPROVE of v2): Astra's two further ideas are applied - the unit test
+now refuses a report with a NEW id but an earlier order key and an unsorted batch (both
+without changing the seal), and asserts 15 hand worlds and 19 checks; DEV_OK also
+requires that exactly 400 stores were reloaded. Re-run: unit tests 6 / 6, dev check
+DEV_OK (docs/ROUND_4_1b_dev_SUMMARY.md).

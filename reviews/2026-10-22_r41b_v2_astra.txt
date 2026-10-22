@@ -1,0 +1,23 @@
+1m 51s nachgedacht
+
+}
+---END FILE docs/ROUND_4_1b_mutation.json---
+
+APPROVE
+
+Die beiden wesentlichen Änderungsanforderungen aus v1 sind im vorliegenden Code behoben:
+
+- Eindeutige Report-IDs: ingest() prüft den gesamten Batch vor store.extend(batch). Bereits gespeicherte IDs und Wiederholungen innerhalb des Batches werden abgewiesen. Der Regressionstest prüft dabei auch unverändertes Siegel, unveränderte Antworten und erneute Ladbarkeit.
+- Fortgeführte Handfälle: run_live() startet leer, fragt vor jedem Tagesblock ab und beantwortet die Checks beim jeweiligen Berichtspräfix. Damit schließt der Ablauf die beschriebene Lücke bei T4/T5.
+
+Auch die ergänzenden Nachweise passen zum Prüfziel:
+
+- Q2/Q3 verwenden dieselbe Abfragezeit vor und nach c. Der Neustartabschnitt wärmt den Cache vor einer weiteren Aufnahme; Q9/Q10 prüfen anschließend dieselbe Zeit erneut.
+- DEV_OK hängt ausdrücklich an den erwarteten Fallzahlen. Die berichteten Mutationsergebnisse zeigen die beabsichtigte Empfindlichkeit. Dass der ID-Mutant erst durch den gezielten Unit-Test auffällt, ist transparent dokumentiert.
+
+Die Freigabe gilt für den begrenzten Entwicklungsbefund. Ich habe Code, Syntax und innere Konsistenz geprüft; die berichteten vollständigen Läufe konnte ich ohne die importierten Basismodule und Fixtures hier nicht wiederholen.
+
+Verbesserungsideen, nicht freigabeblockierend:
+
+1. Reihenfolgeverletzungen gezielt testen. live.ingest([reps[0]]) scheitert inzwischen schon an der doppelten ID. Ergänze einen Bericht mit neuer ID und unzulässigem Ordnungsschlüssel sowie einen unsortierten Batch.
+2. Weitere Fallzahlen verbindlich prüfen. Auch 15 Handwelten, 19 Checks und tatsächlich 400 erneut geladene Stores sollten explizite Assertions beziehungsweise Freigabebedingungen erhalten.
