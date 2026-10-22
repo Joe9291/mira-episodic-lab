@@ -1,0 +1,26 @@
+2m 38s nachgedacht
+
+matrix (as in round 3.6). Development and calibration together are about half.
+---END FILE docs/ROUND_4_2.md---
+
+REQUEST CHANGES
+
+Die wesentlichen Änderungen aus v1 sind übernommen: getrennte Vergleiche gegen R(E) und R(G), Referenzauflösung ausschließlich innerhalb von E, korrekte Behandlung abgelehnter Korrekturen, verbindliche Schwellen je Familie × Delay und eindeutiger Umfang P1–P9.
+
+Zwei Spezifikationslücken bleiben:
+
+1. Die Auswahl der abzufragenden Felder darf keinen Gold-Notiztyp voraussetzen. Abschnitt 2 bestimmt Pflichtfelder und Abschnitt 3 Kandidaten anhand des Notiztyps. Es fehlt die Regel, wie dieser Typ zur Laufzeit ermittelt wird. Besonders deutlich wird das bei Ankern und normalen Aussagen: Beide sind assert / no, benötigen laut Tabelle aber unterschiedliche Felder.
+
+   Festlegen: Die Auswahl von Slots und Kandidaten hängt ausschließlich von sichtbaren Eingaben, festgeschriebenen Regeln und bisherigen Modellvorhersagen ab. Generator-Typ, Goldbericht und inverser Prüfparser bleiben außerhalb des Extraktionspfads. Außerdem die Bildung des vollständigen Ankerberichts beschreiben. Fehlklassifikationen müssen in die Extraktionsbewertung eingehen.
+
+2. Der Reparaturtest muss denselben Ursachenbereich abdecken wie die Fehleranalyse. Die Analyse berücksichtigt abgefragte Fakten und deren Anker sowie Collectorfehler. Die Reparatur nennt dagegen nur fehlerhafte Notizen des abgefragten Fakts und die Kategorien „direct, follow-up, injected".
+
+   Gegenbeispiel: Nur das Ankerdatum wurde falsch gelesen; die übrigen Berichte sind korrekt. Die Ursache wäre identifiziert, würde nach dem engeren Reparaturwortlaut aber nicht behoben und anschließend als ungeklärt gewertet.
+
+   Deshalb ausdrücklich Anker und benötigte Referenzabhängigkeiten einschließen. Collectorfehler entweder ebenfalls reparieren oder als eigenen Freigabefehler behandeln. Der reparierte Berichtssatz muss gültig und eindeutig konstruiert sein.
+
+Verbesserungsideen, nicht zusätzlich freigabeblockierend
+
+- Handfälle für einen falschen Ankerwert, einen falsch bestimmten Notiztyp und eine fehlerhafte Origin-Übernahme ergänzen.
+- Pro Notiz die vorhergesagten Typentscheidungen, tatsächlich abgefragten Slots und Ablehnungsgründe protokollieren.
+- Beim Reparaturtest die geänderten Notiz-IDs dokumentieren. Eine erfolgreiche gemeinsame Reparatur belegt noch keine minimale Einzelursache.

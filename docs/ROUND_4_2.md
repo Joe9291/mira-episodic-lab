@@ -1,4 +1,4 @@
-# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v2, draft for review)
+# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v3, draft for review)
 
 Context: phase A (rounds 4.0, 4.1, 4.1b) showed that M, the fixed source policy and the
 two-time resolver answer every structured question exactly - on reconstruction from
@@ -14,7 +14,12 @@ separate comparisons per question and a cause analysis with follow-up and collec
 errors (section 5); the false claim about declines removed (section 3); references
 resolved only against already stored reports (section 1); an executable origin rule and
 required fields per note type (sections 1-2); thresholds per family and delay with exact
-denominators (section 6); the scope fixed to P1-P9 (section 4).
+denominators (section 6); the scope fixed to P1-P9 (section 4). v3 answers her review of v2
+(reviews/2026-10-22_r42v2_astra.txt): the note type is itself a predicted slot, and slot
+and candidate choice depend only on visible input, fixed rules and earlier predictions
+(section 3); the anchor report is constructed explicitly (section 1); the repair check
+covers the same causes as the analysis, including anchors and reference dependencies,
+and collector errors fail the round (sections 5-6).
 
 Uncertainty removed: can "LM-assisted structured extraction with given candidates" (the
 system qualified in round 3.5b for episode notes) turn report notes into reports for M so
@@ -27,7 +32,9 @@ GIVEN source policy.
 
 ## 1. Who decides what
 
-Collector (deterministic, no LM): report_id (arrival order), report_day (the note's date
+Collector (deterministic, no LM): report_id = the note's arrival number (r00001 for the
+first note of a world, ...; a declined note leaves its number unused, so every stored E
+report has the same id as the gold report of the same note), report_day (the note's date
 header), source = the note's AUTHOR (header), rank from the fixed metadata policy (own 3,
 trusted 2, hearsay 1), origin, and the resolution of every reference.
 Extractor (LM, candidates given) - per note the fields of its note type (section 2):
@@ -46,8 +53,11 @@ origin of its resolved reference - which, if that report is itself a repeat, alr
 carries the origin of its own reference, so chains are followed automatically.
 valid_from "not stated" means the report day (an assert that names no day speaks about
 the day it is written); "keep" in a correction means the old value / old valid_from.
-Anchor events are notes too ("Today I met Ida Voss at the old mill."): subject = the
-event, value = its day (explicit, relative or "today").
+Anchor events are notes too ("Today I met Ida Voss at the old mill."): the extractor
+returns the person span, the place span and the day (explicit, relative or "today"); the
+collector builds the complete report: kind assert, subject "event:met <person> at
+<place>" (canonical spellings), attribute "day", value = the day, valid_from 0, origin
+new.
 
 ## 2. Notes, required fields, wordings
 
@@ -61,8 +71,9 @@ structured form. Note types and their required fields (all other fields are not 
 | repeated statement | assert / yes | subject, attribute, value, valid_from, reference |
 | correction | correct | subject, attribute, reference, value or "keep", valid_from or "keep" (not both "keep") |
 | retraction | retract | subject, attribute, reference |
-| anchor event | assert / no | subject (event), value (day) |
+| anchor event | assert / no | person, place, day |
 
+The note type is NOT given to the extractor: it is the first predicted slot (section 3).
 Semantically absent ("not stated", "keep") is a CANDIDATE with its own score; an
 uncertain field (margin below its threshold) is a different state and declines the whole
 note. Wordings: per note type the template plus 3 development, 3 holdout and 3 reserve
@@ -76,6 +87,16 @@ report; per frame and split the number of distinct texts is reported (every hold
 
 ## 3. Extraction method (from round 3.5b, re-qualified here)
 
+Extraction path (fixed): the inputs are only the note text, its header (author, date)
+and the world's source names; the generator's note type, the gold report and the inverse
+parser of section 2 are never used on this path (they are used only for scoring and the
+checks before freezing). Step 1: the slot "type" with the labels statement, repeated
+statement, correction, retraction, meeting (each with a one-line description) is scored
+and decided like every slot (its own tau; uncertain -> declined). Step 2: the predicted
+type alone selects the further slots and their candidate sets from the table of section 2
+(kind and repeat follow from the type). A wrong but confident type therefore leads to
+wrong or missing fields and is counted as an extraction error (the slot "type" has its
+own precision and acceptance in the measures).
 Given candidates: object, place and person spans of the note (1-3 tokens, the round 3.5
 canonicalisation contract), the names of the world's sources, day numbers 0 ... report
 day, the kind, repeat and attribute labels, "not stated" / "keep" where the note type
@@ -119,14 +140,23 @@ note):
   report because of an earlier error;
 - injection: an irrelevant note stored into the asked fact (wrong subject or attribute);
 - collector error: all fields extracted correctly, yet the stored report differs from G
-  (should never occur; reported separately).
-Repair check (Astra's idea, deterministic): for every end-to-end error, the erroneous
-notes of the asked fact (direct, follow-up, injected) are replaced by their gold reports
-in E (injected ones removed) and the question is answered again; it must then equal
-R(G, q). An error that this does not repair is unexplained and counts against the claim.
+  (should never occur; every collector error fails the round, pass rule 7).
+Repair check (deterministic): for every end-to-end error the REPAIR SET is formed from
+the same scope as the analysis - every note whose E report differs from its G report
+(declined, stored wrong, follow-up) that belongs to the asked fact or to its anchor
+event, every note those reference (correction targets, repeated statements), transitively,
+and every irrelevant note injected into the asked fact or its anchor. In a copy of E the
+notes of the repair set are replaced by their gold reports (same ids, see section 1) and
+injected reports are removed; the copy must pass the general round 4.0 audit (valid,
+unique ids, total order); the question is answered again and must equal R(G, q). An error
+that this does not repair is unexplained (pass rule 2). Every repair records the changed
+note ids; a successful joint repair does not establish a minimal single cause.
 Hand cases (before any model run, own fixture): a declined correction leaving the old
-value, a missing reference target, a repeat chain, an injected irrelevant note, each with
-the expected E store, answers and causes.
+value, a missing reference target, a repeat chain, an injected irrelevant note, a wrong
+anchor day, a wrongly predicted note type and a wrongly taken over origin, each with the
+expected E store, answers, causes and repair set.
+Per note the run logs the predicted type, the slots actually asked, every decision with
+its margin, and the decline reason.
 Measures, per slot: accepted / declined / wrong accepted, precision, acceptance; per note:
 stored correct, declined (threshold / unresolved reference), stored wrong; references
 resolved correctly / declined / resolved wrongly; injections; end-to-end answers right per
@@ -147,7 +177,8 @@ On the holdout, all of:
     so a slot without a qualifying tau fails the round;
 (5) arm G right on every question (control);
 (6) end-to-end: E right on >= 0.90 of the questions in EVERY family x delay cell (9 x 2
-    cells); the critical questions and pair success per cell are reported next to it.
+    cells); the critical questions and pair success per cell are reported next to it;
+(7) no collector error.
 1 %, 99 % and 90 % are technical target values fixed in advance; the observed values are
 empirical rates of this holdout. Freeze, single holdout run and repeat labelling as in
 phase A.
