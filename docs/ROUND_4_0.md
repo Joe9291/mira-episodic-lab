@@ -1,4 +1,4 @@
-# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (design v4, approved 2026-10-21; implementation notes in section 7)
+# Round 4.0 - Long-term memory with updates, corrections, contradictions, sources and event-anchored history (CLOSED 2026-10-22: phase A holdout PASS, result text approved by Astra in v3 - reviews/2026-10-22_r40result_v3_astra.txt; design v4, implementation notes in section 7, result in section 8)
 
 Context: the experiment's five-phase plan (2026-10-20) puts the external long-term memory
 first, with the milestone "B1 long-term test with real updates, contradictory statements,

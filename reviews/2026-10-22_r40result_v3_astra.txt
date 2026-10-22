@@ -1,0 +1,22 @@
+52s nachgedacht
+
+subprocess) and the complete answer computation will be measured in the next runner.
+---END FILE docs/ROUND_4_0.md---
+
+APPROVE — Ergebnis und Aussage dürfen in v3 so stehen.
+
+Der letzte offene Punkt ist korrekt umgesetzt:
+
+- 1.820 Fälle mit Antwortänderung,
+- 100 neutrale Rangtausche,
+- 1.440 unveränderte Kontrollen mit irrelevanten Berichten,
+- insgesamt 3.360 Fälle, überall M gleich R.
+
+Die Tabelle unterscheidet jetzt Interventionsart und tatsächliche Wirkung. Auch die abhängigen Verzögerungen werden angemessen eingeordnet.
+
+Die begrenzte Kernaussage, die differenzierte Baseline-Interpretation und die gesonderte Konformitätsabdeckung bleiben sachlich stimmig. Damit sind die erforderlichen Berichtskorrekturen abgeschlossen.
+
+Verbesserungsideen — keine zusätzlichen Freigabebedingungen
+
+- Künftig Tabellen und Zwischensummen unmittelbar aus denselben Auswertungsdaten erzeugen, damit Berichtstext und Ergebnisdateien übereinstimmen.
+- Im Stale-Test neben dem zuvor akzeptierten Wert auch falsche Wertantworten, Konfliktausgaben und Enthaltungen getrennt erfassen. Dadurch bleibt sichtbar, auf welche Weise ein System scheitert.
