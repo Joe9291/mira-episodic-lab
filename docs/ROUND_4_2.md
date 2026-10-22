@@ -1,4 +1,4 @@
-# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v3, draft for review)
+# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v3, approved 2026-10-22 - reviews/2026-10-22_r42v3_astra.txt; implementation notes in section 8)
 
 Context: phase A (rounds 4.0, 4.1, 4.1b) showed that M, the fixed source policy and the
 two-time resolver answer every structured question exactly - on reconstruction from
@@ -189,3 +189,23 @@ About 27 distinct notes per pair (relevant notes, the critical variant, 20 irrel
 notes), 9 families x 40 pairs on the holdout -> about 10,000 notes x up to 7 slots; at about
 one second per slot with the prefix cache, ~20 CPU hours, i.e. about an hour on a 20-job
 matrix (as in round 3.6). Development and calibration together are about half.
+
+## 8. Implementation notes (after the APPROVE of v3)
+
+- Astra's idea 1: the rows "timely assert" and "late assert" of section 2 are both the
+  predicted type "statement"; its candidate space is the same for both: subject, attribute,
+  value, and valid_from from {"not stated"} plus the days 0 ... report day.
+- Astra's idea 2: a repeat that takes over, by the collector rule, the origin of a report
+  that was itself extracted wrongly is a FOLLOW-UP error, not a collector error. A
+  collector error is determined against the collector contract (section 1) applied to the
+  extracted fields and the E history actually present at that moment - i.e. the collector
+  did not do what its contract prescribes for those inputs.
+- Astra's idea 3, counted before any model run (structured reports of the round 4.0
+  generator, delays 0 and 20, distinct notes): a 10-pair split per family yields 1,712
+  statements, 107 repeats, 204 corrections, 148 retractions and 91 meetings. The slots
+  person, place and day of meetings (91) and the correction-only slots (204) could not
+  reach the 200 accepted values of the calibration rule. The calibration split is
+  therefore enlarged to 30 pairs per family (about 270 meetings, 320 repeats, 610
+  corrections, 440 retractions - to be confirmed by the model-free audit before any model
+  run); development, audit and holdout stay as designed.
+

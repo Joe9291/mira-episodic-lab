@@ -1,0 +1,21 @@
+1m 26s nachgedacht
+
+matrix (as in round 3.6). Development and calibration together are about half.
+---END FILE docs/ROUND_4_2.md---
+
+APPROVE
+
+Die beiden offenen Punkte aus v2 sind auf Designebene geschlossen:
+
+- Feldauswahl ohne Goldinformationen: Der Notiztyp wird zuerst vorhergesagt und mit eigener Schwelle bewertet. Weitere Slots und Kandidaten folgen dieser Vorhersage. Die zulässigen Eingaben des Extraktionspfads sind ausdrücklich begrenzt.
+- Vollständige Ankerberichte: Die Konstruktion aus Person, Ort und Tag einschließlich kanonischem Subjekt, Attribut und valid_from ist festgelegt.
+- Erweiterter Reparaturtest: Er umfasst Fakten, Anker, transitive Referenzabhängigkeiten und eingeschleuste Berichte. Stabile IDs, Prüfung des reparierten Stores und protokollierte Änderungen machen ihn nachvollziehbar. Collectorfehler sind ein eigener Freigabefehler.
+- Konsistente Erfolgskriterien: Gedächtniskorrektheit und Ende-zu-Ende-Leistung bleiben getrennt. Die Schwellen gelten verbindlich für den festgelegten Umfang; kritische Fragen und Paarerfolg werden zusätzlich ausgewiesen.
+
+Die Freigabe betrifft das Design für Implementierung und Entwicklungsprüfung. Implementierung und empirische Ergebnisse sind Gegenstand der anschließenden Prüfung.
+
+Verbesserungsideen, nicht freigabeblockierend
+
+1. Die Tabellenzeilen „timely assert" und „late assert" ausdrücklich dem gemeinsamen vorhergesagten Typ statement zuordnen und dessen gemeinsamen Kandidatenraum dokumentieren.
+2. Die Ursachenklassen bei der Umsetzung eindeutig abgrenzen: Eine regelgerecht übernommene, zuvor falsch extrahierte origin ist ein Folgefehler. Collectorfehler sollten anhand des Collectorvertrags und der tatsächlich vorhandenen E-Historie bestimmt werden.
+3. Vor den Modellläufen die verfügbaren Kalibrierfälle je Slot zählen, besonders für die Ankerfelder person, place und day mit den geforderten mindestens 200 akzeptierten Werten.
