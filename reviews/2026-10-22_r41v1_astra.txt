@@ -1,0 +1,42 @@
+6m 56s nachgedacht
+
+complete answer computation are measured in this runner (Astra's idea from round 4.0).
+---END FILE docs/ROUND_4_1.md---
+
+REQUEST CHANGES. Die fünf Familien passen zum vorgesehenen kleinen Test. Der Vorher-Vergleich und die zeitliche Zustandsdefinition von S5 brauchen noch eine Festlegung.
+
+Q1 — Familien ausreichend; Vorher-Abfrage präzisieren
+
+Ein weiterer Änderungstyp ist vor Phase B nicht nötig. Die fünf Familien decken die gewünschte Unterscheidung zwischen notwendiger Aktualisierung und unveränderter aktueller Antwort ab.
+
+believed_at(d3 − 1) ist aber keine tatsächliche Vorher-Abfrage für alle Baselines. Beispiel T1: Vor der Korrektur würde S4 als aktueller Oracle Y liefern. Nach der Korrektur beantwortet S4 die historische Frage gemäß seiner festgelegten Strategie mit dem aktuellen Z. Das misst seine fehlende historische Auswertung, nicht seine Reaktion vor dem Eingriff.
+
+Meine Empfehlung: Zwei tatsächliche current-Abfragen verwenden:
+
+- vorher auf dem Berichtsprefix bis einschließlich d3 − 1;
+- nachher auf dem Prefix mit c und den jeweiligen irrelevanten Berichten.
+
+Damit bleiben es 3.200 Antworten. Alle vorbereitenden relevanten Berichte müssen spätestens an d3 − 1 vorliegen. believed_at kann bei Bedarf eine zusätzliche Diagnose sein.
+
+Außerdem bitte T3 sprachlich präzisieren: Bei der Korrektur eines niedrigeren Claims außerhalb des Konflikts ist B nicht zwingend eine wirkungslose Korrektur. Ein Rang-1-Korrektor darf den Rang-1-Claim wirksam korrigieren; der Rang-2-Konflikt bleibt trotzdem bestehen. Die gemeinsame Eigenschaft der B-Welten lautet daher: Die aktuelle Politikantwort bleibt unverändert.
+
+Q2 — Pflichtzellen grundsätzlich passend; S5-Zustand vervollständigen
+
+Die 15 Pflichtzellen sind für die Nachher-Abfrage grundsätzlich geeignet. Bei gleicher sichtbarer Information und unterschiedlichen Goldantworten kann die jeweilige Baseline nicht beide Welten richtig beantworten. Der Nachweis betrifft hier besonders die Bedeutung der Quellen- und Ranginformation.
+
+S5s Definition ist momentan zeitlich unvollständig: Nur die heute stehenden Claims (id, value) reichen nicht aus, um einen früheren Zustand nach einer inzwischen ausgeführten Rücknahme zu beantworten.
+
+Mit den empfohlenen tatsächlichen Prefix-Abfragen lässt sich das einfach lösen: S5 verarbeitet jeweils den bis dahin eingetroffenen Berichtsprefix; sein exportierter Zustand muss sämtliche Informationen enthalten, die seine Antwort verwendet.
+
+Falls ihr bei nachträglichen believed_at-Fragen bleibt, braucht S5 dagegen eine historische Berichtsspur oder entsprechende Snapshots. Diese müssten auch in seiner Zustandsbeschreibung berücksichtigt werden.
+
+Q3 — Wiederverwendung ausdrücklich sinnvoll
+
+Gegen unveränderte M-/R-Dateien und den bestehenden Konformitätssatz gibt es keinen Einwand. Das ermöglicht einen gezielten Test der bereits qualifizierten Logik.
+
+Die zusätzlichen Handfälle sollten in einer eigenen Fixture-Datei liegen. So bleiben die alten Prüfsummen erhalten; der neue R41-Freeze bindet zusätzlich Generator, S5, Runner und neue Fälle. Die Varianten von T2 und T3 sollten darin gezielt vertreten sein.
+
+Verbesserungsideen — keine weiteren Freigabebedingungen
+
+- Die Fehlerklassen mit ausdrücklicher Priorität auswerten: zuerst richtig, dann stale, anschließend die übrigen Fehlerarten. Ein beibehaltenes altes Konfliktergebnis wird dadurch eindeutig gezählt.
+- Zusätzlich kennzeichnen, wenn eine richtige Vorherantwort durch einen bezüglich der Politikantwort neutralen Bericht falsch wird. Das liefert einen präziseren Beleg für übermäßiges Aktualisieren als jede beliebige falsche Antwort in Welt B.
