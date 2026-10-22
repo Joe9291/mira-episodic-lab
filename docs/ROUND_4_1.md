@@ -146,3 +146,27 @@ before M runs; one holdout run; any repeat is labelled as a repeat.
   the run reports the maximum resident memory of the process and of the reload
   subprocess (resource.getrusage), next to the traced memory per phase.
 
+Dev run (GitHub Actions run 39782254200, commit e9ef61b; summary with every table in
+docs/ROUND_4_1_dev_SUMMARY.md, generated from the rows; identical to a local run under
+another Python version except the resource lines): DEV_OK on every criterion. M 100 / 100
+BEFORE and 400 / 400 AFTER answers right, equal to R everywhere; conformance 56 / 56
+(round 4.0) and 19 / 19 (round 4.1); S4 right on every current question; remove_change
+changed the answer in all 200 cases and restored the BEFORE answer each time; the
+irrelevant control left all 200 cases unchanged; 400 stores reloaded identically; no
+audit violation; all 15 required cells 10 / 10. Failure directions as expected: S1 and
+S2 stale in all 80 A answers of T1 and T2 (stale 80 / 200 each); S5 never stale but
+over-updating in every evaluable B family (T1, T2, T4, T5: 40 / 40; T3 not evaluable,
+because S5 answers no conflict right even before c); S1 and S2 also over-update in T4 and
+T5 (they take the hearsay assert). 32.1 s on the runner; process max RSS 34.7 MB, reload
+subprocess 34.7 MB.
+Mutation check (docs/ROUND_4_1_mutation.json): the 13 changes of M from round 4.0 run
+through the 4.1 dev run - 13 / 13 killed; six of them (rank of corrections, retraction
+by any source, latest-wins, conflict ignored, ineffective correction still withdrawing)
+change current answers in the generated worlds; the others concern operators this round
+does not ask and are caught by the 4.0 conformance set.
+Known limits, stated before the holdout:
+- S1 and S2 give identical answers in this round (c is never an assert in T1 / T2, and
+  the asserts of T3-T5 are the latest ones); the round does not separate them.
+- S3 and S4 are oracles and are right everywhere, as intended (controls).
+- Correcting an already withdrawn claim and the other non-current paths are not
+  generated here; they stay covered only by the 4.0 conformance set.
