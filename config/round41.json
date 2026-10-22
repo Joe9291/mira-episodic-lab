@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round41_request.v1",
- "enabled": false,
- "note": "Round 4.1 targeted stale test (docs/ROUND_4_1.md). Dev first; the holdout runs only with a freeze recorded here after the implementation review.",
+ "enabled": true,
+ "note": "Round 4.1 dev run on GitHub Actions before the implementation review. The holdout runs only with a freeze recorded here after review.",
  "split": "dev",
  "attempt": 1,
  "repeat_of": null,
