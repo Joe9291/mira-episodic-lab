@@ -1,0 +1,55 @@
+6m 9s nachgedacht
+
+Decision needed: scoring option A, B or C for the label slots, before any development evaluation.
+Prepared on lab main 275bb88; full development and calibration encodes running.
+
+APPROVE — für die Änderungen 1–5 und eine eigene Variante D: Label-Offsets auf Dev lernen, anschließend τ auf dem vollständigen Kalibriersplit bestimmen.
+
+Q1 – Entwicklungsgeschichte und Änderungen
+
+Die Chronik ist innerhalb des Pakets nachvollziehbar. Die wiederholt verwendeten 80 Proben sind Entwicklungsdaten; ihre verbesserten Ergebnisse belegen noch keine Generalisierung. Die Vollständigkeit der Repository-Historie und die berichteten Testläufe kann ich anhand der Ausschnitte nicht unabhängig bestätigen.
+
+Die fünf Änderungen akzeptiere ich:
+
+1. Notiztext als Modellpassage: sinnvoll und innerhalb des vereinbarten Systems. Präzise dokumentieren: Metadaten beeinflussen weiterhin Kandidaten und kanonische Auflösung, insbesondere bei „my“, „today“ und „yesterday“.
+2. Neuer Slot change: akzeptiert. Die Entscheidung, welches Feld geändert wird, bleibt eine Modellleistung. Daraus KEEP abzuleiten erhält den Berichtsvertrag. Ein falsches change macht den Bericht weiterhin falsch, auch wenn die anschließend abgefragten Werte stimmen. Die Reihenfolge change vor value und valid_from muss in USES verbindlich sein.
+3. Kandidatenabdeckung und Beispiele: Die beschriebenen modellfreien Prüfungen passen zum genehmigten Vorgehen. Vollständige Kandidatenabdeckung ist eine Voraussetzung, kein Nachweis erfolgreicher Extraktion.
+4. Kostenkorrektur: plausibel. 9.107 Notizen bei 40 Sekunden ergeben etwa 101 CPU-Stunden. Diese aktuelle Schätzung sollte den überholten Abschnitt 7 ersetzen.
+5. Unveränderte Rohscores und getrennte Auswertung: richtig. Damit bleibt die Methodenentscheidung nachvollziehbar, ohne neue Modellläufe zu benötigen.
+
+Q2 – Bewertungsverfahren
+
+Ich wähle D: die vorgeschlagenen additiven Offsets, aber auf Dev statt auf Kalibrierung angepasst:
+
+\[
+s'_y(x)=s_y(x)+b_y
+\]
+
+Das gilt ausschließlich für type, attribute und change.
+
+- Je Modell und Slot auf eindeutigen Dev-Eingabefällen fitten. Für dieses überwachte Training darf die wahre Slotzuständigkeit verwendet werden.
+- Vorgeschlagenes Gitter übernehmen: Schrittweite 0,25, Bereich −30 bis 30, erstes Label auf null fixiert.
+- Ziel: maximale Anzahl richtiger Top-1-Entscheidungen. Start bei null; feste Koordinatenreihenfolge; Gleichstände nach kleinster L1-Norm, danach fester lexikografischer Ordnung entscheiden. Beenden, sobald ein vollständiger Durchlauf nichts ändert.
+- Danach Offsets festschreiben und τ je Modell auf dem vollständigen Kalibriersplit neu bestimmen, mit unveränderter 99-%-/200-Regel.
+
+Keine Halbierung des Kalibriersplits. So bleiben insbesondere die Ankerfälle erhalten.
+
+C mit gemeinsamem Offset- und τ-Fitting wäre bei intaktem Holdout nicht grundsätzlich ungültig. Die geringe Parameterzahl allein rechtfertigt aber keine Entwarnung: Für zwei change-Klassen gibt es jeweils nur 40 unterschiedliche Kalibrierfälle. D trennt Anpassung und Schwellenbestimmung klarer.
+
+Die bestehende Modellauswahl über vollständig korrekt gespeicherte Dev-Notizen kann bleiben. Diese Dev-Raten sind dann ausdrücklich Entwicklungsdiagnostik. A und B dürfen daneben berichtet werden; die offizielle Variante wird dadurch nicht nachträglich neu ausgewählt.
+
+Q3 – Freigaberegeln und Berichte
+
+Die bestehenden Schwellen bleiben bestehen, einschließlich der verschärften Regel 6. Ergänzend festhalten:
+
+- change unterliegt ebenfalls der Slot-Präzision und der Mindestmenge akzeptierter Werte.
+- Kalibrierung und Leistungsbewertung folgen dem tatsächlich vorhergesagten Entscheidungspfad. Falsch übersprungene Pflichtfelder dürfen nicht aus der Berichtsbewertung verschwinden.
+- Je Modell und Label-Slot berichten: Offsetvektor, rohe und korrigierte Top-1-Leistung, τ, akzeptierte Fälle, Fehler und Präzision.
+- Für change zusätzlich Ergebnisse je Klasse und Fallzahlen als unterschiedliche Notizen sowie Vorkommen ausweisen. Allein „value“ vorherzusagen erreicht bei 519 von 599 Korrekturen bereits 86,6 %.
+- Abschnitte 2–4 und 7 mit den Implementierungsnotizen abgleichen: change, abgeleitetes KEEP, 30 Kalibrierpaare und aktuelle Kosten.
+
+Verbesserungsideen, nicht freigabeblockierend
+
+- Gezielte Tests für falsches beziehungsweise unsicheres change und alle drei daraus entstehenden Feldpfade ergänzen.
+- Treffer an den Offset-Gittergrenzen protokollieren.
+- Rohscore-, Prompt-, Kandidaten-, Offset- und τ-Version gemeinsam im Freeze-Manifest festhalten.

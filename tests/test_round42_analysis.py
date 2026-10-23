@@ -76,6 +76,75 @@ class OracleAndFaults(unittest.TestCase):
         self.assertGreater(checked, 10)
 
 
+
+def correction_encoding(change, value_scores=None, since_scores=None, change_margin=5.0):
+    """A synthetic correction note: type correction, aspect place, the given change winning
+    by change_margin; value / since candidates with the given scores."""
+    lab = {"value": "the place or person", "date": "the day", "both": "both"}
+    return {"type": [[t, t, 0.0 if t == "correction" else -9.0] for t in C.TYPES],
+            "subject": [["red box", "red box", 0.0]],
+            "attribute": [["at a place", "location", 0.0], ["with a person", "holder", -9.0]],
+            "change": [[s, c, 0.0 if c == change else -change_margin] for s, c in
+                       [(s, C.CHANGE_LABELS[s]) for s in C.CHANGE_LABELS]],
+            "value": value_scores or [["Elm Yard", "Elm Yard", 0.0], ["Oak Pier", "Oak Pier", -9.0]],
+            "valid_from": since_scores or [["7", 7, 0.0], ["9", 9, -9.0]],
+            "ref_source": [["Ola", "Ola", 0.0], ["my", "self", -9.0]],
+            "ref_day": [["9", 9, 0.0], ["7", 7, -9.0]]}
+
+
+class ChangePaths(unittest.TestCase):
+    """Astra's improvement idea: the three field paths of a correction, an uncertain change
+    and a wrong change (the skipped required field must not vanish from the report)."""
+    TAUS = {s: 1.0 for s in C.SLOTS}
+
+    def test_three_paths(self):
+        for change, value, since in (("value", "Elm Yard", C.KEEP), ("date", C.KEEP, 7), ("both", "Elm Yard", 7)):
+            d = A.decide_note(correction_encoding(change), self.TAUS)
+            self.assertEqual(d["status"], "ok", change)
+            self.assertEqual((d["fields"]["change"], d["fields"]["value"], d["fields"]["valid_from"]), (change, value, since))
+            asked = set(d["decisions"])
+            self.assertEqual("value" in asked, change != "date")
+            self.assertEqual("valid_from" in asked, change != "value")
+
+    def test_uncertain_change_declines(self):
+        d = A.decide_note(correction_encoding("value", change_margin=0.5), self.TAUS)
+        self.assertEqual((d["status"], d["reason"]), ("declined", "change uncertain"))
+
+    def test_wrong_change_is_reported(self):
+        truth = {"type": "correction", "subject": "red box", "attribute": "location", "change": "both",
+                 "value": "Elm Yard", "valid_from": 7, "ref_source": "Ola", "ref_day": 9}
+        enc = correction_encoding("value")                    # the day change is missed
+        d = A.decide_note(enc, self.TAUS)
+        self.assertFalse(A.fields_correct(d, truth))
+        rep = A.slot_report([{"key": "k", "truth": truth}], {"k": enc}, self.TAUS)
+        self.assertEqual(rep["change"]["wrong"], 1)
+        self.assertEqual(rep["valid_from"]["wrongly_skipped"], 1)
+        cases = A.calibration_cases([{"key": "k", "truth": truth}], {"k": enc})
+        self.assertNotIn("valid_from", cases)                 # not asked on the predicted path ...
+        self.assertEqual(cases["change"], [(5.0, False)])     # ... the error sits in change
+        truth_v = dict(truth, change="value", valid_from=C.KEEP)
+        cases = A.calibration_cases([{"key": "k", "truth": truth_v}], {"k": correction_encoding("both")})
+        self.assertEqual(cases["valid_from"], [(9.0, False)])  # a "keep" field asked counts as wrong
+
+
+class Offsets(unittest.TestCase):
+    def test_fit_removes_a_label_bias_and_prefers_small_offsets(self):
+        # every note prefers "b" by 1.5 although the truth is "a" when its own evidence says so
+        rows = [({"a": 0.0, "b": 1.0}, "a")] * 6 + [({"a": 0.0, "b": 3.0}, "b")] * 4
+        r = A.fit_offsets(rows, ["a", "b"])
+        self.assertEqual((r["right_raw"], r["right"]), (4, 10))
+        self.assertEqual(r["offsets"], {"a": 0.0, "b": -1.25})      # smallest |b| in (-3, -1)
+        self.assertEqual(r["at_grid_edge"], [])
+        self.assertEqual(A.fit_offsets([({"a": 0.0, "b": -1.0}, "a")], ["a", "b"])["offsets"], {"a": 0.0, "b": 0.0})
+
+    def test_grid_edge_reported_and_application(self):
+        r = A.fit_offsets([({"a": 0.0, "b": 99.0}, "a")], ["a", "b"])
+        self.assertEqual(r["right"], 0)
+        enc = {"attribute": [["at a place", "location", -1.0], ["with a person", "holder", -2.0]], "value": [["X", "X", 0.0]]}
+        out = A.apply_offsets(enc, {"attribute": {"at a place": 0.0, "with a person": 2.0}})
+        self.assertEqual(out["attribute"][1][2], 0.0)
+        self.assertEqual(out["value"], enc["value"])
+
 class Rule6(unittest.TestCase):
     """Synthetic cells with 12 questions per world, one of them critical: answering every
     non-critical question right and every critical one wrong gives 11 / 12 = 91.7 % of all

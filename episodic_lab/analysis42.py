@@ -32,6 +32,75 @@ def apply_priors(encoding: dict, priors: dict | None) -> dict:
             for slot, rows in encoding.items()}
 
 
+# ---------------------------------------------------------------- label offsets (variant D)
+# Astra's decision on the development decision package (reviews/2026-10-23_r42dev_astra.txt):
+# additive offsets s'_y = s_y + b_y for the label slots type, attribute and change, fitted
+# per model and slot on the DISTINCT development notes whose TRUE type uses the slot
+# (type: all notes); first label fixed at 0; grid step 0.25 in [-30, 30]; objective = the
+# number of right top-1 choices; start at 0, fixed coordinate order (the label order of
+# cands42), ties -> smallest L1 norm, then the lexicographically smallest vector; stop
+# after a full pass without change. Then the offsets are frozen and tau is calibrated on
+# the full calibration split with the corrected scores.
+LABEL_SLOTS = ("type", "attribute", "change")
+GRID = tuple(x / 4 for x in range(-120, 121))
+
+
+def top_label(scores: dict, offsets: dict):
+    """The label with the strictly highest corrected score; None on a tie (a margin of 0 is
+    declined by every threshold, so a tie never counts as right)."""
+    ranked = sorted(scores, key=lambda lab: (-(scores[lab] + offsets.get(lab, 0.0)), lab))
+    if len(ranked) > 1 and scores[ranked[0]] + offsets.get(ranked[0], 0.0) == scores[ranked[1]] + offsets.get(ranked[1], 0.0):
+        return None
+    return ranked[0]
+
+
+def fit_offsets(rows: list[tuple], labels: list[str]) -> dict:
+    """rows: (scores {label surface: raw score}, true label surface). Returns {"offsets",
+    "right_raw", "right", "n", "passes", "at_grid_edge"}."""
+    b = {lab: 0.0 for lab in labels}
+
+    def key(vec):
+        right = sum(top_label(sc, vec) == y for sc, y in rows)
+        return (right, -sum(abs(v) for v in vec.values()), tuple(-vec[lab] for lab in labels))
+
+    best = key(b)
+    passes = 0
+    while True:
+        passes += 1
+        changed = False
+        for lab in labels[1:]:
+            for v in GRID:
+                trial = dict(b, **{lab: v})
+                k = key(trial)
+                if k > best:
+                    best, b, changed = k, trial, True
+        if not changed or passes >= 100:
+            break
+    return {"offsets": b, "right_raw": sum(top_label(sc, {}) == y for sc, y in rows), "right": best[0],
+            "n": len(rows), "passes": passes, "at_grid_edge": [lab for lab in labels if abs(b[lab]) >= GRID[-1]]}
+
+
+def offset_rows(notes: list[dict], encodings: dict, slot: str) -> list[tuple]:
+    """Fit rows of one label slot: distinct notes whose TRUE type uses the slot (type: all)."""
+    rows = []
+    for n in notes:
+        tr = n["truth"]
+        if slot != "type" and slot not in used_slots(tr["type"], tr):
+            continue
+        sc = {s: x for s, c, x in encodings[n["key"]][slot]}
+        label = [s for s, c, x in encodings[n["key"]][slot] if c == tr[slot]]
+        rows.append((sc, label[0]))
+    return rows
+
+
+def apply_offsets(encoding: dict, offsets: dict | None) -> dict:
+    """offsets: {slot: {label surface: b}} for label slots; other slots unchanged."""
+    if not offsets:
+        return encoding
+    return {slot: [[s, c, x + offsets[slot][s]] if slot in offsets else [s, c, x] for s, c, x in rows]
+            for slot, rows in encoding.items()}
+
+
 def decide_note(encoding: dict, taus: dict) -> dict:
     """{"status": "ok" | "declined", "type", "fields", "reason", "decisions"}: the type
     first, then only the slots of the predicted type with their allowed candidates."""
@@ -71,17 +140,49 @@ def calibrate(cases: list[tuple], min_accepted: int = 200, precision: float = 0.
 
 
 def calibration_cases(notes: list[dict], encodings: dict) -> dict:
-    """Per slot, (margin, correct) over the notes whose TRUE type uses the slot, with the
-    candidate filter of the true type (type: over all notes)."""
+    """Per slot, (margin, correct) along the PREDICTED decision path (Astra, development
+    decision review): the top-1 type selects the slots, the top-1 change selects value /
+    since; a slot is right only if its top-1 equals the note's true value of that slot (a
+    slot the true type does not have, or a "keep" field asked, counts as wrong). Earlier
+    slots are followed by their top-1 choice, before any threshold."""
     out = {}
     for n in notes:
         enc = encodings[n["key"]]
         tr = n["truth"]
-        v, m, n_vals = ranking(_scored(enc, "type", None))
-        out.setdefault("type", []).append((m, v == tr["type"]))
-        for slot in used_slots(tr["type"], tr):
-            v, m, _ = ranking(_scored(enc, slot, tr["type"]))
-            out.setdefault(slot, []).append((m, v == tr[slot]))
+        t, m, _ = ranking(_scored(enc, "type", None))
+        out.setdefault("type", []).append((m, t == tr["type"]))
+        fields = {}
+        for slot in USES[t]:
+            if slot not in used_slots(t, fields):
+                fields[slot] = KEEP
+                continue
+            v, m, _ = ranking(_scored(enc, slot, t))
+            fields[slot] = v
+            out.setdefault(slot, []).append((m, v is not None and v == tr.get(slot)))
+    return out
+
+
+def slot_report(notes: list[dict], encodings: dict, taus: dict) -> dict:
+    """Per slot along the ACTUAL decisions (decide_note with tau): asked, accepted, wrong
+    accepted, precision of accepted values (None if nothing accepted - never passes)."""
+    out = {}
+    for n in notes:
+        d = decide_note(encodings[n["key"]], taus)
+        tr = n["truth"]
+        for slot, (v, m, st) in d["decisions"].items():
+            r = out.setdefault(slot, {"asked": 0, "accepted": 0, "wrong": 0, "wrongly_skipped": 0})
+            r["asked"] += 1
+            if st in ("ok", "single"):
+                r["accepted"] += 1
+                r["wrong"] += v != tr.get(slot)
+        ch = d["decisions"].get("change")
+        if d["type"] == tr["type"] == "correction" and ch and ch[2] in ("ok", "single"):
+            for slot in ("value", "valid_from"):       # a required field skipped by a wrong change
+                if slot in used_slots(tr["type"], tr) and slot not in used_slots(d["type"], {"change": ch[0]}):
+                    out.setdefault(slot, {"asked": 0, "accepted": 0, "wrong": 0, "wrongly_skipped": 0})
+                    out[slot]["wrongly_skipped"] += 1
+    for r in out.values():
+        r["precision"] = None if r["accepted"] == 0 else round(1 - r["wrong"] / r["accepted"], 4)
     return out
 
 

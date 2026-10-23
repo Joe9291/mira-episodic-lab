@@ -69,12 +69,13 @@ structured form. Note types and their required fields (all other fields are not 
 | timely assert | assert / no | subject, attribute, value, valid_from ("not stated" allowed) |
 | late assert ("back on day 4 ...") | assert / no | subject, attribute, value, valid_from |
 | repeated statement | assert / yes | subject, attribute, value, valid_from, reference |
-| correction | correct | subject, attribute, reference, value or "keep", valid_from or "keep" (not both "keep") |
+| correction | correct | subject, attribute, change (the place or person / the day / both), reference; value if the change includes the place or person, else "keep"; valid_from if it includes the day, else "keep" |
 | retraction | retract | subject, attribute, reference |
 | anchor event | assert / no | person, place, day |
 
 The note type is NOT given to the extractor: it is the first predicted slot (section 3).
-Semantically absent ("not stated", "keep") is a CANDIDATE with its own score; an
+Semantically absent "not stated" is a CANDIDATE with its own score; "keep" follows from
+the predicted change (since candidates c42.5, development log 5; reviewed 2026-10-23); an
 uncertain field (margin below its threshold) is a different state and declines the whole
 note. Wordings: per note type the template plus 3 development, 3 holdout and 3 reserve
 paraphrases, written before any model run; relative days ("yesterday", "two days ago")
@@ -88,37 +89,53 @@ report; per frame and split the number of distinct texts is reported (every hold
 ## 3. Extraction method (from round 3.5b, re-qualified here)
 
 Extraction path (fixed): the inputs are only the note text, its header (author, date)
-and the world's source names; the generator's note type, the gold report and the inverse
+and the world's source names; the MODEL sees only the note text - the header is used only
+by the candidate rules and the canonical resolution ("my" -> author, "today" /
+"yesterday" / "not stated" -> report day; since c42.4, reviewed 2026-10-23); the generator's note type, the gold report and the inverse
 parser of section 2 are never used on this path (they are used only for scoring and the
 checks before freezing). Step 1: the slot "type" with the labels statement, repeated
 statement, correction, retraction, meeting (each with a one-line description) is scored
 and decided like every slot (its own tau; uncertain -> declined). Step 2: the predicted
 type alone selects the further slots and their candidate sets from the table of section 2
-(kind and repeat follow from the type). A wrong but confident type therefore leads to
+(kind and repeat follow from the type); for a correction, the predicted change (decided
+before value and valid_from, cands42.USES order) selects whether value and valid_from are
+asked; a wrong change makes the report wrong even if the asked fields are right. A wrong but confident type therefore leads to
 wrong or missing fields and is counted as an extraction error (the slot "type" has its
 own precision and acceptance in the measures).
 Given candidates: object, place and person spans of the note (1-3 tokens, the round 3.5
 canonicalisation contract), the names of the world's sources, day numbers 0 ... report
-day, the kind, repeat and attribute labels, "not stated" / "keep" where the note type
-allows them. Score: total log-probability of the complete candidate answer after a fixed
-slot prompt (round 3.5 S1 procedure, prefix cached); margin: best canonical value minus
-the best different one. Per slot a threshold tau, calibrated on the calibration split
-only: the highest acceptance with precision of accepted values >= 0.99 and >= 200
+day, the type, aspect and change labels, "not stated" where the note type allows it. Score:
+total log-probability of the complete candidate answer after a fixed slot prompt (round
+3.5 S1 procedure, prefix cached); for the label slots type, attribute and change plus an
+additive offset per label (variant D, Astra's decision of 2026-10-23,
+reviews/2026-10-23_r42dev_astra.txt): fitted per model and slot on the DISTINCT
+development notes whose true type uses the slot (type: all notes), first label fixed at
+0, grid step 0.25 in [-30, 30], objective = right top-1 choices (a tie is not right),
+start at 0, fixed coordinate order, ties -> smallest L1 norm, then the lexicographically
+smallest vector, stop after a full pass without change; then frozen. Margin: best
+canonical value minus the best different one (corrected scores). Per slot a threshold
+tau, calibrated on the full calibration split only, along the PREDICTED decision path (the
+top-1 type selects the slots, the top-1 change selects value / since; a slot is right
+only if its value equals the true value of that slot - a slot the true type does not have
+or a "keep" field asked counts as wrong): the highest acceptance with precision of accepted values >= 0.99 and >= 200
 accepted values (round 3.5 rule; a slot without a qualifying tau always declines). Any
 required field below its tau -> the note is DECLINED (not stored). Declining is no safe
 default: a declined correction or retraction can leave an outdated answer standing, and
 every such answer counts fully as an end-to-end error (also in the stale measure).
 Model: qwen2.5-1.5b (pinned; qualified in 3.5b) as the primary model; on development
 only, qwen3-1.7b is compared, and the model with the higher rate of fully correct stored
-notes on development is frozen (rule fixed now). Prompts, normalisation and candidate
+notes on development is frozen (rule fixed now; with offsets fitted on development these
+rates are development diagnostics, Astra 2026-10-23). The raw and the content-free
+corrected scores (development log 7) are reported next to the official variant D only; the
+official variant is not re-chosen from them. Prompts, normalisation and candidate
 generator are developed on development only.
 
 ## 4. Scope, splits, worlds, delays
 
 Binding scope: the nine round 4.0 families P1-P9 (they contain every note type, including
 anchors and repeats); the round 4.1 families T1-T5 are NOT part of this round. Splits by
-whole pairs as in round 3.5: development 10, calibration 10, audit 5 (model-free checks),
-holdout 40 pairs per family; texts of different splits are disjoint (checked).
+whole pairs as in round 3.5: development 10, calibration 30 (raised from 10 before any model
+run, section 8), audit 5 (model-free checks), holdout 40 pairs per family; texts of different splits are disjoint (checked).
 Development, calibration and audit use only the template and development paraphrases;
 holdout uses the holdout paraphrases. Delays: 0 and 20 irrelevant NOTES (also extracted);
 the finding holds for these delays only.
@@ -191,10 +208,12 @@ phase A.
 
 ## 7. Cost estimate
 
-About 27 distinct notes per pair (relevant notes, the critical variant, 20 irrelevant
-notes), 9 families x 40 pairs on the holdout -> about 10,000 notes x up to 7 slots; at about
-one second per slot with the prefix cache, ~20 CPU hours, i.e. about an hour on a 20-job
-matrix (as in round 3.6). Development and calibration together are about half.
+Measured (development logs 3-6, CPU runners, prefix cache, all eleven slots): about 40 s
+per note. Development 2,270 + calibration 6,836 distinct notes for both models: about 210
+CPU hours (96 jobs, about 11 hours on the 20-job matrix). Holdout 9,107 distinct notes for
+the frozen model: about 101 CPU hours, about 6 hours on the 20-job matrix. (The design
+estimate of about one second per slot, i.e. ~20 CPU hours for the holdout, was too low by
+a factor of about five.)
 
 ## 8. Implementation notes (after the APPROVE of v3)
 
@@ -394,3 +413,25 @@ matrix (as in round 3.6). Development and calibration together are about half.
   offsets fitted on the calibration split before tau) goes to review; it is applied only
   model-free to the raw encodings, so the full development and calibration encodes run
   now with p6 / c42.5 for both models and serve every option.
+- Astra's review of the development decision (reviews/2026-10-23_r42dev_astra.txt, package
+  reviews/packages/LAB_R42_DEV_DECISION.txt): APPROVE of the changes 1-5 and her own
+  variant D - the additive label offsets fitted on DEVELOPMENT instead of calibration, tau
+  then on the full calibration split (no halving; the two rare change classes have only 40
+  distinct calibration notes each). Her requirements, implemented before any development
+  evaluation: the change slot is subject to slot precision and the 200 rule like every slot;
+  calibration and evaluation follow the PREDICTED decision path, a required field skipped by
+  a wrong change stays in the report (analysis42.calibration_cases, slot_report:
+  "wrongly_skipped"); per model and label slot the offset vector, raw and corrected top-1,
+  tau, accepted values, errors and precision; for change also per class with distinct
+  notes and occurrences (predicting "value" alone is right for 519 of 599 calibration
+  corrections, 86.6 %); sections 2-4 and 7 updated (change, derived keep, 30 calibration
+  pairs, measured cost). Her improvement ideas, done: tests for the three field paths of a
+  correction, an uncertain change and a wrong change; grid-edge hits of the offsets are
+  reported (fit_offsets "at_grid_edge"); to do at the freeze: one manifest with the raw
+  score, prompt, candidate, offset and tau versions. Implementation: analysis42.fit_offsets
+  / offset_rows / apply_offsets, analyse_round42.py fit / evaluate --scoring offsets (raw
+  and prior reported next to it only).
+- Full encode (run 39902326532, dev + cal, both models, p6 / c42.5, 24 chunks): one job
+  (qwen2.5-1.5b, calibration chunk 10) failed after 90 minutes because the hosted runner
+  lost the connection to GitHub (infrastructure, no output); it is encoded again alone
+  after the run.
