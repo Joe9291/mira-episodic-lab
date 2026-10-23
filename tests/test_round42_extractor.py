@@ -40,7 +40,7 @@ class Extractor(unittest.TestCase):
 
     def test_current_examples_answer_with_their_own_candidates(self):
         ctx = {"author": "self", "report_day": 12, "sources": ["Kai", "Ola", "Pim", "self"]}
-        for header, text, answers in {"p4": E.EXAMPLES_P4}[E.CURRENT]:
+        for header, text, answers in {"p4": E.EXAMPLES_P4, "p5": E.EXAMPLES_P5}[E.CURRENT]:
             full = E.candidate_text(header, text, E.CURRENT)
             for slot, ans in answers.items():
                 self.assertIn(ans, [s for s, _ in C.candidates(slot, full, ctx)], (slot, text))
@@ -48,7 +48,7 @@ class Extractor(unittest.TestCase):
     def test_examples_outside_the_world_vocabulary(self):
         vocab = {w.lower() for lst in (W40.FIRST, W40.LAST, W40.PLACE_STEM, W40.PLACE_KIND, W40.OBJ_ADJ, W40.OBJ_NOUN)
                  for x in lst for w in x.split()}
-        for _, text, answers in E.EXAMPLES_P4:
+        for _, text, answers in E.EXAMPLES_P4 + E.EXAMPLES_P5:
             for slot in ("subject", "value", "person", "place", "ref_source"):
                 for w in str(answers.get(slot, "")).split():
                     self.assertNotIn(w.lower(), vocab, (slot, text))
@@ -57,8 +57,24 @@ class Extractor(unittest.TestCase):
                                 "You", "On", "Your", "I", "The"):
                     self.assertNotIn(name.lower(), vocab, text)
 
+    def test_current_examples_are_balanced_per_type(self):
+        import collections
+        ex = E.EXAMPLES_P5
+        for t in ("statement", "repeated statement", "correction", "retraction"):
+            asp = collections.Counter(a["attribute"] for _, _, a in ex if a["type"] == t)
+            self.assertEqual(len(asp), 2, t)
+            self.assertEqual(len(set(asp.values())), 1, (t, asp))
+        corr = [a for _, _, a in ex if a["type"] == "correction"]
+        for asp in ("at a place", "with a person"):
+            kinds = {("v" if a["value"] == "keep" else "V") + ("d" if a["valid_from"] == "keep" else "D")
+                     for a in corr if a["attribute"] == asp}
+            self.assertTrue({"Vd", "vD"} <= kinds, asp)        # value-only and date-only per aspect
+        since = collections.Counter(a["valid_from"] == "keep" for a in corr)
+        self.assertEqual(since[True], since[False])
+        self.assertEqual(E.CURRENT, "p5")
+
     def test_messages_hide_the_header(self):
-        msgs = E.messages("ref_source", "Day 17, your own note.", "Forget Gorvin's report of day 14 about who has the blue ledger.", "p4")
+        msgs = E.messages("ref_source", "Day 17, your own note.", "Forget Gorvin's report of day 14 about who has the blue ledger.", E.CURRENT)
         self.assertTrue(all("your own note" not in m["content"] for m in msgs))
 
 

@@ -318,3 +318,23 @@ matrix (as in round 3.6). Development and calibration together are about half.
   word (tests/test_round42_extractor.py), the encode job refuses any prompt but the current
   one (p1-p3 need their own candidate versions; they stay in the code for the log). Probe
   3: all ten slots on the same 80 notes, both models.
+- Development log 4 - probe 3 (run 39866364037, p4, c42.4, the same 80 development notes,
+  all ten slots; median 39 s / 40 s per note; cache check passed, max. difference
+  1e-4): raw top choices qwen2.5-1.5b / qwen3-1.7b - type 80 / 78 of 80, attribute 58 /
+  53 of 64, valid_from 43 / 48 of 48, ref_source 48 / 47 of 48; subject, value, ref_day,
+  person, place, day all right for both. The header change removed every source error of
+  qwen2.5-1.5b. Remaining errors: qwen2.5-1.5b answers "with a person" for retractions
+  "about where ... is" (4) and the date-only correction "the move of ..." (1), margins up
+  to 1.6 - the p4 examples were NOT balanced as intended (retractions 2 x person : 1 x
+  place, the only date-only correction a handover), and the errors follow the majority;
+  five value-only corrections still answered with the day of the earlier report instead
+  of keep (margins up to 2.8). qwen3-1.7b now answers "at a place" for statements with
+  "has had" and retractions "about who has" (margins up to 23) - with p3 it failed the
+  other way ("with" -> place); its aspect follows the label wording, not the note.
+  Development change: prompt p5 (candidates unchanged) - the contrast principle applied
+  completely and checked by a test: within every note type as many place as person
+  examples; per aspect a value-only and a date-only correction; as many "keep" as named
+  days for since; every retraction frame with both aspects (25 examples); the since
+  question says that the day of the earlier report is never the answer. Probe 4: slots
+  type, attribute, valid_from, ref_source on the same 80 notes, both models (the other
+  slots were right for both models in probe 3; the full encodes check them again).

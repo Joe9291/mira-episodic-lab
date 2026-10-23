@@ -13,9 +13,9 @@ from __future__ import annotations
 
 from .cands42 import ATTRIBUTES, SLOTS, TYPES, candidates
 
-PROMPTS = ("p1", "p2", "p3", "p4")
-CURRENT = "p4"                       # p1-p3 belong to candidates c42.1-c42.3 (kept for the log)
-HEADERLESS = ("p4",)
+PROMPTS = ("p1", "p2", "p3", "p4", "p5")
+CURRENT = "p5"                       # p1-p3 belong to candidates c42.1-c42.3 (kept for the log)
+HEADERLESS = ("p4", "p5")
 SYSTEM = ("You read one short note and fill in one field of a record about it. In a note written by "
           "someone else, 'you' means the reader. Answer with only the value, nothing else.")
 QUESTIONS = {
@@ -235,6 +235,91 @@ EXAMPLES_P4 = [
 ]
 
 
+# p5 (development change after probe 3, logged in docs/ROUND_4_2.md; candidates c42.4):
+# the contrast principle of p4 applied completely - within every note type the worked
+# examples are balanced (aspect: as many "at a place" as "with a person"; corrections:
+# as many "keep" as named days for since, a value-only and a date-only correction for
+# each aspect; retractions: every retraction frame with both aspects). Probe 3 showed
+# qwen2.5-1.5b following the 2 : 1 majority of the p4 retraction examples ("about where
+# ... is" answered "with a person") and the only date-only example (the handover). The
+# since question says that the day of the EARLIER report is never the answer (probe 3:
+# five value-only corrections answered with that day instead of keep).
+QUESTIONS_P5 = dict(QUESTIONS_P4)
+QUESTIONS_P5["valid_from"] = (
+    "Field 'since': the day from which the stated place or holder is true: a day number, today or yesterday, as "
+    "written in the note. The day of the earlier report ('report of day N', 'note from day N', 'on day N' of the "
+    "person quoted) is never the answer. A statement that names no such day: answer not stated. A correction that "
+    "does not name a new day for the place or person: answer keep.")
+EXAMPLES_P5 = [
+    # statements: 3 x place, 3 x person
+    _ex("The green box has been at Rook Tower since day 6.",
+        type="statement", subject="green box", attribute="location", value="Rook Tower", valid_from="6"),
+    _ex("Mara Lind has had the old key.",
+        type="statement", subject="old key", attribute="holder", value="Mara Lind", valid_from="not stated"),
+    _ex("Tom Reed is the one who has had the red bell since yesterday.",
+        type="statement", subject="red bell", attribute="holder", value="Tom Reed", valid_from="yesterday"),
+    _ex("Update: the small drum has been with Ida Voss since day 4.",
+        type="statement", subject="small drum", attribute="holder", value="Ida Voss", valid_from="4"),
+    _ex("Update: the green box has been at Fern Hall since day 2.",
+        type="statement", subject="green box", attribute="location", value="Fern Hall", valid_from="2"),
+    _ex("The old key has been at Pine Lodge.",
+        type="statement", subject="old key", attribute="location", value="Pine Lodge", valid_from="not stated"),
+    # repeated statements: 2 x place, 2 x person
+    _ex("Ola reported on day 10 that Tom Reed has had the red bell since day 8.",
+        type="repeated statement", subject="red bell", attribute="holder", value="Tom Reed", valid_from="8",
+        ref_source="Ola", ref_day="10"),
+    _ex("Ola reported on day 7 that the small drum has been at Rook Tower since day 5.",
+        type="repeated statement", subject="small drum", attribute="location", value="Rook Tower", valid_from="5",
+        ref_source="Ola", ref_day="7"),
+    _ex("According to Kai on day 6, the green box has been at Pine Lodge since day 3.",
+        type="repeated statement", subject="green box", attribute="location", value="Pine Lodge", valid_from="3",
+        ref_source="Kai", ref_day="6"),
+    _ex("As Pim told me on day 5, Ida Voss has had the small drum since day 2.",
+        type="repeated statement", subject="small drum", attribute="holder", value="Ida Voss", valid_from="2",
+        ref_source="Pim", ref_day="5"),
+    # corrections: per aspect one value-only (since keep), one date-only (value keep); one
+    # with both; 3 x place, 3 x person
+    _ex("Correction to Pim's report of day 4: the green box was actually at Fern Hall.",
+        type="correction", subject="green box", attribute="location", value="Fern Hall", valid_from="keep",
+        ref_source="Pim", ref_day="4"),
+    _ex("Correction to Kai's report of day 7: the red bell was actually with Tom Reed.",
+        type="correction", subject="red bell", attribute="holder", value="Tom Reed", valid_from="keep",
+        ref_source="Kai", ref_day="7"),
+    _ex("My report of day 9 was wrong: the handover of the old key actually happened on day 8.",
+        type="correction", subject="old key", attribute="holder", value="keep", valid_from="8",
+        ref_source="my", ref_day="9"),
+    _ex("Your report of day 6 was wrong: the move of the red bell actually happened on day 5.",
+        type="correction", subject="red bell", attribute="location", value="keep", valid_from="5",
+        ref_source="your", ref_day="6"),
+    _ex("Please fix your report of day 5 - the small drum was actually with Mara Lind from day 4.",
+        type="correction", subject="small drum", attribute="holder", value="Mara Lind", valid_from="4",
+        ref_source="your", ref_day="5"),
+    _ex("Please fix Ola's report of day 3 - the old key was actually at Pine Lodge.",
+        type="correction", subject="old key", attribute="location", value="Pine Lodge", valid_from="keep",
+        ref_source="Ola", ref_day="3"),
+    # retractions: every frame with both aspects
+    _ex("Please disregard your report of day 3 about who has the red bell.",
+        type="retraction", subject="red bell", attribute="holder", ref_source="your", ref_day="3"),
+    _ex("Please disregard Ola's report of day 4 about where the small drum is.",
+        type="retraction", subject="small drum", attribute="location", ref_source="Ola", ref_day="4"),
+    _ex("Withdraw my report of day 8 about where the old key is.",
+        type="retraction", subject="old key", attribute="location", ref_source="my", ref_day="8"),
+    _ex("Withdraw Pim's report of day 6 about who has the green box.",
+        type="retraction", subject="green box", attribute="holder", ref_source="Pim", ref_day="6"),
+    _ex("Forget Kai's report of day 2 about who has the green box.",
+        type="retraction", subject="green box", attribute="holder", ref_source="Kai", ref_day="2"),
+    _ex("Forget your report of day 5 about where the red bell is.",
+        type="retraction", subject="red bell", attribute="location", ref_source="your", ref_day="5"),
+    # meetings
+    _ex("You met Ida Voss at Pine Lodge yesterday.",
+        type="meeting", person="Ida Voss", place="Pine Lodge", day="yesterday"),
+    _ex("On day 9, I met Tom Reed at Rook Tower.",
+        type="meeting", person="Tom Reed", place="Rook Tower", day="9"),
+    _ex("Your meeting today with Mara Lind at Fern Hall.",
+        type="meeting", person="Mara Lind", place="Fern Hall", day="today"),
+]
+
+
 def note_block(header: str, text: str, prompt: str = "p1") -> str:
     return f"Note: {text}" if prompt in HEADERLESS else f"{header}\nNote: {text}"
 
@@ -247,9 +332,9 @@ def candidate_text(header: str, text: str, prompt: str) -> str:
 def messages(slot: str, header: str, text: str, prompt: str = "p1") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
-    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3, "p4": QUESTIONS_P4}[prompt][slot]
+    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3, "p4": QUESTIONS_P4, "p5": QUESTIONS_P5}[prompt][slot]
     turns = [{"role": "system", "content": SYSTEM_P4 if prompt in HEADERLESS else SYSTEM}]
-    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3, "p4": EXAMPLES_P4}[prompt]:
+    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3, "p4": EXAMPLES_P4, "p5": EXAMPLES_P5}[prompt]:
         if slot in answers:
             turns += [{"role": "user", "content": f"{note_block(h, t, prompt)}\n\nQuestion: {q}"},
                       {"role": "assistant", "content": answers[slot]}]
