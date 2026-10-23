@@ -458,7 +458,8 @@ a factor of about five.)
   N": 46 of 145 declined on development, 161 of 513 on calibration; retractions "about
   where ... is"; value-only corrections "was actually at X"), change uncertain (corrections
   "Please fix X's report of day N - the Y was actually with X": 16 of 17 development, 45 of
-  48 calibration), and their follow-ups (unresolved references). Change per class on
+  48 calibration), and retractions whose aspect was accepted wrong (their reference then
+  matched no stored report and the collector declined them - safe, but an error). Change per class on
   calibration (out-of-sample for the offsets): value 509 of 519, date 40 of 40, both 18 of
   40 right top-1 (development, in-sample: 10 of 12). Report-only variants: raw - no tau
   for change and valid_from (on the predicted path the raw "both" answers ask valid_from
