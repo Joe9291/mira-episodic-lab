@@ -1,16 +1,15 @@
 {
  "schema": "episodic_lab.round42_request.v1",
  "enabled": true,
- "note": "Round 4.2 phase B: full encode of the development and calibration splits, both models, prompt p6, candidates c42.5, all eleven slots, raw scores plus label priors (no decision is taken in the job).",
+ "note": "Round 4.2 phase B: re-encode of the one chunk of run 39902326532 whose runner lost the connection (qwen2.5-1.5b, calibration, chunk 10 of 24), prompt p6, candidates c42.5.",
  "phase": "encode",
  "models": [
-  "qwen2.5-1.5b+p6",
-  "qwen3-1.7b+p6"
+  "qwen2.5-1.5b+p6"
  ],
  "splits": [
-  "dev",
   "cal"
  ],
  "chunks": 24,
+ "cells": [["qwen2.5-1.5b+p6", "cal", 10]],
  "slots": ""
 }

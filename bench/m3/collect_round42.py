@@ -18,6 +18,8 @@ def main() -> int:
     dest = Path(sys.argv[2])
     if req["phase"] in ("timing", "probe", "prior"):
         cells = [(m, "dev", 0, 1) for m in req["models"]]
+    elif req.get("cells"):
+        cells = [(m, s, c, req["chunks"]) for m, s, c in req["cells"]]
     else:
         cells = [(m, s, c, req["chunks"]) for m in req["models"] for s in req["splits"] for c in range(req["chunks"])]
     lines, ok = [f"# Round 4.2 encode ({req['phase']})", ""], True

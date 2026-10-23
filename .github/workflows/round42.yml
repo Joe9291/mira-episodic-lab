@@ -29,6 +29,8 @@ jobs:
           r = json.load(open("config/round42.json"))
           if r["phase"] in ("timing", "probe", "prior"):
               cells = [{"model": m, "split": "dev", "chunk": 0, "chunks": 1} for m in r["models"]]
+          elif r.get("cells"):          # re-encode of single chunks (e.g. after a runner failure)
+              cells = [{"model": m, "split": s, "chunk": c, "chunks": r["chunks"]} for m, s, c in r["cells"]]
           else:
               cells = [{"model": m, "split": s, "chunk": c, "chunks": r["chunks"]}
                        for m in r["models"] for s in r["splits"] for c in range(r["chunks"])]
