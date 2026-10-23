@@ -378,6 +378,33 @@ def messages(slot: str, header: str, text: str, prompt: str = "p1") -> list[dict
     return turns + [{"role": "user", "content": f"{note_block(header, text, prompt)}\n\nQuestion: {q}"}]
 
 
+# label-prior correction ("contextual calibration", Zhao et al. 2021, "Calibrate before use"):
+# development change after probe 5, NOT part of the approved scoring of section 3 until
+# reviewed - the encodings stay raw, the correction is applied model-free in the analysis.
+# Per label slot, the model's preference for each label without any note: the labels are
+# scored after the same prompt with three content-free notes; the softmax over the labels
+# is averaged; the prior is its logarithm (a constant per label, the same for every note).
+LABEL_SLOTS = ("type", "attribute", "change")
+CONTENT_FREE = ("N/A", "[MASK]", "")
+
+
+def label_priors(scorer, prompt: str) -> dict:
+    import math
+    ctx = {"author": "self", "report_day": 0, "sources": []}
+    out = {}
+    for slot in LABEL_SLOTS:
+        labels = [s for s, _ in candidates(slot, "", ctx)]
+        mean = [0.0] * len(labels)
+        for cf in CONTENT_FREE:
+            sc = scorer(messages(slot, "", cf, prompt), labels)
+            top = max(sc)
+            z = sum(math.exp(x - top) for x in sc)
+            for i, x in enumerate(sc):
+                mean[i] += math.exp(x - top) / z / len(CONTENT_FREE)
+        out[slot] = {lab: math.log(m) for lab, m in zip(labels, mean)}
+    return out
+
+
 def encode_note(scorer, header: str, text: str, ctx: dict, prompt: str = "p1", slots=None) -> dict:
     """{slot: [[surface, canonical, score], ...]} for every slot (the superset); `slots`
     restricts the slots for development probes only."""

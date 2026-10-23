@@ -23,6 +23,15 @@ def _scored(encoding: dict, slot: str, predicted_type: str | None):
     return [(s, c, x) for s, c, x in rows]
 
 
+def apply_priors(encoding: dict, priors: dict | None) -> dict:
+    """Label-prior correction (development option after probe 5, encoder42.label_priors):
+    score minus the label's content-free log-prior, for the label slots only."""
+    if not priors:
+        return encoding
+    return {slot: [[s, c, x - priors[slot][s]] if slot in priors else [s, c, x] for s, c, x in rows]
+            for slot, rows in encoding.items()}
+
+
 def decide_note(encoding: dict, taus: dict) -> dict:
     """{"status": "ok" | "declined", "type", "fields", "reason", "decisions"}: the type
     first, then only the slots of the predicted type with their allowed candidates."""

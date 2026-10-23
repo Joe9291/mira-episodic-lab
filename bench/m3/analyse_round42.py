@@ -31,13 +31,21 @@ from episodic_lab import r40_world as W40  # noqa: E402
 from episodic_lab import r42_world as W  # noqa: E402
 
 
-def load(paths):
+def load(paths, priors=False, prior_files=()):
+    """Encodings of the files; with priors=True the label-prior correction is applied with
+    the priors recorded in each file (or, for files without, from a prior-phase file of the
+    same model and prompt)."""
+    extra = {}
+    for p in prior_files:
+        d = json.loads(Path(p).read_text())
+        extra[d["model"]] = d["priors"]
     enc, meta = {}, []
     for p in paths:
         d = json.loads(Path(p).read_text())
         if d.get("status") != "OK":
             raise SystemExit(f"{p}: status {d.get('status')} {d.get('error')}")
-        enc.update(d["encodings"])
+        pri = (d.get("priors") or extra[d["model"]]) if priors else None
+        enc.update({k: A.apply_priors(e, pri) for k, e in d["encodings"].items()})
         meta.append({k: d.get(k) for k in ("model", "split", "chunk", "chunks", "prompt_version", "candidate_version")})
     return enc, meta
 
@@ -57,8 +65,8 @@ def truths(split):
     return out
 
 
-def inspect(paths):
-    enc, meta = load(paths)
+def inspect(paths, priors=False, prior_files=()):
+    enc, meta = load(paths, priors, prior_files)
     split = meta[0]["split"]
     tr = truths(split)
     ok, n, errs, margins = collections.Counter(), collections.Counter(), [], collections.defaultdict(list)
@@ -79,7 +87,8 @@ def inspect(paths):
             margins[slot].append((m, v == t[slot]))
             if v != t[slot]:
                 errs.append((slot, v, t[slot], txt))
-    print(meta[0]["model"], meta[0]["prompt_version"], meta[0]["candidate_version"], "notes", len(enc))
+    print(meta[0]["model"], meta[0]["prompt_version"], meta[0]["candidate_version"], "notes", len(enc),
+          "label priors applied" if priors else "raw scores")
     for s in n:
         wrong_m = sorted(m for m, good in margins[s] if not good and m is not None)
         print(f"  {s:11s} {ok[s]}/{n[s]}  largest wrong margin {wrong_m[-1] if wrong_m else '-'}")
@@ -157,7 +166,10 @@ def wilson(k, n, z=1.96):
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "inspect":
-        inspect(sys.argv[2:])
+        args = sys.argv[2:]
+        pri = [a.split("=", 1)[1] for a in args if a.startswith("--prior-file=")]
+        files = [a for a in args if not a.startswith("--")]
+        inspect(files, "--priors" in args or bool(pri), pri)
         return 0
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd")
@@ -166,25 +178,26 @@ def main():
     ap.add_argument("--taus")
     ap.add_argument("--enc", nargs="+", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--priors", action="store_true", help="label-prior correction (development option)")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     if a.taus:
         taus = json.loads(Path(a.taus).read_text())
     else:
-        cal_enc, _ = load(a.cal)
+        cal_enc, _ = load(a.cal, a.priors)
         tr = truths("cal")
         cal_notes = [{"key": k, "truth": tr[k][0]} for k in cal_enc]
         cases = A.calibration_cases(cal_notes, cal_enc)
         taus = {s: A.calibrate(c) for s, c in cases.items()}
-    enc, meta = load(a.enc)
+    enc, meta = load(a.enc, a.priors)
     rows, notes_out, violations = evaluate(a.split, enc, taus)
     by_cell = collections.defaultdict(lambda: [0, 0])
     for r in rows:
         by_cell[f"{r['family']}|{r['delay']}"][0] += r["e2e"]
         by_cell[f"{r['family']}|{r['delay']}"][1] += 1
     st = collections.Counter(v["status"] for v in notes_out.values())
-    res = {"split": a.split, "meta": meta, "taus": taus, "notes": dict(st), "violations": violations[:50],
+    res = {"split": a.split, "meta": meta, "label_priors": a.priors, "taus": taus, "notes": dict(st), "violations": violations[:50],
            "memory_ok": all(r["memory_ok"] for r in rows),
            "unexplained": [r["qid"] for r in rows if not r["e2e"] and not r.get("repaired")],
            "e2e": {"right": sum(r["e2e"] for r in rows), "n": len(rows)},

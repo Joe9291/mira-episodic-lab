@@ -5,6 +5,7 @@
                   position), timed per note, plus a cache check on 5 notes
   --phase probe   a stratified development slice (4 notes per gold type and frame)
   --phase encode  every distinct note of a split, in chunks (notes[chunk::chunks])
+  --phase prior   no notes: only the label priors (every phase records them as well)
 
 Output: every scored surface candidate of every slot with its canonical value and score;
 all decisions are taken later and model-free.
@@ -23,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from episodic_lab.cands42 import CANDIDATE_VERSION, SLOTS, candidates, ranking  # noqa: E402
-from episodic_lab.encoder42 import CURRENT, candidate_text, encode_note, messages  # noqa: E402
+from episodic_lab.encoder42 import CONTENT_FREE, CURRENT, candidate_text, encode_note, label_priors, messages  # noqa: E402
 from episodic_lab import r42_world as W  # noqa: E402
 
 SCHEMA = "episodic_lab.round42_encode.v1"
@@ -80,7 +81,7 @@ def cache_check(model, notes, prompt, slots=None):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--phase", choices=("timing", "probe", "encode"), required=True)
+    ap.add_argument("--phase", choices=("timing", "probe", "encode", "prior"), required=True)
     ap.add_argument("--model", required=True, help="slug or 'slug+prompt'")
     ap.add_argument("--split", default="dev")
     ap.add_argument("--chunk", type=int, default=0)
@@ -112,6 +113,8 @@ def main() -> int:
             notes = stratified(notes, 1)
         elif args.phase == "probe":
             notes = stratified(notes, 4)
+        elif args.phase == "prior":
+            notes = []
         else:
             notes = notes[args.chunk::args.chunks]
         from episodic_lab.models import PinnedModel
@@ -119,6 +122,10 @@ def main() -> int:
         model = PinnedModel(slug, args.pins)
         out["load_seconds"] = round(time.perf_counter() - t0, 1)
         out["weights_sha256"] = model.weights_digest()
+        t = time.perf_counter()
+        out["priors"] = label_priors(scorer_of(model), prompt)
+        out["prior_notes"] = list(CONTENT_FREE)
+        out["prior_seconds"] = round(time.perf_counter() - t, 1)
         enc, secs = {}, {}
         for n in notes:
             t = time.perf_counter()
@@ -126,7 +133,7 @@ def main() -> int:
             secs[n["key"]] = round(time.perf_counter() - t, 3)
         out.update(encodings=enc, seconds=secs, notes=len(notes),
                    index={n["key"]: {"header": n["header"], "text": n["text"], "ctx": n["ctx"]} for n in notes})
-        if args.phase != "encode":
+        if args.phase in ("timing", "probe"):
             t = time.perf_counter()
             out["cache_check"] = cache_check(model, notes[:5], prompt, slots)
             out["cache_check"]["seconds"] = round(time.perf_counter() - t, 1)

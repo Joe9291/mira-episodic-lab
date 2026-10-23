@@ -16,7 +16,7 @@ from pathlib import Path
 def main() -> int:
     req = json.loads(Path(sys.argv[1]).read_text())
     dest = Path(sys.argv[2])
-    if req["phase"] in ("timing", "probe"):
+    if req["phase"] in ("timing", "probe", "prior"):
         cells = [(m, "dev", 0, 1) for m in req["models"]]
     else:
         cells = [(m, s, c, req["chunks"]) for m in req["models"] for s in req["splits"] for c in range(req["chunks"])]

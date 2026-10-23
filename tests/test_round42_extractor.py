@@ -70,6 +70,23 @@ class Extractor(unittest.TestCase):
         self.assertTrue(all("keep" not in a.values() for _, _, a in ex))
         self.assertEqual(E.CURRENT, "p6")
 
+    def test_label_priors_and_their_correction(self):
+        import math
+        from episodic_lab import analysis42 as A
+
+        def scorer(msgs, labels):              # a model that prefers the LAST label, note-blind
+            return [float(i) for i in range(len(labels))]
+        pri = E.label_priors(scorer, E.CURRENT)
+        self.assertEqual(set(pri), set(E.LABEL_SLOTS))
+        for slot, d in pri.items():
+            self.assertAlmostEqual(sum(math.exp(x) for x in d.values()), 1.0)
+            enc = {slot: [[s, c, float(i)] for i, (s, c) in enumerate(
+                C.candidates(slot, "", {"author": "self", "report_day": 0, "sources": []}))], "value": [["X", "X", -1.0]]}
+            fixed = A.apply_priors(enc, pri)
+            self.assertEqual(len({round(x, 9) for _, _, x in fixed[slot]}), 1, slot)   # the bias is removed
+            self.assertEqual(fixed["value"], enc["value"])                            # span slots untouched
+        self.assertIs(A.apply_priors(enc, None), enc)
+
     def test_messages_hide_the_header(self):
         msgs = E.messages("ref_source", "Day 17, your own note.", "Forget Gorvin's report of day 14 about who has the blue ledger.", E.CURRENT)
         self.assertTrue(all("your own note" not in m["content"] for m in msgs))

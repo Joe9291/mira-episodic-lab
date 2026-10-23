@@ -1,8 +1,8 @@
 {
  "schema": "episodic_lab.round42_request.v1",
  "enabled": true,
- "note": "Round 4.2 phase B: development probe 5 (the 80 probe notes), slots type, attribute, change, value, valid_from, ref_source, prompt p6 (change slot instead of keep candidates), candidates c42.5.",
- "phase": "probe",
+ "note": "Round 4.2 phase B: label priors only (phase prior, no notes; content-free notes N/A, [MASK], empty), prompt p6, candidates c42.5 - a development diagnostic for probe 5.",
+ "phase": "prior",
  "models": [
   "qwen2.5-1.5b+p6",
   "qwen3-1.7b+p6"
@@ -11,5 +11,5 @@
   "dev"
  ],
  "chunks": 1,
- "slots": "type,attribute,change,value,valid_from,ref_source"
+ "slots": ""
 }

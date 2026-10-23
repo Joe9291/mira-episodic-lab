@@ -27,7 +27,7 @@ jobs:
           python3 - <<'PY'
           import json, os
           r = json.load(open("config/round42.json"))
-          if r["phase"] in ("timing", "probe"):
+          if r["phase"] in ("timing", "probe", "prior"):
               cells = [{"model": m, "split": "dev", "chunk": 0, "chunks": 1} for m in r["models"]]
           else:
               cells = [{"model": m, "split": s, "chunk": c, "chunks": r["chunks"]}

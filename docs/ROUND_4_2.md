@@ -361,3 +361,22 @@ matrix (as in round 3.6). Development and calibration together are about half.
   calibration split, 1,078 correction occurrences change the value only, 80 the day only,
   80 both. Probe 5: slots type, attribute, change, value, valid_from, ref_source on the
   same 80 notes, both models.
+- Development log 6 - probe 5 (run 39891511539, p6, c42.5, the same 80 development notes,
+  slots type, attribute, change, value, valid_from, ref_source; median 25 s / 21 s per
+  note; cache check passed): raw top choices qwen2.5-1.5b / qwen3-1.7b - type 80 / 75 of
+  80, attribute 61 / 50 of 64, change 11 / 15 of 16, value 46 / 46 of 46, valid_from 36 /
+  36 of 36, ref_source 48 / 48 of 48. The value / since errors are gone for both models;
+  qwen2.5-1.5b now answers "both" for four value-only corrections and one date-only
+  correction (margins up to 2.1, while its correct change answers have a median margin of
+  1.6). Diagnosis (development data, report only): for qwen2.5-1.5b a constant offset per
+  label would make change 16 / 16 and attribute 63 / 64 - its ranking of the notes is
+  right, its label preference is skewed; for qwen3-1.7b's aspect even the best constant
+  offset reaches only 59 / 64. Development option (NOT part of the approved scoring of
+  section 3; to be reviewed before any use): label-prior correction ("contextual
+  calibration", Zhao et al. 2021) for the label slots type, attribute and change - per
+  label the model's probability after the same prompt with three content-free notes ("N/A",
+  "[MASK]", empty), averaged; the corrected score is the raw score minus its logarithm (a
+  constant per label and model, fitted to no data). The encodings stay raw; the correction
+  is applied model-free in the analysis (analysis42.apply_priors, --priors). Next: a
+  prior-only job (phase "prior", no notes) for both models with p6, then the raw and
+  corrected choices of probe 5 side by side.
