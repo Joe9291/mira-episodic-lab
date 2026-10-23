@@ -1,0 +1,16 @@
+{
+ "schema": "episodic_lab.round42_request.v1",
+ "enabled": true,
+ "note": "Round 4.2 phase B: full encode of the development and calibration splits, both models, prompt p6, candidates c42.5, all eleven slots, raw scores plus label priors (no decision is taken in the job).",
+ "phase": "encode",
+ "models": [
+  "qwen2.5-1.5b+p6",
+  "qwen3-1.7b+p6"
+ ],
+ "splits": [
+  "dev",
+  "cal"
+ ],
+ "chunks": 24,
+ "slots": ""
+}
