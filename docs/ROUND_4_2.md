@@ -435,3 +435,13 @@ a factor of about five.)
   (qwen2.5-1.5b, calibration chunk 10) failed after 90 minutes because the hosted runner
   lost the connection to GitHub (infrastructure, no output); it is encoded again alone
   after the run.
+- Variant D offsets fitted and frozen (before any calibration or development evaluation;
+  inputs: the 2,270 distinct development notes of run 39902326532, all 24 development
+  chunks of both models OK): config/round42_offsets_qwen2.5-1.5b+p6.json and
+  config/round42_offsets_qwen3-1.7b+p6.json. Right top-1 raw -> corrected on the fit set,
+  qwen2.5-1.5b: type 2,269 -> 2,270 of 2,270 (repeated statement -0.5), attribute 2,131 ->
+  2,144 of 2,194 (with a person +0.5), change 149 -> 198 of 200 (both -2.25);
+  qwen3-1.7b: type 2,239 -> 2,264 (repeated statement +22), attribute 1,457 -> 2,116
+  (with a person +25), change 197 -> 199 (the day +0.25). No offset at the grid edge.
+  In-sample by construction (development diagnostics); tau follows on the calibration
+  split once its last chunk is re-encoded.
