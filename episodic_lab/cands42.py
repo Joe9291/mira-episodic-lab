@@ -13,7 +13,8 @@ Contract (the round 3.5 token rules):
 - day candidates: the numbers of the note and the words "today" / "yesterday" (canonical:
   the report day / the day before); "not stated" (statement) has the canonical value of
   the report day (a statement without a day speaks about the day it is written);
-- "keep" (corrections: value or day unchanged) is its own canonical value;
+- "keep" (corrections: value or day unchanged) is its own canonical value; since c42.5 it
+  follows from the slot "change" and is no longer a candidate;
 - source candidates (version c42.3, a development change after probe 1, where both models
   answered "me" / "you" for named sources): all world source names, "my" (canonical: the
   author) and "your" / "you" (canonical: "self") - the words a note writes for a source;
@@ -24,6 +25,13 @@ Contract (the round 3.5 token rules):
   "location") and "with a person" (canonical "holder") since version c42.4 (c42.3:
   "place" / "person"; probe 2 showed qwen3-1.7b reading "has been with X" / "was actually
   with X" as a place with margins up to 15);
+- version c42.5 (development change after probe 4): what a correction changes is its own
+  label slot "change" (surfaces "the place or person" / "the day" / "both", canonical
+  value / date / both); "keep" is no longer a candidate of value or valid_from - a
+  correction uses value only if it changes the place or person and valid_from only if it
+  changes the day; the other field is "keep" by that decision (probes 1-4: value-only
+  corrections answered with the day of the earlier report instead of "keep", in every
+  prompt version);
 - version c42.4 (development change after probe 2): the model sees only the note TEXT
   (prompt p4); the header (author, date) is used only by the fixed rules (the author for
   "my", the report day for "today" / "yesterday" / "not stated"), so day candidates are
@@ -41,7 +49,7 @@ import re
 
 from .cands35 import decide, merge, ranking, spans  # noqa: F401 (re-exported, unchanged rules)
 
-CANDIDATE_VERSION = "c42.4"
+CANDIDATE_VERSION = "c42.5"
 TYPES = {"statement": "it says where a thing is or who has it",
          "repeated statement": "the author passes on what another person reported",
          "correction": "the author corrects an earlier report",
@@ -49,16 +57,28 @@ TYPES = {"statement": "it says where a thing is or who has it",
          "meeting": "it says that the reader met a person somewhere"}
 ATTRIBUTES = {"location": "the note says WHERE the thing is", "holder": "the note says WHO has the thing"}
 ASPECT_LABELS = {"at a place": "location", "with a person": "holder"}
+CHANGE_LABELS = {"the place or person": "value", "the day": "date", "both": "both"}
 NOT_STATED, KEEP = "not stated", "keep"
-SLOTS = ("type", "subject", "attribute", "value", "valid_from", "ref_source", "ref_day", "person", "place", "day")
+SLOTS = ("type", "subject", "attribute", "change", "value", "valid_from", "ref_source", "ref_day", "person", "place", "day")
 USES = {
     "statement": ("subject", "attribute", "value", "valid_from"),
     "repeated statement": ("subject", "attribute", "value", "valid_from", "ref_source", "ref_day"),
-    "correction": ("subject", "attribute", "value", "valid_from", "ref_source", "ref_day"),
+    "correction": ("subject", "attribute", "change", "value", "valid_from", "ref_source", "ref_day"),
     "retraction": ("subject", "attribute", "ref_source", "ref_day"),
     "meeting": ("person", "place", "day"),
 }
 _ARTICLES = ("the ", "a ", "an ")
+
+
+def used_slots(note_type: str, fields: dict) -> tuple:
+    """The slots a note of this type decides, given its already decided fields: a
+    correction decides value only if its change is "value" / "both" and valid_from only if
+    it is "date" / "both" (the other one is "keep")."""
+    slots = USES[note_type]
+    if note_type == "correction":
+        c = fields.get("change")
+        slots = tuple(s for s in slots if not (s == "value" and c == "date") and not (s == "valid_from" and c == "value"))
+    return slots
 
 
 def _is_name(s: str) -> bool:
@@ -74,6 +94,8 @@ def canonical(slot: str, surface: str, ctx: dict):
         return s if s in TYPES else None
     if slot == "attribute":
         return ASPECT_LABELS.get(s)
+    if slot == "change":
+        return CHANGE_LABELS.get(s)
     if slot in ("valid_from", "day", "ref_day"):
         if s.isdigit():
             return int(s)
@@ -113,6 +135,8 @@ def candidates(slot: str, note: str, ctx: dict) -> list[tuple[str, object]]:
         surf = list(TYPES)
     elif slot == "attribute":
         surf = list(ASPECT_LABELS)
+    elif slot == "change":
+        surf = list(CHANGE_LABELS)
     elif slot == "ref_source":
         surf = sorted(n for n in ctx["sources"] if n != "self") + ["my", "your", "you"]
     elif slot in ("valid_from", "day", "ref_day"):
@@ -121,7 +145,7 @@ def candidates(slot: str, note: str, ctx: dict) -> list[tuple[str, object]]:
         if slot != "ref_day":
             surf += [w for w in ("today", "yesterday") if re.search(r"\b" + w + r"\b", low)]
         if slot == "valid_from":
-            surf += [NOT_STATED, KEEP]
+            surf += [NOT_STATED]
     elif slot == "subject":
         surf = []
         for seg in re.findall(r"[^,.;:!?()\-]+", note):
@@ -134,8 +158,6 @@ def candidates(slot: str, note: str, ctx: dict) -> list[tuple[str, object]]:
                             surf.append(" ".join(nxt[:n]))
     else:
         surf = spans(note)
-        if slot == "value":
-            surf.append(KEEP)
     out, seen = [], set()
     for s in surf:
         if s in seen:
@@ -174,6 +196,7 @@ def truth(note: dict, report: dict, by_id: dict) -> dict:
     if t == "correction":
         out.update(value=report["value"] if report["value"] is not None else KEEP,
                    valid_from=report["valid_from"] if report["valid_from"] is not None else KEEP)
+        out["change"] = "date" if out["value"] == KEEP else "value" if out["valid_from"] == KEEP else "both"
     if t != "statement":
         ref = by_id[report["origin"][2:]] if t == "repeated statement" else by_id[report["target_report_id"]]
         out.update(ref_source=ref["source"], ref_day=ref["report_day"])

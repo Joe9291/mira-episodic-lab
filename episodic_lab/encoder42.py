@@ -13,9 +13,9 @@ from __future__ import annotations
 
 from .cands42 import ATTRIBUTES, SLOTS, TYPES, candidates
 
-PROMPTS = ("p1", "p2", "p3", "p4", "p5")
-CURRENT = "p5"                       # p1-p3 belong to candidates c42.1-c42.3 (kept for the log)
-HEADERLESS = ("p4", "p5")
+PROMPTS = ("p1", "p2", "p3", "p4", "p5", "p6")
+CURRENT = "p6"                       # p1-p5 belong to candidates c42.1-c42.4 (kept for the log)
+HEADERLESS = ("p4", "p5", "p6")
 SYSTEM = ("You read one short note and fill in one field of a record about it. In a note written by "
           "someone else, 'you' means the reader. Answer with only the value, nothing else.")
 QUESTIONS = {
@@ -320,6 +320,43 @@ EXAMPLES_P5 = [
 ]
 
 
+# p6 (development change after probe 4, logged in docs/ROUND_4_2.md; needs candidates
+# c42.5): what a correction changes is asked as its own field ("change": the place or
+# person / the day / both) instead of "keep" answers in value and since (probes 1-4:
+# value-only corrections answered with the day of the earlier report in every prompt
+# version; the p5 sentence about that day made it worse and is dropped); the balanced
+# examples of p5, the corrections now balanced over change x aspect (one each)
+QUESTIONS_P6 = dict(QUESTIONS_P4)
+QUESTIONS_P6.update({
+    "change": ("Field 'change': what does the note say was wrong in the earlier report - the place or person (answer: "
+               "the place or person), the day (answer: the day), or both (answer: both)?"),
+    "value": ("Field 'value': the place where the thing is, or the person who has it, as written in the note; for a "
+              "correction, the corrected place or person."),
+    "valid_from": ("Field 'since': the day from which the stated place or holder is true: a day number, today or "
+                   "yesterday, as written in the note; for a correction, the corrected day. A statement that names "
+                   "no such day: answer not stated."),
+})
+_CHANGE_P6 = {("V", "d"): "the place or person", ("v", "D"): "the day", ("V", "D"): "both"}
+
+
+def _p6(entry):
+    h, t, a = entry
+    a = dict(a)
+    if a["type"] == "correction":
+        key = ("v" if a["value"] == "keep" else "V", "d" if a["valid_from"] == "keep" else "D")
+        a["change"] = _CHANGE_P6[key]
+        a = {k: v for k, v in a.items() if v != "keep"}
+    return (h, t, a)
+
+
+EXAMPLES_P6 = [_p6(e) for e in EXAMPLES_P5
+               if e[1] != "Please fix Ola's report of day 3 - the old key was actually at Pine Lodge."]
+# the place correction with both changes (p5 had two place corrections with the value only)
+EXAMPLES_P6.insert(15, _p6(_ex("Please fix Ola's report of day 3 - the old key was actually at Pine Lodge from day 2.",
+                               type="correction", subject="old key", attribute="location", value="Pine Lodge",
+                               valid_from="2", ref_source="Ola", ref_day="3")))
+
+
 def note_block(header: str, text: str, prompt: str = "p1") -> str:
     return f"Note: {text}" if prompt in HEADERLESS else f"{header}\nNote: {text}"
 
@@ -332,9 +369,9 @@ def candidate_text(header: str, text: str, prompt: str) -> str:
 def messages(slot: str, header: str, text: str, prompt: str = "p1") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
-    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3, "p4": QUESTIONS_P4, "p5": QUESTIONS_P5}[prompt][slot]
+    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3, "p4": QUESTIONS_P4, "p5": QUESTIONS_P5, "p6": QUESTIONS_P6}[prompt][slot]
     turns = [{"role": "system", "content": SYSTEM_P4 if prompt in HEADERLESS else SYSTEM}]
-    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3, "p4": EXAMPLES_P4, "p5": EXAMPLES_P5}[prompt]:
+    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3, "p4": EXAMPLES_P4, "p5": EXAMPLES_P5, "p6": EXAMPLES_P6}[prompt]:
         if slot in answers:
             turns += [{"role": "user", "content": f"{note_block(h, t, prompt)}\n\nQuestion: {q}"},
                       {"role": "assistant", "content": answers[slot]}]

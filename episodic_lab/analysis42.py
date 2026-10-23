@@ -7,7 +7,7 @@ the world's source names; gold reports are used only for calibration and scoring
 """
 from __future__ import annotations
 
-from .cands42 import KEEP, USES, allowed_surface, decide, ranking, truth
+from .cands42 import KEEP, USES, allowed_surface, decide, ranking, truth, used_slots
 from .r40_memory import Memory
 from .r40_reference import reference_answers
 
@@ -32,6 +32,9 @@ def decide_note(encoding: dict, taus: dict) -> dict:
         return {"status": "declined", "type": None, "fields": {}, "reason": "type uncertain", "decisions": decisions}
     fields = {}
     for slot in USES[t]:
+        if slot not in used_slots(t, fields):          # a correction's unchanged field
+            fields[slot] = KEEP
+            continue
         v, m, st = decide(_scored(encoding, slot, t), taus.get(slot))
         decisions[slot] = [v, m, st]
         if st == "unknown":
@@ -67,7 +70,7 @@ def calibration_cases(notes: list[dict], encodings: dict) -> dict:
         tr = n["truth"]
         v, m, n_vals = ranking(_scored(enc, "type", None))
         out.setdefault("type", []).append((m, v == tr["type"]))
-        for slot in USES[tr["type"]]:
+        for slot in used_slots(tr["type"], tr):
             v, m, _ = ranking(_scored(enc, slot, tr["type"]))
             out.setdefault(slot, []).append((m, v == tr[slot]))
     return out

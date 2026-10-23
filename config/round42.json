@@ -1,15 +1,15 @@
 {
  "schema": "episodic_lab.round42_request.v1",
  "enabled": true,
- "note": "Round 4.2 phase B: development probe 4 (the 80 probe notes), slots type, attribute, valid_from, ref_source, prompt p5 (balanced worked examples, since question), candidates c42.4.",
+ "note": "Round 4.2 phase B: development probe 5 (the 80 probe notes), slots type, attribute, change, value, valid_from, ref_source, prompt p6 (change slot instead of keep candidates), candidates c42.5.",
  "phase": "probe",
  "models": [
-  "qwen2.5-1.5b+p5",
-  "qwen3-1.7b+p5"
+  "qwen2.5-1.5b+p6",
+  "qwen3-1.7b+p6"
  ],
  "splits": [
   "dev"
  ],
  "chunks": 1,
- "slots": "type,attribute,valid_from,ref_source"
+ "slots": "type,attribute,change,value,valid_from,ref_source"
 }

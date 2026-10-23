@@ -70,7 +70,7 @@ def inspect(paths):
         margins["type"].append((m, v == t["type"]))
         if v != t["type"]:
             errs.append(("type", v, t["type"], txt))
-        for slot in C.USES[t["type"]]:
+        for slot in C.used_slots(t["type"], t):
             if slot not in e:
                 continue
             v, m, _ = C.ranking([tuple(x) for x in e[slot] if C.allowed_surface(slot, x[0], t["type"])])

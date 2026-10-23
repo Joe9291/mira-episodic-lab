@@ -338,3 +338,26 @@ matrix (as in round 3.6). Development and calibration together are about half.
   question says that the day of the earlier report is never the answer. Probe 4: slots
   type, attribute, valid_from, ref_source on the same 80 notes, both models (the other
   slots were right for both models in probe 3; the full encodes check them again).
+- Development log 5 - probe 4 (run 39881855772, p5, c42.4, the same 80 development notes,
+  slots type, attribute, valid_from, ref_source; median 16 s / 19 s per note; cache check
+  passed): raw top choices qwen2.5-1.5b / qwen3-1.7b - type 80 / 75 of 80, attribute 62 /
+  50 of 64, valid_from 40 / 48 of 48, ref_source 48 / 48 of 48. The balanced examples
+  fixed qwen2.5-1.5b's aspect for retractions (2 errors left, margins <= 0.63); the
+  sentence "the day of the earlier report is never the answer" made its "keep" errors
+  worse (8 value-only corrections answered with the day of the earlier report, margins up
+  to 3.3). qwen3-1.7b: aspect "at a place" for "has had" / "about who has" with margins up
+  to 24 and repeats read as statements - its aspect follows the label wording in every
+  version (p3, p4, p5); no further prompt work aims at it (it stays the comparison model of
+  the fixed model rule, evaluated with the same frozen prompt). Development change:
+  candidates c42.5 and prompt p6 - what a correction changes is its own label slot
+  "change" (the place or person / the day / both); "keep" is no longer a candidate of
+  value or since: a correction decides value only if it changes the place or person and
+  since only if it changes the day, the other field is "keep" by that decision (same
+  report contract, section 2; the decision order type -> change -> fields is the rule of
+  section 3: candidates and slots follow from earlier predictions); the p5 since sentence
+  is dropped; the corrections among the 25 examples are balanced over change x aspect
+  (one each). Model-free checks: coverage on all four splits complete (43,736 note
+  occurrences), oracle encodings reproduce the gold reports, example balance tested. In the
+  calibration split, 1,078 correction occurrences change the value only, 80 the day only,
+  80 both. Probe 5: slots type, attribute, change, value, valid_from, ref_source on the
+  same 80 notes, both models.
