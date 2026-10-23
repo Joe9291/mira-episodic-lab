@@ -380,3 +380,17 @@ matrix (as in round 3.6). Development and calibration together are about half.
   is applied model-free in the analysis (analysis42.apply_priors, --priors). Next: a
   prior-only job (phase "prior", no notes) for both models with p6, then the raw and
   corrected choices of probe 5 side by side.
+- Development log 7 - label priors (run 39901766514, phase prior, p6): qwen2.5-1.5b prefers
+  "both" (change: log-prior -0.26 vs -1.92 / -2.50) and "retraction" / "statement"
+  (type); qwen3-1.7b prefers "at a place" (-0.0 vs -9.1), "statement" (-0.0 vs -22 for
+  "repeated statement") and "the place or person" / "both". Probe 5 with the correction,
+  qwen2.5-1.5b / qwen3-1.7b (raw in brackets): type 75 (80) / 80 (75), attribute 61 (61) /
+  56 (50), change 16 (11) / 16 (15); the other slots are not label slots. The
+  parameter-free correction fixes change for both models and type for qwen3-1.7b, but
+  overshoots qwen2.5-1.5b's type (four "As X told me" repeats and one "Update:" statement
+  become corrections). A per-label offset fitted to data would keep qwen2.5-1.5b's type at
+  80 and give change 16 and attribute 63 on these notes - in-sample, so no evidence by
+  itself. The scoring decision (raw as approved / content-free correction / per-label
+  offsets fitted on the calibration split before tau) goes to review; it is applied only
+  model-free to the raw encodings, so the full development and calibration encodes run
+  now with p6 / c42.5 for both models and serve every option.
