@@ -445,3 +445,27 @@ a factor of about five.)
   (with a person +25), change 197 -> 199 (the day +0.25). No offset at the grid edge.
   In-sample by construction (development diagnostics); tau follows on the calibration
   split once its last chunk is re-encoded.
+- Development evaluation (development diagnostics; calibration: run 39902326532 plus the
+  re-encoded chunk, run 39924576993 - all 96 cells OK; offsets frozen before; holdout
+  untouched). qwen2.5-1.5b, variant D: tau 0 for every slot except attribute (0.52) and
+  change (1.47); calibration precision of accepted values: attribute 0.9901 (6,183 of
+  6,547 accepted), change 0.9977 (443 of 547), every other slot 1.0. Development: 2,099 of
+  2,270 distinct notes fully correct stored, 170 declined, 1 wrong; end to end 1,090 of
+  1,200 (0.908); pairs 70 of 90; pass rule 6 met in 10 of 18 cells (P1, P2, P7, P8, P9 at
+  both delays), failed in P3 (0.675 of all questions), P4, P5, P6. Memory correctness on
+  every question, no unexplained error, no collector error. Direct causes of the 110 wrong
+  answers: declined notes only - aspect uncertain (statements "X has had the Y since day
+  N": 46 of 145 declined on development, 161 of 513 on calibration; retractions "about
+  where ... is"; value-only corrections "was actually at X"), change uncertain (corrections
+  "Please fix X's report of day N - the Y was actually with X": 16 of 17 development, 45 of
+  48 calibration), and their follow-ups (unresolved references). Change per class on
+  calibration (out-of-sample for the offsets): value 509 of 519, date 40 of 40, both 18 of
+  40 right top-1 (development, in-sample: 10 of 12). Report-only variants: raw - no tau
+  for change and valid_from (on the predicted path the raw "both" answers ask valid_from
+  for value-only corrections), 76 notes stored, 160 of 1,200 right; content-free prior -
+  no tau for change, ref_source, ref_day, 1,028 stored, 596 right. qwen3-1.7b, variant D:
+  attribute tau 13.0, 612 stored, 358 of 1,200 right, 0 of 18 cells. Model rule (fully
+  correct stored development notes): qwen2.5-1.5b (2,099) over qwen3-1.7b (612). Even
+  with offsets fitted on these development notes, pass rule 6 fails in four families; the
+  errors are systematic per wording (as in round 3.6). Decision on how to continue goes to
+  review (reviews/packages/LAB_R42_DEV_RESULT.txt).
