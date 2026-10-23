@@ -1,15 +1,17 @@
 {
  "schema": "episodic_lab.round42_request.v1",
  "enabled": true,
- "note": "Round 4.2 phase B: re-encode of the one chunk of run 39902326532 whose runner lost the connection (qwen2.5-1.5b, calibration, chunk 10 of 24), prompt p6, candidates c42.5.",
+ "note": "Round 4.2 option B (Astra, reviews/2026-10-23_r42devresult_astra.txt): the one p7 attempt - label re-encode of attribute and change only, both models, development and calibration, merged later with the p6 scores of the other slots.",
  "phase": "encode",
+ "label_reencode": true,
  "models": [
-  "qwen2.5-1.5b+p6"
+  "qwen2.5-1.5b+p7",
+  "qwen3-1.7b+p7"
  ],
  "splits": [
+  "dev",
   "cal"
  ],
- "chunks": 24,
- "cells": [["qwen2.5-1.5b+p6", "cal", 10]],
- "slots": ""
+ "chunks": 12,
+ "slots": "attribute,change"
 }

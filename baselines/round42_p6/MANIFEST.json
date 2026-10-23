@@ -1,0 +1,1373 @@
+{
+ "code_commit": "267e2ff",
+ "encodings": [
+  {
+   "candidate_version": "c42.5",
+   "chunk": 0,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_0.json",
+   "prompt_version": "p6",
+   "sha256": "8235d552915a4dfc024c954be2181b899107fd50d6e84fbb38140afe365fe095",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 1,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_1.json",
+   "prompt_version": "p6",
+   "sha256": "24ad0cb0197e09c9d5a2c3d5b164f00e19a11fae13ca2cd5755ba4d5ab1a2741",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 11,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_11.json",
+   "prompt_version": "p6",
+   "sha256": "5c76a53be6e05736e6cb7a68725a35aa895bc202bdb323f7801488d3a2b4ba4f",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 12,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_12.json",
+   "prompt_version": "p6",
+   "sha256": "1b5d4e61a61049b2c1081a149aa6b1710baf37de70603289e736bdea7f2d8dd1",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 13,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_13.json",
+   "prompt_version": "p6",
+   "sha256": "74e505324cf2372fdb44db376d6c2a9e552f97610870772b61818823950fb822",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 14,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_14.json",
+   "prompt_version": "p6",
+   "sha256": "96e76164b58a9874ce283b61a7920ae6b3f6990a0e5b20bfcec83874996e2213",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 15,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_15.json",
+   "prompt_version": "p6",
+   "sha256": "c3e624bbe4fc487ebea654fa3b7751b4a32a8972f7e89a6093a30ff8ef98495d",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 16,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_16.json",
+   "prompt_version": "p6",
+   "sha256": "ab2a1a71fb0d33f7a153c1ff067dba51546d705805ee45e88433886e93eb3b3b",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 17,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_17.json",
+   "prompt_version": "p6",
+   "sha256": "7645357997a2f4b871fed339800995c711945d2a10aee7b1b351eb10ef77f830",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 18,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_18.json",
+   "prompt_version": "p6",
+   "sha256": "9ab26a1b588fa1d42891d196a1130f4ea368fb8f44a0fac3244263f6baa863f2",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 19,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_19.json",
+   "prompt_version": "p6",
+   "sha256": "87dba8e0d087afa6117f0585ed5a10ed326e487bece7cddf8df0cc34a81f77b0",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 2,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_2.json",
+   "prompt_version": "p6",
+   "sha256": "329add9ede5e622180fac34d861e776082a256379aff3cc328c50b45de918a1e",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 20,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_20.json",
+   "prompt_version": "p6",
+   "sha256": "f0823ea2239e3bf51f58a6650ef8a83fb4ad1109ac1810e63a1644e576222ffa",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 21,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_21.json",
+   "prompt_version": "p6",
+   "sha256": "8fafe8ac2658be86fa9eaa0a60f6116815a64c16c2e50bf902382706da62eb25",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 22,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_22.json",
+   "prompt_version": "p6",
+   "sha256": "2ef8271a8f45b77fd8ae3d2cad71722ce207a70307b8f1c094fa361a4cf6c5e2",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 23,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_23.json",
+   "prompt_version": "p6",
+   "sha256": "90c2c37fb7b55b12ede5c70aaf7d17891aabc8a98acdd08e3dd0146b296044e8",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 3,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_3.json",
+   "prompt_version": "p6",
+   "sha256": "23d4a5e601e10337c7c9f83547ccc5f9b9b1f5f669455b811b7599f051a6d104",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 4,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_4.json",
+   "prompt_version": "p6",
+   "sha256": "3b07fafe58c60f1f4594c60417bc9f390ea5c02b6ac2989e40d6121448ee9d70",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 5,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_5.json",
+   "prompt_version": "p6",
+   "sha256": "511b5574f93014e04e879c163a1a205a0c782573edebda101525aa9330e0e99b",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 6,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_6.json",
+   "prompt_version": "p6",
+   "sha256": "e19562026f2de431817b8f4e2b6547cfb2e63c51d7d5557559bde4260a4bb51f",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 7,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_7.json",
+   "prompt_version": "p6",
+   "sha256": "5632a2c8ba78551a5fdd56d82f31e26df67cf4088945b8a6b4012b331ea00c9a",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 8,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_8.json",
+   "prompt_version": "p6",
+   "sha256": "3620063245fa67c2ed6719adfe629067a1ad4f4ac46cbc1aedeb83f59436d866",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 9,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_cal_9.json",
+   "prompt_version": "p6",
+   "sha256": "a67cda4b475b15a20f0df6ed0ed28df3d5bdf2d2ebd72a05d0dff072b9fa3112",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 0,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_0.json",
+   "prompt_version": "p6",
+   "sha256": "8092d7247b3c494860a23946fbca1400385524441b88423067e0514d016572d9",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 1,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_1.json",
+   "prompt_version": "p6",
+   "sha256": "fd95f8fb7c0b1162224cbd65086e46eb841e18ae95e77ee281e4aa3bb4f7a070",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 10,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_10.json",
+   "prompt_version": "p6",
+   "sha256": "5fb14b9cd3aa1b181882d78626383c73e41d16856079142b8b47f5dae123729c",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 11,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_11.json",
+   "prompt_version": "p6",
+   "sha256": "6d1fd5aac6342f4b19f20b8dbc264d59d2e3bd27a0141abc496974082cefce08",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 12,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_12.json",
+   "prompt_version": "p6",
+   "sha256": "9aafa396eeb816fddc90aecf7b4662db8e41950cbbdbb7de59f5ee57f43675ad",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 13,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_13.json",
+   "prompt_version": "p6",
+   "sha256": "ed83741a82164edd41fa2c81f6e7c5b894e8f8cd721a56817c55bde14d810edd",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 14,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_14.json",
+   "prompt_version": "p6",
+   "sha256": "64d946aced743c42365e07bda1b6340773b843139ef368a3bcf6e85ebbf8de73",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 15,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_15.json",
+   "prompt_version": "p6",
+   "sha256": "5b752e321113cd598d5117c07e44b5a03ecfbdffd6fedce9177f6422c61187c2",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 16,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_16.json",
+   "prompt_version": "p6",
+   "sha256": "90362f2f301f0ef82b78683830191fae0b9b72bfcc541e699f2daa7fbed40775",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 17,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_17.json",
+   "prompt_version": "p6",
+   "sha256": "36f5caf8f845e3d505aaf695a88076c9b51b1dd67559b69fbb6df97a40f20059",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 18,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_18.json",
+   "prompt_version": "p6",
+   "sha256": "3af9362999215bc8c2f4ab332a652dec4b5c34bca82b812256f10f8af6d912e2",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 19,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_19.json",
+   "prompt_version": "p6",
+   "sha256": "3e65789b8847702f55c563e19348d1da24f0de39c36bc8c896de2ab5f4030674",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 2,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_2.json",
+   "prompt_version": "p6",
+   "sha256": "4fab2d5f4a3a12c83d00e18d3eb0f9dfe55ac36150749825393d4725bd475d38",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 20,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_20.json",
+   "prompt_version": "p6",
+   "sha256": "c482d4c4e5a88b25958c1bf4724a6149de94f6552de03c22cbf8a29d96297aa7",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 21,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_21.json",
+   "prompt_version": "p6",
+   "sha256": "66672a71849f605dae0b698b40138f79f68fafe18d5fdbe1e94d836586f6bb62",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 22,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_22.json",
+   "prompt_version": "p6",
+   "sha256": "6f3d0e6d6d8a9ad9a9f87c3241580861994a6ff5b739e7bdcefef9bc546dbe72",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 23,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_23.json",
+   "prompt_version": "p6",
+   "sha256": "5aa5fea825de46624c78d043e37992e7f8d4ea86ae54c378d9c375b412fa6544",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 3,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_3.json",
+   "prompt_version": "p6",
+   "sha256": "630038297d5aa8d572c71155ac912df322d131154a7134cc00165dad0ff2e9e3",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 4,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_4.json",
+   "prompt_version": "p6",
+   "sha256": "49662193f2ac145240f5223ba85049ba5cd9e56f2f73a01069a2b11214df935b",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 5,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_5.json",
+   "prompt_version": "p6",
+   "sha256": "a91e61045b7f62646ff3ad40075df399b86fac70395c766a86ca6489c22a1572",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 6,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_6.json",
+   "prompt_version": "p6",
+   "sha256": "bd8cf7246e03ed01ab1b1acbf32dcd94ca977803f5950e4270419ce567581b03",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 7,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_7.json",
+   "prompt_version": "p6",
+   "sha256": "42afde353a7f9151be2270975fe615aa50a58e7ce1825c16e99f269f931573fd",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 8,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_8.json",
+   "prompt_version": "p6",
+   "sha256": "9a4111d66daea0bda3da51f829e0add1b90863828985fb64571b253e3383e495",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 9,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen2.5-1.5b+p6_dev_9.json",
+   "prompt_version": "p6",
+   "sha256": "8b809e47207c38ddbcddd10eeb734f9426c360ba7df7e9f9a262349aed72cd2f",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 0,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_0.json",
+   "prompt_version": "p6",
+   "sha256": "48997b2293d08820b17f4e33ef838addb34c7098f8a1ff7946c3f9d848fb9ead",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 1,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_1.json",
+   "prompt_version": "p6",
+   "sha256": "1b4170c691b83d0701f07b09be403a736fcc0a19a3a113e9f5531b6deaeab3a8",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 10,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_10.json",
+   "prompt_version": "p6",
+   "sha256": "3b2c11979ffb4c59199c0503448b905aacccd65ca4e004f23bb9f0f52bc28f4a",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 11,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_11.json",
+   "prompt_version": "p6",
+   "sha256": "ccabf125596ac76992870e4f19efbc454a23e37fcaca7400f5189d728ef237dc",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 12,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_12.json",
+   "prompt_version": "p6",
+   "sha256": "22ca5073f8e11141b980ee9ff3601dc077991f881583fada33180253b3f01cc8",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 13,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_13.json",
+   "prompt_version": "p6",
+   "sha256": "9c88295726f3f06f424c52337bc1e59860361c49070541c5b1a8b586453c43cc",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 14,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_14.json",
+   "prompt_version": "p6",
+   "sha256": "696ca962309dcbc246364fecd5a3e6f7f8fda2243662e1ec049c4872e7c81520",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 15,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_15.json",
+   "prompt_version": "p6",
+   "sha256": "92742494047388c9e9e5c2eb8eb16000a7bd9c8d4e9358f4e5ab2bdd6bcdc8d3",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 16,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_16.json",
+   "prompt_version": "p6",
+   "sha256": "fe9e167485221f3e1134df7b79fa86422486ac2c9c05edafd8229f0eaff831ee",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 17,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_17.json",
+   "prompt_version": "p6",
+   "sha256": "5359835898e05e9c7a0a3ae8985b98a10910bb1a1a8cdcedc93ee5fd499e1a36",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 18,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_18.json",
+   "prompt_version": "p6",
+   "sha256": "48473727bf9406647a1ec56e6bcbf0a3cf6bca3baa22ca6da1e3f51d87dae77a",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 19,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_19.json",
+   "prompt_version": "p6",
+   "sha256": "0a1e7eafa05610166702607710a4848bc816d3c4722c23ee9ca3f3b7c49812f4",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 2,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_2.json",
+   "prompt_version": "p6",
+   "sha256": "0a4c33f75946659020a06b45d03c2d5a73f1f7e2ab71ee6bcdb15e07d3d2ba5c",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 20,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_20.json",
+   "prompt_version": "p6",
+   "sha256": "d1d20f91c8cb15e8f7a775d961f6f4e81962beb9760df94177a563a5577c0dd3",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 21,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_21.json",
+   "prompt_version": "p6",
+   "sha256": "d63c71419507f0652aefe170b4a849ef0d678116ab6f73793b3c443dd0aaa532",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 22,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_22.json",
+   "prompt_version": "p6",
+   "sha256": "0f6e3233ccf7ae68349b97096189d51328c2cf788242ebad170181ed4e0b815e",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 23,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 284,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_23.json",
+   "prompt_version": "p6",
+   "sha256": "8dc25787ee70c184593574883fe459592bedf5e0ae65bfb885f6b3f7f013ba85",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 3,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_3.json",
+   "prompt_version": "p6",
+   "sha256": "b5e24469c940490af0ad2cdc75e2b8586cfd38c4b5546610021d0059eceafe4e",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 4,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_4.json",
+   "prompt_version": "p6",
+   "sha256": "335862073c1d9a282dc0071973b0e355f6c08c0b406c46a571de5726c8cf4131",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 5,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_5.json",
+   "prompt_version": "p6",
+   "sha256": "eeff378b60b6237aedd928064f6dbf48bfaf61df72fe8f961430513dfb256cf4",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 6,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_6.json",
+   "prompt_version": "p6",
+   "sha256": "3205944c3261e3f3575e3c3125b8b6a55ce52e85fa44e9ef940f2985db924b71",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 7,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_7.json",
+   "prompt_version": "p6",
+   "sha256": "32a2ef9d952207443ac969b76ce221b16ab0738a68503f0e7bb255d2d040af09",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 8,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_8.json",
+   "prompt_version": "p6",
+   "sha256": "a7947df69aa65532226b8365d140af3df0ecc08c36fa847706cca42fc532845c",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 9,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 285,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_cal_9.json",
+   "prompt_version": "p6",
+   "sha256": "6d77cb96178bde4ac5f00bdd351e87eef6095acf92afed6224c1e931aaff83f0",
+   "split": "cal",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 0,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_0.json",
+   "prompt_version": "p6",
+   "sha256": "3985a89b1fb9539964e9517ca34a3cb0ceae7533897b9b6a1e568eb54be42f6b",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 1,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_1.json",
+   "prompt_version": "p6",
+   "sha256": "c3a10fa1ba165e0ade2ee33510a974f291339265354186696ddd39f88fd3a6bb",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 10,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_10.json",
+   "prompt_version": "p6",
+   "sha256": "daec20029447dca74d8062daf8e66e1e74c6c7e37ed9cc95d4c854ac6f59a073",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 11,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_11.json",
+   "prompt_version": "p6",
+   "sha256": "c33049b8ab90d376e528fc70b2b6a4ab026df1010cb0684fa324fb25109789ec",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 12,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_12.json",
+   "prompt_version": "p6",
+   "sha256": "6dfee44a3b795e863207e7953c8c6a5c1da1851109092dfa61852795a789a373",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 13,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_13.json",
+   "prompt_version": "p6",
+   "sha256": "4b43ac8653cd1b971208f03bba6d4a5b289a740a415b6e998cd9dfdbe1403e04",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 14,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_14.json",
+   "prompt_version": "p6",
+   "sha256": "2745fb8f033aaec09b647993b65ff004b343c4e1eee264b02ec3cc034016b023",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 15,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_15.json",
+   "prompt_version": "p6",
+   "sha256": "19f3c8420b34303430f9d7ccda7027bb701e8967952c1db3703eb341444317b3",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 16,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_16.json",
+   "prompt_version": "p6",
+   "sha256": "cd88082f1122e56683ea7d05f79f44f4fd9121c877e604f61feb08055e6df75b",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 17,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_17.json",
+   "prompt_version": "p6",
+   "sha256": "59470ce51881379222eedf1df69cf3674fc7a8f56488b7030dd1834f8886709d",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 18,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_18.json",
+   "prompt_version": "p6",
+   "sha256": "1bfb843ccd1d67a3f5705a43085e31778968412c1d8116b81f5c067a432a0ea9",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 19,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_19.json",
+   "prompt_version": "p6",
+   "sha256": "1af8b1d688d0dbb734516097457c7dc4fa2e57761856ee625d45268bfe66f618",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 2,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_2.json",
+   "prompt_version": "p6",
+   "sha256": "5fc0e97fdbfecfa485e926bfe7d8eea38d0f140e4eaaff5565adfb38a83307d0",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 20,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_20.json",
+   "prompt_version": "p6",
+   "sha256": "6f42b3401d3e81468c6d53de913049cdf9867317cac303e0de34dec20e2d7f76",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 21,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_21.json",
+   "prompt_version": "p6",
+   "sha256": "e19864c229cd2d1a7cb28a09ec6e85206ab75b13fa0e6ea4e5da6aabb9824c3a",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 22,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_22.json",
+   "prompt_version": "p6",
+   "sha256": "2e406a1b447bda5bd8a0815ae94cb411737254aede7907c9f293211cbd089680",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 23,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 94,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_23.json",
+   "prompt_version": "p6",
+   "sha256": "a2d72e04acdeceb436a69682f2f69cd66519c5e5eebccb4d859ad4868146afb4",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 3,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_3.json",
+   "prompt_version": "p6",
+   "sha256": "fa62e21baae0be59f7d8dc407be46f3dc81cee3d2bdc3fd5ccfaada9ccc04473",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 4,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_4.json",
+   "prompt_version": "p6",
+   "sha256": "3d11e7433514640c89f4beb208219a4e32d6596ed6d2cbd797f2a3129fc94c65",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 5,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_5.json",
+   "prompt_version": "p6",
+   "sha256": "84ca26cda0a735efe4cbd3137f1211bf952406427d36c4e51b30607086b59693",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 6,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_6.json",
+   "prompt_version": "p6",
+   "sha256": "ecc70c6f15a2ea8e96c1df99bd385391d375e372e61cfccc41bbd4acac9eb284",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 7,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_7.json",
+   "prompt_version": "p6",
+   "sha256": "92493368b8178b672671f0f23bbcf715745aeb9d9fc068bc5d723616aeb942ca",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 8,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_8.json",
+   "prompt_version": "p6",
+   "sha256": "d74c43790185fe0e69d1a81aa100dc98e0593cb0498286a64380e6ac3ca4ef6e",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 9,
+   "code_commit": "275bb88350702dcd918a6978b7dc2197e5fcf27d",
+   "model": "qwen3-1.7b+p6",
+   "notes": 95,
+   "path": "round42/run_39902326532_1/r42_encode_qwen3-1.7b+p6_dev_9.json",
+   "prompt_version": "p6",
+   "sha256": "30753906e9954194e76358941fea36e053d78714496c76633b714ea5cd36875d",
+   "split": "dev",
+   "status": "OK"
+  },
+  {
+   "candidate_version": "c42.5",
+   "chunk": 10,
+   "code_commit": "88e618e8cceeecddb526ece93ce4d08886f84626",
+   "model": "qwen2.5-1.5b+p6",
+   "notes": 285,
+   "path": "round42/run_39924576993_1/r42_encode_qwen2.5-1.5b+p6_cal_10.json",
+   "prompt_version": "p6",
+   "sha256": "49d87cb61a21394a692d4ad4a0b324f9ef1ff6ce71f9cedb1f80f3530154452f",
+   "split": "cal",
+   "status": "OK"
+  }
+ ],
+ "evaluations": {
+  "qwen2.5-1.5b_D": {
+   "evaluation.json": "212a443d4194f3e4fa4c769ca11b6d54686e3d43abf5d5f7abe2e384f61e6665",
+   "notes.json": "c20b9cc867f7c06673b08debce9342c3ddc70a8e8b3e22c12b9479efb1974ad8",
+   "rows.jsonl": "1b5219099ecdaf11dea566c5f8b25ee538f2c3e284418efb84320f7db7396cc1",
+   "summary": {
+    "e2e": {
+     "n": 1200,
+     "right": 1090
+    },
+    "notes": {
+     "correct": 2099,
+     "declined": 170,
+     "wrong": 1
+    },
+    "pairs": 90,
+    "pairs_right": 70,
+    "rule6_cells_ok": 10,
+    "scoring": "offsets",
+    "taus": {
+     "attribute": 0.5163127178093418,
+     "change": 1.466246373616741,
+     "day": 0.0,
+     "person": 0.0,
+     "place": 0.0,
+     "ref_day": 0.0,
+     "ref_source": 0.0,
+     "subject": 0.0,
+     "type": 0.0,
+     "valid_from": 0.0,
+     "value": 0.0
+    }
+   },
+   "taus.json": "02d75bb0476818ef8d25a7a8817ec1c067c1d4144bce7055e935298e7908a307"
+  },
+  "qwen2.5-1.5b_prior": {
+   "evaluation.json": "24b68a80fa678c8b3a4a62fb0743449a1576e3c3ac8eaac2a1f535d594a050d8",
+   "notes.json": "7f69bee55ca3c7a29a1fb50a0d65fa56578217541246fec26e24b347cdb652f5",
+   "rows.jsonl": "5df1b8df34b30998a780b3e3668a90b73a4c168ed8d357e8d813feb3adbfbce8",
+   "summary": {
+    "e2e": {
+     "n": 1200,
+     "right": 596
+    },
+    "notes": {
+     "correct": 1028,
+     "declined": 1238,
+     "wrong": 4
+    },
+    "pairs": 90,
+    "pairs_right": 9,
+    "rule6_cells_ok": 0,
+    "scoring": "prior",
+    "taus": {
+     "attribute": 0.4292484689112315,
+     "change": null,
+     "day": 0.0,
+     "person": 0.0,
+     "place": 0.0,
+     "ref_day": null,
+     "ref_source": null,
+     "subject": 0.0,
+     "type": 1.1213939594780538,
+     "valid_from": 0.0,
+     "value": 0.0
+    }
+   },
+   "taus.json": "dfddee4e20bcc19b535ecdf38613d7305fd8ada96cfebd75ae233cf4d9d5213e"
+  },
+  "qwen2.5-1.5b_raw": {
+   "evaluation.json": "ab979145a58637ddd3fda6c63a2fe2afd7957d33e7c01f8d1750d166bb672207",
+   "notes.json": "13e592cdd697161353177f24091f6f4d8372eb268aa91acdd2d97aaf19d27af7",
+   "rows.jsonl": "8c571934b332b38e453c8ac5f9f3250f10f89f3d3cd9b39296779f7857bd1271",
+   "summary": {
+    "e2e": {
+     "n": 1200,
+     "right": 160
+    },
+    "notes": {
+     "correct": 76,
+     "declined": 2194
+    },
+    "pairs": 90,
+    "pairs_right": 0,
+    "rule6_cells_ok": 0,
+    "scoring": "raw",
+    "taus": {
+     "attribute": 0.44357822417805437,
+     "change": null,
+     "day": 0.0,
+     "person": 0.0,
+     "place": 0.0,
+     "ref_day": 0.0,
+     "ref_source": 0.0,
+     "subject": 0.0,
+     "type": 0.0,
+     "valid_from": null,
+     "value": 0.0
+    }
+   },
+   "taus.json": "79a75fc828c8d8a0b3a01717ae820a167871e1e0afb03590c8609fe6461b63e8"
+  },
+  "qwen3-1.7b_D": {
+   "evaluation.json": "c2e6fb59bd03948c42b170bbc55f80dd160c78b4725d611ba13848adac4fef8e",
+   "notes.json": "f5b93d08a54d7f430ba9a0e1b0ac50fa793adb6952e582558ed243ad48a5b2bd",
+   "rows.jsonl": "43cc58ab13f7d3a963513b1a5174413f389c362843f08fca456991f4f47304cc",
+   "summary": {
+    "e2e": {
+     "n": 1200,
+     "right": 358
+    },
+    "notes": {
+     "correct": 612,
+     "declined": 1655,
+     "wrong": 3
+    },
+    "pairs": 90,
+    "pairs_right": 6,
+    "rule6_cells_ok": 0,
+    "scoring": "offsets",
+    "taus": {
+     "attribute": 12.986491799428222,
+     "change": 1.3321666419110443,
+     "day": 0.0,
+     "person": 0.0,
+     "place": 0.0,
+     "ref_day": 0.0,
+     "ref_source": 0.0,
+     "subject": 0.0,
+     "type": 0.0,
+     "valid_from": 0.0,
+     "value": 0.0
+    }
+   },
+   "taus.json": "a0189ebc4d84a7e49aad44c7156e3997328571690daa92bdbe4f7d393accaa7f"
+  }
+ },
+ "models": {
+  "qwen2.5-1.5b+p6": [
+   "ce6c1a0d339c251e1af83f1845ff6c458c809515f90fce4766b4741a2d250199"
+  ],
+  "qwen3-1.7b+p6": [
+   "ea7bd2907d056871084ba2fe60b187ff6b4d8a7b630995bc37b2489516c7ba6a"
+  ]
+ },
+ "name": "p6",
+ "offsets": {
+  "round42_offsets_qwen2.5-1.5b+p6.json": {
+   "offsets": {
+    "attribute": {
+     "at a place": 0.0,
+     "with a person": 0.5
+    },
+    "change": {
+     "both": -2.25,
+     "the day": 0.0,
+     "the place or person": 0.0
+    },
+    "type": {
+     "correction": 0.0,
+     "meeting": 0.0,
+     "repeated statement": -0.5,
+     "retraction": 0.0,
+     "statement": 0.0
+    }
+   },
+   "sha256": "f7eb8e382d2073fbd929975c3be48f18c2f0cb1ddd4c5a9e264f8f773754be99"
+  },
+  "round42_offsets_qwen3-1.7b+p6.json": {
+   "offsets": {
+    "attribute": {
+     "at a place": 0.0,
+     "with a person": 25.0
+    },
+    "change": {
+     "both": 0.0,
+     "the day": 0.25,
+     "the place or person": 0.0
+    },
+    "type": {
+     "correction": 0.0,
+     "meeting": 0.0,
+     "repeated statement": 22.0,
+     "retraction": 0.0,
+     "statement": 0.0
+    }
+   },
+   "sha256": "881cb2111dcd108569cbe1c7fb152cf7bd7dd8b6d12f3ab33893ac60a8ac2ef3"
+  }
+ },
+ "results_ref": "2db87756be332ff9f91305cd40646df941dcd876",
+ "sources": {
+  "bench/m3/analyse_round42.py": "bc0cb043094009928734789a35590cac196ff878ae91ce00eb39690165159a0b",
+  "bench/m3/run_round42_encode.py": "73f933aa8a2b1e3492406ccd811671374a78caa8cb7cb695e11ba836829dbfa4",
+  "config/model_pins.json": "6c8d2cf62e6947cebc9f67dc01dc640e1c4fac8ca3cc6f25aaa3ddbe986392f9",
+  "episodic_lab/analysis42.py": "e49024aaf357c8f4a93c1d21784557eda024c4879caaf4c2675c648c66cc97be",
+  "episodic_lab/cands42.py": "e77b7ee1021b007c9e321ee935627a915a52b50dfd59b2f01c3d6f9d2b0ed1d8",
+  "episodic_lab/encoder42.py": "9ef649ccb72573fe23a7b4b75016d3be3a480cac1c59266325a876bbbeef44f1",
+  "episodic_lab/models.py": "4772146ea2b57e94ca90a87f5a8e33043e219a88c300a5703d815fdede0981c6",
+  "episodic_lab/r42_wordings.py": "5074123103be5725e3c4897b37f9012a7d48c02e98d5457dbf5a114b46956252",
+  "episodic_lab/r42_world.py": "8486b5eb194246fa466fb0ee1ded9f8799f10ed09e16b9f0b52fdd7e7eae40fe"
+ },
+ "splits": {
+  "cal": {
+   "distinct_notes": 6836,
+   "note_keys_sha256": "0b6dcf4fdb802fff08a12e43e34f8e736a791b6f8a029feb47a71076a67465eb",
+   "pairs_per_family": 30,
+   "seed": "r42-cal-1"
+  },
+  "dev": {
+   "distinct_notes": 2270,
+   "note_keys_sha256": "3be1ccba5b54f2d218d2cd2f835b2afd2e7fd0aec8294a96d1748707e5d950ec",
+   "pairs_per_family": 10,
+   "seed": "r42-dev-1"
+  }
+ }
+}

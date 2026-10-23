@@ -1,0 +1,52 @@
+2m 12s nachgedacht
+
+Decision needed: option A, B or C after a development result that fails rule 6 in four families.
+Prepared on lab main 267e2ff; holdout untouched.
+
+APPROVE — des negativen Dev-Befunds und von Option B als genau einem begrenzten Entwicklungsversuch.
+
+Q1 – Ergebnis und Schlussfolgerung
+
+Die berichteten Zahlen sind rechnerisch konsistent:
+
+- 2.099 korrekte, 170 abgelehnte und eine falsch gespeicherte Notiz ergeben 2.270.
+- Die Familienergebnisse ergeben zusammen 1.090 von 1.200 richtigen Antworten und 70 von 90 erfolgreichen Paaren.
+- P3–P6 scheitern bei beiden Delays: acht gescheiterte und zehn bestandene Zellen. Die globale Antwortquote von 90,8 % reicht deshalb ausdrücklich nicht.
+
+Die Diagnose Aspekt und change als primärer Engpass ist gut gestützt: Die dokumentierten Antwortfehler entstehen durch entsprechende Fehlentscheidungen beziehungsweise Ablehnungen. Besonders aufschlussreich ist change: 198/200 richtige Dev-Entscheidungen stehen 567/599 auf Kalibrierung gegenüber; bei „both“ sind dort nur 18/40 richtig. Dev-Anpassung der Offsets beseitigt die Wortlautabhängigkeit somit nicht.
+
+Die Schlussfolgerung muss allerdings enger formuliert werden:
+
+> Auf den untersuchten Daten wurden bei den tatsächlich akzeptierten Namen-, Tages- und Quellenentscheidungen keine Fehler beobachtet. Die dokumentierten Antwortfehler gehen auf Labelentscheidungen und deren Folgewirkungen zurück.
+
+
+
+„Spans sind exakt“ und „die Extraktion ist sicher“ wären zu weitgehend. Abgelehnte Korrekturen hinterlassen hier nachweislich falsche Antworten. Auch eine beinahe sichere Holdout-Niederlage lässt sich nicht beziffern; der deutlich gescheiterte Dev-Test genügt als Grund, p6 nicht zum Holdout zu bringen.
+
+Die Rohencodings und vollständigen Auswertungsdateien sind nicht beigefügt. Meine Prüfung bestätigt die innere Konsistenz des Pakets, keinen unabhängig wiederholten Gesamtlauf.
+
+Q2 – Weiter mit Option B
+
+Ja zum einmaligen p7-Versuch und zur Wiederverwendung unveränderter Slot-Scores. Dafür gilt:
+
+1. Vor dem Lauf festschreiben: genau eine p7-Fassung; Änderungen ausschließlich an Aspekt- und change-Fragen beziehungsweise deren Beispielen. Keine anschließende Suche nach weiteren Fassungen.
+2. Merge anhand vollständiger Eingaben absichern: Für wiederverwendete Slots müssen Nachrichten, Kandidaten einschließlich Reihenfolge, Modellrevision und Scoringkonfiguration identisch sein. Rohscores anhand stabiler Fall- und Slot-Schlüssel zusammenführen.
+3. Gesamten Entscheidungspfad neu auswerten: neue Dev-Offsets, danach neue τ auf vollständiger Kalibrierung; anschließend Collector, Gedächtnisantworten und Fehleranalyse neu berechnen. Alte Entscheidungen oder Ablehnungen dürfen nicht übernommen werden.
+4. Modellwahlregel beibehalten: Beide Modelle unter derselben p7-Fassung vergleichen.
+5. Stopregel übernehmen: Verfehlt p7 eine der 18 Regel-6-Zellen oder fehlt einem erforderlichen Slot ein qualifizierendes τ, folgt Abschluss nach A. Die übrigen bestehenden Freigabekriterien bleiben ebenfalls verbindlich.
+
+Die Kalibrierergebnisse wurden inzwischen angesehen. Ihre Wiederverwendung akzeptiere ich für diesen protokollierten Versuch; sie stellt anschließend keine unabhängige Bestätigung der Promptänderung dar. Der Holdout bleibt die abschließende Prüfung.
+
+Kosten korrigieren: Bei zehn Sekunden je Notiz ergeben Dev plus Kalibrierung etwa 25 CPU-Stunden pro Modell, für beide ungefähr 51 CPU-Stunden.
+
+Q3 – Baseline und möglicher Abschluss nach A
+
+p6 bereits jetzt unveränderlich als negative Entwicklungsbaseline sichern: Commit, Split- und Notiz-Hashes, Prompts, Kandidaten, Rohencodings, Dev-Offsets, τ, Modellrevisionen und vollständige Ergebnis-/Fehlerdateien. Bei einem p7-Fehlschlag dessen Stand zusätzlich erhalten.
+
+Der Abschlussbefund lautet dann: Diese Konfiguration erreicht die vorab gesetzten Entwicklungsanforderungen nicht; der Holdout wurde nicht ausgewertet. Daraus folgt kein allgemeines Scheitern von Phase B.
+
+Verbesserungsideen, nicht zusätzlich freigabeblockierend
+
+- Modellfreie Diagnose: Aspekt, change und beide gemeinsam durch Goldentscheidungen ersetzen, jeweils die gesamte Verarbeitung neu ausführen. Das quantifiziert ihr Verbesserungspotenzial.
+- p6→p7-Übergänge ausweisen: reparierte Fälle, neue Fehler und zusätzliche Ablehnungen.
+- Ergebnisse nach Wortlaut und Korrekturklasse berichten; gemeinsame Ursachen mehrerer Antwortfehler kenntlich machen.

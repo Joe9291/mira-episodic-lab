@@ -470,3 +470,49 @@ a factor of about five.)
   with offsets fitted on these development notes, pass rule 6 fails in four families; the
   errors are systematic per wording (as in round 3.6). Decision on how to continue goes to
   review (reviews/packages/LAB_R42_DEV_RESULT.txt).
+- Astra's review of the development result (reviews/2026-10-23_r42devresult_astra.txt,
+  package reviews/packages/LAB_R42_DEV_RESULT.txt): APPROVE of the negative development
+  finding and of option B as exactly ONE bounded development attempt. Narrower wording of
+  the finding (hers): "on the data examined, no error was observed among the ACCEPTED name,
+  day and source decisions; the documented answer errors go back to label decisions and
+  their consequences" - not "spans are exact" or "the extraction is safe" (declined
+  corrections demonstrably leave wrong answers). Her conditions for B: exactly one p7,
+  fixed before its run, changes only in the aspect and change questions / examples, no
+  further search; reused slot scores only with identical messages, candidates (with order),
+  model revision and scoring configuration, merged by stable note and slot keys; the whole
+  decision path re-evaluated (new development offsets, new tau on the full calibration
+  split, collector, memory answers, cause analysis - no old decision taken over); both
+  models under p7 (model rule unchanged); stop rule: any of the 18 rule-6 cells missed or
+  any required slot without a qualifying tau -> close as option A; all other pass criteria
+  stay binding. The calibration results have been seen; their reuse is accepted for this
+  logged attempt and is no independent confirmation; the holdout stays the final test.
+  Cost corrected: about 25 CPU hours per model for development + calibration at 10 s per
+  note, about 51 for both. If A: "this configuration does not reach the development
+  requirements set in advance; the holdout was not evaluated" - no general failure of
+  phase B.
+- p6 baseline (her Q3), recorded before p7: baselines/round42_p6/MANIFEST.json (code
+  commit, split and note-key hashes, prompt / candidate / analysis source hashes, the 96
+  raw encoding files with results-branch paths and SHA-256, model weight digests, frozen
+  offsets, tau and summaries) plus the complete evaluation outputs of the variants D, raw,
+  prior (qwen2.5-1.5b) and D (qwen3-1.7b), gzip (bench/m3/baseline_round42.py).
+- Her first improvement idea, run on the p6 baseline (model-free diagnostic, qwen2.5-1.5b,
+  variant D, the true value substituted for every note and the whole pipeline re-run):
+  aspect gold -> 2,232 stored, 38 declined, 1,152 / 1,200, 14 of 18 cells (P3, P4 fail);
+  change gold -> 2,128 stored, 1,118 / 1,200, 10 of 18; BOTH gold -> all 2,270 notes stored
+  correctly, 1,200 / 1,200, 18 of 18 cells. Aspect and change are therefore exactly the
+  binding decisions, and both are needed (analyse_round42 --gold-slots, diagnostic only).
+- p7 (fixed before its run; encoder42.QUESTIONS_P7 / EXAMPLES_P7): (a) the change examples:
+  in p6 every example correction frame carried a single change class ("Correction to ...":
+  value only, "... was wrong:": day only, "Please fix ...": both only) - and the declined
+  wording "Please fix ... - the Y was actually with X." is exactly the frame whose only
+  examples were "both"; p7 adds eight label-only examples so that every example frame has
+  all three classes, balanced over the aspect (each aspect x change cell twice); (b) the
+  aspect question asks what the note is ABOUT (where / who) instead of what it SAYS (a
+  retraction "about where the Y is" says neither); (c) one statement pair with a day per
+  aspect. The change question names "a new place or person / a new day / both". All other
+  slots keep their p6 prompts byte for byte (tested: messages of nine slots identical).
+  Re-encode: attribute and change only (encode phase with label_reencode), both models,
+  development and calibration, 12 chunks; merge with the p6 scores of the other slots by
+  bench/m3/merge_round42.py, which refuses unless model slug, weight digest, pins file,
+  candidate version, scoring code, note keys, messages and candidates (with order) of
+  every reused slot are identical.

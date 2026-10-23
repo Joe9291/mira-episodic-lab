@@ -41,7 +41,7 @@ class Extractor(unittest.TestCase):
 
     def test_current_examples_answer_with_their_own_candidates(self):
         ctx = {"author": "self", "report_day": 12, "sources": ["Kai", "Ola", "Pim", "self"]}
-        for header, text, answers in {"p4": E.EXAMPLES_P4, "p5": E.EXAMPLES_P5, "p6": E.EXAMPLES_P6}[E.CURRENT]:
+        for header, text, answers in {"p4": E.EXAMPLES_P4, "p5": E.EXAMPLES_P5, "p6": E.EXAMPLES_P6, "p7": E.EXAMPLES_P7}[E.CURRENT]:
             full = E.candidate_text(header, text, E.CURRENT)
             for slot, ans in answers.items():
                 self.assertIn(ans, [s for s, _ in C.candidates(slot, full, ctx)], (slot, text))
@@ -49,7 +49,7 @@ class Extractor(unittest.TestCase):
     def test_examples_outside_the_world_vocabulary(self):
         vocab = {w.lower() for lst in (W40.FIRST, W40.LAST, W40.PLACE_STEM, W40.PLACE_KIND, W40.OBJ_ADJ, W40.OBJ_NOUN)
                  for x in lst for w in x.split()}
-        for _, text, answers in E.EXAMPLES_P4 + E.EXAMPLES_P5 + E.EXAMPLES_P6:
+        for _, text, answers in E.EXAMPLES_P4 + E.EXAMPLES_P5 + E.EXAMPLES_P6 + E.EXAMPLES_P7:
             for slot in ("subject", "value", "person", "place", "ref_source"):
                 for w in str(answers.get(slot, "")).split():
                     self.assertNotIn(w.lower(), vocab, (slot, text))
@@ -60,15 +60,31 @@ class Extractor(unittest.TestCase):
 
     def test_current_examples_are_balanced_per_type(self):
         import collections
-        ex = E.EXAMPLES_P6
-        for t in ("statement", "repeated statement", "correction", "retraction"):
-            asp = collections.Counter(a["attribute"] for _, _, a in ex if a["type"] == t)
-            self.assertEqual(len(asp), 2, t)
-            self.assertEqual(len(set(asp.values())), 1, (t, asp))
-        corr = collections.Counter((a["attribute"], a["change"]) for _, _, a in ex if a["type"] == "correction")
-        self.assertEqual(corr, collections.Counter({(x, c): 1 for x in C.ASPECT_LABELS for c in C.CHANGE_LABELS}))
+        ex = E.EXAMPLES_P7
+        asp = collections.Counter(a["attribute"] for _, _, a in ex if "attribute" in a)
+        self.assertEqual(len(set(asp.values())), 1, asp)
+        for t in ("statement", "repeated statement", "correction", "retraction"):    # the full p6 examples
+            a6 = collections.Counter(a["attribute"] for _, _, a in E.EXAMPLES_P6 if a["type"] == t)
+            self.assertEqual(len(set(a6.values())), 1, (t, a6))
+        corr = [(t, a) for _, t, a in ex if "change" in a]
+        self.assertEqual(collections.Counter((a["attribute"], a["change"]) for _, a in corr),
+                         collections.Counter({(x, c): 2 for x in C.ASPECT_LABELS for c in C.CHANGE_LABELS}))
+        frames = {"Correction to": [], "was wrong:": [], "Please fix": []}
+        for t, a in corr:                          # every example correction frame with all three classes
+            frames[next(f for f in frames if f in t)].append(a["change"])
+        for f, cl in frames.items():
+            self.assertEqual(set(cl), set(C.CHANGE_LABELS), f)
         self.assertTrue(all("keep" not in a.values() for _, _, a in ex))
-        self.assertEqual(E.CURRENT, "p6")
+        self.assertEqual(E.CURRENT, "p7")
+
+    def test_p7_changes_only_aspect_and_change_prompts(self):
+        import itertools
+        from episodic_lab import r42_world as W
+        pair = next(W.iter_pairs("dev"))
+        for n in itertools.islice(pair["instances"][1]["A"]["notes"], 30):
+            for slot in C.SLOTS:
+                same = E.messages(slot, n["header"], n["text"], "p6") == E.messages(slot, n["header"], n["text"], "p7")
+                self.assertEqual(same, slot not in E.LABEL_REENCODED, (slot, n["text"]))
 
     def test_label_priors_and_their_correction(self):
         import math

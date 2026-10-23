@@ -248,6 +248,8 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--scoring", choices=("raw", "prior", "offsets"), default="offsets")
     ap.add_argument("--offsets", help="variant D offsets file (analyse_round42.py fit)")
+    ap.add_argument("--gold-slots", default="", help="diagnostic only (Astra's idea): these label slots get the "
+                    "TRUE value of every note (margin 50), the whole pipeline is re-run")
     a = ap.parse_args()
     if a.cmd == "fit":
         fit(a.enc, a.out)
@@ -259,14 +261,31 @@ def main():
         off = json.loads(Path(a.offsets).read_text())
         offsets = off["offsets"]
     priors = a.scoring == "prior"
+    gold_slots = [s for s in a.gold_slots.split(",") if s]
+
+    def gold(enc, split):
+        if not gold_slots:
+            return enc
+        tr = truths(split)
+        out = {}
+        for k, e in enc.items():
+            t = tr[k][0]
+            e = dict(e)
+            for s in gold_slots:
+                if s not in t:                       # the slot is not used by the true type: unchanged
+                    continue
+                e[s] = [[x, c, 0.0 if c == t[s] else -50.0] for x, c, _ in e[s]]
+            out[k] = e
+        return out
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    report = {"scoring": a.scoring, "offsets": offsets}
+    report = {"scoring": a.scoring, "offsets": offsets, "gold_slots": gold_slots}
     cal_meta = None
     if a.taus:
         taus = json.loads(Path(a.taus).read_text())
     else:
         cal_enc, cal_meta = load(a.cal, priors, offsets=offsets)
+        cal_enc = gold(cal_enc, "cal")
         cal_raw, _ = load(a.cal)
         tr = truths("cal")
         if len(cal_enc) != len(tr):
@@ -279,6 +298,7 @@ def main():
                                  "label_top1": label_top1(cal_notes, cal_raw, cal_enc),
                                  "change_classes": occurrences("cal")}
     enc, meta = load(a.enc, priors, offsets=offsets)
+    enc = gold(enc, a.split)
     enc_raw, _ = load(a.enc)
     if cal_meta and meta[0]["model"] != cal_meta[0]["model"]:
         raise SystemExit("calibration and evaluation files of different models")

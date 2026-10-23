@@ -13,9 +13,10 @@ from __future__ import annotations
 
 from .cands42 import ATTRIBUTES, SLOTS, TYPES, candidates
 
-PROMPTS = ("p1", "p2", "p3", "p4", "p5", "p6")
-CURRENT = "p6"                       # p1-p5 belong to candidates c42.1-c42.4 (kept for the log)
-HEADERLESS = ("p4", "p5", "p6")
+PROMPTS = ("p1", "p2", "p3", "p4", "p5", "p6", "p7")
+CURRENT = "p7"                       # p1-p5 belong to candidates c42.1-c42.4 (kept for the log)
+HEADERLESS = ("p4", "p5", "p6", "p7")
+LABEL_REENCODED = ("attribute", "change")  # p7 changes only these slots (Astra, option B)
 SYSTEM = ("You read one short note and fill in one field of a record about it. In a note written by "
           "someone else, 'you' means the reader. Answer with only the value, nothing else.")
 QUESTIONS = {
@@ -357,6 +358,49 @@ EXAMPLES_P6.insert(15, _p6(_ex("Please fix Ola's report of day 3 - the old key w
                                valid_from="2", ref_source="Ola", ref_day="3")))
 
 
+# p7 - the ONE bounded attempt of option B (Astra, reviews/2026-10-23_r42devresult_astra.txt),
+# fixed before its run, no further version: only the aspect and change questions and their
+# worked examples change; every other slot keeps its p6 prompt byte for byte (the added
+# examples carry ONLY aspect / change answers). Development basis: the p6 development
+# evaluation - (a) every correction frame of the p6 examples carried a single change class
+# ("Correction to ...": value only, "... was wrong:": day only, "Please fix ...": both only),
+# and the declined wording "Please fix ... - the Y was actually with X." is exactly the frame
+# whose only examples are "both"; p7 gives every example correction frame all three classes,
+# balanced over the aspect; (b) the p6 aspect question asks what the note SAYS (at a place /
+# with a person), which a retraction ("about where the Y is") does not say - p7 asks what
+# the note is ABOUT (where / who); one more statement pair with a day ("has had ... since
+# day N" / "has been at ... since day N").
+QUESTIONS_P7 = dict(QUESTIONS_P6)
+QUESTIONS_P7.update({
+    "attribute": ("Field 'aspect': is the note about WHERE the thing is (answer: at a place) or about WHO has the "
+                  "thing (answer: with a person)? Answer: at a place, or: with a person."),
+    "change": ("Field 'change': what new information does the note give about the earlier report - a new place or "
+               "person only (answer: the place or person), a new day only (answer: the day), or both a new place or "
+               "person and a new day (answer: both)?"),
+})
+
+
+def _lab(text, attribute, change=None):
+    a = {"attribute": _ASPECT_P4[attribute]}
+    if change:
+        a["change"] = {"value": "the place or person", "date": "the day", "both": "both"}[change]
+    return ("", text, a)
+
+
+EXAMPLES_P7 = list(EXAMPLES_P6) + [
+    # statements with a day, one per aspect
+    _lab("Ida Voss has had the green box since day 5.", "holder"),
+    _lab("The red bell has been at Fern Hall since day 4.", "location"),
+    # corrections: every frame of the p6 examples with all three change classes
+    _lab("Correction to Ola's report of day 8: the move of the red bell actually happened on day 6.", "location", "date"),
+    _lab("Correction to Pim's report of day 5: the green box was actually at Rook Tower from day 3.", "location", "both"),
+    _lab("Kai's report of day 4 was wrong: the old key was actually with Ida Voss.", "holder", "value"),
+    _lab("My report of day 7 was wrong: the small drum was actually with Tom Reed from day 6.", "holder", "both"),
+    _lab("Please fix Kai's report of day 6 - the red bell was actually at Pine Lodge.", "location", "value"),
+    _lab("Please fix Ola's report of day 9 - the handover of the old key actually happened on day 7.", "holder", "date"),
+]
+
+
 def note_block(header: str, text: str, prompt: str = "p1") -> str:
     return f"Note: {text}" if prompt in HEADERLESS else f"{header}\nNote: {text}"
 
@@ -369,9 +413,9 @@ def candidate_text(header: str, text: str, prompt: str) -> str:
 def messages(slot: str, header: str, text: str, prompt: str = "p1") -> list[dict]:
     if prompt not in PROMPTS:
         raise ValueError(prompt)
-    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3, "p4": QUESTIONS_P4, "p5": QUESTIONS_P5, "p6": QUESTIONS_P6}[prompt][slot]
+    q = {"p1": QUESTIONS, "p2": QUESTIONS_P2, "p3": QUESTIONS_P3, "p4": QUESTIONS_P4, "p5": QUESTIONS_P5, "p6": QUESTIONS_P6, "p7": QUESTIONS_P7}[prompt][slot]
     turns = [{"role": "system", "content": SYSTEM_P4 if prompt in HEADERLESS else SYSTEM}]
-    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3, "p4": EXAMPLES_P4, "p5": EXAMPLES_P5, "p6": EXAMPLES_P6}[prompt]:
+    for h, t, answers in {"p1": EXAMPLES, "p2": EXAMPLES_P2, "p3": EXAMPLES_P3, "p4": EXAMPLES_P4, "p5": EXAMPLES_P5, "p6": EXAMPLES_P6, "p7": EXAMPLES_P7}[prompt]:
         if slot in answers:
             turns += [{"role": "user", "content": f"{note_block(h, t, prompt)}\n\nQuestion: {q}"},
                       {"role": "assistant", "content": answers[slot]}]

@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from episodic_lab.cands42 import CANDIDATE_VERSION, SLOTS, candidates, ranking  # noqa: E402
-from episodic_lab.encoder42 import CONTENT_FREE, CURRENT, candidate_text, encode_note, label_priors, messages  # noqa: E402
+from episodic_lab.encoder42 import CONTENT_FREE, CURRENT, LABEL_REENCODED, candidate_text, encode_note, label_priors, messages  # noqa: E402
 from episodic_lab import r42_world as W  # noqa: E402
 
 SCHEMA = "episodic_lab.round42_encode.v1"
@@ -101,8 +101,11 @@ def main() -> int:
                           "pins_sha256": hashlib.sha256(Path(args.pins).read_bytes()).hexdigest()}}
     try:
         slots = [x for x in args.slots.split(",") if x] or None
-        if slots and args.phase == "encode":
-            raise RuntimeError("--slots is for development probes only")
+        request = json.loads(Path(args.request).read_text())
+        if slots and args.phase == "encode" and not (request.get("label_reencode") is True
+                                                    and sorted(slots) == sorted(LABEL_REENCODED)):
+            raise RuntimeError("--slots in the encode phase only for the label re-encode of option B "
+                               f"(label_reencode: true, slots {','.join(LABEL_REENCODED)})")
         if prompt != CURRENT:
             raise RuntimeError(f"prompt {prompt} belongs to an earlier candidate version; current: {CURRENT} / "
                                f"{CANDIDATE_VERSION}")
