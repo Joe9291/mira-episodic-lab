@@ -1,0 +1,63 @@
+{
+ "candidate_version": "c42.5",
+ "model": "qwen2.5-1.5b+p7",
+ "notes": 2270,
+ "offsets": {
+  "attribute": {
+   "at a place": 0.0,
+   "with a person": -1.5
+  },
+  "change": {
+   "both": 0.0,
+   "the day": 0.0,
+   "the place or person": 0.0
+  },
+  "type": {
+   "correction": 0.0,
+   "meeting": 0.0,
+   "repeated statement": -0.5,
+   "retraction": 0.0,
+   "statement": 0.0
+  }
+ },
+ "prompt_version": "p7",
+ "slots": {
+  "attribute": {
+   "at_grid_edge": [],
+   "n": 2194,
+   "offsets": {
+    "at a place": 0.0,
+    "with a person": -1.5
+   },
+   "passes": 2,
+   "right": 2191,
+   "right_raw": 2115
+  },
+  "change": {
+   "at_grid_edge": [],
+   "n": 200,
+   "offsets": {
+    "both": 0.0,
+    "the day": 0.0,
+    "the place or person": 0.0
+   },
+   "passes": 1,
+   "right": 192,
+   "right_raw": 192
+  },
+  "type": {
+   "at_grid_edge": [],
+   "n": 2270,
+   "offsets": {
+    "correction": 0.0,
+    "meeting": 0.0,
+    "repeated statement": -0.5,
+    "retraction": 0.0,
+    "statement": 0.0
+   },
+   "passes": 2,
+   "right": 2270,
+   "right_raw": 2269
+  }
+ }
+}

@@ -113,11 +113,15 @@ def main() -> int:
                 raise SystemExit(f"merge refused: candidates of slot {s} differ for {k} (labels)")
             e[s] = lenc[k][s]
         merged[k] = e
-    priors = one([json.dumps(f["priors"], sort_keys=True) for f in lf], "p7 label priors")
+    # the label priors are a report-only quantity (variant B); they differ between runners in
+    # the 4th-5th decimal (CPU floating point), so they are recorded, not required equal: the
+    # merged file carries those of the first label file and the largest difference
+    pri_all = [f["priors"] for f in sorted(lf, key=lambda f: f["chunk"])]
+    prior_spread = max(abs(p[s][l] - pri_all[0][s][l]) for p in pri_all for s in p for l in p[s])
     out = {"schema": "episodic_lab.round42_encode.v1", "status": "OK", "phase": "merged",
            "model": f"{slug}+p7", "split": split, "chunk": 0, "chunks": 1, "prompt_version": "p7",
            "candidate_version": cand_version, "slots": "all", "weights_sha256": bf[0]["weights_sha256"],
-           "priors": json.loads(priors), "notes": len(merged), "encodings": merged, "index": bidx,
+           "priors": pri_all[0], "prior_spread_between_runners": prior_spread, "notes": len(merged), "encodings": merged, "index": bidx,
            "merged_from": {"base_p6": [{k: f[k] for k in f if k != "priors"} for f in bf],
                            "labels_p7": [{k: f[k] for k in f if k != "priors"} for f in lf],
                            "reused_slots": reused, "reencoded_slots": list(LABEL_REENCODED),
