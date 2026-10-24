@@ -44,6 +44,7 @@ def main() -> int:
     ap.add_argument("--runs", nargs="+", required=True)
     ap.add_argument("--offsets", nargs="+", required=True)
     ap.add_argument("--eval", nargs="+", required=True, help="NAME=DIR")
+    ap.add_argument("--derived", nargs="*", default=[], help="local derived files (e.g. merged encodings): hashed")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     out = Path(a.out)
@@ -72,6 +73,7 @@ def main() -> int:
                                      "code_commit": d["provenance"]["code_commit"]})
             man["models"].setdefault(d["model"], set()).add(d["weights_sha256"])
     man["models"] = {m: sorted(v) for m, v in man["models"].items()}
+    man["derived"] = {Path(f).name: sha(Path(f).read_bytes()) for f in a.derived}
     for f in a.offsets:
         b = Path(f).read_bytes()
         man["offsets"][Path(f).name] = {"sha256": sha(b), "offsets": json.loads(b)["offsets"]}

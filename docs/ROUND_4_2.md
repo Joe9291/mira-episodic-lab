@@ -1,4 +1,4 @@
-# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (design v3, approved 2026-10-22 - reviews/2026-10-22_r42v3_astra.txt; implementation notes in section 8)
+# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (DEVELOPMENT CLOSED 2026-10-24 under option A by the pre-agreed stop rule - development requirements not met, holdout not evaluated; closure review pending. Design v3 approved 2026-10-22 - reviews/2026-10-22_r42v3_astra.txt; implementation notes in section 8)
 
 Context: phase A (rounds 4.0, 4.1, 4.1b) showed that M, the fixed source policy and the
 two-time resolver answer every structured question exactly - on reconstruction from
@@ -516,3 +516,36 @@ a factor of about five.)
   bench/m3/merge_round42.py, which refuses unless model slug, weight digest, pins file,
   candidate version, scoring code, note keys, messages and candidates (with order) of
   every reused slot are identical.
+- p7 result (the one attempt of option B; label re-encode run 40029066744, 48 cells OK;
+  merged with the p6 scores of the other nine slots - every identity check passed for all
+  notes of both models and splits; the label priors differ between runners in the 4th-5th
+  decimal and are therefore recorded per file instead of required equal - report-only
+  quantity, not part of variant D; development offsets fitted and frozen before the
+  calibration, commit a217840). qwen2.5-1.5b: offsets type "repeated statement" -0.5,
+  aspect "with a person" -1.5, change none; right top-1 corrected - development aspect
+  2,191 / 2,194, change 192 / 200; calibration aspect 6,525 / 6,547, change 584 / 599 (per
+  class value 505 / 519, date 40 / 40, both 39 / 40). tau: change 0.26, every other slot 0.
+  Calibration precision: aspect 0.9966, change 0.9910, valid_from 0.9991 (3 required value
+  fields skipped by a wrong change), all others 1.0. Development: 2,250 of 2,270 notes
+  correct, 16 declined, 4 wrong (all corrections; development precision change 0.9786,
+  valid_from 0.9978); end to end 1,182 / 1,200; pairs 87 / 90; memory correctness on every
+  question, no unexplained error, no collector error. Pass rule 6: 16 of 18 cells - P3
+  fails at both delays on pair success (8 / 10; all 74 / 80, critical 54 / 60). All 18
+  wrong answers come from three correction notes (the critical correction r00003 of
+  dev-P3-05, dev-P3-08 and dev-P4-07, at both delays): two corrections of value AND day
+  "X's report of day N was wrong: the Y was actually with X from day M." declined (change
+  uncertain), and one date-only correction "Please fix X's report of day N - the move of
+  the Y actually happened on day M." stored wrong (change right, aspect accepted as "with
+  a person" although a move concerns the place). p6 -> p7 transitions (her idea): notes 161 declined -> correct,
+  1 wrong -> correct, 8 correct -> declined, 3 correct -> wrong, 1 declined -> wrong;
+  answers 92 repaired, 0 newly wrong, 18 still wrong. qwen3-1.7b under p7: 1,667 stored,
+  852 / 1,200, 0 of 18 cells. Model rule: qwen2.5-1.5b (2,250) over qwen3-1.7b (1,667).
+  STOP RULE (fixed before the run): a rule-6 cell missed -> close as option A. The p7 state
+  is recorded in baselines/round42_p7/MANIFEST.json (all 144 input encodings, the merged
+  files' SHA-256, offsets, tau, complete evaluation outputs).
+- Closure under option A (Astra's wording): this configuration does not reach the
+  development requirements set in advance; the holdout was not evaluated (it stays unused
+  for a later attempt). On the data examined, no error was observed among the accepted
+  name, day and source decisions; the documented answer errors go back to the label
+  decisions (aspect, change) and their consequences. No general failure of phase B
+  follows. Closure review: reviews/packages/LAB_R42_CLOSURE.txt.

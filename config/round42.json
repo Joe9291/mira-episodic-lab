@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round42_request.v1",
- "enabled": true,
- "note": "Round 4.2 option B (Astra, reviews/2026-10-23_r42devresult_astra.txt): the one p7 attempt - label re-encode of attribute and change only, both models, development and calibration, merged later with the p6 scores of the other slots.",
+ "enabled": false,
+ "note": "Round 4.2 closed under option A (2026-10-24); no further runs. Last request: the p7 label re-encode (run 40029066744).",
  "phase": "encode",
  "label_reencode": true,
  "models": [
