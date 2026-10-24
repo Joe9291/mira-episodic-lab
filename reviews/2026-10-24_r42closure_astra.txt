@@ -1,0 +1,57 @@
+3m 33s nachgedacht
+
+Decision needed: confirm the closure of round 4.2 under option A after the one p7 attempt (16 of 18 cells).
+Prepared on lab main a7d9751; holdout untouched.
+
+APPROVE — Abschluss von Runde 4.2 nach Option A.
+
+Q1 – Ergebnis, Bedingungen und Abschlusswortlaut
+
+Die Zahlen sind konsistent:
+
+- 2.250 korrekte, 16 abgelehnte und vier falsche Notizen ergeben 2.270. Auch die angegebenen p6→p7-Übergänge stimmen damit überein.
+- 1.090 bisher richtige Antworten plus 92 Reparaturen ergeben 1.182/1.200 = 98,5 %.
+- P3 erreicht je Delay 92,5 % aller Fragen und 90 % der kritischen Fragen, aber nur 8/10 erfolgreiche Paare. Damit scheitern zwei Zellen; die vorab festgelegte Stopregel greift unverändert.
+
+Einmaligkeit des p7-Versuchs, vorheriges Festschreiben, erneute Offset-Anpassung und Kalibrierung sowie der Vergleich beider Modelle sind nachvollziehbar dokumentiert. Die vollständigen Rohdateien und Manifeste konnte ich anhand dieses Pakets nicht unabhängig nachprüfen.
+
+Die gelockerte Prior-Prüfung akzeptiere ich: Die Priors beeinflussen Variante D nicht. Ihre Unterschiede dürfen deshalb protokolliert werden, statt den Merge zu verhindern. Daraus folgt keine Lockerung für Modellgewichte, Eingaben, Kandidaten oder die tatsächlich verwendete Score-Berechnung. Die Erklärung durch CPU-Gleitkommaarithmetik ist plausibel, im Paket aber nicht eigens nachgewiesen.
+
+Den Abschluss bestätige ich mit folgendem Wortlaut:
+
+> Diese Konfiguration erreicht die vorab gesetzten Entwicklungsanforderungen nicht; der Holdout wurde nicht ausgewertet. Die dokumentierten Antwortfehler gehen auf Aspekt- und change-Entscheidungen sowie deren Folgen zurück. Daraus folgt kein allgemeines Scheitern von Phase B.
+
+
+
+Die ergänzende Aussage zu Namen, Tagen und Quellen sollte ausdrücklich die tatsächlich abgefragten und akzeptierten Wertentscheidungen meinen. Falsch übersprungene Felder bleiben Fehler; die ausgewiesenen valid_from-Quoten dürfen dadurch nicht verdeckt werden.
+
+Q2 – Für einen späteren Versuch
+
+Übernehmen	Neu entscheiden oder bestimmen
+
+Berichtsvertrag, administrative Metadaten und Herkunftsregeln; unveränderte M-/R-Kontrolle	Modell, Revision, Tokenizer, Datentyp und Laufzeitkonfiguration
+Strukturierte Fragen, parallele Arme G/E, Fehler- und Reparaturanalyse	Label-Fragen, Antwortformulierungen und Beispiele
+Vorhergesagter Entscheidungspfad einschließlich Fehlklassifikationen und übersprungener Pflichtfelder	Sämtliche numerischen Offsets und τ
+Variante D als Ausgangsverfahren: Offsets auf Dev, danach Schwellen auf Kalibrierung	Änderungen an diesem Verfahren ausdrücklich vor der Auswertung festlegen
+Textpassage ohne Header und Slot change als dokumentierte Ausgangskonfiguration	Alternative Eingaben oder Zerlegungen als kontrollierte Änderung untersuchen
+Kritische Fragen, Paar-Erfolg und bestehende Schwellen für vergleichbare Wiederholungen	Neue Aufgabenbereiche oder andere Erfolgsziele als neues Versuchsdesign behandeln
+
+
+Die Wiederverwendung unveränderter Slot-Scores bleibt eine zulässige Rechenoptimierung. Ihre Identitätsprüfungen müssen beim nächsten Einsatz erneut greifen.
+
+Dev und Kalibrierung dieser Runde sind inzwischen Entwicklungsfeedback. Sie dürfen später wiederverwendet werden, gelten dann aber nicht als unabhängige Bestätigung. Der bisher nicht ausgewertete Holdout bleibt für einen vorab eingefrorenen Folgeversuch verfügbar.
+
+Q3 – Ergänzungen zu den Abschlussaufzeichnungen
+
+- Priors eindeutig sichern: Der gezeigte Merge speichert einen Priorvektor und die maximale Abweichung; die Einzelvektoren werden aus merged_from entfernt. Deshalb Originaldateien dauerhaft erhalten oder eine zusätzliche Tabelle „Datei-Hash → Priorvektor“ archivieren.
+- Scoringprüfung präzise beschreiben: Der Code vergleicht models.py-Hashes, liest aber keine vollständige aufgezeichnete Scoringkonfiguration zum Vergleich ein. Im Protokoll diesen Unterschied festhalten; beim späteren Merge auch relevante Laufparameter ausdrücklich prüfen.
+- Den Abschlussstatus samt Stopgrund, unbenutztem Holdout und adaptiver Kalibrierungswiederverwendung im Manifest festhalten.
+- Für qwen3 zwischen „gespeichert“ und „vollständig korrekt gespeichert“ unterscheiden. Die Modellwahl zugunsten von qwen2.5 bleibt bei den genannten Zahlen eindeutig.
+
+Diese Punkte ändern den begründeten negativen Abschluss nicht.
+
+Verbesserungsideen, nicht freigabeblockierend
+
+- Der Merge sollte überlappende Notizschlüssel abweisen: dict.update() überschreibt derzeit frühere Einträge stillschweigend.
+- Beim nächsten Versuch Beispiele vollständig über Formulierung × Aspekt × Änderungsklasse kreuzen; globale Balance allein beseitigt lokale Zuordnungen nicht.
+- Die verbliebenen drei ursächlichen Korrekturen als Regressionfälle erhalten, getrennt von späteren unabhängigen Prüfaufgaben.

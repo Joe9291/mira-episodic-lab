@@ -1,4 +1,4 @@
-# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (DEVELOPMENT CLOSED 2026-10-24 under option A by the pre-agreed stop rule - development requirements not met, holdout not evaluated; closure review pending. Design v3 approved 2026-10-22 - reviews/2026-10-22_r42v3_astra.txt; implementation notes in section 8)
+# Round 4.2 - Phase B: reports as notes in language, extracted by a small LM (CLOSED 2026-10-24 under option A by the pre-agreed stop rule - development requirements not met, holdout not evaluated; closure approved by Astra - reviews/2026-10-24_r42closure_astra.txt. Design v3 approved 2026-10-22 - reviews/2026-10-22_r42v3_astra.txt; implementation notes in section 8)
 
 Context: phase A (rounds 4.0, 4.1, 4.1b) showed that M, the fixed source policy and the
 two-time resolver answer every structured question exactly - on reconstruction from
@@ -465,7 +465,7 @@ a factor of about five.)
   for change and valid_from (on the predicted path the raw "both" answers ask valid_from
   for value-only corrections), 76 notes stored, 160 of 1,200 right; content-free prior -
   no tau for change, ref_source, ref_day, 1,028 stored, 596 right. qwen3-1.7b, variant D:
-  attribute tau 13.0, 612 stored, 358 of 1,200 right, 0 of 18 cells. Model rule (fully
+  attribute tau 13.0, 612 fully correct stored (615 stored, 3 wrong), 358 of 1,200 right, 0 of 18 cells. Model rule (fully
   correct stored development notes): qwen2.5-1.5b (2,099) over qwen3-1.7b (612). Even
   with offsets fitted on these development notes, pass rule 6 fails in four families; the
   errors are systematic per wording (as in round 3.6). Decision on how to continue goes to
@@ -538,7 +538,7 @@ a factor of about five.)
   the Y actually happened on day M." stored wrong (change right, aspect accepted as "with
   a person" although a move concerns the place). p6 -> p7 transitions (her idea): notes 161 declined -> correct,
   1 wrong -> correct, 8 correct -> declined, 3 correct -> wrong, 1 declined -> wrong;
-  answers 92 repaired, 0 newly wrong, 18 still wrong. qwen3-1.7b under p7: 1,667 stored,
+  answers 92 repaired, 0 newly wrong, 18 still wrong. qwen3-1.7b under p7: 1,667 fully correct stored (1,672 stored, 5 wrong),
   852 / 1,200, 0 of 18 cells. Model rule: qwen2.5-1.5b (2,250) over qwen3-1.7b (1,667).
   STOP RULE (fixed before the run): a rule-6 cell missed -> close as option A. The p7 state
   is recorded in baselines/round42_p7/MANIFEST.json (all 144 input encodings, the merged
@@ -549,3 +549,33 @@ a factor of about five.)
   name, day and source decisions; the documented answer errors go back to the label
   decisions (aspect, change) and their consequences. No general failure of phase B
   follows. Closure review: reviews/packages/LAB_R42_CLOSURE.txt.
+- Astra's closure review (reviews/2026-10-24_r42closure_astra.txt, package
+  reviews/packages/LAB_R42_CLOSURE.txt): APPROVE of the closure under option A. Final
+  wording (hers): "This configuration does not reach the development requirements set in
+  advance; the holdout was not evaluated. The documented answer errors go back to aspect
+  and change decisions and their consequences. No general failure of phase B follows." The
+  statement about names, days and sources refers only to the value decisions actually
+  asked and accepted; wrongly skipped fields remain errors (valid_from: 3 required value
+  fields skipped on calibration). The relaxed prior check is accepted (priors do not enter
+  variant D); it relaxes nothing for weights, inputs, candidates or the scores used. Her
+  record items, done: the per-file label priors are archived (baselines/round42_p7/
+  MANIFEST.json "label_priors_by_file"; the original files stay on the results branch); the
+  merge's scoring check compares the hash of episodic_lab/models.py at every input run's
+  commit - it does NOT read a recorded scoring configuration (scorer function, threads,
+  dtype); a later merge must check such run parameters explicitly; the manifest records the
+  closure status, the stop reason, the unused holdout and that calibration was reused
+  adaptively; qwen3 counts distinguish stored and fully correct stored. Her improvement
+  ideas: the merge now refuses repeated note keys across input files (it used dict.update);
+  the input files of this round's merges were checked afterwards: no note key occurs in
+  two chunks (per model and split the chunk keys sum to 2,270 / 6,836, all distinct); for a later attempt the examples are
+  crossed completely over wording x aspect x change class; the three notes that caused all
+  remaining p7 errors are kept as regression cases (manifest "regression_cases").
+  For a later attempt (her Q2): carried over - report contract, administrative metadata
+  and origin rules, unchanged M / R control, structured questions, arms G / E, cause and
+  repair analysis, the predicted decision path, variant D as the starting procedure,
+  headerless input and the change slot as the documented starting configuration, critical
+  questions, pair success and the thresholds; decided anew - model, revision, tokenizer,
+  dtype, runtime configuration, label questions, answer wordings and examples, all offsets
+  and tau; changes to the procedure fixed before any evaluation; development and
+  calibration of this round are development feedback, not independent confirmation; the
+  unused holdout stays available for a follow-up attempt frozen in advance.

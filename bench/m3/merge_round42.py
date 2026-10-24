@@ -47,6 +47,9 @@ def read(paths):
                       "weights_sha256": d["weights_sha256"], "pins_sha256": d["provenance"]["pins_sha256"],
                       "code_commit": d["provenance"]["code_commit"], "slots": d.get("slots"),
                       "priors": d.get("priors")})
+        overlap = set(enc) & set(d["encodings"])
+        if overlap:                                   # Astra (closure review): never overwrite silently
+            raise SystemExit(f"merge refused: {p} repeats {len(overlap)} note keys of an earlier input file")
         enc.update(d["encodings"])
         index.update(d["index"])
     return files, enc, index
@@ -123,7 +126,7 @@ def main() -> int:
            "candidate_version": cand_version, "slots": "all", "weights_sha256": bf[0]["weights_sha256"],
            "priors": pri_all[0], "prior_spread_between_runners": prior_spread, "notes": len(merged), "encodings": merged, "index": bidx,
            "merged_from": {"base_p6": [{k: f[k] for k in f if k != "priors"} for f in bf],
-                           "labels_p7": [{k: f[k] for k in f if k != "priors"} for f in lf],
+                           "labels_p7": lf,
                            "reused_slots": reused, "reencoded_slots": list(LABEL_REENCODED),
                            "scoring_code_sha256": scorer_src},
            "provenance": {"code_commit": "merge", "pins_sha256": bf[0]["pins_sha256"]}}

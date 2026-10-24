@@ -1,4 +1,12 @@
 {
+ "closure": {
+  "calibration_reuse": "the calibration split (and development) had been evaluated under p6 before p7; their reuse for p7 was accepted as adaptive development feedback, not independent confirmation",
+  "holdout": "not evaluated - unused, available for a later attempt frozen in advance",
+  "scoring_check": "the merge compared the SHA-256 of episodic_lab/models.py at every input run's commit; it did not read a recorded scoring configuration (scorer function, threads, dtype)",
+  "status": "closed under option A (2026-10-24), approved by Astra (reviews/2026-10-24_r42closure_astra.txt)",
+  "stop_reason": "the one p7 attempt met pass rule 6 in 16 of 18 development cells (P3 pair success 8 / 10 at both delays); the stop rule fixed before the run requires 18 of 18",
+  "wording": "This configuration does not reach the development requirements set in advance; the holdout was not evaluated. The documented answer errors go back to aspect and change decisions and their consequences. No general failure of phase B follows."
+ },
  "code_commit": "a217840",
  "derived": {
   "merged_qwen2.5-1.5b_cal.json": "c1a6dcbf595e828ab824f152d2bee795ea4fa4f73ab1f253c32d43ea5d64242f",
@@ -1806,6 +1814,1160 @@
    "taus.json": "5e934f2321e88c6212749d68c3dd30c69c5ee80169257868285e5bd08f00f31b"
   }
  },
+ "label_priors_by_file": {
+  "023a6d826690602f78e0df191636a24310d40535e7625c8b997efaeb867a10c9": {
+   "chunk": 10,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_10.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "cal"
+  },
+  "04a78f55c9f0a3812d86dde4883e20773d4e069f664a3fcde5aa474b26829a19": {
+   "chunk": 11,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_11.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585504587013134,
+     "with a person": -0.33416658669738414
+    },
+    "change": {
+     "both": -0.7900525101955871,
+     "the day": -0.8260242400270754,
+     "the place or person": -2.2219948017095437
+    },
+    "type": {
+     "correction": -3.646851331133568,
+     "meeting": -1.9948364079429024,
+     "repeated statement": -1.9260514947403617,
+     "retraction": -0.7885561000740924,
+     "statement": -1.4368806503659235
+    }
+   },
+   "split": "dev"
+  },
+  "053c88ec2dbd7a2ff653885905fd4f80fa2dfdf4f6619fb63e59ce5c169d0cd7": {
+   "chunk": 5,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_5.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "dev"
+  },
+  "0ca1fc3592cded742122b916c704254d40b153f05bc504580c0d622d14a0e9d2": {
+   "chunk": 1,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_1.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "cal"
+  },
+  "12bfd4a4a35c542ca3aeea5f129b1019ca310b9ee2bef1b667b851013ce77b85": {
+   "chunk": 5,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_5.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "cal"
+  },
+  "164d092b824fdbe2cdf368b9c3e30ed702670ed7cb143d55ce8a5fd4600fcddc": {
+   "chunk": 10,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_10.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "dev"
+  },
+  "1a1c82779d9b86a8d3ede554b738c55ca973b7f2d56403c7cfb95b22e12a8b20": {
+   "chunk": 8,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_8.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "dev"
+  },
+  "2653af1ffd3e98ca5e5f1a9318f4d9eb04a903047f6841bed4c398ee25145ebe": {
+   "chunk": 2,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_2.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "cal"
+  },
+  "27a27e188386c9d3d91758a5b18e4f627c847cc1c50a95f54845447406f8a7f2": {
+   "chunk": 3,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_3.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "cal"
+  },
+  "2dbf5d8b318e240575d9c9281c517da4ec690d91bd7f1d07dae5dcaa6149d097": {
+   "chunk": 4,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_4.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "dev"
+  },
+  "3533b9f7c72d94df3d6653d21dfb972319bfb51f77be39d9e693a362c8c3ddf5": {
+   "chunk": 5,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_5.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "cal"
+  },
+  "374a8dd4e0fa53457c798586c132ba4ced5bb4e870bfbd6f092a9ff96c1ce024": {
+   "chunk": 4,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_4.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "cal"
+  },
+  "38e1ad210073946289c5400da8bb9033985294824f7b8ba847c5f9e9121f5166": {
+   "chunk": 0,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_0.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "cal"
+  },
+  "3c30d893707f1f993cb2dd3841a14546a6e8e0f0dc57ed3c592ea85ad1608b65": {
+   "chunk": 9,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_9.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "cal"
+  },
+  "49ed25f7ec99ed8a9297688ec52b39fa7704e60e6f9faabe3e3bd48ec7a67b70": {
+   "chunk": 11,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_11.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "cal"
+  },
+  "4c675a60b2b6233842f4a52a5303fb47c079c9a93bc3ffdae4feef82584d12c1": {
+   "chunk": 11,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_11.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "dev"
+  },
+  "4e5f0d67d30f6a308babbbf93a99b6f216f74f3d57dd42e66768b6ea6f061ded": {
+   "chunk": 2,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_2.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "cal"
+  },
+  "4e97636d7493a67ecdd4b5413b131cadde19dd72df00d90754e2197d564f5032": {
+   "chunk": 9,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_9.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "dev"
+  },
+  "4f320351dd116c77b34fa97ff65be89b56217490ed41dd9abb0e0af3aab6ffc3": {
+   "chunk": 8,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_8.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "cal"
+  },
+  "5bb4691c8ce86121ab89d0549d7f8d71ee7054a287a212ab98da5d68c11c53b0": {
+   "chunk": 9,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_9.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "dev"
+  },
+  "5f95eadbe1f037668f475009dcca33d2e78e12210aa36e1d8919a992a7a6ea75": {
+   "chunk": 6,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_6.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "cal"
+  },
+  "60a4e4e32313aa560482f5057c99896744a69c121bea1e809f7ac22d682b639e": {
+   "chunk": 7,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_7.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "cal"
+  },
+  "6f1ab73ca6bef43cd994160dbdbd83bad4487304100c30319b45f9b91effee4f": {
+   "chunk": 11,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_11.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "cal"
+  },
+  "713883fd508edb207021bc1bffbdd26f4a99da88e5756e22c4495154b4b30507": {
+   "chunk": 10,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_10.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "dev"
+  },
+  "74e68ee4f4db09aa7b19818a471ac9b30ef3ede2e3b7da95bc6958e3f6976633": {
+   "chunk": 8,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_8.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2717527681347e-05,
+     "with a person": -10.060922596302298
+    },
+    "change": {
+     "both": -2.7899117229895154,
+     "the day": -2.7875184895657292,
+     "the place or person": -0.13124880747996318
+    },
+    "type": {
+     "correction": -23.51853145505254,
+     "meeting": -7.854473327676075,
+     "repeated statement": -21.960020119442827,
+     "retraction": -29.548308896672673,
+     "statement": -0.0003880880217611777
+    }
+   },
+   "split": "cal"
+  },
+  "787e00ad6857cdd8d518b9944f6897259dfc1a37026b096eada7cc84c6808c75": {
+   "chunk": 4,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_4.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2717527681347e-05,
+     "with a person": -10.060922596302298
+    },
+    "change": {
+     "both": -2.7899117229895154,
+     "the day": -2.7875184895657292,
+     "the place or person": -0.13124880747996318
+    },
+    "type": {
+     "correction": -23.51853145505254,
+     "meeting": -7.854473327676075,
+     "repeated statement": -21.960020119442827,
+     "retraction": -29.548308896672673,
+     "statement": -0.0003880880217611777
+    }
+   },
+   "split": "cal"
+  },
+  "7dcac42fd8b7db9da96b4f8078e2ca387b8be7a75a6967f2e324aa898be87857": {
+   "chunk": 7,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_7.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "dev"
+  },
+  "818d5befe6e879f617323f088d0785182447cf763c7726f675221ad7eefec250": {
+   "chunk": 0,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_0.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "dev"
+  },
+  "81f81a730088c5ae5af5a43295f3ef3ad9d02475689eab1963c98d70e1f6a8c6": {
+   "chunk": 3,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_3.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "dev"
+  },
+  "82d93d21216a841df72f2a8477fc13fb8660679888a53c52bf77bbf016dc4216": {
+   "chunk": 0,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_0.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "cal"
+  },
+  "8c8b8fed6760061cd566d2913a00095be8f1abac8c8080436ad25f4fe9ade2c0": {
+   "chunk": 1,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_1.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "cal"
+  },
+  "96d7e38d5e7180d2fc0c96e67eabc9704ea013adfb33b6ae695e099a7abd0c1f": {
+   "chunk": 7,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_7.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2717527681347e-05,
+     "with a person": -10.060922596302298
+    },
+    "change": {
+     "both": -2.7899117229895154,
+     "the day": -2.7875184895657292,
+     "the place or person": -0.13124880747996318
+    },
+    "type": {
+     "correction": -23.51853145505254,
+     "meeting": -7.854473327676075,
+     "repeated statement": -21.960020119442827,
+     "retraction": -29.548308896672673,
+     "statement": -0.0003880880217611777
+    }
+   },
+   "split": "dev"
+  },
+  "a096cfa187cf1ee497e1f46a7b4f371225b828e54e42ed4bd6ee6455caeeee12": {
+   "chunk": 2,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_2.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "dev"
+  },
+  "a551c45f74cbc67349d482acfd0014ed31af4e69f8c1d72295e60a21c72947af": {
+   "chunk": 4,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_4.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "dev"
+  },
+  "a987db6a752fbdcb7c1f506f23232d0283fb91da095a73b462266b87726d3d76": {
+   "chunk": 2,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_2.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "dev"
+  },
+  "aa52367c406ae9084c3338b8c5d653495acf38a072ae0807b1cf45a3a04b1939": {
+   "chunk": 10,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_10.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "cal"
+  },
+  "ac83ccbeeb2e4fb497df2b16830b5983296ce001ce1d9f79f72d78c5c7aff383": {
+   "chunk": 7,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_7.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "cal"
+  },
+  "add6d5079c6034e637946f1a52fa1cd4bde6b7fe4eddfb5d9dbb07b2da8d96ce": {
+   "chunk": 3,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_3.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "cal"
+  },
+  "ae40db4f23b8a5f04899d58815cd4ac75352f73c428c271c6b479a20a33bf572": {
+   "chunk": 8,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_8.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "dev"
+  },
+  "b424ba0094b48b1ddeea54473c6935801e12d5b9e7a2c737c028269fd4eb7f1b": {
+   "chunk": 1,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_1.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "dev"
+  },
+  "b8e5a93d4b842cf33e299b8e27ff626a54b6f46e630695fe0368132b99f9c3cf": {
+   "chunk": 1,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_1.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "dev"
+  },
+  "bb99e9594a105b9a09d85752457a1196e91eb084111aa5a41a13ea57fc5aa687": {
+   "chunk": 6,
+   "file": "r42_encode_qwen2.5-1.5b+p7_cal_6.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585504587013134,
+     "with a person": -0.33416658669738414
+    },
+    "change": {
+     "both": -0.7900525101955871,
+     "the day": -0.8260242400270754,
+     "the place or person": -2.2219948017095437
+    },
+    "type": {
+     "correction": -3.646809667864075,
+     "meeting": -1.994917997055471,
+     "repeated statement": -1.9260565084787469,
+     "retraction": -0.7885154883437934,
+     "statement": -1.4369131143921001
+    }
+   },
+   "split": "cal"
+  },
+  "c762cfa470e22fdd0be2b77fd297c87daa59060bbb615404620783bc77677826": {
+   "chunk": 6,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_6.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "dev"
+  },
+  "da7dfffb23531423df2e56e1ae5b924ba3800594c3efae2266d55547f66275eb": {
+   "chunk": 6,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_6.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585551188364517,
+     "with a person": -0.3341647376745149
+    },
+    "change": {
+     "both": -0.7900521937743631,
+     "the day": -0.8260255102812901,
+     "the place or person": -2.2219909960995854
+    },
+    "type": {
+     "correction": -3.6467939883197684,
+     "meeting": -1.9949178537884518,
+     "repeated statement": -1.9260355349899512,
+     "retraction": -0.7885131736077547,
+     "statement": -1.4369322037569356
+    }
+   },
+   "split": "dev"
+  },
+  "dab549375025d4d9ee94f7a183586122530cefe72efc5bcbc12e32b88c8cb937": {
+   "chunk": 0,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_0.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "dev"
+  },
+  "e2a8406a2aeb3ba5392d0b171a79c06577e7e67770402154f57835d0c5204b48": {
+   "chunk": 9,
+   "file": "r42_encode_qwen3-1.7b+p7_cal_9.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.271959070640697e-05,
+     "with a person": -10.060874303919341
+    },
+    "change": {
+     "both": -2.789904933793862,
+     "the day": -2.787452879197044,
+     "the place or person": -0.13125388965341306
+    },
+    "type": {
+     "correction": -23.518384593516522,
+     "meeting": -7.854317457989179,
+     "repeated statement": -21.959866229908663,
+     "retraction": -29.54812377956889,
+     "statement": -0.00038814852937554367
+    }
+   },
+   "split": "cal"
+  },
+  "e9193bc54ee1dc507aa41e408ddf2bdfc09508f0265c3d2fead6b74691665b5d": {
+   "chunk": 3,
+   "file": "r42_encode_qwen2.5-1.5b+p7_dev_3.json",
+   "model": "qwen2.5-1.5b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -1.2585567472896164,
+     "with a person": -0.3341640915486345
+    },
+    "change": {
+     "both": -0.7900497064517592,
+     "the day": -0.8260247997528705,
+     "the place or person": -2.222004279879215
+    },
+    "type": {
+     "correction": -3.646798384288482,
+     "meeting": -1.9949130348975241,
+     "repeated statement": -1.926041214353755,
+     "retraction": -0.7885143334148585,
+     "statement": -1.4369287790212222
+    }
+   },
+   "split": "dev"
+  },
+  "e94e4223ac42bb0e709359f69b5ccf81800925851c1955c4dc70963ece2d07da": {
+   "chunk": 5,
+   "file": "r42_encode_qwen3-1.7b+p7_dev_5.json",
+   "model": "qwen3-1.7b+p7",
+   "priors": {
+    "attribute": {
+     "at a place": -4.2716365237733153e-05,
+     "with a person": -10.060949808424551
+    },
+    "change": {
+     "both": -2.7899008709959348,
+     "the day": -2.7874114733131483,
+     "the place or person": -0.13125708158602
+    },
+    "type": {
+     "correction": -23.518549812440433,
+     "meeting": -7.854501011596325,
+     "repeated statement": -21.96009944779737,
+     "retraction": -29.548405875386624,
+     "statement": -0.0003880772760128997
+    }
+   },
+   "split": "dev"
+  }
+ },
  "models": {
   "qwen2.5-1.5b+p6": [
    "ce6c1a0d339c251e1af83f1845ff6c458c809515f90fce4766b4741a2d250199"
@@ -1865,6 +3027,29 @@
    "sha256": "e457454f285e0ea0e17a8d11897e37383e1fb08d68e85a1753fa1760701f906b"
   }
  },
+ "regression_cases": [
+  {
+   "note_id": "r00003",
+   "p7": "declined - change uncertain",
+   "pair": "dev-P3-05",
+   "text": "Casimo's report of day 6 was wrong: the copper mirror was actually with Fenwick Quist from day 7.",
+   "true_change": "both"
+  },
+  {
+   "note_id": "r00003",
+   "p7": "declined - change uncertain",
+   "pair": "dev-P3-08",
+   "text": "Fenwick's report of day 5 was wrong: the copper umbrella was actually with Yelda Corland from day 7.",
+   "true_change": "both"
+  },
+  {
+   "note_id": "r00003",
+   "p7": "stored wrong - aspect accepted as with a person (true: location)",
+   "pair": "dev-P4-07",
+   "text": "Please fix Elvie's report of day 7 - the move of the wooden clock actually happened on day 9.",
+   "true_change": "date"
+  }
+ ],
  "results_ref": "e4309fae91e8fbb8e153daa7d6949bf447878ac2",
  "sources": {
   "bench/m3/analyse_round42.py": "4bd7f8e1d604ea57a3fc136a5a91df0117f27cf9be6d24823aad31035e869f2b",
