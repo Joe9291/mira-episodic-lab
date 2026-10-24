@@ -1,0 +1,69 @@
+4m 37s nachgedacht
+
+Decision needed: approve or change the design of round 4.3 (source-bound consolidation) before any implementation.
+Prepared on lab main 4a7724e; nothing implemented or run.
+
+REQUEST CHANGES
+
+Die Trennung von Verdichtung und Auflösungslogik ist richtig. Stehende Claims sind ein plausibler Ausgangszustand. Die Verlustfreiheitsbegründung und einige Prüfregeln sind aber noch nicht vollständig.
+
+Q1 – Checkpoint und Verlustfreiheit
+
+Für die Zustandsfortschreibung ist das Argument unter den genannten Voraussetzungen schlüssig: Wenn Übergänge ausschließlich stehende Claims benötigen und fehlende, zurückgezogene sowie claimlose Ziele identisch behandeln, lässt sich die Gleichheit durch Induktion über das Tail begründen. Anker können dabei wie andere Fakten behandelt werden.
+
+Für identische vollständige Antworten müssen zusätzlich die Abhängigkeiten jedes Operators aufgeführt werden: benötigte Claim-Felder, Reihenfolgen, Referenzen und ausgegebene IDs. Besonders why_changed benötigt eine ausdrückliche Prüfung seiner Beleglisten.
+
+Dabei ist Passregel 5 zu streng formuliert: Ein Änderungsbericht muss selbst kein stehender Claim sein; ein früherer Claim kann bei k1 stehen und bei k2 zurückgezogen sein. Quellenbindung deshalb nach Ausgaberolle prüfen:
+
+- Wertbelege stehen zum jeweils maßgeblichen Wissenszeitpunkt.
+- Änderungsbelege gehören zum richtigen Berichtsintervall.
+- Zielreferenzen werden entsprechend dem Operatorvertrag geprüft.
+
+„Jede zitierte ID steht am Wissenszeitpunkt der Antwort“ reicht dafür nicht.
+
+Die ID-Prüfung mittels Höchstwert funktioniert außerdem nur unter streng monotoner ID-Vergabe. Allgemeine Eindeutigkeit ist damit nicht gleichbedeutend. Diese Einschränkung ausdrücklich zum Eingabevertrag dieser Runde machen; der Höchstwert muss alle Präfixberichte berücksichtigen, auch verworfene.
+
+Q2 – Ausschließlich verlustfrei, Finalitätsfrist später
+
+Ja. Die Finalitätsfrist gehört in eine separate Politikentscheidung.
+
+Zwei Formulierungen sollten präzisiert werden:
+
+- Erhalten bleiben muss die erforderliche logische Information. Physische Kompression, gemeinsame Wörterbücher oder kompaktere Kodierung können trotzdem Speicher sparen.
+- Eine Finalitätsfrist allein erlaubt noch nicht automatisch das Löschen von Quellenbelegen: Historien, zitierte IDs und der zugesagte Dissens können diese weiterhin benötigen.
+
+Q3 – Quellengebundener Digest
+
+Sinnvoll, aber das Format braucht Ergänzungen:
+
+1. Belege einem Wert zuordnen. Bei einem Konflikt enthält values mehrere Werte, während support derzeit keine Werte enthält. Ergänze value je Beleg oder gruppiere die Belege nach Wert.
+2. Nicht entscheidend bedeutet nicht widersprechend. Ein niedriger gewichteter Claim kann denselben Wert vertreten. Solche Claims als nicht entscheidende Zustimmung kennzeichnen; dissent für tatsächlich abweichende Werte verwenden.
+3. origin aufnehmen. Eine ausgewiesene Unabhängigkeitszahl muss der festgelegten Quellenpolitik folgen; die Anzahl der Berichte genügt nicht.
+4. Nach dem Zusammenführen klarstellen, dass Beleglisten die Vereinigung über die ursprünglichen Versionen darstellen. Sie bedeuten nicht automatisch unveränderte Unterstützung über das gesamte Segment.
+
+Q4 – Verlustbehaftete Kontrollen
+
+K1 und K2 sind als Kontrollen geeignet. K3 ist für Konflikt- und Unknown-Versionen nicht definiert: Eine Konfliktversion hat keinen einzelnen Wert, der unverändert als ein Assert geschrieben werden könnte.
+
+Als gezielte Identitätskontrolle empfehle ich stattdessen: alle stehenden Claims behalten und ausschließlich ihre IDs durch eine vorab definierte, kollisionsfreie, schema-konforme Abbildung ersetzen. Das isoliert den Identitätsverlust besser.
+
+Die Informativitätsdefinition über R ist sinnvoll. 30 Fälle sind als technische Mindestzahl vertretbar, aber zusätzliche Cuts desselben Weltpaars liefern keine entsprechende zusätzliche Fallvielfalt. Deshalb unterschiedliche Paare, Familien und Operatoren ausweisen. Festlegen, ob eine nicht diskriminierende Kontrolle den Gesamtnachweis unvollständig macht; sie darf nicht stillschweigend aus einem Voll-PASS verschwinden.
+
+Q5 – Cuts, Komposition und Integrität
+
+D = 5 ist als festgelegter Testparameter in Ordnung. Folgende Ergänzungen sind erforderlich:
+
+- Leeres Präfix: Cut vor dem ersten Bericht und ein Genesis-Checkpoint für frühe Mode-A-Abfragen.
+- Vollständiger Cut: Festlegen, dass alle Berichte des Cut-Tages verarbeitet sind. Sonst reicht der Tag allein nicht zur Beschreibung des Präfixes.
+- Komposition: Byte-Gleichheit nur bei identischen Headerparametern einschließlich desselben Elternhashs verlangen. Unterschiedliche Elternketten erzeugen absichtlich unterschiedliche Bytes.
+- Eigenhash: Die gehashte Nutzlast ausdrücklich ohne das Eigenhash-Feld definieren.
+- Vertrauenswürdige Vergleichswerte: Ein veränderter Checkpoint mit neu berechnetem Eigenhash ist intern konsistent. Ebenso kann ein gekürztes Tail-Ende eine gültige Restkette hinterlassen. Erwarteten Checkpoint-Hash und endgültiges Tail-Siegel deshalb außerhalb der jeweils geprüften Daten vertrauenswürdig festhalten.
+- Quellenbindung: In Mode A die Übereinstimmung mit dem Archiv prüfen. In Mode T die Herkunft vor dem Löschen verifizieren und diesen Zustand versiegeln; ein gespeicherter Archivhash allein beweist die korrekte Checkpoint-Ableitung nicht.
+
+Die erwarteten Holdout-Zahlen ausdrücklich binden: 560 Paare beziehungsweise 4.480 Welt-Delay-Instanzen, zusätzlich die jeweiligen Cut- und Fragenzahlen.
+
+Verbesserungsideen, nicht zusätzlich freigabeblockierend
+
+- Kurze Handfälle für jede behauptete Zustandsäquivalenz und jede unterschiedliche Zitierrolle ergänzen.
+- Wörterbuchkompression getrennt vom Entfernen logischer Informationen messen.
+- Beim späteren Implementieren auch einen unterbrochenen Schreibvorgang zwischen Checkpoint- und Tail-Sicherung prüfen.
