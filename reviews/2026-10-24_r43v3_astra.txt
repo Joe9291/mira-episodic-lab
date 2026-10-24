@@ -1,0 +1,49 @@
+2m 58s nachgedacht
+
+Decision needed: approve or change design v3 of round 4.3 before any implementation of the consolidation.
+Prepared on lab main dd33a06; consolidation not implemented or run.
+
+APPROVE — des Designs für die Implementierung und Entwicklungsprüfung.
+
+Q1 – Umsetzung der v2-Punkte
+
+Die offenen Punkte sind auf Designebene geschlossen:
+
+- Regel 8 bindet den vollständigen Zustandsvergleich über alle Fakten, einschließlich Ankern und Distraktoren. Der Negativtest adressiert die zuvor unbemerkte Auslassung eines nicht abgefragten Fakts.
+- Der synthetische R-Vergleich ist ausdrücklich auf needed_time(q) >= c beschränkt.
+- Funktionelle Verlustkontrollen und die Integritätsprüfung regulärer Checkpoints sind getrennt.
+- Digest-Partition, kanonische Darstellung und verbindliche Familien-/Operatorenzahlen sind präzisiert.
+
+Q2 – Unabhängigkeit und Vollständigkeit des Referenzzustands
+
+Ja, die vorgesehene Referenzarchitektur ist unabhängig genug: Sie verwendet R’s eigene Übergangsfunktion und Claim-Tabelle statt der Checkpoint-Erzeugung oder der M-/H-Zustandsfortschreibung.
+
+Die Ergänzung von origin muss aus den unveränderten Originalberichten, zugeordnet über die erzeugende Report-ID, erfolgen. Damit wird dieser Wert nicht aus dem zu prüfenden Checkpoint zurückgelesen. Die Zuordnung sollte insbesondere bei Korrekturen und Wiederholungen geprüft werden.
+
+Die acht Vergleichsfelder decken den festgelegten Claim-Zustand ab: Faktzuordnung, Identität, Wert, Gültigkeitsbeginn, Rang, Quelle und Ursprung. Präfixhöchstwert, Siegel und Elternbindung bleiben zusätzliche Headerprüfungen.
+
+Damit ergänzt Regel 8 die Antwortvergleiche um den benötigten eigenständigen Zustandsnachweis. Die tatsächliche Unabhängigkeit des Referenzadapters ist anschließend im Code zu prüfen.
+
+Q3 – Testweg der Verlustkontrollen
+
+Ja. Der Testweg ist jetzt passend abgegrenzt:
+
+- Veränderte Zustände werden ausschließlich im Test eingespeist.
+- Ihre Fortschreibung verwendet dieselbe H-Logik.
+- Der Vergleich erfolgt gegen R auf demselben veränderten Zustand.
+- Eine Integritätsablehnung zählt nicht als semantischer Kontrolltreffer.
+- Modes A und T können diesen Testzugang nicht verwenden.
+
+Auch die Mindestanforderungen an Informativität und die Behandlung eines unzureichenden eingefrorenen Holdouts sind eindeutig.
+
+Q4 – Weitere Punkte vor der Freigabe
+
+Ich sehe keinen weiteren freigabeblockierenden Designpunkt.
+
+Die eingebettete Zählungsdatei habe ich unabhängig geparst: Familien- und Operatorensummen stimmen mit den Gesamtsummen überein; die Kompositionszahlen passen ebenfalls. Ihr SHA-256 entspricht exakt der angegebenen Prüfsumme. Die vollständige Enumeration aus den Originalgeneratoren habe ich hier nicht wiederholt.
+
+Verbesserungsideen, nicht freigabeblockierend
+
+- Beim vollständigen Zustandsvergleich einzelne Felder gezielt verändern, besonders origin, source und rank. Das prüft auch, ob die Normalisierung diese Felder tatsächlich berücksichtigt.
+- Einen Fall aufnehmen, dessen höchste Präfix-ID zu einem bereits zurückgezogenen oder wirkungslosen Bericht gehört.
+- Die ausgeführten vollständigen Zustandsvergleiche gesondert zählen und nach Cut beziehungsweise geprüftem Wissenszeitpunkt ausweisen.

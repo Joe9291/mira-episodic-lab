@@ -330,7 +330,8 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   correction (Astra's idea), the lost unasked fact, the control path).
 - Tamper cases: the claim cases use the first cut with claims and a tail; the tail cases use
   the genesis checkpoint with the whole world as its tail (every world has >= 2 reports).
-- Development result (docs/ROUND_4_3_dev_SUMMARY.md): PASS - zero violations of every rule;
+- Development result (docs/ROUND_4_3_dev_SUMMARY.md; run locally on commit 9308fa8, two jobs):
+  PASS - zero violations of every rule;
   16,672 cuts, 31,872 Mode A answers, 546,776 Mode T evaluations, 15,552 composition pairs,
   73,368 full-state comparisons (16,672 checkpoints, 5,840 Mode A times, 50,856 Mode T
   times), 13,440 tamper and 3,360 interrupted-write cases, 1,120 persistence checks and

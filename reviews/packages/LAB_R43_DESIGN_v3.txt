@@ -1,0 +1,833 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.3 DESIGN v3 - SOURCE-BOUND CONSOLIDATION OF THE LONG-TERM MEMORY
+
+Review request (Astra; Claude is lead reviewer). v3 answers your review of v2 (reviews/2026-10-24_r43v2_astra.txt, REQUEST CHANGES). The consolidation is still not implemented or run; new since v2 is only the frozen counts file config/round43_counts.json (below), computed model-free from episodic_lab/r43_world.py (unchanged since v2). Please check that your v2 points are answered (Q1-Q4), then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.3 DESIGN v3 ===".
+
+STATE: lab main = dd33a06.
+
+YOUR v2 POINTS AND WHERE v3 ANSWERS THEM
+1. Full-state comparison incl. unasked facts (Q1.1, Q2): section 2 "Full-state check" and pass rule (8) - the reference state is built by a separate module from R's own step function (R's claim rows and alive flag; a claim's origin = the origin of the report whose id it carries) over ALL facts (asked facts, anchors, every distractor); compared at every cut with the normalised claim set of C(c) (subject, attribute, id, value, valid_from, rank, source, origin), and at every knowledge time used by a question with the state H has propagated. The dependency table is now stated to be a description that these checks test. Your negative-test idea is part of rule (8): a checkpoint losing one unasked distractor fact, with recomputed self-hash and matching trust record, must be found by this check alone.
+2. Time filter of the synthetic R comparison (Q1.2, Q5): section 2 and pass rule (1) - only questions with needed_time(q) >= c are compared; earlier ones are by construction out of reach of C(c) (Mode A uses an earlier checkpoint, Mode T answers "compacted").
+3. Controls vs integrity (Q1.3, Q4): section 5 and pass rule (6) - regular checkpoints always pass all integrity checks; control checkpoints are deliberately altered states loaded only through a test-only path that skips integrity and is unreachable from Modes A and T; an integrity refusal never counts as the predicted semantic failure. Informative counts are computed before the freeze (then a revision with a new review is still possible); on the frozen holdout an insufficient control means incomplete evidence, and any later adjustment is a new attempt.
+4. Digest partition (Q3): section 3 - the partition counts only the claim entries of support, agree and dissent; the current answer is not a claim entry.
+Improvement ideas taken over: the lost-distractor negative test (rule 8); a canonical form (section 2: facts by (subject, attribute), claims by id, value groups by the canonical JSON of the value, cited claims by id, canonical JSON = sorted keys, separators "," and ":", ASCII escaping); expected keys and counts per family and operator frozen in config/round43_counts.json (SHA-256 9a88a2da3a5a883b34698afacfb68a989c50eb38be69f23139ad5f1e177d1d63), which the run must reproduce exactly.
+
+QUESTIONS
+Q1 Are your v2 points answered correctly?
+Q2 Is the reference state for the full-state check independent enough (R's step function and table, origin from the creating report), and are the compared fields complete?
+Q3 Is the test-only loading path of the controls acceptable as specified?
+Q4 Anything else before the APPROVE of the design?
+Then: improvement ideas.
+
+---FILE docs/ROUND_4_3.md---
+# Round 4.3 - Source-bound consolidation of the long-term memory (design v3, for review)
+
+Context: the five-phase plan (2026-10-20) names three parts of phase 2: versioned
+statements, contradictions, and source-bound consolidation ("quellengebundene
+Verdichtung"). Rounds 4.0, 4.1 and 4.1b established the first two on structured reports
+(holdout PASS; a continued instance with restart). Round 4.2 (phase B, language input)
+was closed under option A on 2026-10-24 (development requirements not met, holdout not
+evaluated); it does not change M. Astra placed compaction after phase B and asked for it
+to be tested separately, "so that it stays recognisable whether an error comes from the
+resolution logic or from information lost by compaction" (reviews/2026-10-20_r40v1b_astra.txt;
+docs/ROUND_4_0.md section 6). This round adds nothing to the resolution logic: M, R, the
+source policy and the report schema stay exactly as in round 4.0.
+v2 answers Astra's review of v1 (reviews/2026-10-24_r43v1_astra.txt): an operator
+dependency table and source binding by output role (sections 2, 6); strictly increasing
+report ids as an explicit input contract, the highest id over ALL prefix reports
+(section 2); "lossless" means the logical information, physical encoding is measured
+separately (sections 2, 7); a digest with values per citation, agreeing vs dissenting
+non-deciding claims and origins (section 3); K3 replaced by an id-renaming control and a
+binding rule for non-discriminating controls (sections 5, 6); genesis cut, complete
+cuts, composition under identical header parameters, the hashed payload, trust anchors
+outside the checked data, sealed verification before deletion, interrupted writes, and
+the bound holdout numbers (sections 2, 4, 6). v3 answers her review of v2
+(reviews/2026-10-24_r43v2_astra.txt): a full-state comparison of every checkpoint and of
+every propagated state against an independently built reference state over ALL facts
+(section 2, pass rule 8); the synthetic R comparison only for questions whose needed
+knowledge time is >= c (pass rule 1); lossy controls separated from the integrity checks
+of regular checkpoints (sections 5, 6); the digest partition counts only the claim
+entries (section 3); a canonical ordering (section 2); expected counts bound per family
+and operator in a frozen file (section 4).
+
+Uncertainty removed: can the memory replace its growing raw report log by a compact
+consolidated state - so that (a) every answer stays exactly the answer of the full
+memory, including the report ids it cites; (b) every consolidated item stays bound to
+the original reports it comes from and can be verified against the archive; (c) when the
+old log is actually deleted, every question that would need it is answered "compacted",
+never with a wrong value; and (d) a source-bound digest per fact (versions merged, every
+value with its supporting, agreeing and dissenting sources) is exactly reproducible by
+the independent reference?
+Claim limits (fixed now): structured reports of the round 4.0 / 4.1 generators only; the
+fixed source policy of round 4.0; lossless consolidation of the logical information under
+that policy (section 7 states what it cannot shrink); no language, no retrieval budget,
+no summarisation by a language model.
+
+## 1. What stays
+
+Report schema, ReportStore (append-only, SHA-256 chained), M (episodic_lab/r40_memory.py),
+R (episodic_lab/r40_reference.py), the transition rules and the operators current,
+valid_at, believed_at, why_changed, conflicts, history, before - unchanged, files not
+touched. The worlds are rebuilt by the generators' own functions (round 4.0: P1-P9, round
+4.1: T1-T5; episodic_lab/r43_world.py, checked to reproduce the original worlds exactly
+when given the old seeds: 1,120 of 1,120 dev world-delay instances) with NEW seeds
+(r43-dev-1, r43-holdout-1), dev 10 / holdout 40 pairs per family, delays 0 / 50 / 200 /
+500. The 4.0 conformance set (hand worlds) is run as well.
+
+## 2. The consolidated state (checkpoint), its proof obligations and the two modes
+
+Input contract of this round: report ids strictly increase in the total order
+(report_day, report_id) - r00001, r00002, ... (generator property; audited for every
+world: 4,480 of 4,480 holdout and 1,120 of 1,120 dev world-delay instances). Uniqueness
+in general is NOT implied by a maximum; under this contract it is.
+A cut c is COMPLETE: it covers all reports with report_day <= c (the total order makes
+this prefix well defined); c = 0 is the empty prefix (genesis).
+Checkpoint C(c): for every fact (subject, attribute) - anchor events included, they are
+facts like any other - the claims STANDING at knowledge time c, each with the fields the
+resolver and the digest read: claim id (the report id that created it), value,
+valid_from, rank, source, origin. Nothing else is kept: withdrawn claims, retract
+reports, ineffective reports and every other report field are dropped.
+Header: schema, cut day c, the seal of the archive prefix (count and head hash of the
+report chain over all reports with report_day <= c), the highest report id over ALL
+prefix reports (also retractions, ineffective and dropped reports), the hash of the parent
+checkpoint (the fixed genesis value for C(0)), the SHA-256 of the resolver source
+(episodic_lab/r40_memory.py), and the checkpoint's own hash = SHA-256 of the canonical
+JSON of the checkpoint object WITHOUT the hash field.
+Operator dependency table (what each answer needs; ids = what it cites):
+| operator | needs | claim fields read | order | ids in the output |
+|---|---|---|---|---|
+| current, valid_at, believed_at (value_at(v, k)) | standing claims at k | valid_from, rank, value, id | valid_from | deciding claims of the version containing v |
+| history, conflicts (at now) | standing claims at now | valid_from, rank, value, id | valid_from | deciding claims per version |
+| before (at now) | standing claims of the anchor fact and of the fact at now | valid_from, rank, value, id | valid_from | deciding claims of the version containing d_Y - 1 |
+| why_changed(v, k1, k2) | standing claims at k1 + every report with k1 < report_day <= k2, all fields | as the transition rules | total order of the reports | the reports in (k1, k2] whose application changes the answer for v |
+| digest at k | standing claims at k | all six | valid_from, then id | support / agree / dissent claims (section 3) |
+| a later correct / retract (transition) | the target among the standing claims | id, rank, source, value, valid_from | total order | - |
+Proof obligation 1 (state): M's transition rules use a target claim only through "exists
+and stands" (then its rank, source, value, valid_from); a target that is withdrawn,
+claimless (an ineffective correction) or missing makes a correction or retraction
+ineffective in all three cases alike, and report ids are never reused (contract). By
+induction over the reports of (c, k]: the standing claims of every fact at every k >= c
+are the same whether the replay starts from the full prefix or from C(c).
+Proof obligation 2 (answers): by the table, every operator with all its knowledge times
+>= c reads only standing claims at those times and, for why_changed, the reports of
+(k1, k2] (all of them after c, since k1 >= c); so every answer - values, statuses and
+cited ids - is the same. Both obligations are tested: by hand cases (one per equivalence
+and per citation role, section 8) and on every world (section 6).
+Hot memory H = the checkpoint + the tail (the reports with report_day > c, a chain segment
+that starts at the archive head recorded in the checkpoint). H uses M's transition and
+version functions unchanged (imported, not copied); only its starting claims differ - so
+any difference to M is a consolidation error, never a resolution error. Tail ingest refuses
+a report id at or below the checkpoint's highest id.
+Independent check by R: every claim of C(c) is written as one synthetic assert report
+(same id, value, valid_from, rank, source, origin; report_day c); R on these synthetic
+reports plus the tail must answer every question q with needed_time(q) >= c exactly as R
+on the full reports (needed_time: believed_at, digest_at -> t; why_changed -> k1; all
+others -> now). A question with needed_time(q) < c is NOT compared there: a checkpoint at c
+cannot reconstruct it by construction (Mode A uses an earlier checkpoint, Mode T answers
+"compacted").
+Full-state check (independent of the questions): the reference state at knowledge time k
+is built by a separate module from R's own step function (R's table of claim rows, its
+alive flag; the origin of a claim is the origin of the report whose id the claim carries)
+over ALL facts of the world - asked facts, anchors and every distractor fact. For every
+cut, the normalised claim set of C(c) (subject, attribute, id, value, valid_from, rank,
+source, origin) must equal the reference state at c; and for every knowledge time that any
+question uses (in Mode A and in Mode T within scope), the standing claims that H has
+propagated from its checkpoint and the tail must equal the reference state at that time,
+again over all facts. The dependency table above is a description of M's and R's actual
+reads that these checks put to the test, not a substitute for them.
+Canonical form: facts sorted by (subject, attribute); claims by id; value groups by the
+canonical JSON of the value; every list of cited claims by id; canonical JSON = sorted
+keys, separators "," and ":", ASCII escaping; the checkpoint hash and every byte-identity
+check use this form.
+A checkpoint is built from scratch (replay of the archive prefix) or incrementally
+(parent checkpoint + segment). Mode A (archive kept as cold storage): checkpoints every D
+days (D = 5, fixed) including C(0); a question is answered from the latest checkpoint
+whose cut is <= the smallest knowledge time it needs (believed_at, digest_at: t;
+why_changed: k1; all others: now) plus the archive segment up to the needed time.
+Mode T (truncated): only the latest checkpoint C(c) and the tail exist (the archive prefix
+is deleted). Before the deletion C(c) is verified against the archive (rebuilt from
+scratch with identical bytes, and the R check above) and this verification is sealed in a
+trust record kept OUTSIDE the checkpoint and the tail (checkpoint hash, archive seal at c,
+verification result); after the deletion a checkpoint is accepted only if it matches the
+trust record. A question that needs a knowledge time < c is answered {"status":
+"unknown", "reason": "compacted"} (why_changed: "compacted"); every other question is
+answered from H.
+
+## 3. Source-bound digest
+
+digest(s, a) at knowledge time k: the history of (s, a) at k, consecutive versions with the
+same status and the same value(s) merged into one segment:
+{valid_from, valid_to, status, value | values, support, agree, dissent, independent_origins}
+- every cited claim is given as {id, value, valid_from, source, rank, origin};
+- support: the deciding claims of the merged versions, grouped by value (a conflict
+  segment has one group per conflicting value);
+- agree: standing claims of the segment's versions that do not decide (outranked) but
+  carry a value of the segment (the value, or one of the conflict values), grouped by
+  value;
+- dissent: standing claims of the segment's versions that do not decide and carry a
+  different value;
+- independent_origins: per value of the segment, the number of distinct origins among its
+  support and agree claims (the policy's independence: different origin; a report count
+  is not used);
+- the lists are UNIONS over the merged versions - each claim keeps its own valid_from; a
+  listed claim does not by itself support the whole segment;
+- plus the answer value_at(k, k).
+Every value in a digest appears with at least one cited claim, and every claim standing at
+k appears exactly once among the claim ENTRIES of support, agree and dissent over all
+segments (the partition check; the separately reported current answer is not counted as
+a claim entry).
+digest_at(t) is the digest at knowledge time t. R computes the digest independently from
+its own table (a separate function in a new module, no shared code with H's digest; R's
+file itself is not changed).
+
+## 4. Cuts, questions and the bound numbers
+
+Per world (pair world A or B, delay) the cut days are: 0 (genesis), every day from the
+first to the last relevant report day + 1 (so every relevant report - correction,
+retraction, late report, anchor - lies on each side of some cut), the days at 1/4, 1/2 and
+3/4 of the irrelevant tail, and now; every cut is complete. Questions per world: the
+family's questions (round 4.0 table; round 4.1: current) plus the consolidation
+questions about the asked fact: current, history, conflicts and digest at now; valid_at(v)
+for every valid_from v of a relevant report about the fact; believed_at(t) and
+digest_at(t) for every relevant report day t; why_changed(v, k1 = t, k2 = now) for every
+such v and every such t < now. Mode T: every question at every cut; Mode A: every question
+once; composition: every consecutive pair of cuts.
+Bound numbers (episodic_lab/r43_world.py, computed before any run of H):
+| | dev | holdout |
+|---|---|---|
+| families x pairs | 14 x 10 = 140 | 14 x 40 = 560 |
+| world-delay instances | 1,120 | 4,480 |
+| cuts | 16,672 | 66,392 |
+| questions (Mode A answers) | 31,872 | 126,540 |
+| Mode T evaluations (cut x question) | 546,776 | 2,135,976 |
+| composition pairs (cuts - instances) | 15,552 | 61,912 |
+Holdout questions by operator: why_changed 53,524, believed_at 17,912, digest_at 16,632,
+valid_at 14,632, current 8,160, history 5,760, conflicts 5,120, digest 4,480, before 320.
+The same numbers per family and per operator are frozen in config/round43_counts.json
+(SHA-256 9a88a2da3a5a883b34698afacfb68a989c50eb38be69f23139ad5f1e177d1d63); the run must
+reproduce every key and every count of that file; any deviation fails the round.
+
+## 5. Systems and lossy controls
+
+H (Modes A and T), M (full store), R (reference, digest added). Lossy checkpoint controls
+(each a deliberately reduced checkpoint, answered by the same H code):
+- K1 current-only: per fact only the deciding claims of the current version at c.
+- K2 deciding-only: the deciding claims of every version at c; outranked standing claims
+  dropped (agree / dissent and any later re-emergence of an outranked claim are lost).
+- K3 id-renamed (identity control): ALL standing claims kept, only their ids replaced by
+  the fixed, collision-free, schema-conforming map rN -> r(99999 - N) (audited: no
+  renamed id equals any id of the world - the highest id in all dev and holdout worlds is
+  r00509, the lowest renamed id r99490); a later correction or retraction of a pre-cut
+  report finds no target, and cited ids change.
+A case (world, cut, question) is INFORMATIVE for a control if R, run on the control's
+checkpoint written as synthetic reports plus the tail, answers differently from R on the
+full reports - a property of the worlds, computed by R before any run of H. Prediction:
+H on the control checkpoint answers exactly as R on it, so it fails exactly on the
+informative cases (Mode T in-scope questions).
+Controls versus integrity: regular checkpoints always pass through every integrity check
+(section 6 (4)); a control checkpoint is a deliberately altered starting state (K3's ids
+lie above the prefix ids and contradict the source binding) and is loaded only through a
+test-only path that skips the integrity checks and is unreachable from Modes A and T. The
+controls test the propagation of state against their R counterpart; an integrity refusal
+never counts as the predicted semantic failure of a control.
+
+## 6. Measures and pass rule (fixed before any run)
+
+Pass rule on the holdout (zero allowed errors everywhere; the numbers of section 4 bound):
+(1) Mode A: every question identical to M, report ids included, in every world; M = R on
+    every question; the digest of H = the digest computed from the full store = the
+    digest of R; at every cut, R on C's synthetic reports plus the tail = R on the full
+    reports for every question q with needed_time(q) >= c (and only for those).
+(2) Mode T: at every cut of every world, every question that needs no knowledge time < c
+    identical to M; every question that needs one answered "compacted"; no other output.
+(3) Composition: for every consecutive pair of cuts, C(c2) built incrementally from C(c1)
+    and the segment is byte-identical to C(c2) built from scratch WITH THE SAME header
+    parameters (in particular the same parent hash; different parent chains give
+    different bytes by design); the claim payload is identical whatever the chain; C(c)
+    built in a new process is byte-identical.
+(4) Integrity, trust anchors and persistence: the expected checkpoint hash and the final
+    tail seal are kept outside the checked data (trust record); detected on load: a claim
+    value or rank changed, a claim removed or added (each also WITH a recomputed self-hash,
+    i.e. internally consistent - detected only through the trust record), the archive seal
+    changed, the parent hash changed, a tail record changed, removed or reordered, the tail
+    cut off at its end (a valid shorter chain - detected only through the trust record), a
+    tail report id at or below the checkpoint's highest id; interrupted writes (a crash
+    after writing the new checkpoint but before the trust record, and after the trust
+    record but before the tail is rotated) are detected on restart and the last consistent
+    state is used - never a mismatched pair; a checkpoint and its tail written to disk and
+    reloaded in a new process answer every question identically.
+(5) Source binding by output role (checked against R at the respective times):
+    value evidence - every id in a value / conflict answer, history, conflicts or digest
+    (support, agree, dissent) is a claim standing at that answer's knowledge time, with
+    the cited fields equal to R's; change evidence - every why_changed id is a report with
+    k1 < report_day <= k2, present in the archive segment (Mode A) or the tail (Mode T),
+    and the list equals R's; target references - for every tail correction / retraction
+    its effectiveness under H equals that under R, and an effective one's target is a claim
+    of C or of the tail.
+(6) Lossy controls: H on each control checkpoint answers exactly as R on it (so each
+    control fails exactly on its informative cases); each control has >= 30 informative
+    cases from >= 10 distinct pairs, reported with their numbers of pairs, families and
+    operators (several cuts of one pair are not independent cases). These counts are known
+    before any run of H and are computed before the freeze; if a control misses them then,
+    the design is revised (with a new review) before the freeze; on the frozen holdout a
+    control that misses them makes a full PASS impossible ("incomplete evidence") - it does
+    not silently drop out, and any later adjustment is a new attempt.
+(7) The 4.0 conformance set through Modes A and T at every cut.
+(8) Full state: at every cut of every world the normalised claim set of C(c) equals the
+    independent reference state over all facts; at every knowledge time used by a question
+    the state H has propagated equals the reference state over all facts (section 2). A
+    negative test (hand case): a checkpoint that loses the claims of one distractor fact
+    no question asks about - with a recomputed self-hash and a matching trust record, so
+    that only this check can find it - is detected.
+Measures (report only): size of C(c) against the archive prefix - logical (claims vs
+reports) and physical bytes, the latter also after a shared dictionary / generic
+compression, reported SEPARATELY from the removal of logical information; reports and
+claims read per question in Mode A / T against a full replay; digest segments against
+history versions, agree / dissent counts; time. This is the pass rule of a finite test
+suite (14 families x 40 pairs); zero errors do not establish a general error rate.
+Joe's check (about 5 cases, chosen by rule): a cut between a report and its correction; a
+late report whose valid_from lies before the cut; a conflict opened before and resolved
+after a cut; an anchored question whose anchor lies before the cut; a Mode-T answer
+"compacted".
+
+## 7. Known limits (stated in advance)
+
+Under the round 4.0 policy any standing claim can still be corrected or retracted later,
+so lossless consolidation cannot drop standing claims: the logical state shrinks only by
+the withdrawn claims, the correction / retraction / ineffective reports and the unread
+fields; physical encoding can save further bytes without removing information (measured
+separately). In worlds that are mostly assertions the logical gain is small; the gain is
+mainly in what a question has to read. A real reduction needs a policy decision - for
+example a finality horizon (claims older than H days can no longer be targeted); even then
+source evidence may not simply be deleted, because history ids, cited ids and the digest's
+agree / dissent still need it. That is a different policy and NOT part of this round.
+Questions about knowledge times before a deleted prefix are unanswerable by construction -
+Mode T makes that explicit instead of hiding it.
+
+## 8. Cost and tests
+
+Model-free. Development locally; the holdout (generated and frozen before any run of H on
+it) in GitHub Actions, split by family (about 2.1 million Mode T evaluations plus the R
+checks per cut and per control: a few CPU hours). Hand cases (tests): every equivalence of
+proof obligation 1 (a correction / retraction of a withdrawn, a claimless and a missing
+target, each before and after a cut), every citation role of section 6 (5), composition,
+every tamper and interrupted-write case of section 6 (4), the lost distractor fact of
+section 6 (8), the digest's grouping (a conflict segment, an agreeing outranked claim, a
+dissenting one, merged versions), the test-only loading path of the controls (not
+reachable from Modes A and T).
+---END FILE docs/ROUND_4_3.md---
+---FILE config/round43_counts.json---
+{
+ "generator_version": "r43.g1",
+ "schema": "episodic_lab.round43_counts.v1",
+ "seeds": {
+  "dev": "r43-dev-1",
+  "holdout": "r43-holdout-1"
+ },
+ "splits": {
+  "dev": {
+   "families": {
+    "P1": {
+     "by_operator": {
+      "believed_at": 352,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 272,
+      "history": 160,
+      "valid_at": 280,
+      "why_changed": 680
+     },
+     "cuts": 1264,
+     "instances": 80,
+     "mode_t_evaluations": 32640,
+     "pairs": 10,
+     "questions": 2064
+    },
+    "P2": {
+     "by_operator": {
+      "believed_at": 320,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 320,
+      "why_changed": 800
+     },
+     "cuts": 1336,
+     "instances": 80,
+     "mode_t_evaluations": 34736,
+     "pairs": 10,
+     "questions": 2080
+    },
+    "P3": {
+     "by_operator": {
+      "believed_at": 400,
+      "conflicts": 80,
+      "current": 80,
+      "digest": 80,
+      "digest_at": 320,
+      "history": 160,
+      "valid_at": 368,
+      "why_changed": 1232
+     },
+     "cuts": 1328,
+     "instances": 80,
+     "mode_t_evaluations": 45168,
+     "pairs": 10,
+     "questions": 2720
+    },
+    "P4": {
+     "by_operator": {
+      "believed_at": 320,
+      "conflicts": 80,
+      "current": 80,
+      "digest": 80,
+      "digest_at": 320,
+      "history": 160,
+      "valid_at": 368,
+      "why_changed": 1232
+     },
+     "cuts": 1328,
+     "instances": 80,
+     "mode_t_evaluations": 44000,
+     "pairs": 10,
+     "questions": 2640
+    },
+    "P5": {
+     "by_operator": {
+      "believed_at": 424,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 344,
+      "history": 80,
+      "valid_at": 320,
+      "why_changed": 1112
+     },
+     "cuts": 1224,
+     "instances": 80,
+     "mode_t_evaluations": 39784,
+     "pairs": 10,
+     "questions": 2600
+    },
+    "P6": {
+     "by_operator": {
+      "believed_at": 344,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 344,
+      "history": 80,
+      "valid_at": 320,
+      "why_changed": 1112
+     },
+     "cuts": 1224,
+     "instances": 80,
+     "mode_t_evaluations": 38600,
+     "pairs": 10,
+     "questions": 2520
+    },
+    "P7": {
+     "by_operator": {
+      "believed_at": 280,
+      "conflicts": 160,
+      "current": 120,
+      "digest": 80,
+      "digest_at": 280,
+      "history": 160,
+      "valid_at": 240,
+      "why_changed": 720
+     },
+     "cuts": 1064,
+     "instances": 80,
+     "mode_t_evaluations": 27744,
+     "pairs": 10,
+     "questions": 2040
+    },
+    "P8": {
+     "by_operator": {
+      "believed_at": 296,
+      "conflicts": 160,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 296,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 672
+     },
+     "cuts": 960,
+     "instances": 80,
+     "mode_t_evaluations": 22912,
+     "pairs": 10,
+     "questions": 1904
+    },
+    "P9": {
+     "by_operator": {
+      "before": 80,
+      "believed_at": 536,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 536,
+      "history": 80,
+      "valid_at": 536,
+      "why_changed": 3640
+     },
+     "cuts": 2368,
+     "instances": 80,
+     "mode_t_evaluations": 173008,
+     "pairs": 10,
+     "questions": 5728
+    },
+    "T1": {
+     "by_operator": {
+      "believed_at": 240,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 480
+     },
+     "cuts": 912,
+     "instances": 80,
+     "mode_t_evaluations": 17328,
+     "pairs": 10,
+     "questions": 1520
+    },
+    "T2": {
+     "by_operator": {
+      "believed_at": 200,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 200,
+      "history": 80,
+      "valid_at": 120,
+      "why_changed": 320
+     },
+     "cuts": 776,
+     "instances": 80,
+     "mode_t_evaluations": 12560,
+     "pairs": 10,
+     "questions": 1240
+    },
+    "T3": {
+     "by_operator": {
+      "believed_at": 304,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 304,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 608
+     },
+     "cuts": 1008,
+     "instances": 80,
+     "mode_t_evaluations": 22576,
+     "pairs": 10,
+     "questions": 1776
+    },
+    "T4": {
+     "by_operator": {
+      "believed_at": 240,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 480
+     },
+     "cuts": 928,
+     "instances": 80,
+     "mode_t_evaluations": 17632,
+     "pairs": 10,
+     "questions": 1520
+    },
+    "T5": {
+     "by_operator": {
+      "believed_at": 240,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 480
+     },
+     "cuts": 952,
+     "instances": 80,
+     "mode_t_evaluations": 18088,
+     "pairs": 10,
+     "questions": 1520
+    }
+   },
+   "total": {
+    "cuts": 16672,
+    "instances": 1120,
+    "mode_t_evaluations": 546776,
+    "pairs": 140,
+    "questions": 31872
+   }
+  },
+  "holdout": {
+   "families": {
+    "P1": {
+     "by_operator": {
+      "believed_at": 1464,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1144,
+      "history": 640,
+      "valid_at": 1120,
+      "why_changed": 2860
+     },
+     "cuts": 5144,
+     "instances": 320,
+     "mode_t_evaluations": 136560,
+     "pairs": 40,
+     "questions": 8508
+    },
+    "P2": {
+     "by_operator": {
+      "believed_at": 1280,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 1280,
+      "why_changed": 3200
+     },
+     "cuts": 5520,
+     "instances": 320,
+     "mode_t_evaluations": 143520,
+     "pairs": 40,
+     "questions": 8320
+    },
+    "P3": {
+     "by_operator": {
+      "believed_at": 1600,
+      "conflicts": 320,
+      "current": 320,
+      "digest": 320,
+      "digest_at": 1280,
+      "history": 640,
+      "valid_at": 1488,
+      "why_changed": 4992
+     },
+     "cuts": 5256,
+     "instances": 320,
+     "mode_t_evaluations": 180616,
+     "pairs": 40,
+     "questions": 10960
+    },
+    "P4": {
+     "by_operator": {
+      "believed_at": 1280,
+      "conflicts": 320,
+      "current": 320,
+      "digest": 320,
+      "digest_at": 1280,
+      "history": 640,
+      "valid_at": 1488,
+      "why_changed": 4992
+     },
+     "cuts": 5176,
+     "instances": 320,
+     "mode_t_evaluations": 172680,
+     "pairs": 40,
+     "questions": 10640
+    },
+    "P5": {
+     "by_operator": {
+      "believed_at": 1704,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1384,
+      "history": 320,
+      "valid_at": 1280,
+      "why_changed": 4472
+     },
+     "cuts": 4976,
+     "instances": 320,
+     "mode_t_evaluations": 162536,
+     "pairs": 40,
+     "questions": 10440
+    },
+    "P6": {
+     "by_operator": {
+      "believed_at": 1384,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1384,
+      "history": 320,
+      "valid_at": 1280,
+      "why_changed": 4472
+     },
+     "cuts": 4904,
+     "instances": 320,
+     "mode_t_evaluations": 155560,
+     "pairs": 40,
+     "questions": 10120
+    },
+    "P7": {
+     "by_operator": {
+      "believed_at": 1120,
+      "conflicts": 640,
+      "current": 480,
+      "digest": 320,
+      "digest_at": 1120,
+      "history": 640,
+      "valid_at": 960,
+      "why_changed": 2880
+     },
+     "cuts": 4232,
+     "instances": 320,
+     "mode_t_evaluations": 109536,
+     "pairs": 40,
+     "questions": 8160
+    },
+    "P8": {
+     "by_operator": {
+      "believed_at": 1144,
+      "conflicts": 640,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1144,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 2608
+     },
+     "cuts": 3912,
+     "instances": 320,
+     "mode_t_evaluations": 91528,
+     "pairs": 40,
+     "questions": 7456
+    },
+    "P9": {
+     "by_operator": {
+      "before": 320,
+      "believed_at": 2056,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 2056,
+      "history": 320,
+      "valid_at": 2056,
+      "why_changed": 13608
+     },
+     "cuts": 8928,
+     "instances": 320,
+     "mode_t_evaluations": 631424,
+     "pairs": 40,
+     "questions": 21696
+    },
+    "T1": {
+     "by_operator": {
+      "believed_at": 960,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 1920
+     },
+     "cuts": 3768,
+     "instances": 320,
+     "mode_t_evaluations": 71592,
+     "pairs": 40,
+     "questions": 6080
+    },
+    "T2": {
+     "by_operator": {
+      "believed_at": 800,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 800,
+      "history": 320,
+      "valid_at": 480,
+      "why_changed": 1280
+     },
+     "cuts": 3176,
+     "instances": 320,
+     "mode_t_evaluations": 51216,
+     "pairs": 40,
+     "questions": 4960
+    },
+    "T3": {
+     "by_operator": {
+      "believed_at": 1200,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1200,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 2400
+     },
+     "cuts": 3976,
+     "instances": 320,
+     "mode_t_evaluations": 88152,
+     "pairs": 40,
+     "questions": 7040
+    },
+    "T4": {
+     "by_operator": {
+      "believed_at": 960,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 1920
+     },
+     "cuts": 3720,
+     "instances": 320,
+     "mode_t_evaluations": 70680,
+     "pairs": 40,
+     "questions": 6080
+    },
+    "T5": {
+     "by_operator": {
+      "believed_at": 960,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 1920
+     },
+     "cuts": 3704,
+     "instances": 320,
+     "mode_t_evaluations": 70376,
+     "pairs": 40,
+     "questions": 6080
+    }
+   },
+   "total": {
+    "cuts": 66392,
+    "instances": 4480,
+    "mode_t_evaluations": 2135976,
+    "pairs": 560,
+    "questions": 126540
+   }
+  }
+ }
+}
+---END FILE config/round43_counts.json---
+
+Decision needed: approve or change design v3 of round 4.3 before any implementation of the consolidation.
+Prepared on lab main dd33a06; consolidation not implemented or run.
+=== END OF LAB ROUND 4.3 DESIGN v3 ===
