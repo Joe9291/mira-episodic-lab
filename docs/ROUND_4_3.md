@@ -1,4 +1,4 @@
-# Round 4.3 - Source-bound consolidation of the long-term memory (design v3, for review)
+# Round 4.3 - Source-bound consolidation of the long-term memory (design v3, approved 2026-10-24 - reviews/2026-10-24_r43v3_astra.txt; implementation notes in section 9)
 
 Context: the five-phase plan (2026-10-20) names three parts of phase 2: versioned
 statements, contradictions, and source-bound consolidation ("quellengebundene
@@ -293,3 +293,57 @@ every tamper and interrupted-write case of section 6 (4), the lost distractor fa
 section 6 (8), the digest's grouping (a conflict segment, an agreeing outranked claim, a
 dissenting one, merged versions), the test-only loading path of the controls (not
 reachable from Modes A and T).
+
+## 9. Implementation notes (after the APPROVE of v3)
+
+Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementation:
+- episodic_lab/r43_consolidate.py - checkpoints (scratch and incremental, canonical JSON,
+  own hash over the object without the hash field, header with cut, archive seal, highest
+  prefix id, parent, resolver hash); H = M's class with only `_claims_at` replaced (the
+  replay starts from the latest checkpoint <= k; M's file unchanged); Mode A (D = 5 from
+  C(0)) and Mode T (one checkpoint + tail, "compacted" below the cut); H's digest from H's
+  own standing claims with M's version function; the control test path `control_memory`
+  (no integrity checks; Modes A and T only accept checked checkpoints); disk layout: the
+  tail is a chain SEGMENT that continues the archive chain from the checkpoint's seal, and
+  the write order is checkpoint file -> tail file -> trust record (temp + rename) -> removal
+  of older files, so a crash leaves either the old or the new consistent pair.
+- episodic_lab/r43_reference.py - only R's step function and table plus the original
+  reports: the reference state over all facts (origin from the report whose id the claim
+  carries; checked for corrections and repeats by the hand cases), R's effectiveness of
+  every correction / retraction, R's digest (own code), the synthetic reports, and the
+  control claim sets K1-K3 - derived from R's table, so the informative cases are known
+  before any run of H (design section 5 says "the control's checkpoint"; deriving it from
+  R instead of from H's checkpoint keeps the controls R-only).
+- R's answers to the questions are computed on the reports of the asked fact and its
+  anchor only (an optimisation: M keeps claims per fact and every correction / retraction
+  targets a report of its own fact - audited on every world, 0 cross-fact targets on dev
+  and holdout); the full-state check always uses the whole world.
+- bench/m3/run_round43.py (phases audit / run, one job per family), collect_round43.py
+  (bound counts per family and operator, every rule, the expected numbers of tamper (12 per
+  world-delay instance), interrupted-write (3), persistence (1) and lost-fact cases (one per
+  instance with an unasked fact, i.e. delays > 0: 3 / 4 of the instances)), freeze43.py
+  (R only), .github/workflows/round43.yml (14 family jobs + collect), tests/test_round43.py
+  (hand cases: proof obligation 1 for withdrawn, claimless and missing targets at every cut,
+  citation roles, digest grouping incl. a conflict segment, composition and parent, every
+  tamper and interrupted-write case, every field of the full-state comparison changed
+  (Astra's idea), a highest prefix id that belongs to a retraction / an ineffective
+  correction (Astra's idea), the lost unasked fact, the control path).
+- Tamper cases: the claim cases use the first cut with claims and a tail; the tail cases use
+  the genesis checkpoint with the whole world as its tail (every world has >= 2 reports).
+- Development result (docs/ROUND_4_3_dev_SUMMARY.md): PASS - zero violations of every rule;
+  16,672 cuts, 31,872 Mode A answers, 546,776 Mode T evaluations, 15,552 composition pairs,
+  73,368 full-state comparisons (16,672 checkpoints, 5,840 Mode A times, 50,856 Mode T
+  times), 13,440 tamper and 3,360 interrupted-write cases, 1,120 persistence checks and
+  840 lost-fact tests, 544 conformance checks; controls: K1 61,420 informative cases from
+  135 pairs, K2 4,040 from 60 pairs (families P1, P7, P8, T3, T4, T5 - where outranked
+  claims exist), K3 126,828 from 140 pairs. Measures: logical size of the checkpoints 461,418
+  claims for 583,544 prefix reports (79 %); canonical bytes 59.5 MB against 127.1 MB (47 %);
+  after generic compression (gzip) the checkpoints are LARGER than the raw prefixes (13.0 MB
+  against 12.1 MB) - the raw log compresses better than the consolidated JSON; the logical
+  gain does not carry over to compressed bytes in these worlds.
+- Holdout audit before the freeze (R only, freeze43.py without --write): bound counts equal
+  to config/round43_counts.json, 0 id-contract violations, 0 K3 collisions, 0 cross-fact
+  targets; controls K1 240,184 informative cases from 540 pairs, K2 16,884 from 240 pairs,
+  K3 503,144 from 560 pairs - each control sufficient (>= 30 cases, >= 10 pairs).
+- Joe's check: docs/ROUND_4_3_joe_cases.md (bench/m3/joe_cases43.py; five development cases
+  chosen by rule).
