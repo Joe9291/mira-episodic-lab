@@ -1,0 +1,510 @@
+{
+ "generator_version": "r43.g1",
+ "schema": "episodic_lab.round43_counts.v1",
+ "seeds": {
+  "dev": "r43-dev-1",
+  "holdout": "r43-holdout-1"
+ },
+ "splits": {
+  "dev": {
+   "families": {
+    "P1": {
+     "by_operator": {
+      "believed_at": 352,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 272,
+      "history": 160,
+      "valid_at": 280,
+      "why_changed": 680
+     },
+     "cuts": 1264,
+     "instances": 80,
+     "mode_t_evaluations": 32640,
+     "pairs": 10,
+     "questions": 2064
+    },
+    "P2": {
+     "by_operator": {
+      "believed_at": 320,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 320,
+      "why_changed": 800
+     },
+     "cuts": 1336,
+     "instances": 80,
+     "mode_t_evaluations": 34736,
+     "pairs": 10,
+     "questions": 2080
+    },
+    "P3": {
+     "by_operator": {
+      "believed_at": 400,
+      "conflicts": 80,
+      "current": 80,
+      "digest": 80,
+      "digest_at": 320,
+      "history": 160,
+      "valid_at": 368,
+      "why_changed": 1232
+     },
+     "cuts": 1328,
+     "instances": 80,
+     "mode_t_evaluations": 45168,
+     "pairs": 10,
+     "questions": 2720
+    },
+    "P4": {
+     "by_operator": {
+      "believed_at": 320,
+      "conflicts": 80,
+      "current": 80,
+      "digest": 80,
+      "digest_at": 320,
+      "history": 160,
+      "valid_at": 368,
+      "why_changed": 1232
+     },
+     "cuts": 1328,
+     "instances": 80,
+     "mode_t_evaluations": 44000,
+     "pairs": 10,
+     "questions": 2640
+    },
+    "P5": {
+     "by_operator": {
+      "believed_at": 424,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 344,
+      "history": 80,
+      "valid_at": 320,
+      "why_changed": 1112
+     },
+     "cuts": 1224,
+     "instances": 80,
+     "mode_t_evaluations": 39784,
+     "pairs": 10,
+     "questions": 2600
+    },
+    "P6": {
+     "by_operator": {
+      "believed_at": 344,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 344,
+      "history": 80,
+      "valid_at": 320,
+      "why_changed": 1112
+     },
+     "cuts": 1224,
+     "instances": 80,
+     "mode_t_evaluations": 38600,
+     "pairs": 10,
+     "questions": 2520
+    },
+    "P7": {
+     "by_operator": {
+      "believed_at": 280,
+      "conflicts": 160,
+      "current": 120,
+      "digest": 80,
+      "digest_at": 280,
+      "history": 160,
+      "valid_at": 240,
+      "why_changed": 720
+     },
+     "cuts": 1064,
+     "instances": 80,
+     "mode_t_evaluations": 27744,
+     "pairs": 10,
+     "questions": 2040
+    },
+    "P8": {
+     "by_operator": {
+      "believed_at": 296,
+      "conflicts": 160,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 296,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 672
+     },
+     "cuts": 960,
+     "instances": 80,
+     "mode_t_evaluations": 22912,
+     "pairs": 10,
+     "questions": 1904
+    },
+    "P9": {
+     "by_operator": {
+      "before": 80,
+      "believed_at": 536,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 536,
+      "history": 80,
+      "valid_at": 536,
+      "why_changed": 3640
+     },
+     "cuts": 2368,
+     "instances": 80,
+     "mode_t_evaluations": 173008,
+     "pairs": 10,
+     "questions": 5728
+    },
+    "T1": {
+     "by_operator": {
+      "believed_at": 240,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 480
+     },
+     "cuts": 912,
+     "instances": 80,
+     "mode_t_evaluations": 17328,
+     "pairs": 10,
+     "questions": 1520
+    },
+    "T2": {
+     "by_operator": {
+      "believed_at": 200,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 200,
+      "history": 80,
+      "valid_at": 120,
+      "why_changed": 320
+     },
+     "cuts": 776,
+     "instances": 80,
+     "mode_t_evaluations": 12560,
+     "pairs": 10,
+     "questions": 1240
+    },
+    "T3": {
+     "by_operator": {
+      "believed_at": 304,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 304,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 608
+     },
+     "cuts": 1008,
+     "instances": 80,
+     "mode_t_evaluations": 22576,
+     "pairs": 10,
+     "questions": 1776
+    },
+    "T4": {
+     "by_operator": {
+      "believed_at": 240,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 480
+     },
+     "cuts": 928,
+     "instances": 80,
+     "mode_t_evaluations": 17632,
+     "pairs": 10,
+     "questions": 1520
+    },
+    "T5": {
+     "by_operator": {
+      "believed_at": 240,
+      "conflicts": 80,
+      "current": 160,
+      "digest": 80,
+      "digest_at": 240,
+      "history": 80,
+      "valid_at": 160,
+      "why_changed": 480
+     },
+     "cuts": 952,
+     "instances": 80,
+     "mode_t_evaluations": 18088,
+     "pairs": 10,
+     "questions": 1520
+    }
+   },
+   "total": {
+    "cuts": 16672,
+    "instances": 1120,
+    "mode_t_evaluations": 546776,
+    "pairs": 140,
+    "questions": 31872
+   }
+  },
+  "holdout": {
+   "families": {
+    "P1": {
+     "by_operator": {
+      "believed_at": 1464,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1144,
+      "history": 640,
+      "valid_at": 1120,
+      "why_changed": 2860
+     },
+     "cuts": 5144,
+     "instances": 320,
+     "mode_t_evaluations": 136560,
+     "pairs": 40,
+     "questions": 8508
+    },
+    "P2": {
+     "by_operator": {
+      "believed_at": 1280,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 1280,
+      "why_changed": 3200
+     },
+     "cuts": 5520,
+     "instances": 320,
+     "mode_t_evaluations": 143520,
+     "pairs": 40,
+     "questions": 8320
+    },
+    "P3": {
+     "by_operator": {
+      "believed_at": 1600,
+      "conflicts": 320,
+      "current": 320,
+      "digest": 320,
+      "digest_at": 1280,
+      "history": 640,
+      "valid_at": 1488,
+      "why_changed": 4992
+     },
+     "cuts": 5256,
+     "instances": 320,
+     "mode_t_evaluations": 180616,
+     "pairs": 40,
+     "questions": 10960
+    },
+    "P4": {
+     "by_operator": {
+      "believed_at": 1280,
+      "conflicts": 320,
+      "current": 320,
+      "digest": 320,
+      "digest_at": 1280,
+      "history": 640,
+      "valid_at": 1488,
+      "why_changed": 4992
+     },
+     "cuts": 5176,
+     "instances": 320,
+     "mode_t_evaluations": 172680,
+     "pairs": 40,
+     "questions": 10640
+    },
+    "P5": {
+     "by_operator": {
+      "believed_at": 1704,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1384,
+      "history": 320,
+      "valid_at": 1280,
+      "why_changed": 4472
+     },
+     "cuts": 4976,
+     "instances": 320,
+     "mode_t_evaluations": 162536,
+     "pairs": 40,
+     "questions": 10440
+    },
+    "P6": {
+     "by_operator": {
+      "believed_at": 1384,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1384,
+      "history": 320,
+      "valid_at": 1280,
+      "why_changed": 4472
+     },
+     "cuts": 4904,
+     "instances": 320,
+     "mode_t_evaluations": 155560,
+     "pairs": 40,
+     "questions": 10120
+    },
+    "P7": {
+     "by_operator": {
+      "believed_at": 1120,
+      "conflicts": 640,
+      "current": 480,
+      "digest": 320,
+      "digest_at": 1120,
+      "history": 640,
+      "valid_at": 960,
+      "why_changed": 2880
+     },
+     "cuts": 4232,
+     "instances": 320,
+     "mode_t_evaluations": 109536,
+     "pairs": 40,
+     "questions": 8160
+    },
+    "P8": {
+     "by_operator": {
+      "believed_at": 1144,
+      "conflicts": 640,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1144,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 2608
+     },
+     "cuts": 3912,
+     "instances": 320,
+     "mode_t_evaluations": 91528,
+     "pairs": 40,
+     "questions": 7456
+    },
+    "P9": {
+     "by_operator": {
+      "before": 320,
+      "believed_at": 2056,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 2056,
+      "history": 320,
+      "valid_at": 2056,
+      "why_changed": 13608
+     },
+     "cuts": 8928,
+     "instances": 320,
+     "mode_t_evaluations": 631424,
+     "pairs": 40,
+     "questions": 21696
+    },
+    "T1": {
+     "by_operator": {
+      "believed_at": 960,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 1920
+     },
+     "cuts": 3768,
+     "instances": 320,
+     "mode_t_evaluations": 71592,
+     "pairs": 40,
+     "questions": 6080
+    },
+    "T2": {
+     "by_operator": {
+      "believed_at": 800,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 800,
+      "history": 320,
+      "valid_at": 480,
+      "why_changed": 1280
+     },
+     "cuts": 3176,
+     "instances": 320,
+     "mode_t_evaluations": 51216,
+     "pairs": 40,
+     "questions": 4960
+    },
+    "T3": {
+     "by_operator": {
+      "believed_at": 1200,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 1200,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 2400
+     },
+     "cuts": 3976,
+     "instances": 320,
+     "mode_t_evaluations": 88152,
+     "pairs": 40,
+     "questions": 7040
+    },
+    "T4": {
+     "by_operator": {
+      "believed_at": 960,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 1920
+     },
+     "cuts": 3720,
+     "instances": 320,
+     "mode_t_evaluations": 70680,
+     "pairs": 40,
+     "questions": 6080
+    },
+    "T5": {
+     "by_operator": {
+      "believed_at": 960,
+      "conflicts": 320,
+      "current": 640,
+      "digest": 320,
+      "digest_at": 960,
+      "history": 320,
+      "valid_at": 640,
+      "why_changed": 1920
+     },
+     "cuts": 3704,
+     "instances": 320,
+     "mode_t_evaluations": 70376,
+     "pairs": 40,
+     "questions": 6080
+    }
+   },
+   "total": {
+    "cuts": 66392,
+    "instances": 4480,
+    "mode_t_evaluations": 2135976,
+    "pairs": 560,
+    "questions": 126540
+   }
+  }
+ }
+}

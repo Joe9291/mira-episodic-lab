@@ -1,4 +1,4 @@
-# Round 4.3 - Source-bound consolidation of the long-term memory (design v2, for review)
+# Round 4.3 - Source-bound consolidation of the long-term memory (design v3, for review)
 
 Context: the five-phase plan (2026-10-20) names three parts of phase 2: versioned
 statements, contradictions, and source-bound consolidation ("quellengebundene
@@ -19,7 +19,14 @@ non-deciding claims and origins (section 3); K3 replaced by an id-renaming contr
 binding rule for non-discriminating controls (sections 5, 6); genesis cut, complete
 cuts, composition under identical header parameters, the hashed payload, trust anchors
 outside the checked data, sealed verification before deletion, interrupted writes, and
-the bound holdout numbers (sections 2, 4, 6).
+the bound holdout numbers (sections 2, 4, 6). v3 answers her review of v2
+(reviews/2026-10-24_r43v2_astra.txt): a full-state comparison of every checkpoint and of
+every propagated state against an independently built reference state over ALL facts
+(section 2, pass rule 8); the synthetic R comparison only for questions whose needed
+knowledge time is >= c (pass rule 1); lossy controls separated from the integrity checks
+of regular checkpoints (sections 5, 6); the digest partition counts only the claim
+entries (section 3); a canonical ordering (section 2); expected counts bound per family
+and operator in a frozen file (section 4).
 
 Uncertainty removed: can the memory replace its growing raw report log by a compact
 consolidated state - so that (a) every answer stays exactly the answer of the full
@@ -91,8 +98,25 @@ any difference to M is a consolidation error, never a resolution error. Tail ing
 a report id at or below the checkpoint's highest id.
 Independent check by R: every claim of C(c) is written as one synthetic assert report
 (same id, value, valid_from, rank, source, origin; report_day c); R on these synthetic
-reports plus the tail must answer every question with all knowledge times >= c exactly as
-R on the full reports.
+reports plus the tail must answer every question q with needed_time(q) >= c exactly as R
+on the full reports (needed_time: believed_at, digest_at -> t; why_changed -> k1; all
+others -> now). A question with needed_time(q) < c is NOT compared there: a checkpoint at c
+cannot reconstruct it by construction (Mode A uses an earlier checkpoint, Mode T answers
+"compacted").
+Full-state check (independent of the questions): the reference state at knowledge time k
+is built by a separate module from R's own step function (R's table of claim rows, its
+alive flag; the origin of a claim is the origin of the report whose id the claim carries)
+over ALL facts of the world - asked facts, anchors and every distractor fact. For every
+cut, the normalised claim set of C(c) (subject, attribute, id, value, valid_from, rank,
+source, origin) must equal the reference state at c; and for every knowledge time that any
+question uses (in Mode A and in Mode T within scope), the standing claims that H has
+propagated from its checkpoint and the tail must equal the reference state at that time,
+again over all facts. The dependency table above is a description of M's and R's actual
+reads that these checks put to the test, not a substitute for them.
+Canonical form: facts sorted by (subject, attribute); claims by id; value groups by the
+canonical JSON of the value; every list of cited claims by id; canonical JSON = sorted
+keys, separators "," and ":", ASCII escaping; the checkpoint hash and every byte-identity
+check use this form.
 A checkpoint is built from scratch (replay of the archive prefix) or incrementally
 (parent checkpoint + segment). Mode A (archive kept as cold storage): checkpoints every D
 days (D = 5, fixed) including C(0); a question is answered from the latest checkpoint
@@ -127,7 +151,9 @@ same status and the same value(s) merged into one segment:
   listed claim does not by itself support the whole segment;
 - plus the answer value_at(k, k).
 Every value in a digest appears with at least one cited claim, and every claim standing at
-k appears exactly once (checked: the digest partitions the standing claims of the fact).
+k appears exactly once among the claim ENTRIES of support, agree and dissent over all
+segments (the partition check; the separately reported current answer is not counted as
+a claim entry).
 digest_at(t) is the digest at knowledge time t. R computes the digest independently from
 its own table (a separate function in a new module, no shared code with H's digest; R's
 file itself is not changed).
@@ -155,7 +181,9 @@ Bound numbers (episodic_lab/r43_world.py, computed before any run of H):
 | composition pairs (cuts - instances) | 15,552 | 61,912 |
 Holdout questions by operator: why_changed 53,524, believed_at 17,912, digest_at 16,632,
 valid_at 14,632, current 8,160, history 5,760, conflicts 5,120, digest 4,480, before 320.
-Any deviation from these numbers in the run fails the round.
+The same numbers per family and per operator are frozen in config/round43_counts.json
+(SHA-256 9a88a2da3a5a883b34698afacfb68a989c50eb38be69f23139ad5f1e177d1d63); the run must
+reproduce every key and every count of that file; any deviation fails the round.
 
 ## 5. Systems and lossy controls
 
@@ -174,14 +202,20 @@ checkpoint written as synthetic reports plus the tail, answers differently from 
 full reports - a property of the worlds, computed by R before any run of H. Prediction:
 H on the control checkpoint answers exactly as R on it, so it fails exactly on the
 informative cases (Mode T in-scope questions).
+Controls versus integrity: regular checkpoints always pass through every integrity check
+(section 6 (4)); a control checkpoint is a deliberately altered starting state (K3's ids
+lie above the prefix ids and contradict the source binding) and is loaded only through a
+test-only path that skips the integrity checks and is unreachable from Modes A and T. The
+controls test the propagation of state against their R counterpart; an integrity refusal
+never counts as the predicted semantic failure of a control.
 
 ## 6. Measures and pass rule (fixed before any run)
 
 Pass rule on the holdout (zero allowed errors everywhere; the numbers of section 4 bound):
 (1) Mode A: every question identical to M, report ids included, in every world; M = R on
     every question; the digest of H = the digest computed from the full store = the
-    digest of R; R on C's synthetic reports plus the tail = R on the full reports at every
-    cut.
+    digest of R; at every cut, R on C's synthetic reports plus the tail = R on the full
+    reports for every question q with needed_time(q) >= c (and only for those).
 (2) Mode T: at every cut of every world, every question that needs no knowledge time < c
     identical to M; every question that needs one answered "compacted"; no other output.
 (3) Composition: for every consecutive pair of cuts, C(c2) built incrementally from C(c1)
@@ -212,9 +246,17 @@ Pass rule on the holdout (zero allowed errors everywhere; the numbers of section
     control fails exactly on its informative cases); each control has >= 30 informative
     cases from >= 10 distinct pairs, reported with their numbers of pairs, families and
     operators (several cuts of one pair are not independent cases). These counts are known
-    before any run of H; a control that misses them makes a full PASS impossible - it does
-    not silently drop out (the design would be revised before the freeze).
+    before any run of H and are computed before the freeze; if a control misses them then,
+    the design is revised (with a new review) before the freeze; on the frozen holdout a
+    control that misses them makes a full PASS impossible ("incomplete evidence") - it does
+    not silently drop out, and any later adjustment is a new attempt.
 (7) The 4.0 conformance set through Modes A and T at every cut.
+(8) Full state: at every cut of every world the normalised claim set of C(c) equals the
+    independent reference state over all facts; at every knowledge time used by a question
+    the state H has propagated equals the reference state over all facts (section 2). A
+    negative test (hand case): a checkpoint that loses the claims of one distractor fact
+    no question asks about - with a recomputed self-hash and a matching trust record, so
+    that only this check can find it - is detected.
 Measures (report only): size of C(c) against the archive prefix - logical (claims vs
 reports) and physical bytes, the latter also after a shared dictionary / generic
 compression, reported SEPARATELY from the removal of logical information; reports and
@@ -247,5 +289,7 @@ it) in GitHub Actions, split by family (about 2.1 million Mode T evaluations plu
 checks per cut and per control: a few CPU hours). Hand cases (tests): every equivalence of
 proof obligation 1 (a correction / retraction of a withdrawn, a claimless and a missing
 target, each before and after a cut), every citation role of section 6 (5), composition,
-every tamper and interrupted-write case of section 6 (4), the digest's grouping (a
-conflict segment, an agreeing outranked claim, a dissenting one, merged versions).
+every tamper and interrupted-write case of section 6 (4), the lost distractor fact of
+section 6 (8), the digest's grouping (a conflict segment, an agreeing outranked claim, a
+dissenting one, merged versions), the test-only loading path of the controls (not
+reachable from Modes A and T).
