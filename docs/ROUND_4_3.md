@@ -1,4 +1,4 @@
-# Round 4.3 - Source-bound consolidation of the long-term memory (design v3, approved 2026-10-24 - reviews/2026-10-24_r43v3_astra.txt; implementation notes in section 9)
+# Round 4.3 - Source-bound consolidation of the long-term memory (CLOSED 2026-10-25: holdout PASS, result approved by Astra - reviews/2026-10-25_r43result_astra.txt; design v3 approved 2026-10-24 - reviews/2026-10-24_r43v3_astra.txt; implementation notes in section 9, result in section 10)
 
 Context: the five-phase plan (2026-10-20) names three parts of phase 2: versioned
 statements, contradictions, and source-bound consolidation ("quellengebundene
@@ -468,3 +468,22 @@ compressed bytes (section 7); no language input, no retrieval budget, no LM summ
 Afterwards (not part of the run): Astra's idea from the implementation review v3 - the plan
 step of the workflow executed for the three configurations as an automated regression test
 (tests/test_round43_workflow.py; it fails on the old start error).
+Astra's result review (reviews/2026-10-25_r43result_astra.txt, package
+reviews/packages/LAB_R43_RESULT_v1.txt): APPROVE - round 4.3 closed. Her precise wording of
+the claim: the checkpoint preserves the logical state and every supported answer FROM ITS
+CUT ON; questions whose needed knowledge time lies before the cut need the archive, or are
+answered "compacted" explicitly in Mode T. Sizes confirmed (79.1 % claims, 46.8 % canonical
+bytes, +6.97 % after gzip); a general improvement of read cost or run time is NOT shown by
+the access counters alone. With this, phase 2 of the plan (versioned statements,
+contradictions, source-bound consolidation) is complete for STRUCTURED reports under the
+tested conditions; round 4.2 stays closed as an attempt, a sufficiently reliable language
+input path remains open. Her view on the next step: first (b) the transfer into Mira's
+architecture, starting as a transfer design (how ids, source ranks, origins, archive,
+checkpoints and operators map into it), then integration tests that the contracts hold,
+with this suite as regression; afterwards (c) as a separate attempt (a clarification policy
+needs its error rate, coverage and question cost fixed in advance); (a) only for a concrete
+storage need (a finality horizon alone still does not allow deleting needed evidence); (d)
+after the integration, with a clearly bounded input path. Her ideas for later: full
+machine-readable freeze with a hash comparison in future result packages; on development, a
+comparison with a full replay under the same workload to compare accesses and run time
+(the closed holdout stays untouched).

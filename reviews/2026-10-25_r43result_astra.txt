@@ -1,0 +1,29 @@
+3m 22s nachgedacht
+
+> Decision needed: confirm the holdout result and the closure of round 4.3, or request changes. Prepared on lab main 72ea733; holdout run once (PASS).
+
+APPROVE — Runde 4.3 kann mit dem dokumentierten Ergebnis geschlossen werden.
+
+Q1 – Ergebnis und Vollständigkeit: Die gemeldeten Ergebnisse decken Regeln (1)–(8) ab. Alle gebundenen Gesamtzahlen und ihre Beziehungen stimmen, insbesondere:
+
+- 126.540 Mode-A-Antworten und 2.135.976 Mode-T-Auswertungen.
+- 289.576 Vollzustandsvergleiche und 206.640 Partitionsprüfungen.
+- 53.760 Manipulationsfälle, 44.800 Unterbrechungsfälle, 4.480 Persistenzprüfungen und 544 Konformitätsprüfungen.
+- Alle drei Verlustkontrollen erreichen die Mindestzahlen und stimmen mit dem Vorabaudit überein.
+
+Freeze-ID und Zählungsdatei-Hash sind konsistent. Die vollständigen Familien-Digests und Codehashlisten fehlen im Abdruck; deren Gleichheit ist durch das PASS des zuvor geprüften Collectors dokumentiert, hier jedoch nicht unabhängig nachgerechnet. Diese Grenze meiner Prüfung ist von einem gefundenen Fehler zu unterscheiden.
+
+Q2 – Befundtext: Der fachliche Kern stimmt innerhalb der festgelegten Generatoren und Quellenpolitik. Präzise gilt: Der Checkpoint erhält den logischen Zustand und alle unterstützten Antworten ab seinem Schnitt. Abfragen mit benötigten Wissenszeiten davor benötigen das Archiv oder ergeben in Mode T ausdrücklich „compacted“.
+
+Die Größenangaben stimmen: 79,1 % Claims gegenüber Präfixberichten, 46,8 % kanonische Bytes; nach gzip dagegen 6,97 % mehr Speicherbedarf. Eine allgemeine Verbesserung von Lesekosten oder Laufzeit ist aus den ausgewiesenen Zugriffszählern allein nicht nachgewiesen.
+
+Q3 – Abschluss: Ja. Damit ist Phase 2 für strukturierte Berichte unter den geprüften Bedingungen abgeschlossen: versionierte Aussagen, Widersprüche und quellengebundene Verdichtung. Runde 4.2 bleibt als Versuch abgeschlossen; das Ziel eines ausreichend zuverlässigen sprachlichen Eingabepfads bleibt offen.
+
+Q4 – Nächster Schritt: Ich würde b priorisieren, zunächst als Übertragungsdesign: Wie werden IDs, Quellenrang, Herkunft, Archiv, Checkpoints und Operatoren in Miras Architektur abgebildet? Anschließend sollten Integrationstests zeigen, dass diese Verträge erhalten bleiben. Die bisherige Testsuite dient dabei als Regression.
+
+Danach bietet sich c als separater Versuch an. Rückfragen wären eine neue Interaktionspolitik; deren Fehlerquote, Abdeckung und Rückfrageaufwand müssten vorab festgelegt werden. a würde ich an einen konkreten Speicherbedarf knüpfen: Eine Finalitätsfrist allein erlaubt weiterhin nicht, benötigte historische Belege zu löschen. d würde ich nach der Integration und mit einem klar abgegrenzten Eingabepfad planen.
+
+Verbesserungsideen:
+
+- Künftigen Ergebnispaketen den vollständigen maschinenlesbaren Freeze samt Hashvergleich beilegen.
+- Auf Dev einen Vergleich mit vollständigem Replay unter identischer Arbeitslast ergänzen, um Zugriffe und Laufzeit belastbar gegenüberzustellen. Den abgeschlossenen Holdout dafür unverändert lassen.
