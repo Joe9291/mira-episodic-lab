@@ -1,0 +1,147 @@
+{
+ "conformance_checks": 544,
+ "controls": {
+  "K1": {
+   "families": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P9",
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "T5"
+   ],
+   "informative": 61420,
+   "operators": {
+    "before": 1216,
+    "believed_at": 392,
+    "conflicts": 300,
+    "current": 232,
+    "digest": 10704,
+    "digest_at": 12752,
+    "history": 13416,
+    "valid_at": 22356,
+    "why_changed": 52
+   },
+   "pairs": 135
+  },
+  "K2": {
+   "families": [
+    "P1",
+    "P7",
+    "P8",
+    "T3",
+    "T4",
+    "T5"
+   ],
+   "informative": 4040,
+   "operators": {
+    "believed_at": 68,
+    "conflicts": 100,
+    "current": 136,
+    "digest": 2336,
+    "digest_at": 1212,
+    "history": 68,
+    "valid_at": 68,
+    "why_changed": 52
+   },
+   "pairs": 60
+  },
+  "K3": {
+   "families": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "P8",
+    "P9",
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "T5"
+   ],
+   "informative": 126828,
+   "operators": {
+    "before": 1528,
+    "believed_at": 7832,
+    "conflicts": 2096,
+    "current": 12168,
+    "digest": 15452,
+    "digest_at": 26052,
+    "history": 19684,
+    "valid_at": 40972,
+    "why_changed": 1044
+   },
+   "pairs": 140
+  }
+ },
+ "freeze_id": null,
+ "measures": {
+  "checkpoint_bytes": 59494863,
+  "checkpoint_gzip": 12990184,
+  "claims": 461418,
+  "composition": 15552,
+  "digest_partition_checks": 52216,
+  "digest_partition_checks_mode_a": 5296,
+  "digest_partition_checks_mode_t": 46920,
+  "interrupted_cases": 11200,
+  "lost_fact_tests": 840,
+  "mode_a_answers": 31872,
+  "mode_a_claims_loaded": 192409,
+  "mode_a_reports_applied": 26652,
+  "mode_a_reports_scanned": 360838,
+  "mode_t_evaluations": 546776,
+  "persistence_checks": 1120,
+  "prefix_bytes": 127129872,
+  "prefix_gzip": 12129411,
+  "prefix_reports": 583544,
+  "state_checks_cut": 16672,
+  "state_checks_mode_a": 5840,
+  "state_checks_mode_t": 50856,
+  "tamper_cases": 13440
+ },
+ "problems": [],
+ "seconds": {
+  "P1": 29.4,
+  "P2": 30.1,
+  "P3": 30.7,
+  "P4": 28.8,
+  "P5": 28.9,
+  "P6": 26.4,
+  "P7": 28.7,
+  "P8": 23.5,
+  "P9": 31.4,
+  "T1": 13.7,
+  "T2": 17.8,
+  "T3": 27.3,
+  "T4": 27.7,
+  "T5": 20.4
+ },
+ "split": "dev",
+ "totals": {
+  "cuts": 16672,
+  "digest_checks_mode_a": 5296,
+  "digest_checks_mode_t": 46920,
+  "instances": 1120,
+  "mode_t_evaluations": 546776,
+  "pairs": 140,
+  "questions": 31872,
+  "state_checks_cut": 16672,
+  "state_checks_mode_a": 5840,
+  "state_checks_mode_t": 50856
+ },
+ "verdict": "PASS",
+ "violation_items": [],
+ "violations": {}
+}

@@ -1,0 +1,126 @@
+{
+ "code": {
+  "bench/m3/collect_round43.py": "db41e701fd6a41ab8fa08e63f9e9ac1944914296b5b819bd215e1a91023c55b3",
+  "bench/m3/run_round43.py": "d8771a7b8a60dcb88b518dcfa71e0659f72b5e3be0924d654f8d002a87ff58a4",
+  "config/round43_counts.json": "3e390e95cf9ba3773e43b26c783d40bca0c467a850a8b9ddb1495255e111fe49",
+  "episodic_lab/r40_memory.py": "bdd3da396c22e1060e8ca6de09ba81d42d7d5053cb48c3b9aad88144e8bbfb4c",
+  "episodic_lab/r40_reference.py": "9dac06abd3cf106fd6bb47550756f90f9bd474356166743cb33d6479ce64a8df",
+  "episodic_lab/r40_schema.py": "6ec2c55ed7b863a664d542e8aa52d1b33b587b9dea70cecda7a316564457e34c",
+  "episodic_lab/r40_world.py": "88152b2f6567e95b49c371405265037bd5814735f49085b605d2410eebc63a33",
+  "episodic_lab/r41_world.py": "e3e95f971d2cc364b6be2d14deb356b46e30ad41a7730bb17f84eedd562f1019",
+  "episodic_lab/r43_consolidate.py": "f06fdaf9b744ebeef6a54235cceb6714948a7627dc379a4e47862da488e3b249",
+  "episodic_lab/r43_reference.py": "b58beec57fc7d4e3ff9f26dff6d838e13ad629b191489977cbef093122c0d9f5",
+  "episodic_lab/r43_world.py": "230b3b840fec56e5e553200926567a2da8036d470a66a9527aeded1b3042ac2b",
+  "episodic_lab/rng.py": "4c807caf9a5da36c0fb97e0771567dcbf483135f8129369301b598c17b74f5c8",
+  "tests/fixtures/r40_conformance.json": "de057160506865ea1b4ddf686053bb0a999078f1e10b6d6306d940425e23563a"
+ },
+ "conformance_checks": 0,
+ "controls": {
+  "K1": {
+   "families": [
+    "P7"
+   ],
+   "informative": 3760,
+   "operators": {
+    "conflicts": 200,
+    "digest": 656,
+    "digest_at": 536,
+    "history": 1312,
+    "valid_at": 1056
+   },
+   "pairs": 10
+  },
+  "K2": {
+   "families": [
+    "P7"
+   ],
+   "informative": 372,
+   "operators": {
+    "digest": 256,
+    "digest_at": 116
+   },
+   "pairs": 10
+  },
+  "K3": {
+   "families": [
+    "P7"
+   ],
+   "informative": 8432,
+   "operators": {
+    "believed_at": 424,
+    "conflicts": 656,
+    "current": 728,
+    "digest": 984,
+    "digest_at": 1440,
+    "history": 1968,
+    "valid_at": 2232
+   },
+   "pairs": 10
+  }
+ },
+ "counts": {
+  "P7": {
+   "by_operator": {
+    "believed_at": 280,
+    "conflicts": 160,
+    "current": 120,
+    "digest": 80,
+    "digest_at": 280,
+    "history": 160,
+    "valid_at": 240,
+    "why_changed": 720
+   },
+   "cuts": 1064,
+   "digest_checks_mode_a": 360,
+   "digest_checks_mode_t": 2784,
+   "instances": 80,
+   "mode_t_evaluations": 27744,
+   "pairs": 10,
+   "questions": 2040,
+   "state_checks_cut": 1064,
+   "state_checks_mode_a": 360,
+   "state_checks_mode_t": 2784
+  }
+ },
+ "digests": {
+  "P7": {
+   "gold": "3b2fcbff22c9c4181afde94534ee41e0b042621f59007f3416eeb9796c1089eb",
+   "worlds": "022e32fdb7c4c91d4c639d6288b39f7470ffcab7b1edc60b096ba824fb5cbcdb"
+  }
+ },
+ "families": [
+  "P7"
+ ],
+ "generator": "r43.g1",
+ "measures": {
+  "checkpoint_bytes": 4133472,
+  "checkpoint_gzip": 864773,
+  "claims": 32434,
+  "composition": 984,
+  "digest_partition_checks": 3144,
+  "digest_partition_checks_mode_a": 360,
+  "digest_partition_checks_mode_t": 2784,
+  "interrupted_cases": 800,
+  "lost_fact_tests": 60,
+  "mode_a_answers": 2040,
+  "mode_a_claims_loaded": 13328,
+  "mode_a_reports_applied": 1646,
+  "mode_a_reports_scanned": 23644,
+  "mode_t_evaluations": 27744,
+  "persistence_checks": 80,
+  "prefix_bytes": 8928990,
+  "prefix_gzip": 824620,
+  "prefix_reports": 40952,
+  "state_checks_cut": 1064,
+  "state_checks_mode_a": 360,
+  "state_checks_mode_t": 2784,
+  "tamper_cases": 960
+ },
+ "phase": "run",
+ "schema": "episodic_lab.round43_job.v1",
+ "seconds": 28.7,
+ "split": "dev",
+ "status": "OK",
+ "violation_items": [],
+ "violations": {}
+}
