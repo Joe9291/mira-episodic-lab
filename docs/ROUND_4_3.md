@@ -343,8 +343,10 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   against 12.1 MB) - the raw log compresses better than the consolidated JSON; the logical
   gain does not carry over to compressed bytes in these worlds.
 - Holdout audit before the freeze (R only, freeze43.py without --write): bound counts equal
-  to config/round43_counts.json, 0 id-contract violations, 0 K3 collisions, 0 cross-fact
-  targets; controls K1 240,184 informative cases from 540 pairs, K2 16,884 from 240 pairs,
-  K3 503,144 from 560 pairs - each control sufficient (>= 30 cases, >= 10 pairs).
+  to config/round43_counts.json, 0 id-contract violations, 0 K3 collisions; controls K1 240,184 informative cases from 540 pairs, K2 16,884 from 240 pairs,
+  K3 503,144 from 560 pairs - each control sufficient (>= 30 cases, >= 10 pairs). The
+  cross-fact audit was added to the audit after that dry run and counted separately on all
+  4,480 holdout world-delay instances: 0 correction / retraction targets in another fact and
+  0 missing targets (it is part of the audit the freeze runs).
 - Joe's check: docs/ROUND_4_3_joe_cases.md (bench/m3/joe_cases43.py; five development cases
   chosen by rule).
