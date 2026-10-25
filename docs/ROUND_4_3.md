@@ -416,3 +416,55 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   counts-file and code hashes, and the freeze id. Her improvement idea (the plan-step test
   of the three configurations as an automated regression) is added AFTER the holdout run, so
   that the frozen and approved state is the one that runs.
+
+## 10. Holdout result (attempt 1 - the only run)
+
+Run 40176926486 on commit 7ecb696, freeze id e93142c93d5c4b0baa8592e41b0ba1d16d33fb25a7483ea66bc8e723844d814f
+(results branch round43/run_40176926486_1; docs/ROUND_4_3_holdout_SUMMARY.md): 14 family jobs
+and the collector succeeded; worlds and R's answers equal the freeze digests, the code equals
+the frozen code. VERDICT: PASS - zero violations of every rule (1)-(8), every bound number
+reproduced exactly:
+- 560 pairs, 4,480 world-delay instances, 66,392 cuts; Mode A 126,540 answers identical to M
+  (and M = R on every question, digests of H, of the full store and of R identical); Mode T
+  2,135,976 evaluations - every in-scope answer identical to M, every question that needs a
+  knowledge time before its cut answered "compacted"; R on every checkpoint written as
+  synthetic reports equal to R on the full reports for every in-scope question;
+- composition: 61,912 consecutive cut pairs byte-identical (incremental = scratch with the
+  same parent; payload independent of the chain; every chain rebuilt in a second process
+  identical);
+- full state over ALL facts: 289,576 comparisons (66,392 checkpoints, 23,096 Mode A and
+  200,088 Mode T knowledge times) equal to the independent reference state; 3,360 lost-fact
+  negative tests detected;
+- digest partition: 206,640 checks (21,112 Mode A, 185,528 Mode T) - every standing claim
+  exactly once with equal fields;
+- source binding by role on every answer: value evidence standing at its knowledge time,
+  change evidence inside (k1, k2], effectiveness of every tail correction / retraction equal
+  to R's;
+- integrity: 53,760 tamper cases detected (12 per instance, incl. internally consistent
+  forgeries and a cut-off tail found only through the trust record, and the id rule);
+  44,800 interrupted-write cases restarted on the correct consistent state through the
+  external trusted record; 4,480 persistence checks across processes;
+- controls: H on each control claim set answered exactly as R on it; informative cases equal
+  to the pre-freeze audit - K1 240,184 (540 pairs, all 14 families), K2 16,884 (240 pairs;
+  P1, P7, P8, T3, T4, T5), K3 503,144 (560 pairs, all families): dropping the outranked
+  claims (K2), keeping only the current version (K1) or losing the claim identities (K3)
+  each produces wrong answers exactly where predicted;
+- conformance set: 544 checks through Modes A and T at every cut.
+Measures (report only): the checkpoints hold 1,843,840 claims for 2,332,104 prefix reports
+(79.1 %) and 237.8 MB of canonical JSON for 508.1 MB (46.8 %); after gzip they are LARGER than
+the compressed prefixes (51.8 MB against 48.4 MB, +7 %). Mode A, all replays incl. the
+full-state checks: 762,749 claims loaded, 112,236 reports applied, 1,436,784 scanned.
+Claim (within the limits fixed in advance): on the structured worlds of the round 4.0 / 4.1
+generators and under the round 4.0 source policy, the memory's growing report log can be
+replaced by a checkpoint of the standing claims plus the later reports without changing any
+answer or any cited report id; every consolidated item stays bound to its original report
+and verifiable against the archive; after the archive prefix is deleted the memory answers
+"compacted" instead of a wrong value; and the source-bound digest (segments with
+supporting, agreeing and dissenting claims and independent origins) is reproduced exactly by
+the independent reference. This is the pass of a finite test suite (14 families x 40 pairs),
+not a general error rate; it is about lossless consolidation of the logical state - the
+measured gain is in what a question reads and in verifiable source binding, not in
+compressed bytes (section 7); no language input, no retrieval budget, no LM summary.
+Afterwards (not part of the run): Astra's idea from the implementation review v3 - the plan
+step of the workflow executed for the three configurations as an automated regression test
+(tests/test_round43_workflow.py; it fails on the old start error).

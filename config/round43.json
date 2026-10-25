@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round43_request.v1",
- "enabled": true,
- "note": "Round 4.3: the single holdout run of the approved implementation (reviews/2026-10-25_r43impl_v3_astra.txt); freeze below (R only, H not run before).",
+ "enabled": false,
+ "note": "Round 4.3: the single holdout run is done (run 40176926486, PASS). No further runs.",
  "phase": "run",
  "split": "holdout",
  "freeze": {
