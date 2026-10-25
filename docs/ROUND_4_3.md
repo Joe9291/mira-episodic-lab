@@ -182,8 +182,11 @@ Bound numbers (episodic_lab/r43_world.py, computed before any run of H):
 Holdout questions by operator: why_changed 53,524, believed_at 17,912, digest_at 16,632,
 valid_at 14,632, current 8,160, history 5,760, conflicts 5,120, digest 4,480, before 320.
 The same numbers per family and per operator are frozen in config/round43_counts.json
-(SHA-256 9a88a2da3a5a883b34698afacfb68a989c50eb38be69f23139ad5f1e177d1d63); the run must
-reproduce every key and every count of that file; any deviation fails the round.
+(v1, SHA-256 9a88a2da3a5a883b34698afacfb68a989c50eb38be69f23139ad5f1e177d1d63; v2 after
+Astra's implementation review, written by bench/m3/counts43.py, adds the expected numbers
+of full-state comparisons, digest partition checks and conformance checks, the v1 keys
+unchanged: SHA-256 3e390e95cf9ba3773e43b26c783d40bca0c467a850a8b9ddb1495255e111fe49); the
+run must reproduce every key and every count of that file; any deviation fails the round.
 
 ## 5. Systems and lossy controls
 
@@ -350,3 +353,37 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   0 missing targets (it is part of the audit the freeze runs).
 - Joe's check: docs/ROUND_4_3_joe_cases.md (bench/m3/joe_cases43.py; five development cases
   chosen by rule).
+- Astra's implementation review v1 (reviews/2026-10-25_r43impl_astra.txt, REQUEST CHANGES;
+  package reviews/packages/LAB_R43_IMPL_v1.txt) - both deviations (controls from R's table;
+  R's answers on the asked facts with the cross-fact audit) accepted; three changes
+  required before the freeze, all done:
+  (1) write protocol - a grown tail under the SAME checkpoint overwrote
+      tail_<checkpoint>.jsonl before the new trust record was committed (her reproduction:
+      a crash then left the old record pointing at an overwritten file). Now every state
+      file is content-addressed and written only once (temp + rename, never overwritten):
+      checkpoint_<hash>.json and tail_<hash>_<seal count>_<seal head>.jsonl; write_state
+      writes checkpoint, tail and the local record; the caller commits the record to its
+      EXTERNAL trusted copy and only then calls finish_state, which removes the files the
+      committed record does not name. The interrupted-write cases now restart through the
+      external record (the regular path): two scenarios (a new checkpoint; the same
+      checkpoint with a grown tail) x (crash after step 1 / 2 / 3 before the external
+      commit -> old state; after the commit, before and after finish_state -> new state) =
+      10 cases per world-delay instance; her reproduction is a hand case.
+  (2) the digest partition is checked in the full run for every digest answer of Mode A
+      and every in-scope one of Mode T: its claim entries equal the standing claims of the
+      fact at the digest's knowledge time (complete, equal fields, no duplicates).
+  (3) completeness counters bound: config/round43_counts.json v2 (bench/m3/counts43.py,
+      model-free from questions, cuts and the fixture) adds per family the expected numbers
+      of full-state comparisons (checkpoints, Mode A times, Mode T times) and of digest
+      partition checks (Mode A, Mode T) and the exact number of conformance checks (544);
+      the collector requires the executed counts to equal them (holdout: 66,392 + 23,096 +
+      200,088 full-state comparisons, 21,112 + 185,528 partition checks).
+  Her improvement ideas, done: a test that R on the whole world and R on the asked facts
+  agree (first pair of every family, delays 50 and 500); Mode A reads measured as claims
+  loaded / reports applied / reports scanned; a freeze id (SHA-256 of the freeze) recorded
+  in the freeze, the collector summary and RUN.txt of every run, so the freeze, the first
+  holdout run and any repeat attempt are logged together.
+  Development rerun (docs/ROUND_4_3_dev_SUMMARY.md): PASS, zero violations; the new
+  counters: 11,200 interrupted-write cases, 52,216 digest partition checks (5,296 + 46,920),
+  full-state comparisons 16,672 + 5,840 + 50,856, conformance 544 - all equal to the bound
+  numbers.

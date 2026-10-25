@@ -1,0 +1,66 @@
+13m 25s nachgedacht
+
+Decision needed: approve the implementation of round 4.3 for the freeze and the single holdout run, or request changes.
+Prepared on lab main 5cbe464; holdout not frozen, not run by H.
+
+REQUEST CHANGES — vor dem Freeze sind noch Korrekturen am Schreibprotokoll und am Prüfumfang erforderlich.
+
+Q1 – Umsetzung von Design v3
+
+Die wesentliche Architektur entspricht dem Design: H verwendet M’s Auflösung, der Referenzadapter verwendet R’s eigene Übergänge, und der vollständige Zustandsvergleich umfasst alle Fakten. Der getrennte Kontrollpfad ist nachvollziehbar umgesetzt.
+
+Ein ausdrücklich vorgesehener Nachweis fehlt jedoch im Gesamtlauf: die Digest-Partition. check_binding() prüft vorhandene Belege auf Gültigkeit, aber nicht, ob sämtliche stehenden Claims genau einmal vorkommen. digest_entries() wird dort nicht aufgerufen; der direkte Partitionstest steht nur im Handtest.
+
+Für jede geprüfte Digest-Antwort ergänzen: Beleg-Einträge gegen sämtliche stehenden Claims des betreffenden Fakts und Wissenszeitpunkts vergleichen, einschließlich Vollständigkeit, Feldern und Duplikatfreiheit.
+
+Q2 – Die beiden Abweichungen
+
+Beide akzeptiere ich unter dem dokumentierten Datenvertrag.
+
+- Kontrollmengen aus R: Das verbessert die Unabhängigkeit ihrer erwarteten Ergebnisse. Fehler der regulären Checkpoint-Erzeugung müssen weiterhin durch den vollständigen Zustandsvergleich gefunden werden; dieser ist vorhanden.
+- R-Antworten auf projizierten Fakten: Das ist vertretbar, wenn alle benötigten Anker enthalten sind und Korrekturen beziehungsweise Rücknahmen keine Faktgrenzen überschreiten. Der Audit und die anschließend gebundenen Welt-Digests sichern diese Voraussetzung für die eingefrorenen Welten ab. Der vollständige Zustandsvergleich bleibt richtigerweise ungefiltert.
+
+Q3 – Integrität, Wiederanlauf und Persistenz
+
+Die vorhandenen Fälle decken viel ab. Das Schreibprotokoll hat aber eine Wiederanlauflücke:
+
+1. Ein Checkpoint C mit Tail [r1] wird gespeichert.
+2. Unter demselben Checkpoint wird das gewachsene Tail [r1, r2] gespeichert.
+3. write_state() überschreibt dabei tail_<checkpoint-hash>.jsonl.
+4. Beim Abbruch nach Schritt 2 gilt noch der alte Trustrecord.
+5. Dieser verweist nun auf die bereits überschriebene Tail-Datei; das Laden scheitert am Tail-Siegel.
+
+Diesen Ablauf habe ich im isolierten Dateiprotokolltest reproduziert. Die bisherigen Abbruchtests verwenden unterschiedliche Checkpoints und erfassen ihn nicht.
+
+Abhilfe: Veröffentlichte Zustandsdateien vor dem Commit des neuen Vertrauensankers nicht überschreiben. Beispielsweise eine Generation verwenden, die Checkpoint und Tail-Version unterscheidet. Der alte Zustand muss bis zum gesicherten Commit des neuen Ankers verfügbar bleiben.
+
+Die Abbruchtests außerdem über denselben vertrauenswürdigen Recordweg durchführen wie den regulären Wiederanlauf. Aktuell verwendet interrupted_writes() die lokale Datei über load_state(d); die Aktualisierung der extern gehaltenen Vertrauenskopie wird damit nicht geprüft.
+
+Q4 – Holdout-Guard
+
+Für die Bindung an Code, Welten und R-Antworten ist der Guard grundsätzlich sinnvoll: Code- und Welt-Digests werden vor H geprüft, die Referenzantwort-Digests anschließend im Collector.
+
+Die Vollständigkeitsprüfung sollte ergänzt werden:
+
+- Die drei vollständigen Zustandsvergleichszähler werden bislang protokolliert, aber vom Collector nicht gegen erwartete Zahlen geprüft.
+- Beim Konformitätstest genügt dem Collector derzeit irgendeine positive Zahl. Stattdessen die erwartete vollständige Fallzahl binden.
+
+Die Sollzahlen können vor H modellfrei aus Fragen, Cuts und Fixture bestimmt werden.
+
+Q5 – Änderungen vor dem Freeze
+
+Erforderlich sind:
+
+1. Sicheres Schreiben auch bei unverändertem Checkpoint und geändertem Tail, mit passendem Abbruchtest.
+2. Digest-Partition im Gesamtlauf ausdrücklich prüfen.
+3. Vollständigkeitszähler für Zustandsvergleiche und Konformität verbindlich kontrollieren.
+
+Danach die betroffenen Entwicklungsprüfungen erneut ausführen und den Stand einfrieren.
+
+Ich habe die Pythonblöcke syntaktisch geprüft und das Dateiprotokoll isoliert mit ersetzten Basishilfsfunktionen untersucht. Die vollständige Projekt-Suite konnte ich ohne die beigefügten Basismodule nicht erneut ausführen.
+
+Verbesserungsideen, nicht zusätzlich freigabeblockierend
+
+- Auf ausgewählten Dev-Fällen vollständige und projizierte R-Antworten direkt gegeneinander prüfen.
+- Bei Mode A gescannte und tatsächlich erneut angewandte Berichte getrennt messen: _claims_at() durchläuft derzeit auch Präfixberichte.
+- Freeze-ID, ersten Holdout-Run und mögliche Wiederholungsversuche eindeutig gemeinsam protokollieren.

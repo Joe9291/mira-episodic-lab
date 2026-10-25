@@ -106,3 +106,49 @@ def ids_monotonic(reports) -> bool:
     """Input contract of round 4.3: report ids strictly increase in total order."""
     ids = [int(r["report_id"][1:]) for r in reports]
     return all(a < b for a, b in zip(ids, ids[1:]))
+
+
+def question_times(qs) -> set:
+    """Every knowledge time an operator of these questions reads."""
+    ts = set()
+    for q in qs:
+        ts.add(needed_time(q))
+        ts.add(q["now"])
+        if q["op"] == "why_changed":
+            ts.add(q["k2"])
+    return ts
+
+
+def instance_counts(w) -> dict:
+    """The model-free expected numbers of one world-delay instance (bound in
+    config/round43_counts.json): cuts, questions, Mode T evaluations, full-state comparisons
+    (checkpoints, Mode A times, Mode T times) and digest partition checks (Mode A, Mode T)."""
+    qs, cuts = w["questions"], w["cuts"]
+    times = question_times(qs)
+    dig = [q for q in qs if q["op"] in ("digest", "digest_at")]
+    return {"cuts": len(cuts), "questions": len(qs), "mode_t_evaluations": len(cuts) * len(qs),
+            "state_checks_cut": len(cuts), "state_checks_mode_a": len(times),
+            "state_checks_mode_t": sum(1 for c in cuts for k in times if k >= c),
+            "digest_checks_mode_a": len(dig),
+            "digest_checks_mode_t": sum(1 for c in cuts for q in dig if needed_time(q) >= c)}
+
+
+COUNT_KEYS = ("cuts", "questions", "mode_t_evaluations", "state_checks_cut", "state_checks_mode_a",
+              "state_checks_mode_t", "digest_checks_mode_a", "digest_checks_mode_t")
+
+
+def family_counts(split) -> dict:
+    out = {}
+    for pair in iter_pairs(split):
+        f = out.setdefault(pair["family"], dict({k: 0 for k in COUNT_KEYS}, pairs=0, instances=0, by_operator={}))
+        f["pairs"] += 1
+        for inst in pair["instances"]:
+            for world in ("A", "B"):
+                f["instances"] += 1
+                for k, v in instance_counts(inst[world]).items():
+                    f[k] += v
+                for q in inst[world]["questions"]:
+                    f["by_operator"][q["op"]] = f["by_operator"].get(q["op"], 0) + 1
+    for f in out.values():
+        f["by_operator"] = dict(sorted(f["by_operator"].items()))
+    return out

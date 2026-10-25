@@ -1,7 +1,8 @@
 # Round 4.3 (dev) - PASS
 
-Totals: {'cuts': 16672, 'instances': 1120, 'mode_t_evaluations': 546776, 'pairs': 140, 'questions': 31872}
-Measures: {'checkpoint_bytes': 59494863, 'checkpoint_gzip': 12990184, 'claims': 461418, 'composition': 15552, 'interrupted_cases': 3360, 'lost_fact_tests': 840, 'mode_a_answers': 31872, 'mode_t_evaluations': 546776, 'persistence_checks': 1120, 'prefix_bytes': 127129872, 'prefix_gzip': 12129411, 'prefix_reports': 583544, 'state_checks_cut': 16672, 'state_checks_mode_a': 5840, 'state_checks_mode_t': 50856, 'tamper_cases': 13440}
+Freeze id: None
+Totals: {'cuts': 16672, 'digest_checks_mode_a': 5296, 'digest_checks_mode_t': 46920, 'instances': 1120, 'mode_t_evaluations': 546776, 'pairs': 140, 'questions': 31872, 'state_checks_cut': 16672, 'state_checks_mode_a': 5840, 'state_checks_mode_t': 50856}
+Measures: {'checkpoint_bytes': 59494863, 'checkpoint_gzip': 12990184, 'claims': 461418, 'composition': 15552, 'digest_partition_checks': 52216, 'digest_partition_checks_mode_a': 5296, 'digest_partition_checks_mode_t': 46920, 'interrupted_cases': 11200, 'lost_fact_tests': 840, 'mode_a_answers': 31872, 'mode_a_claims_loaded': 24258, 'mode_a_reports_applied': 13844, 'mode_a_reports_scanned': 52472, 'mode_t_evaluations': 546776, 'persistence_checks': 1120, 'prefix_bytes': 127129872, 'prefix_gzip': 12129411, 'prefix_reports': 583544, 'state_checks_cut': 16672, 'state_checks_mode_a': 5840, 'state_checks_mode_t': 50856, 'tamper_cases': 13440}
 Conformance checks: 544
 Violations: none
 Controls:

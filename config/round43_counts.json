@@ -1,6 +1,7 @@
 {
+ "conformance_checks": 544,
  "generator_version": "r43.g1",
- "schema": "episodic_lab.round43_counts.v1",
+ "schema": "episodic_lab.round43_counts.v2",
  "seeds": {
   "dev": "r43-dev-1",
   "holdout": "r43-holdout-1"
@@ -20,10 +21,15 @@
       "why_changed": 680
      },
      "cuts": 1264,
+     "digest_checks_mode_a": 352,
+     "digest_checks_mode_t": 3056,
      "instances": 80,
      "mode_t_evaluations": 32640,
      "pairs": 10,
-     "questions": 2064
+     "questions": 2064,
+     "state_checks_cut": 1264,
+     "state_checks_mode_a": 400,
+     "state_checks_mode_t": 3320
     },
     "P2": {
      "by_operator": {
@@ -37,10 +43,15 @@
       "why_changed": 800
      },
      "cuts": 1336,
+     "digest_checks_mode_a": 320,
+     "digest_checks_mode_t": 3240,
      "instances": 80,
      "mode_t_evaluations": 34736,
      "pairs": 10,
-     "questions": 2080
+     "questions": 2080,
+     "state_checks_cut": 1336,
+     "state_checks_mode_a": 456,
+     "state_checks_mode_t": 4112
     },
     "P3": {
      "by_operator": {
@@ -54,10 +65,15 @@
       "why_changed": 1232
      },
      "cuts": 1328,
+     "digest_checks_mode_a": 400,
+     "digest_checks_mode_t": 3784,
      "instances": 80,
      "mode_t_evaluations": 45168,
      "pairs": 10,
-     "questions": 2720
+     "questions": 2720,
+     "state_checks_cut": 1328,
+     "state_checks_mode_a": 504,
+     "state_checks_mode_t": 4624
     },
     "P4": {
      "by_operator": {
@@ -71,10 +87,15 @@
       "why_changed": 1232
      },
      "cuts": 1328,
+     "digest_checks_mode_a": 400,
+     "digest_checks_mode_t": 3736,
      "instances": 80,
      "mode_t_evaluations": 44000,
      "pairs": 10,
-     "questions": 2640
+     "questions": 2640,
+     "state_checks_cut": 1328,
+     "state_checks_mode_a": 456,
+     "state_checks_mode_t": 4184
     },
     "P5": {
      "by_operator": {
@@ -88,10 +109,15 @@
       "why_changed": 1112
      },
      "cuts": 1224,
+     "digest_checks_mode_a": 424,
+     "digest_checks_mode_t": 3568,
      "instances": 80,
      "mode_t_evaluations": 39784,
      "pairs": 10,
-     "questions": 2600
+     "questions": 2600,
+     "state_checks_cut": 1224,
+     "state_checks_mode_a": 512,
+     "state_checks_mode_t": 4248
     },
     "P6": {
      "by_operator": {
@@ -105,10 +131,15 @@
       "why_changed": 1112
      },
      "cuts": 1224,
+     "digest_checks_mode_a": 424,
+     "digest_checks_mode_t": 3624,
      "instances": 80,
      "mode_t_evaluations": 38600,
      "pairs": 10,
-     "questions": 2520
+     "questions": 2520,
+     "state_checks_cut": 1224,
+     "state_checks_mode_a": 472,
+     "state_checks_mode_t": 4008
     },
     "P7": {
      "by_operator": {
@@ -122,10 +153,15 @@
       "why_changed": 720
      },
      "cuts": 1064,
+     "digest_checks_mode_a": 360,
+     "digest_checks_mode_t": 2784,
      "instances": 80,
      "mode_t_evaluations": 27744,
      "pairs": 10,
-     "questions": 2040
+     "questions": 2040,
+     "state_checks_cut": 1064,
+     "state_checks_mode_a": 360,
+     "state_checks_mode_t": 2784
     },
     "P8": {
      "by_operator": {
@@ -139,10 +175,15 @@
       "why_changed": 672
      },
      "cuts": 960,
+     "digest_checks_mode_a": 376,
+     "digest_checks_mode_t": 2504,
      "instances": 80,
      "mode_t_evaluations": 22912,
      "pairs": 10,
-     "questions": 1904
+     "questions": 1904,
+     "state_checks_cut": 960,
+     "state_checks_mode_a": 440,
+     "state_checks_mode_t": 2952
     },
     "P9": {
      "by_operator": {
@@ -157,10 +198,15 @@
       "why_changed": 3640
      },
      "cuts": 2368,
+     "digest_checks_mode_a": 616,
+     "digest_checks_mode_t": 9880,
      "instances": 80,
      "mode_t_evaluations": 173008,
      "pairs": 10,
-     "questions": 5728
+     "questions": 5728,
+     "state_checks_cut": 2368,
+     "state_checks_mode_a": 616,
+     "state_checks_mode_t": 9880
     },
     "T1": {
      "by_operator": {
@@ -174,10 +220,15 @@
       "why_changed": 480
      },
      "cuts": 912,
+     "digest_checks_mode_a": 320,
+     "digest_checks_mode_t": 2104,
      "instances": 80,
      "mode_t_evaluations": 17328,
      "pairs": 10,
-     "questions": 1520
+     "questions": 1520,
+     "state_checks_cut": 912,
+     "state_checks_mode_a": 320,
+     "state_checks_mode_t": 2104
     },
     "T2": {
      "by_operator": {
@@ -191,10 +242,15 @@
       "why_changed": 320
      },
      "cuts": 776,
+     "digest_checks_mode_a": 280,
+     "digest_checks_mode_t": 1600,
      "instances": 80,
      "mode_t_evaluations": 12560,
      "pairs": 10,
-     "questions": 1240
+     "questions": 1240,
+     "state_checks_cut": 776,
+     "state_checks_mode_a": 280,
+     "state_checks_mode_t": 1600
     },
     "T3": {
      "by_operator": {
@@ -208,10 +264,15 @@
       "why_changed": 608
      },
      "cuts": 1008,
+     "digest_checks_mode_a": 384,
+     "digest_checks_mode_t": 2704,
      "instances": 80,
      "mode_t_evaluations": 22576,
      "pairs": 10,
-     "questions": 1776
+     "questions": 1776,
+     "state_checks_cut": 1008,
+     "state_checks_mode_a": 384,
+     "state_checks_mode_t": 2704
     },
     "T4": {
      "by_operator": {
@@ -225,10 +286,15 @@
       "why_changed": 480
      },
      "cuts": 928,
+     "digest_checks_mode_a": 320,
+     "digest_checks_mode_t": 2136,
      "instances": 80,
      "mode_t_evaluations": 17632,
      "pairs": 10,
-     "questions": 1520
+     "questions": 1520,
+     "state_checks_cut": 928,
+     "state_checks_mode_a": 320,
+     "state_checks_mode_t": 2136
     },
     "T5": {
      "by_operator": {
@@ -242,18 +308,28 @@
       "why_changed": 480
      },
      "cuts": 952,
+     "digest_checks_mode_a": 320,
+     "digest_checks_mode_t": 2200,
      "instances": 80,
      "mode_t_evaluations": 18088,
      "pairs": 10,
-     "questions": 1520
+     "questions": 1520,
+     "state_checks_cut": 952,
+     "state_checks_mode_a": 320,
+     "state_checks_mode_t": 2200
     }
    },
    "total": {
     "cuts": 16672,
+    "digest_checks_mode_a": 5296,
+    "digest_checks_mode_t": 46920,
     "instances": 1120,
     "mode_t_evaluations": 546776,
     "pairs": 140,
-    "questions": 31872
+    "questions": 31872,
+    "state_checks_cut": 16672,
+    "state_checks_mode_a": 5840,
+    "state_checks_mode_t": 50856
    }
   },
   "holdout": {
@@ -270,10 +346,15 @@
       "why_changed": 2860
      },
      "cuts": 5144,
+     "digest_checks_mode_a": 1464,
+     "digest_checks_mode_t": 12616,
      "instances": 320,
      "mode_t_evaluations": 136560,
      "pairs": 40,
-     "questions": 8508
+     "questions": 8508,
+     "state_checks_cut": 5144,
+     "state_checks_mode_a": 1672,
+     "state_checks_mode_t": 13640
     },
     "P2": {
      "by_operator": {
@@ -287,10 +368,15 @@
       "why_changed": 3200
      },
      "cuts": 5520,
+     "digest_checks_mode_a": 1280,
+     "digest_checks_mode_t": 13424,
      "instances": 320,
      "mode_t_evaluations": 143520,
      "pairs": 40,
-     "questions": 8320
+     "questions": 8320,
+     "state_checks_cut": 5520,
+     "state_checks_mode_a": 1832,
+     "state_checks_mode_t": 17336
     },
     "P3": {
      "by_operator": {
@@ -304,10 +390,15 @@
       "why_changed": 4992
      },
      "cuts": 5256,
+     "digest_checks_mode_a": 1600,
+     "digest_checks_mode_t": 14896,
      "instances": 320,
      "mode_t_evaluations": 180616,
      "pairs": 40,
-     "questions": 10960
+     "questions": 10960,
+     "state_checks_cut": 5256,
+     "state_checks_mode_a": 1952,
+     "state_checks_mode_t": 17744
     },
     "P4": {
      "by_operator": {
@@ -321,10 +412,15 @@
       "why_changed": 4992
      },
      "cuts": 5176,
+     "digest_checks_mode_a": 1600,
+     "digest_checks_mode_t": 14480,
      "instances": 320,
      "mode_t_evaluations": 172680,
      "pairs": 40,
-     "questions": 10640
+     "questions": 10640,
+     "state_checks_cut": 5176,
+     "state_checks_mode_a": 1848,
+     "state_checks_mode_t": 16320
     },
     "P5": {
      "by_operator": {
@@ -338,10 +434,15 @@
       "why_changed": 4472
      },
      "cuts": 4976,
+     "digest_checks_mode_a": 1704,
+     "digest_checks_mode_t": 14992,
      "instances": 320,
      "mode_t_evaluations": 162536,
      "pairs": 40,
-     "questions": 10440
+     "questions": 10440,
+     "state_checks_cut": 4976,
+     "state_checks_mode_a": 2040,
+     "state_checks_mode_t": 17720
     },
     "P6": {
      "by_operator": {
@@ -355,10 +456,15 @@
       "why_changed": 4472
      },
      "cuts": 4904,
+     "digest_checks_mode_a": 1704,
+     "digest_checks_mode_t": 14576,
      "instances": 320,
      "mode_t_evaluations": 155560,
      "pairs": 40,
-     "questions": 10120
+     "questions": 10120,
+     "state_checks_cut": 4904,
+     "state_checks_mode_a": 1880,
+     "state_checks_mode_t": 15928
     },
     "P7": {
      "by_operator": {
@@ -372,10 +478,15 @@
       "why_changed": 2880
      },
      "cuts": 4232,
+     "digest_checks_mode_a": 1440,
+     "digest_checks_mode_t": 11064,
      "instances": 320,
      "mode_t_evaluations": 109536,
      "pairs": 40,
-     "questions": 8160
+     "questions": 8160,
+     "state_checks_cut": 4232,
+     "state_checks_mode_a": 1440,
+     "state_checks_mode_t": 11064
     },
     "P8": {
      "by_operator": {
@@ -389,10 +500,15 @@
       "why_changed": 2608
      },
      "cuts": 3912,
+     "digest_checks_mode_a": 1464,
+     "digest_checks_mode_t": 10184,
      "instances": 320,
      "mode_t_evaluations": 91528,
      "pairs": 40,
-     "questions": 7456
+     "questions": 7456,
+     "state_checks_cut": 3912,
+     "state_checks_mode_a": 1576,
+     "state_checks_mode_t": 11040
     },
     "P9": {
      "by_operator": {
@@ -407,10 +523,15 @@
       "why_changed": 13608
      },
      "cuts": 8928,
+     "digest_checks_mode_a": 2376,
+     "digest_checks_mode_t": 36080,
      "instances": 320,
      "mode_t_evaluations": 631424,
      "pairs": 40,
-     "questions": 21696
+     "questions": 21696,
+     "state_checks_cut": 8928,
+     "state_checks_mode_a": 2376,
+     "state_checks_mode_t": 36080
     },
     "T1": {
      "by_operator": {
@@ -424,10 +545,15 @@
       "why_changed": 1920
      },
      "cuts": 3768,
+     "digest_checks_mode_a": 1280,
+     "digest_checks_mode_t": 8712,
      "instances": 320,
      "mode_t_evaluations": 71592,
      "pairs": 40,
-     "questions": 6080
+     "questions": 6080,
+     "state_checks_cut": 3768,
+     "state_checks_mode_a": 1280,
+     "state_checks_mode_t": 8712
     },
     "T2": {
      "by_operator": {
@@ -441,10 +567,15 @@
       "why_changed": 1280
      },
      "cuts": 3176,
+     "digest_checks_mode_a": 1120,
+     "digest_checks_mode_t": 6608,
      "instances": 320,
      "mode_t_evaluations": 51216,
      "pairs": 40,
-     "questions": 4960
+     "questions": 4960,
+     "state_checks_cut": 3176,
+     "state_checks_mode_a": 1120,
+     "state_checks_mode_t": 6608
     },
     "T3": {
      "by_operator": {
@@ -458,10 +589,15 @@
       "why_changed": 2400
      },
      "cuts": 3976,
+     "digest_checks_mode_a": 1520,
+     "digest_checks_mode_t": 10760,
      "instances": 320,
      "mode_t_evaluations": 88152,
      "pairs": 40,
-     "questions": 7040
+     "questions": 7040,
+     "state_checks_cut": 3976,
+     "state_checks_mode_a": 1520,
+     "state_checks_mode_t": 10760
     },
     "T4": {
      "by_operator": {
@@ -475,10 +611,15 @@
       "why_changed": 1920
      },
      "cuts": 3720,
+     "digest_checks_mode_a": 1280,
+     "digest_checks_mode_t": 8560,
      "instances": 320,
      "mode_t_evaluations": 70680,
      "pairs": 40,
-     "questions": 6080
+     "questions": 6080,
+     "state_checks_cut": 3720,
+     "state_checks_mode_a": 1280,
+     "state_checks_mode_t": 8560
     },
     "T5": {
      "by_operator": {
@@ -492,18 +633,28 @@
       "why_changed": 1920
      },
      "cuts": 3704,
+     "digest_checks_mode_a": 1280,
+     "digest_checks_mode_t": 8576,
      "instances": 320,
      "mode_t_evaluations": 70376,
      "pairs": 40,
-     "questions": 6080
+     "questions": 6080,
+     "state_checks_cut": 3704,
+     "state_checks_mode_a": 1280,
+     "state_checks_mode_t": 8576
     }
    },
    "total": {
     "cuts": 66392,
+    "digest_checks_mode_a": 21112,
+    "digest_checks_mode_t": 185528,
     "instances": 4480,
     "mode_t_evaluations": 2135976,
     "pairs": 560,
-    "questions": 126540
+    "questions": 126540,
+    "state_checks_cut": 66392,
+    "state_checks_mode_a": 23096,
+    "state_checks_mode_t": 200088
    }
   }
  }

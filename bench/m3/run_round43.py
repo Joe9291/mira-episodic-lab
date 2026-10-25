@@ -84,14 +84,7 @@ def h_answers(h, qs):
     return {q["qid"]: h.answer(q) for q in qs}
 
 
-def question_times(qs):
-    ts = set()
-    for q in qs:
-        ts.add(X.needed_time(q))
-        ts.add(q["now"])
-        if q["op"] == "why_changed":
-            ts.add(q["k2"])
-    return ts
+question_times = W.question_times
 
 
 class Log:
@@ -122,6 +115,19 @@ def cited_value_ids(ans):
             if isinstance(item, dict):
                 out += [(i, None) for i in item.get("ids", [])]
     return out
+
+
+def check_partition(log, meas, where, q, ans, ref_at):
+    """Design section 3: the claim entries of a digest (support, agree, dissent) are exactly
+    the standing claims of the fact at the digest's knowledge time - complete, with equal
+    fields, without duplicates (Astra's implementation review v1: checked in the full run)."""
+    k = X.needed_time(q) if q["op"] == "digest_at" else q["now"]
+    meas["digest_partition_checks"] += 1
+    got = sorted((q["subject"], q["attribute"], e["id"], json.dumps(e["value"]), e["valid_from"], e["rank"],
+                  e["source"], e["origin"]) for e in X.digest_entries(ans))
+    want = [t for t in ref_at[k] if (t[0], t[1]) == (q["subject"], q["attribute"])]
+    if got != want:
+        log.bad("r5_digest_partition", f"{where} {q['qid']}")
 
 
 def check_binding(log, where, q, ans, ref_at, tail_ids_days):
@@ -155,17 +161,17 @@ def tamper_cases(cp, tail, cp0, tail0, tmp):
     in every world). Returns {case: detected?}."""
     out = {}
 
-    def cp_file(d, c):
+    def cp_file(d, c, trust):
         return d / f"checkpoint_{c['hash']}.json"
 
-    def tail_file(d, c):
-        return d / f"tail_{c['hash']}.jsonl"
+    def tail_file(d, c, trust):
+        return d / X._tail_name(c["hash"], trust["tail_seal"])
 
     def attempt(name, mutate, base=None):
         c, t = base or (cp, tail)
         d = Path(tmp) / name
         trust = X.write_state(d, c, t)
-        mutate(d, c)
+        mutate(d, c, trust)
         try:
             X.load_state(d, trust=trust)
             out[name] = False
@@ -173,12 +179,12 @@ def tamper_cases(cp, tail, cp0, tail0, tmp):
             out[name] = True
 
     def edit_cp(fn, rehash):
-        def m(d, base):
-            c = json.loads(cp_file(d, base).read_text())
+        def m(d, base, trust):
+            c = json.loads(cp_file(d, base, trust).read_text())
             fn(c)
             if rehash:
                 c = _rehash(c)
-            cp_file(d, base).write_bytes(X.canonical(c))
+            cp_file(d, base, trust).write_bytes(X.canonical(c))
         return m
 
     def first_claim(c):
@@ -193,9 +199,9 @@ def tamper_cases(cp, tail, cp0, tail0, tmp):
     attempt("parent_changed_rehashed", edit_cp(lambda c: c.update(parent="f" * 64), True))
 
     def edit_tail(fn):
-        def m(d, base):
-            lines = tail_file(d, base).read_text().splitlines()
-            tail_file(d, base).write_text("".join(x + "\n" for x in fn(lines)))
+        def m(d, base, trust):
+            lines = tail_file(d, base, trust).read_text().splitlines()
+            tail_file(d, base, trust).write_text("".join(x + "\n" for x in fn(lines)))
         return m
 
     def changed(lines):
@@ -236,16 +242,32 @@ def lost_fact_detected(cp, asked, ref_c):
 
 
 def interrupted_writes(cp_a, tail_a, cp_b, tail_b, tmp):
-    """Crash after step 1 / 2 / 3 of the second write: the state loaded from the directory
-    is always a consistent pair - the old one before the trust record, the new one after."""
+    """Restart after an interrupted second write, through the EXTERNAL trusted record (the
+    regular restart path; Astra's implementation review v1). Two scenarios: a new checkpoint
+    (cp_b, tail_b), and the SAME checkpoint with a grown tail (cp_a, tail_a[:-1] -> tail_a).
+    Per scenario: a crash after step 1 / 2 / 3 of write_state (the external record not yet
+    committed) restarts on the old state; after the external commit, before and after
+    finish_state, the restart gives the new state. 10 cases."""
     out = {}
-    for crash in (1, 2, 3):
-        d = Path(tmp) / f"crash{crash}"
-        X.write_state(d, cp_a, tail_a)
-        X.write_state(d, cp_b, tail_b, crash_after=crash)
-        cp, tail = X.load_state(d)
-        want = (cp_a, tail_a) if crash < 3 else (cp_b, tail_b)
-        out[f"crash_after_step_{crash}"] = cp["hash"] == want[0]["hash"] and tail == want[1]
+    scenarios = {"new_checkpoint": ((cp_a, tail_a), (cp_b, tail_b)),
+                 "same_checkpoint_grown_tail": ((cp_a, tail_a[:-1]), (cp_a, tail_a))}
+    for name, ((c_old, t_old), (c_new, t_new)) in scenarios.items():
+        for crash in (1, 2, 3, "committed", "finished"):
+            d = Path(tmp) / f"{name}_{crash}"
+            external = X.write_state(d, c_old, t_old)            # old state, committed externally
+            X.finish_state(d, external)
+            new = X.write_state(d, c_new, t_new, crash_after=crash if crash in (1, 2) else None)
+            if crash in ("committed", "finished"):
+                external = new                                  # the external commit
+                if crash == "finished":
+                    X.finish_state(d, external)
+            try:
+                cp, tail = X.load_state(d, trust=external)
+            except (X.CheckpointRefused, StoreCorrupted, FileNotFoundError) as exc:  # noqa: F841
+                out[f"{name}_crash_{crash}"] = False
+                continue
+            want = (c_old, t_old) if crash in (1, 2, 3) else (c_new, t_new)
+            out[f"{name}_crash_{crash}"] = cp["hash"] == want[0]["hash"] and tail == want[1]
     return out
 
 
@@ -299,6 +321,13 @@ def run_instance(pair, inst, world, log, ctl, meas, persist_dir, manifest, diges
         if got != gold[q["qid"]]:
             log.bad("r1_modeA", f"{where0} {q['qid']}")
         check_binding(log, f"{where0} A", q, got, ref, all_days)
+        if q["op"] in DIGEST_OPS:
+            meas["digest_partition_checks_mode_a"] += 1
+            check_partition(log, meas, f"{where0} A", q, got, ref)
+    for loaded, applied, scanned in h_a.reads:
+        meas["mode_a_claims_loaded"] += loaded
+        meas["mode_a_reports_applied"] += applied
+        meas["mode_a_reports_scanned"] += scanned
     for k in times:
         meas["state_checks_mode_a"] += 1
         if X.normalised(h_a.state_at(k)) != ref[k]:
@@ -344,6 +373,9 @@ def run_instance(pair, inst, world, log, ctl, meas, persist_dir, manifest, diges
                 if got != gold[q["qid"]]:
                     log.bad("r2_modeT", f"{where} {q['qid']}")
                 check_binding(log, f"{where} T", q, got, ref, tail_days)
+                if q["op"] in DIGEST_OPS:
+                    meas["digest_partition_checks_mode_t"] += 1
+                    check_partition(log, meas, f"{where} T", q, got, ref)
         for k in times:
             if k >= c:
                 meas["state_checks_mode_t"] += 1
@@ -485,8 +517,8 @@ def audit(split, families):
     for pair in W.iter_pairs(split):
         if pair["family"] not in families:
             continue
-        f = counts.setdefault(pair["family"], {"pairs": 0, "instances": 0, "cuts": 0, "questions": 0,
-                                               "mode_t_evaluations": 0, "by_operator": collections.Counter()})
+        f = counts.setdefault(pair["family"], dict({k: 0 for k in W.COUNT_KEYS}, pairs=0, instances=0,
+                                                   by_operator=collections.Counter()))
         f["pairs"] += 1
         asked = facts_of(pair)
         for inst in pair["instances"]:
@@ -494,9 +526,8 @@ def audit(split, families):
                 w = inst[world]
                 reps, qs = w["reports"], w["questions"]
                 f["instances"] += 1
-                f["cuts"] += len(w["cuts"])
-                f["questions"] += len(qs)
-                f["mode_t_evaluations"] += len(w["cuts"]) * len(qs)
+                for k, v in W.instance_counts(w).items():
+                    f[k] += v
                 for q in qs:
                     f["by_operator"][q["op"]] += 1
                 contract += not W.ids_monotonic(reps)
@@ -574,16 +605,15 @@ def main() -> int:
                 if pair["family"] not in fams:
                     continue
                 dg = digests.setdefault(pair["family"], {"worlds": hashlib.sha256(), "gold": hashlib.sha256()})
-                f = counts.setdefault(pair["family"], {"pairs": 0, "instances": 0, "cuts": 0, "questions": 0,
-                                                       "mode_t_evaluations": 0, "by_operator": collections.Counter()})
+                f = counts.setdefault(pair["family"], dict({k: 0 for k in W.COUNT_KEYS}, pairs=0, instances=0,
+                                                           by_operator=collections.Counter()))
                 f["pairs"] += 1
                 for inst in pair["instances"]:
                     for world in ("A", "B"):
                         w = inst[world]
                         f["instances"] += 1
-                        f["cuts"] += len(w["cuts"])
-                        f["questions"] += len(w["questions"])
-                        f["mode_t_evaluations"] += len(w["cuts"]) * len(w["questions"])
+                        for k, v in W.instance_counts(w).items():
+                            f[k] += v
                         for q in w["questions"]:
                             f["by_operator"][q["op"]] += 1
                         meas["mode_a_answers"] += len(w["questions"])

@@ -218,6 +218,59 @@ class IntegrityAndComposition(unittest.TestCase):
 RUN_TAMPER_CASES = 12
 
 
+class WriteProtocol(unittest.TestCase):
+    def test_same_checkpoint_grown_tail_crash_keeps_the_old_state(self):
+        """Astra's reproduction (implementation review v1): checkpoint C with tail [r1] is
+        committed; the grown tail [r1, r2] under the SAME checkpoint is written and the
+        process stops before the external commit - the restart with the external record
+        must load C + [r1]."""
+        reps = WORLDS["effective_across_cut"]
+        recs = X.chain_records(reps)
+        cp = X.build_checkpoint(reps, recs, 4)
+        tail = reps[X.prefix_len(reps, 4):]
+        with tempfile.TemporaryDirectory() as tmp:
+            for crash in (1, 2, None):
+                d = Path(tmp) / f"c{crash}"
+                external = X.write_state(d, cp, tail[:1])
+                X.finish_state(d, external)
+                X.write_state(d, cp, tail[:2], crash_after=crash)   # None: complete, not yet committed
+                got_cp, got_tail = X.load_state(d, trust=external)
+                self.assertEqual((got_cp["hash"], got_tail), (cp["hash"], tail[:1]), crash)
+            self.assertEqual(len(list((Path(tmp) / "cNone").glob("tail_*"))), 2)   # old file kept
+
+    def test_interrupted_cases(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench/m3"))
+        import run_round43 as RUN
+        reps = WORLDS["effective_across_cut"]
+        recs = X.chain_records(reps)
+        cp_a = X.build_checkpoint(reps, recs, 3)
+        cp_b = X.extend_checkpoint(cp_a, reps, recs, 6)
+        with tempfile.TemporaryDirectory() as tmp:
+            res = RUN.interrupted_writes(cp_a, reps[X.prefix_len(reps, 3):], cp_b, reps[X.prefix_len(reps, 6):], tmp)
+        self.assertEqual(len(res), 10)
+        self.assertTrue(all(res.values()), res)
+
+
+class ProjectedReference(unittest.TestCase):
+    def test_full_and_projected_r_agree_on_dev_samples(self):
+        """Astra's idea: R on the whole world and R on the reports of the asked fact (and its
+        anchor) give the same answers - first pair of every family, delays 50 and 500."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench/m3"))
+        import run_round43 as RUN
+        for pair in W.iter_pairs("dev"):
+            if pair["index"] != 0:
+                continue
+            for inst in pair["instances"]:
+                if inst["delay"] not in (50, 500):
+                    continue
+                w = inst["A"]
+                full = RUN.r_answers(w["reports"], w["questions"])
+                proj = RUN.r_answers(RUN.only(w["reports"], RUN.facts_of(pair)), w["questions"])
+                self.assertEqual(full, proj, (pair["pair"], inst["delay"]))
+
+
 class WorldModule(unittest.TestCase):
     def test_counts_file_and_contract(self):
         frozen = json.loads((Path(__file__).resolve().parents[1] / "config/round43_counts.json").read_text())

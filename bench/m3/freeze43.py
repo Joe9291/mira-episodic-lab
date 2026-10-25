@@ -32,7 +32,8 @@ def main():
               "counts_sha256": hashlib.sha256((R.ROOT / "config/round43_counts.json").read_bytes()).hexdigest(),
               "audit": {k: audit[k] for k in ("id_contract_violations", "k3_collisions", "cross_fact_targets", "controls")},
               "audit_ok": ok, "controls_sufficient": controls_ok, "code": R.code_hashes()}
-    print(json.dumps({k: freeze[k] for k in ("audit_ok", "controls_sufficient", "audit")}, indent=1))
+    freeze["freeze_id"] = hashlib.sha256(json.dumps(freeze, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    print(json.dumps({k: freeze[k] for k in ("freeze_id", "audit_ok", "controls_sufficient", "audit")}, indent=1))
     if not (ok and controls_ok):
         print("NOT FROZEN: the audit or the controls fail (design revision needed before the freeze)")
         return 1

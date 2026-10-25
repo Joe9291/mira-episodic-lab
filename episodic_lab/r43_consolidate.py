@@ -193,7 +193,7 @@ class Hot(Memory):
         self._cps = {c: _from_payload(cp["facts"]) for c, cp in checkpoints.items()}
         self._cuts = sorted(self._cps)
         self.floor = floor
-        self.reads = []                          # (claims loaded, reports replayed) per replay
+        self.reads = []                 # (claims loaded, reports applied, reports scanned) per replay
 
     def _base(self, k):
         cut = max(c for c in self._cuts if c <= k)      # raises if no checkpoint <= k
@@ -205,15 +205,16 @@ class Hot(Memory):
         cut, cps = self._base(k)
         claims = {cid: _Claim(c.cid, c.value, c.vf, c.rank, c.source, c.origin)
                   for cid, c in cps.get(fact, {}).items()}
-        loaded, n = len(claims), 0
+        loaded, n, scanned = len(claims), 0, 0
         for r in self._by_fact.get(fact, ()):
+            scanned += 1
             if r["report_day"] <= cut:
                 continue
             if r["report_day"] > k:
                 break
             _apply(claims, r)
             n += 1
-        self.reads.append((loaded, n))
+        self.reads.append((loaded, n, scanned))
         return claims
 
     def state_at(self, k) -> list:
@@ -391,32 +392,56 @@ def read_tail(path, start_seal) -> tuple[list[dict], dict]:
     return reps, {"count": seq, "head": prev}
 
 
+def _tail_name(cp_hash, tail_seal) -> str:
+    return f"tail_{cp_hash}_{tail_seal['count']}_{tail_seal['head']}.jsonl"
+
+
+def _publish(path: Path, data: bytes) -> None:
+    """Write a state file once: temp + rename; a file of that name is never overwritten
+    (names are content-addressed, so an existing file already holds these bytes)."""
+    if path.exists():
+        return
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_bytes(data)
+    os.replace(tmp, path)
+
+
 def write_state(directory, cp, tail_reports, crash_after=None) -> dict:
-    """Write protocol: (1) checkpoint file by hash, (2) tail segment file by checkpoint hash,
-    (3) trust record atomically (temp + rename), (4) delete files of older states.
-    `crash_after` in {1, 2, 3} stops after that step (interrupted-write tests). Returns the
-    trust record (the caller keeps a trusted copy outside the directory)."""
+    """Write protocol (Astra's implementation review v1: no published file is overwritten
+    before the new trust anchor is committed):
+    (1) the checkpoint file, named by the checkpoint hash, written only if absent;
+    (2) the tail file, named by checkpoint hash AND tail seal (a new tail under the same
+        checkpoint gets a new file), written only if absent;
+    (3) the local trust record, atomically (temp + rename).
+    The caller then commits the trust record to its EXTERNAL trusted copy and only after
+    that calls `finish_state` to remove files the committed record does not name.
+    `crash_after` in {1, 2} stops after that step (interrupted-write tests); a crash after
+    step 3 is a return before the caller's external commit. Returns the trust record."""
     d = Path(directory)
     d.mkdir(parents=True, exist_ok=True)
-    (d / f"checkpoint_{cp['hash']}.json").write_bytes(canonical(cp))
     recs = tail_records(tail_reports, cp["archive_seal"])
     trust = trust_record(cp, {"count": cp["archive_seal"]["count"] + len(recs),
                               "head": recs[-1]["hash"] if recs else cp["archive_seal"]["head"]})
+    _publish(d / f"checkpoint_{cp['hash']}.json", canonical(cp))
     if crash_after == 1:
         return trust
-    (d / f"tail_{cp['hash']}.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in recs),
-                                                 encoding="utf-8")
+    _publish(d / _tail_name(cp["hash"], trust["tail_seal"]),
+             "".join(json.dumps(r, sort_keys=True) + "\n" for r in recs).encode("utf-8"))
     if crash_after == 2:
         return trust
     tmp = d / "trust.json.tmp"
     tmp.write_bytes(canonical(trust))
     os.replace(tmp, d / "trust.json")
-    if crash_after == 3:
-        return trust
-    for p in d.iterdir():
-        if p.name.startswith(("checkpoint_", "tail_")) and cp["hash"] not in p.name:
-            p.unlink()
     return trust
+
+
+def finish_state(directory, trust) -> None:
+    """After the external commit of `trust`: remove the state files it does not name."""
+    d = Path(directory)
+    keep = {f"checkpoint_{trust['checkpoint_hash']}.json", _tail_name(trust["checkpoint_hash"], trust["tail_seal"])}
+    for p in d.iterdir():
+        if p.name.startswith(("checkpoint_", "tail_")) and p.name not in keep:
+            p.unlink()
 
 
 def load_state(directory, trust: dict | None = None):
@@ -433,7 +458,7 @@ def load_state(directory, trust: dict | None = None):
     check_checkpoint(cp, trust)
     if canonical(cp) != raw:
         raise CheckpointRefused("checkpoint file not canonical")
-    tail, seal = read_tail(d / f"tail_{cp['hash']}.jsonl", cp["archive_seal"])
+    tail, seal = read_tail(d / _tail_name(cp["hash"], trust["tail_seal"]), cp["archive_seal"])
     if seal != trust["tail_seal"]:
         raise CheckpointRefused("tail seal differs from the trust record")
     if tail and tail[0]["report_day"] <= cp["cut"]:

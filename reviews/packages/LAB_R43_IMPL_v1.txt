@@ -1,0 +1,2248 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.3 IMPLEMENTATION v1 - SOURCE-BOUND CONSOLIDATION
+
+Review request (Astra; Claude is lead reviewer). Design v3 approved (reviews/2026-10-24_r43v3_astra.txt). The implementation is done and passes on development; the holdout is NOT frozen and has not been run by H (only the R-only audit of the freeze tool, without writing the freeze). Please review the implementation against the design (Q1-Q5); after your APPROVE the freeze is written and the holdout runs once (14 family jobs in GitHub Actions). Then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.3 IMPLEMENTATION v1 ===".
+
+STATE: lab main = 5cbe464. Unit tests: 216 green (incl. 11 round 4.3 hand cases). M, R, the report schema and the source policy unchanged (files untouched).
+
+DEVELOPMENT RESULT (commit 9308fa8, docs/ROUND_4_3_dev_SUMMARY.md): PASS, zero violations of rules (1)-(8): 1,120 world-delay instances, 16,672 cuts, 31,872 Mode A answers, 546,776 Mode T evaluations, 15,552 composition pairs, 73,368 full-state comparisons (16,672 checkpoints, 5,840 Mode A and 50,856 Mode T knowledge times), 13,440 tamper and 3,360 interrupted-write cases, 1,120 persistence checks with a second process, 840 lost-fact tests, 544 conformance checks. Controls: K1 61,420 informative cases / 135 pairs, K2 4,040 / 60 pairs (P1, P7, P8, T3, T4, T5), K3 126,828 / 140 pairs.
+HOLDOUT AUDIT (R only, before the freeze; dry run of freeze43.py without --write): counts equal config/round43_counts.json; 0 id-contract violations, 0 K3 collisions; the cross-fact audit, added afterwards, counted separately on all 4,480 holdout instances: 0 cross-fact and 0 missing targets; K1 240,184 / 540 pairs, K2 16,884 / 240 pairs, K3 503,144 / 560 pairs - every control sufficient.
+MEASURE WORTH NOTING: logically the checkpoints hold 79 % of the prefix reports' entries and 47 % of their canonical bytes, but after gzip the checkpoints are larger than the raw prefixes (13.0 MB vs 12.1 MB) - in these worlds the logical gain does not carry over to compressed bytes.
+
+IMPLEMENTATION CHOICES FOR YOUR CHECK (docs/ROUND_4_3.md section 9)
+1. H is M's class with only `_claims_at` replaced (replay from the latest checkpoint <= k); everything else is M's code, M's file untouched.
+2. The reference state, R's effectiveness, R's digest and the control claim sets use only R's step function and table plus the original reports (origin looked up by the claim's id - checked for corrections and repeats in the hand cases).
+3. The control claim sets K1-K3 are derived from R's table, not from H's checkpoint, so the informative cases are R-only and known before any run of H (the design says "the control's checkpoint").
+4. R's answers are computed on the reports of the asked fact and its anchor only (optimisation; every correction / retraction targets its own fact - audited, 0 cross-fact targets); the full-state check always uses the whole world.
+5. Disk: the tail is a chain segment continuing the archive chain from the checkpoint's seal; write order checkpoint -> tail -> trust record (temp + rename) -> removal of older files; load_state takes a trusted copy of the record from outside.
+6. Tamper cases: claim cases on the first cut with claims and a tail; tail cases on the genesis checkpoint with the whole world as tail. The collector binds 12 tamper, 3 interrupted, 1 persistence case per instance and one lost-fact test per instance with an unasked fact (delays > 0).
+7. Holdout guard: each job refuses unless the request's freeze has the same code hashes and, before any run of H, the same per-family world digests; the collector compares the per-family digests of R's answers with the freeze.
+
+QUESTIONS
+Q1 Does the implementation follow design v3 (including your conditions on independence of the reference adapter and on the control test path)?
+Q2 Are choices 3 and 4 acceptable (controls derived from R; R answers on the asked facts with the cross-fact audit)?
+Q3 Are the tamper / interrupted-write / persistence implementations and the bound case numbers sufficient?
+Q4 Is the holdout guard (code and world digests before H; R-answer digests in the collector) sufficient?
+Q5 Anything to change before the freeze?
+Then: improvement ideas.
+
+---FILE docs/ROUND_4_3.md---
+# Round 4.3 - Source-bound consolidation of the long-term memory (design v3, approved 2026-10-24 - reviews/2026-10-24_r43v3_astra.txt; implementation notes in section 9)
+
+Context: the five-phase plan (2026-10-20) names three parts of phase 2: versioned
+statements, contradictions, and source-bound consolidation ("quellengebundene
+Verdichtung"). Rounds 4.0, 4.1 and 4.1b established the first two on structured reports
+(holdout PASS; a continued instance with restart). Round 4.2 (phase B, language input)
+was closed under option A on 2026-10-24 (development requirements not met, holdout not
+evaluated); it does not change M. Astra placed compaction after phase B and asked for it
+to be tested separately, "so that it stays recognisable whether an error comes from the
+resolution logic or from information lost by compaction" (reviews/2026-10-20_r40v1b_astra.txt;
+docs/ROUND_4_0.md section 6). This round adds nothing to the resolution logic: M, R, the
+source policy and the report schema stay exactly as in round 4.0.
+v2 answers Astra's review of v1 (reviews/2026-10-24_r43v1_astra.txt): an operator
+dependency table and source binding by output role (sections 2, 6); strictly increasing
+report ids as an explicit input contract, the highest id over ALL prefix reports
+(section 2); "lossless" means the logical information, physical encoding is measured
+separately (sections 2, 7); a digest with values per citation, agreeing vs dissenting
+non-deciding claims and origins (section 3); K3 replaced by an id-renaming control and a
+binding rule for non-discriminating controls (sections 5, 6); genesis cut, complete
+cuts, composition under identical header parameters, the hashed payload, trust anchors
+outside the checked data, sealed verification before deletion, interrupted writes, and
+the bound holdout numbers (sections 2, 4, 6). v3 answers her review of v2
+(reviews/2026-10-24_r43v2_astra.txt): a full-state comparison of every checkpoint and of
+every propagated state against an independently built reference state over ALL facts
+(section 2, pass rule 8); the synthetic R comparison only for questions whose needed
+knowledge time is >= c (pass rule 1); lossy controls separated from the integrity checks
+of regular checkpoints (sections 5, 6); the digest partition counts only the claim
+entries (section 3); a canonical ordering (section 2); expected counts bound per family
+and operator in a frozen file (section 4).
+
+Uncertainty removed: can the memory replace its growing raw report log by a compact
+consolidated state - so that (a) every answer stays exactly the answer of the full
+memory, including the report ids it cites; (b) every consolidated item stays bound to
+the original reports it comes from and can be verified against the archive; (c) when the
+old log is actually deleted, every question that would need it is answered "compacted",
+never with a wrong value; and (d) a source-bound digest per fact (versions merged, every
+value with its supporting, agreeing and dissenting sources) is exactly reproducible by
+the independent reference?
+Claim limits (fixed now): structured reports of the round 4.0 / 4.1 generators only; the
+fixed source policy of round 4.0; lossless consolidation of the logical information under
+that policy (section 7 states what it cannot shrink); no language, no retrieval budget,
+no summarisation by a language model.
+
+## 1. What stays
+
+Report schema, ReportStore (append-only, SHA-256 chained), M (episodic_lab/r40_memory.py),
+R (episodic_lab/r40_reference.py), the transition rules and the operators current,
+valid_at, believed_at, why_changed, conflicts, history, before - unchanged, files not
+touched. The worlds are rebuilt by the generators' own functions (round 4.0: P1-P9, round
+4.1: T1-T5; episodic_lab/r43_world.py, checked to reproduce the original worlds exactly
+when given the old seeds: 1,120 of 1,120 dev world-delay instances) with NEW seeds
+(r43-dev-1, r43-holdout-1), dev 10 / holdout 40 pairs per family, delays 0 / 50 / 200 /
+500. The 4.0 conformance set (hand worlds) is run as well.
+
+## 2. The consolidated state (checkpoint), its proof obligations and the two modes
+
+Input contract of this round: report ids strictly increase in the total order
+(report_day, report_id) - r00001, r00002, ... (generator property; audited for every
+world: 4,480 of 4,480 holdout and 1,120 of 1,120 dev world-delay instances). Uniqueness
+in general is NOT implied by a maximum; under this contract it is.
+A cut c is COMPLETE: it covers all reports with report_day <= c (the total order makes
+this prefix well defined); c = 0 is the empty prefix (genesis).
+Checkpoint C(c): for every fact (subject, attribute) - anchor events included, they are
+facts like any other - the claims STANDING at knowledge time c, each with the fields the
+resolver and the digest read: claim id (the report id that created it), value,
+valid_from, rank, source, origin. Nothing else is kept: withdrawn claims, retract
+reports, ineffective reports and every other report field are dropped.
+Header: schema, cut day c, the seal of the archive prefix (count and head hash of the
+report chain over all reports with report_day <= c), the highest report id over ALL
+prefix reports (also retractions, ineffective and dropped reports), the hash of the parent
+checkpoint (the fixed genesis value for C(0)), the SHA-256 of the resolver source
+(episodic_lab/r40_memory.py), and the checkpoint's own hash = SHA-256 of the canonical
+JSON of the checkpoint object WITHOUT the hash field.
+Operator dependency table (what each answer needs; ids = what it cites):
+| operator | needs | claim fields read | order | ids in the output |
+|---|---|---|---|---|
+| current, valid_at, believed_at (value_at(v, k)) | standing claims at k | valid_from, rank, value, id | valid_from | deciding claims of the version containing v |
+| history, conflicts (at now) | standing claims at now | valid_from, rank, value, id | valid_from | deciding claims per version |
+| before (at now) | standing claims of the anchor fact and of the fact at now | valid_from, rank, value, id | valid_from | deciding claims of the version containing d_Y - 1 |
+| why_changed(v, k1, k2) | standing claims at k1 + every report with k1 < report_day <= k2, all fields | as the transition rules | total order of the reports | the reports in (k1, k2] whose application changes the answer for v |
+| digest at k | standing claims at k | all six | valid_from, then id | support / agree / dissent claims (section 3) |
+| a later correct / retract (transition) | the target among the standing claims | id, rank, source, value, valid_from | total order | - |
+Proof obligation 1 (state): M's transition rules use a target claim only through "exists
+and stands" (then its rank, source, value, valid_from); a target that is withdrawn,
+claimless (an ineffective correction) or missing makes a correction or retraction
+ineffective in all three cases alike, and report ids are never reused (contract). By
+induction over the reports of (c, k]: the standing claims of every fact at every k >= c
+are the same whether the replay starts from the full prefix or from C(c).
+Proof obligation 2 (answers): by the table, every operator with all its knowledge times
+>= c reads only standing claims at those times and, for why_changed, the reports of
+(k1, k2] (all of them after c, since k1 >= c); so every answer - values, statuses and
+cited ids - is the same. Both obligations are tested: by hand cases (one per equivalence
+and per citation role, section 8) and on every world (section 6).
+Hot memory H = the checkpoint + the tail (the reports with report_day > c, a chain segment
+that starts at the archive head recorded in the checkpoint). H uses M's transition and
+version functions unchanged (imported, not copied); only its starting claims differ - so
+any difference to M is a consolidation error, never a resolution error. Tail ingest refuses
+a report id at or below the checkpoint's highest id.
+Independent check by R: every claim of C(c) is written as one synthetic assert report
+(same id, value, valid_from, rank, source, origin; report_day c); R on these synthetic
+reports plus the tail must answer every question q with needed_time(q) >= c exactly as R
+on the full reports (needed_time: believed_at, digest_at -> t; why_changed -> k1; all
+others -> now). A question with needed_time(q) < c is NOT compared there: a checkpoint at c
+cannot reconstruct it by construction (Mode A uses an earlier checkpoint, Mode T answers
+"compacted").
+Full-state check (independent of the questions): the reference state at knowledge time k
+is built by a separate module from R's own step function (R's table of claim rows, its
+alive flag; the origin of a claim is the origin of the report whose id the claim carries)
+over ALL facts of the world - asked facts, anchors and every distractor fact. For every
+cut, the normalised claim set of C(c) (subject, attribute, id, value, valid_from, rank,
+source, origin) must equal the reference state at c; and for every knowledge time that any
+question uses (in Mode A and in Mode T within scope), the standing claims that H has
+propagated from its checkpoint and the tail must equal the reference state at that time,
+again over all facts. The dependency table above is a description of M's and R's actual
+reads that these checks put to the test, not a substitute for them.
+Canonical form: facts sorted by (subject, attribute); claims by id; value groups by the
+canonical JSON of the value; every list of cited claims by id; canonical JSON = sorted
+keys, separators "," and ":", ASCII escaping; the checkpoint hash and every byte-identity
+check use this form.
+A checkpoint is built from scratch (replay of the archive prefix) or incrementally
+(parent checkpoint + segment). Mode A (archive kept as cold storage): checkpoints every D
+days (D = 5, fixed) including C(0); a question is answered from the latest checkpoint
+whose cut is <= the smallest knowledge time it needs (believed_at, digest_at: t;
+why_changed: k1; all others: now) plus the archive segment up to the needed time.
+Mode T (truncated): only the latest checkpoint C(c) and the tail exist (the archive prefix
+is deleted). Before the deletion C(c) is verified against the archive (rebuilt from
+scratch with identical bytes, and the R check above) and this verification is sealed in a
+trust record kept OUTSIDE the checkpoint and the tail (checkpoint hash, archive seal at c,
+verification result); after the deletion a checkpoint is accepted only if it matches the
+trust record. A question that needs a knowledge time < c is answered {"status":
+"unknown", "reason": "compacted"} (why_changed: "compacted"); every other question is
+answered from H.
+
+## 3. Source-bound digest
+
+digest(s, a) at knowledge time k: the history of (s, a) at k, consecutive versions with the
+same status and the same value(s) merged into one segment:
+{valid_from, valid_to, status, value | values, support, agree, dissent, independent_origins}
+- every cited claim is given as {id, value, valid_from, source, rank, origin};
+- support: the deciding claims of the merged versions, grouped by value (a conflict
+  segment has one group per conflicting value);
+- agree: standing claims of the segment's versions that do not decide (outranked) but
+  carry a value of the segment (the value, or one of the conflict values), grouped by
+  value;
+- dissent: standing claims of the segment's versions that do not decide and carry a
+  different value;
+- independent_origins: per value of the segment, the number of distinct origins among its
+  support and agree claims (the policy's independence: different origin; a report count
+  is not used);
+- the lists are UNIONS over the merged versions - each claim keeps its own valid_from; a
+  listed claim does not by itself support the whole segment;
+- plus the answer value_at(k, k).
+Every value in a digest appears with at least one cited claim, and every claim standing at
+k appears exactly once among the claim ENTRIES of support, agree and dissent over all
+segments (the partition check; the separately reported current answer is not counted as
+a claim entry).
+digest_at(t) is the digest at knowledge time t. R computes the digest independently from
+its own table (a separate function in a new module, no shared code with H's digest; R's
+file itself is not changed).
+
+## 4. Cuts, questions and the bound numbers
+
+Per world (pair world A or B, delay) the cut days are: 0 (genesis), every day from the
+first to the last relevant report day + 1 (so every relevant report - correction,
+retraction, late report, anchor - lies on each side of some cut), the days at 1/4, 1/2 and
+3/4 of the irrelevant tail, and now; every cut is complete. Questions per world: the
+family's questions (round 4.0 table; round 4.1: current) plus the consolidation
+questions about the asked fact: current, history, conflicts and digest at now; valid_at(v)
+for every valid_from v of a relevant report about the fact; believed_at(t) and
+digest_at(t) for every relevant report day t; why_changed(v, k1 = t, k2 = now) for every
+such v and every such t < now. Mode T: every question at every cut; Mode A: every question
+once; composition: every consecutive pair of cuts.
+Bound numbers (episodic_lab/r43_world.py, computed before any run of H):
+| | dev | holdout |
+|---|---|---|
+| families x pairs | 14 x 10 = 140 | 14 x 40 = 560 |
+| world-delay instances | 1,120 | 4,480 |
+| cuts | 16,672 | 66,392 |
+| questions (Mode A answers) | 31,872 | 126,540 |
+| Mode T evaluations (cut x question) | 546,776 | 2,135,976 |
+| composition pairs (cuts - instances) | 15,552 | 61,912 |
+Holdout questions by operator: why_changed 53,524, believed_at 17,912, digest_at 16,632,
+valid_at 14,632, current 8,160, history 5,760, conflicts 5,120, digest 4,480, before 320.
+The same numbers per family and per operator are frozen in config/round43_counts.json
+(SHA-256 9a88a2da3a5a883b34698afacfb68a989c50eb38be69f23139ad5f1e177d1d63); the run must
+reproduce every key and every count of that file; any deviation fails the round.
+
+## 5. Systems and lossy controls
+
+H (Modes A and T), M (full store), R (reference, digest added). Lossy checkpoint controls
+(each a deliberately reduced checkpoint, answered by the same H code):
+- K1 current-only: per fact only the deciding claims of the current version at c.
+- K2 deciding-only: the deciding claims of every version at c; outranked standing claims
+  dropped (agree / dissent and any later re-emergence of an outranked claim are lost).
+- K3 id-renamed (identity control): ALL standing claims kept, only their ids replaced by
+  the fixed, collision-free, schema-conforming map rN -> r(99999 - N) (audited: no
+  renamed id equals any id of the world - the highest id in all dev and holdout worlds is
+  r00509, the lowest renamed id r99490); a later correction or retraction of a pre-cut
+  report finds no target, and cited ids change.
+A case (world, cut, question) is INFORMATIVE for a control if R, run on the control's
+checkpoint written as synthetic reports plus the tail, answers differently from R on the
+full reports - a property of the worlds, computed by R before any run of H. Prediction:
+H on the control checkpoint answers exactly as R on it, so it fails exactly on the
+informative cases (Mode T in-scope questions).
+Controls versus integrity: regular checkpoints always pass through every integrity check
+(section 6 (4)); a control checkpoint is a deliberately altered starting state (K3's ids
+lie above the prefix ids and contradict the source binding) and is loaded only through a
+test-only path that skips the integrity checks and is unreachable from Modes A and T. The
+controls test the propagation of state against their R counterpart; an integrity refusal
+never counts as the predicted semantic failure of a control.
+
+## 6. Measures and pass rule (fixed before any run)
+
+Pass rule on the holdout (zero allowed errors everywhere; the numbers of section 4 bound):
+(1) Mode A: every question identical to M, report ids included, in every world; M = R on
+    every question; the digest of H = the digest computed from the full store = the
+    digest of R; at every cut, R on C's synthetic reports plus the tail = R on the full
+    reports for every question q with needed_time(q) >= c (and only for those).
+(2) Mode T: at every cut of every world, every question that needs no knowledge time < c
+    identical to M; every question that needs one answered "compacted"; no other output.
+(3) Composition: for every consecutive pair of cuts, C(c2) built incrementally from C(c1)
+    and the segment is byte-identical to C(c2) built from scratch WITH THE SAME header
+    parameters (in particular the same parent hash; different parent chains give
+    different bytes by design); the claim payload is identical whatever the chain; C(c)
+    built in a new process is byte-identical.
+(4) Integrity, trust anchors and persistence: the expected checkpoint hash and the final
+    tail seal are kept outside the checked data (trust record); detected on load: a claim
+    value or rank changed, a claim removed or added (each also WITH a recomputed self-hash,
+    i.e. internally consistent - detected only through the trust record), the archive seal
+    changed, the parent hash changed, a tail record changed, removed or reordered, the tail
+    cut off at its end (a valid shorter chain - detected only through the trust record), a
+    tail report id at or below the checkpoint's highest id; interrupted writes (a crash
+    after writing the new checkpoint but before the trust record, and after the trust
+    record but before the tail is rotated) are detected on restart and the last consistent
+    state is used - never a mismatched pair; a checkpoint and its tail written to disk and
+    reloaded in a new process answer every question identically.
+(5) Source binding by output role (checked against R at the respective times):
+    value evidence - every id in a value / conflict answer, history, conflicts or digest
+    (support, agree, dissent) is a claim standing at that answer's knowledge time, with
+    the cited fields equal to R's; change evidence - every why_changed id is a report with
+    k1 < report_day <= k2, present in the archive segment (Mode A) or the tail (Mode T),
+    and the list equals R's; target references - for every tail correction / retraction
+    its effectiveness under H equals that under R, and an effective one's target is a claim
+    of C or of the tail.
+(6) Lossy controls: H on each control checkpoint answers exactly as R on it (so each
+    control fails exactly on its informative cases); each control has >= 30 informative
+    cases from >= 10 distinct pairs, reported with their numbers of pairs, families and
+    operators (several cuts of one pair are not independent cases). These counts are known
+    before any run of H and are computed before the freeze; if a control misses them then,
+    the design is revised (with a new review) before the freeze; on the frozen holdout a
+    control that misses them makes a full PASS impossible ("incomplete evidence") - it does
+    not silently drop out, and any later adjustment is a new attempt.
+(7) The 4.0 conformance set through Modes A and T at every cut.
+(8) Full state: at every cut of every world the normalised claim set of C(c) equals the
+    independent reference state over all facts; at every knowledge time used by a question
+    the state H has propagated equals the reference state over all facts (section 2). A
+    negative test (hand case): a checkpoint that loses the claims of one distractor fact
+    no question asks about - with a recomputed self-hash and a matching trust record, so
+    that only this check can find it - is detected.
+Measures (report only): size of C(c) against the archive prefix - logical (claims vs
+reports) and physical bytes, the latter also after a shared dictionary / generic
+compression, reported SEPARATELY from the removal of logical information; reports and
+claims read per question in Mode A / T against a full replay; digest segments against
+history versions, agree / dissent counts; time. This is the pass rule of a finite test
+suite (14 families x 40 pairs); zero errors do not establish a general error rate.
+Joe's check (about 5 cases, chosen by rule): a cut between a report and its correction; a
+late report whose valid_from lies before the cut; a conflict opened before and resolved
+after a cut; an anchored question whose anchor lies before the cut; a Mode-T answer
+"compacted".
+
+## 7. Known limits (stated in advance)
+
+Under the round 4.0 policy any standing claim can still be corrected or retracted later,
+so lossless consolidation cannot drop standing claims: the logical state shrinks only by
+the withdrawn claims, the correction / retraction / ineffective reports and the unread
+fields; physical encoding can save further bytes without removing information (measured
+separately). In worlds that are mostly assertions the logical gain is small; the gain is
+mainly in what a question has to read. A real reduction needs a policy decision - for
+example a finality horizon (claims older than H days can no longer be targeted); even then
+source evidence may not simply be deleted, because history ids, cited ids and the digest's
+agree / dissent still need it. That is a different policy and NOT part of this round.
+Questions about knowledge times before a deleted prefix are unanswerable by construction -
+Mode T makes that explicit instead of hiding it.
+
+## 8. Cost and tests
+
+Model-free. Development locally; the holdout (generated and frozen before any run of H on
+it) in GitHub Actions, split by family (about 2.1 million Mode T evaluations plus the R
+checks per cut and per control: a few CPU hours). Hand cases (tests): every equivalence of
+proof obligation 1 (a correction / retraction of a withdrawn, a claimless and a missing
+target, each before and after a cut), every citation role of section 6 (5), composition,
+every tamper and interrupted-write case of section 6 (4), the lost distractor fact of
+section 6 (8), the digest's grouping (a conflict segment, an agreeing outranked claim, a
+dissenting one, merged versions), the test-only loading path of the controls (not
+reachable from Modes A and T).
+
+## 9. Implementation notes (after the APPROVE of v3)
+
+Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementation:
+- episodic_lab/r43_consolidate.py - checkpoints (scratch and incremental, canonical JSON,
+  own hash over the object without the hash field, header with cut, archive seal, highest
+  prefix id, parent, resolver hash); H = M's class with only `_claims_at` replaced (the
+  replay starts from the latest checkpoint <= k; M's file unchanged); Mode A (D = 5 from
+  C(0)) and Mode T (one checkpoint + tail, "compacted" below the cut); H's digest from H's
+  own standing claims with M's version function; the control test path `control_memory`
+  (no integrity checks; Modes A and T only accept checked checkpoints); disk layout: the
+  tail is a chain SEGMENT that continues the archive chain from the checkpoint's seal, and
+  the write order is checkpoint file -> tail file -> trust record (temp + rename) -> removal
+  of older files, so a crash leaves either the old or the new consistent pair.
+- episodic_lab/r43_reference.py - only R's step function and table plus the original
+  reports: the reference state over all facts (origin from the report whose id the claim
+  carries; checked for corrections and repeats by the hand cases), R's effectiveness of
+  every correction / retraction, R's digest (own code), the synthetic reports, and the
+  control claim sets K1-K3 - derived from R's table, so the informative cases are known
+  before any run of H (design section 5 says "the control's checkpoint"; deriving it from
+  R instead of from H's checkpoint keeps the controls R-only).
+- R's answers to the questions are computed on the reports of the asked fact and its
+  anchor only (an optimisation: M keeps claims per fact and every correction / retraction
+  targets a report of its own fact - audited on every world, 0 cross-fact targets on dev
+  and holdout); the full-state check always uses the whole world.
+- bench/m3/run_round43.py (phases audit / run, one job per family), collect_round43.py
+  (bound counts per family and operator, every rule, the expected numbers of tamper (12 per
+  world-delay instance), interrupted-write (3), persistence (1) and lost-fact cases (one per
+  instance with an unasked fact, i.e. delays > 0: 3 / 4 of the instances)), freeze43.py
+  (R only), .github/workflows/round43.yml (14 family jobs + collect), tests/test_round43.py
+  (hand cases: proof obligation 1 for withdrawn, claimless and missing targets at every cut,
+  citation roles, digest grouping incl. a conflict segment, composition and parent, every
+  tamper and interrupted-write case, every field of the full-state comparison changed
+  (Astra's idea), a highest prefix id that belongs to a retraction / an ineffective
+  correction (Astra's idea), the lost unasked fact, the control path).
+- Tamper cases: the claim cases use the first cut with claims and a tail; the tail cases use
+  the genesis checkpoint with the whole world as its tail (every world has >= 2 reports).
+- Development result (docs/ROUND_4_3_dev_SUMMARY.md; run locally on commit 9308fa8, two jobs):
+  PASS - zero violations of every rule;
+  16,672 cuts, 31,872 Mode A answers, 546,776 Mode T evaluations, 15,552 composition pairs,
+  73,368 full-state comparisons (16,672 checkpoints, 5,840 Mode A times, 50,856 Mode T
+  times), 13,440 tamper and 3,360 interrupted-write cases, 1,120 persistence checks and
+  840 lost-fact tests, 544 conformance checks; controls: K1 61,420 informative cases from
+  135 pairs, K2 4,040 from 60 pairs (families P1, P7, P8, T3, T4, T5 - where outranked
+  claims exist), K3 126,828 from 140 pairs. Measures: logical size of the checkpoints 461,418
+  claims for 583,544 prefix reports (79 %); canonical bytes 59.5 MB against 127.1 MB (47 %);
+  after generic compression (gzip) the checkpoints are LARGER than the raw prefixes (13.0 MB
+  against 12.1 MB) - the raw log compresses better than the consolidated JSON; the logical
+  gain does not carry over to compressed bytes in these worlds.
+- Holdout audit before the freeze (R only, freeze43.py without --write): bound counts equal
+  to config/round43_counts.json, 0 id-contract violations, 0 K3 collisions; controls K1 240,184 informative cases from 540 pairs, K2 16,884 from 240 pairs,
+  K3 503,144 from 560 pairs - each control sufficient (>= 30 cases, >= 10 pairs). The
+  cross-fact audit was added to the audit after that dry run and counted separately on all
+  4,480 holdout world-delay instances: 0 correction / retraction targets in another fact and
+  0 missing targets (it is part of the audit the freeze runs).
+- Joe's check: docs/ROUND_4_3_joe_cases.md (bench/m3/joe_cases43.py; five development cases
+  chosen by rule).
+---END FILE docs/ROUND_4_3.md---
+---FILE docs/ROUND_4_3_dev_SUMMARY.md---
+# Round 4.3 (dev) - PASS
+
+Totals: {'cuts': 16672, 'instances': 1120, 'mode_t_evaluations': 546776, 'pairs': 140, 'questions': 31872}
+Measures: {'checkpoint_bytes': 59494863, 'checkpoint_gzip': 12990184, 'claims': 461418, 'composition': 15552, 'interrupted_cases': 3360, 'lost_fact_tests': 840, 'mode_a_answers': 31872, 'mode_t_evaluations': 546776, 'persistence_checks': 1120, 'prefix_bytes': 127129872, 'prefix_gzip': 12129411, 'prefix_reports': 583544, 'state_checks_cut': 16672, 'state_checks_mode_a': 5840, 'state_checks_mode_t': 50856, 'tamper_cases': 13440}
+Conformance checks: 544
+Violations: none
+Controls:
+- K1: 61420 informative cases, 135 pairs, families ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'T1', 'T2', 'T3', 'T4', 'T5']
+- K2: 4040 informative cases, 60 pairs, families ['P1', 'P7', 'P8', 'T3', 'T4', 'T5']
+- K3: 126828 informative cases, 140 pairs, families ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'T1', 'T2', 'T3', 'T4', 'T5']
+Problems: none
+---END FILE docs/ROUND_4_3_dev_SUMMARY.md---
+---FILE episodic_lab/r43_consolidate.py---
+"""Round 4.3 source-bound consolidation (docs/ROUND_4_3.md, design v3 approved
+2026-10-24 - reviews/2026-10-24_r43v3_astra.txt).
+
+- checkpoints C(c): the claims standing at a complete cut c, per fact, with a header that
+  binds them to the archive prefix and to the parent checkpoint; built from scratch or
+  incrementally; canonical JSON; own hash over the object without its hash field;
+- the hot memory H: M (episodic_lab/r40_memory.py, unchanged) whose claim replay starts
+  from a checkpoint instead of from the first report - Mode A (archive kept, checkpoints
+  every D days, each question from the latest checkpoint <= its needed knowledge time) and
+  Mode T (one checkpoint + the tail; a question that needs an earlier knowledge time is
+  answered "compacted");
+- H's digest (section 3) from H's own standing claims (M's version function);
+- the lossy controls K1 - K3 (claim sets from the reference side), loadable ONLY through
+  `control_memory` (a test path that skips every integrity check, unused by Modes A / T);
+- disk layout and loading with the trust record (integrity, tamper and interrupted-write
+  rules of section 6 (4)).
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+
+from . import r40_memory as M40
+from .r40_memory import GENESIS, STORE_SCHEMA, Memory, ReportStore, StoreCorrupted, _apply, _Claim, _digest, _versions
+from .r40_schema import REPORT_SCHEMA, check_report
+
+CHECKPOINT_SCHEMA = "episodic_lab.r43_checkpoint.v1"
+TRUST_SCHEMA = "episodic_lab.r43_trust.v1"
+DIGEST_SCHEMA = "episodic_lab.r43_digest.v1"
+GENESIS_CHECKPOINT = "0" * 64
+D_MODE_A = 5
+COMPACTED = {"status": "unknown", "reason": "compacted"}
+RESOLVER_SHA256 = hashlib.sha256(Path(M40.__file__).read_bytes()).hexdigest()
+
+
+class CheckpointRefused(RuntimeError):
+    pass
+
+
+def canonical(obj) -> bytes:
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
+
+
+def sha(obj) -> str:
+    return hashlib.sha256(canonical(obj)).hexdigest()
+
+
+def _vkey(v):
+    return json.dumps(v, sort_keys=True)
+
+
+def needed_time(q) -> int:
+    return {"believed_at": lambda: q["t"], "digest_at": lambda: q["t"],
+            "why_changed": lambda: q["k1"]}.get(q["op"], lambda: q["now"])()
+
+
+# ------------------------------------------------------------------ chain helpers
+def chain_records(reports):
+    """The ReportStore records (seq, prev, hash) of all reports, in total order."""
+    store = ReportStore()
+    store.extend(reports)
+    return store._records
+
+
+def prefix_len(reports, c) -> int:
+    n = 0
+    while n < len(reports) and reports[n]["report_day"] <= c:
+        n += 1
+    return n
+
+
+def seal_of(records, n) -> dict:
+    return {"count": n, "head": records[n - 1]["hash"] if n else GENESIS}
+
+
+# ------------------------------------------------------------------ checkpoints
+def _claims_to_payload(by_fact: dict) -> list:
+    facts = []
+    for (s, a) in sorted(by_fact):
+        claims = sorted(({"id": c.cid, "value": c.value, "valid_from": c.vf, "rank": c.rank, "source": c.source,
+                          "origin": c.origin} for c in by_fact[(s, a)].values() if c.standing), key=lambda x: x["id"])
+        if claims:
+            facts.append({"subject": s, "attribute": a, "claims": claims})
+    return facts
+
+
+def _replay(by_fact: dict, reports) -> None:
+    for r in reports:
+        _apply(by_fact.setdefault((r["subject"], r["attribute"]), {}), r)
+
+
+def _from_payload(facts) -> dict:
+    by_fact = {}
+    for f in facts:
+        d = by_fact.setdefault((f["subject"], f["attribute"]), {})
+        for x in f["claims"]:
+            d[x["id"]] = _Claim(x["id"], x["value"], x["valid_from"], x["rank"], x["source"], x["origin"])
+    return by_fact
+
+
+def _seal_checkpoint(cp: dict) -> dict:
+    cp = {k: v for k, v in cp.items() if k != "hash"}
+    cp["hash"] = sha(cp)
+    return cp
+
+
+def build_checkpoint(reports, records, c, parent_hash=GENESIS_CHECKPOINT) -> dict:
+    """C(c) from scratch: replay of the archive prefix (all reports with report_day <= c)."""
+    n = prefix_len(reports, c)
+    by_fact = {}
+    _replay(by_fact, reports[:n])
+    return _header(c, records, n, reports, parent_hash, _claims_to_payload(by_fact))
+
+
+def extend_checkpoint(parent: dict, reports, records, c2) -> dict:
+    """C(c2) incrementally: the parent's standing claims plus the segment (c1, c2]."""
+    c1 = parent["cut"]
+    if c2 < c1:
+        raise ValueError("cut before the parent's cut")
+    by_fact = _from_payload(parent["facts"])
+    n1, n2 = prefix_len(reports, c1), prefix_len(reports, c2)
+    _replay(by_fact, reports[n1:n2])
+    return _header(c2, records, n2, reports, parent["hash"], _claims_to_payload(by_fact))
+
+
+def _header(c, records, n, reports, parent_hash, facts) -> dict:
+    return _seal_checkpoint({"schema": CHECKPOINT_SCHEMA, "cut": c, "archive_seal": seal_of(records, n),
+                             "highest_id": reports[n - 1]["report_id"] if n else None, "parent": parent_hash,
+                             "resolver_sha256": RESOLVER_SHA256, "facts": facts})
+
+
+def checkpoint_claims(cp) -> list[dict]:
+    return [dict(x, subject=f["subject"], attribute=f["attribute"]) for f in cp["facts"] for x in f["claims"]]
+
+
+def normalised(claims) -> list:
+    """The normalised claim set of pass rule (8): (subject, attribute, id, value, valid_from,
+    rank, source, origin), the value JSON-encoded."""
+    return sorted((x["subject"], x["attribute"], x["id"], json.dumps(x["value"]), x["valid_from"], x["rank"],
+                   x["source"], x["origin"]) for x in claims)
+
+
+def check_checkpoint(cp: dict, trust: dict | None = None) -> None:
+    """Integrity of a regular checkpoint: schema, own hash, sorted canonical payload, resolver
+    hash; and, with a trust record, the expected hash and archive seal."""
+    if cp.get("schema") != CHECKPOINT_SCHEMA:
+        raise CheckpointRefused("schema")
+    if cp.get("hash") != sha({k: v for k, v in cp.items() if k != "hash"}):
+        raise CheckpointRefused("own hash")
+    if cp["resolver_sha256"] != RESOLVER_SHA256:
+        raise CheckpointRefused("resolver differs")
+    keys = [(f["subject"], f["attribute"]) for f in cp["facts"]]
+    if keys != sorted(keys) or len(set(keys)) != len(keys) or any(not f["claims"] for f in cp["facts"]):
+        raise CheckpointRefused("facts not canonical")
+    for f in cp["facts"]:
+        ids = [x["id"] for x in f["claims"]]
+        if ids != sorted(ids) or len(set(ids)) != len(ids):
+            raise CheckpointRefused("claims not canonical")
+        for x in f["claims"]:
+            if cp["highest_id"] is None or x["id"] > cp["highest_id"]:
+                raise CheckpointRefused("claim id above the highest prefix id")
+    if trust is not None:
+        if trust.get("schema") != TRUST_SCHEMA or trust["checkpoint_hash"] != cp["hash"]:
+            raise CheckpointRefused("checkpoint does not match the trust record")
+        if trust["archive_seal_at_cut"] != cp["archive_seal"] or not trust.get("verified"):
+            raise CheckpointRefused("archive seal / verification not in the trust record")
+
+
+def trust_record(cp, tail_seal) -> dict:
+    return {"schema": TRUST_SCHEMA, "checkpoint_hash": cp["hash"], "archive_seal_at_cut": cp["archive_seal"],
+            "tail_seal": tail_seal, "verified": True}
+
+
+def verify_against_archive(cp, reports, records) -> bool:
+    """Mode T, before the deletion: the checkpoint rebuilt from scratch (same parent) has the
+    same bytes. The R check of section 2 is run by the caller (bench)."""
+    return canonical(build_checkpoint(reports, records, cp["cut"], cp["parent"])) == canonical(cp)
+
+
+# ------------------------------------------------------------------ hot memory
+class Hot(Memory):
+    """M with a claim replay that starts from checkpoints. `checkpoints`: {cut: checkpoint};
+    `reports`: the reports H holds (Mode A: the whole archive; Mode T: the tail); `floor`:
+    Mode T's cut (questions that need an earlier knowledge time are compacted), None in
+    Mode A."""
+
+    def __init__(self, checkpoints: dict, reports, floor=None, highest_id=None):
+        super().__init__(reports)
+        if highest_id is not None and any(r["report_id"] <= highest_id for r in reports):
+            raise StoreCorrupted("tail report id at or below the checkpoint's highest id")
+        self._cps = {c: _from_payload(cp["facts"]) for c, cp in checkpoints.items()}
+        self._cuts = sorted(self._cps)
+        self.floor = floor
+        self.reads = []                          # (claims loaded, reports replayed) per replay
+
+    def _base(self, k):
+        cut = max(c for c in self._cuts if c <= k)      # raises if no checkpoint <= k
+        return cut, self._cps[cut]
+
+    def _claims_at(self, fact, k) -> dict:
+        if self.floor is not None and k < self.floor:
+            raise _Compacted()
+        cut, cps = self._base(k)
+        claims = {cid: _Claim(c.cid, c.value, c.vf, c.rank, c.source, c.origin)
+                  for cid, c in cps.get(fact, {}).items()}
+        loaded, n = len(claims), 0
+        for r in self._by_fact.get(fact, ()):
+            if r["report_day"] <= cut:
+                continue
+            if r["report_day"] > k:
+                break
+            _apply(claims, r)
+            n += 1
+        self.reads.append((loaded, n))
+        return claims
+
+    def state_at(self, k) -> list:
+        """The standing claims H has propagated at k, over ALL facts it knows (pass rule 8)."""
+        facts = set(self._by_fact) | {f for c in self._cuts if c <= k for f in self._cps[c]}
+        out = []
+        for f in sorted(facts):
+            for c in self._claims_at(f, k).values():
+                if c.standing:
+                    out.append({"subject": f[0], "attribute": f[1], "id": c.cid, "value": c.value,
+                                "valid_from": c.vf, "rank": c.rank, "source": c.source, "origin": c.origin})
+        return out
+
+    def effectiveness(self) -> dict:
+        """Per correct / retract report H holds after its checkpoint: effective under H?"""
+        cut, cps = self._base(self.floor if self.floor is not None else 0)
+        by_fact = {f: {cid: _Claim(c.cid, c.value, c.vf, c.rank, c.source, c.origin) for cid, c in d.items()}
+                   for f, d in cps.items()}
+        out = {}
+        for f, reps in self._by_fact.items():
+            claims = by_fact.setdefault(f, {})
+            for r in reps:
+                if r["report_day"] <= cut:
+                    continue
+                eff = _apply(claims, r)
+                if r["kind"] != "assert":
+                    out[r["report_id"]] = eff
+        return out
+
+    def digest(self, fact, k) -> dict:
+        claims = [c for c in self._claims_at(fact, k).values() if c.standing]
+        return digest_from_claims(claims, _versions({c.cid: c for c in claims}), self.value_at(fact, k, k))
+
+    def answer(self, q):
+        if self.floor is not None and needed_time(q) < self.floor:
+            return "compacted" if q["op"] == "why_changed" else dict(COMPACTED)
+        fact = (q["subject"], q["attribute"])
+        if q["op"] == "digest":
+            return self.digest(fact, q["now"])
+        if q["op"] == "digest_at":
+            return self.digest(fact, q["t"])
+        return super().answer(q)
+
+
+class _Compacted(Exception):
+    pass
+
+
+def full_digest(memory: Memory, fact, k) -> dict:
+    """The digest computed from the full store (M), with H's digest function."""
+    claims = [c for c in memory._claims_at(fact, k).values() if c.standing]
+    return digest_from_claims(claims, _versions({c.cid: c for c in claims}), memory.value_at(fact, k, k))
+
+
+# ------------------------------------------------------------------ digest (H side)
+def _claim_entry(c) -> dict:
+    return {"id": c.cid, "value": c.value, "valid_from": c.vf, "source": c.source, "rank": c.rank, "origin": c.origin}
+
+
+def _group(claims) -> list:
+    by = {}
+    for c in claims:
+        by.setdefault(_vkey(c.value), []).append(_claim_entry(c))
+    return [{"value": json.loads(k), "claims": sorted(v, key=lambda e: e["id"])} for k, v in sorted(by.items())]
+
+
+def digest_from_claims(claims, versions, current) -> dict:
+    by_day = {}
+    for c in claims:
+        by_day.setdefault(c.vf, []).append(c)
+    segs = []
+    for ver in versions:
+        vals = [ver["value"]] if ver["status"] == "value" else list(ver["values"])
+        vk = {_vkey(v) for v in vals}
+        at = by_day[ver["valid_from"]]
+        deciding = [c for c in at if c.cid in set(ver["ids"])]
+        lower = [c for c in at if c.cid not in set(ver["ids"])]
+        key = (ver["status"], tuple(sorted(vk)))
+        if not segs or segs[-1]["key"] != key:
+            segs.append({"key": key, "valid_from": ver["valid_from"], "status": ver["status"], "vals": vals,
+                         "support": [], "agree": [], "dissent": []})
+        seg = segs[-1]
+        seg["valid_to"] = ver["valid_to"]
+        seg["support"] += deciding
+        for c in lower:
+            seg["agree" if _vkey(c.value) in vk else "dissent"].append(c)
+    out = []
+    for s in segs:
+        item = {"valid_from": s["valid_from"], "valid_to": s["valid_to"], "status": s["status"],
+                "support": _group(s["support"]), "agree": _group(s["agree"]),
+                "dissent": sorted((_claim_entry(c) for c in s["dissent"]), key=lambda e: e["id"])}
+        if s["status"] == "value":
+            item["value"] = s["vals"][0]
+        else:
+            item["values"] = sorted(s["vals"], key=_vkey)
+        origins = {}
+        for c in s["support"] + s["agree"]:
+            origins.setdefault(_vkey(c.value), set()).add(c.origin)
+        item["independent_origins"] = [{"value": json.loads(k), "n": len(v)} for k, v in sorted(origins.items())]
+        out.append(item)
+    return {"schema": DIGEST_SCHEMA, "segments": out, "current": current}
+
+
+def digest_entries(dg) -> list:
+    """All claim entries of a digest (support, agree, dissent) - the partition check."""
+    out = []
+    for s in dg["segments"]:
+        for g in s["support"] + s["agree"]:
+            out += g["claims"]
+        out += s["dissent"]
+    return out
+
+
+# ------------------------------------------------------------------ the two modes
+def mode_a(reports, records, d=D_MODE_A):
+    """Mode A: checkpoints at 0, d, 2d, ... up to the last report day, chained; H over the
+    whole archive."""
+    last = reports[-1]["report_day"] if reports else 0
+    cps, parent = {}, None
+    for c in range(0, last + 1, d):
+        cp = build_checkpoint(reports, records, c) if parent is None else extend_checkpoint(parent, reports, records, c)
+        cps[c] = parent = cp
+    return Hot(cps, reports), cps
+
+
+def mode_t(cp, reports, records, trust):
+    """Mode T: the checkpoint (checked, also against the trust record) and the tail only."""
+    check_checkpoint(cp, trust)
+    n = prefix_len(reports, cp["cut"])
+    tail = reports[n:]
+    if trust["tail_seal"] != seal_of(records, len(reports)):
+        raise CheckpointRefused("tail seal")
+    return Hot({cp["cut"]: cp}, tail, floor=cp["cut"], highest_id=cp["highest_id"])
+
+
+# ------------------------------------------------------------------ lossy controls (test path only)
+def control_memory(claims, cut, reports):
+    """TEST PATH: H from a control claim set (episodic_lab/r43_reference.control_claims),
+    without any integrity check. Not used by Modes A / T."""
+    by_fact = {}
+    for x in claims:
+        by_fact.setdefault((x["subject"], x["attribute"]), []).append(
+            {k: x[k] for k in ("id", "value", "valid_from", "rank", "source", "origin")})
+    pseudo = {"facts": [{"subject": f[0], "attribute": f[1], "claims": sorted(v, key=lambda y: y["id"])}
+                        for f, v in sorted(by_fact.items())]}
+    n = prefix_len(reports, cut)
+    return Hot({cut: pseudo}, reports[n:], floor=cut)
+
+
+# ------------------------------------------------------------------ disk (persistence, integrity)
+def tail_records(tail_reports, start_seal) -> list[dict]:
+    """The tail as a chain SEGMENT of the archive: seq continues the archive count, the first
+    prev is the archive head at the cut (records in ReportStore's format)."""
+    out, prev, seq = [], start_seal["head"], start_seal["count"]
+    for r in tail_reports:
+        check_report(r)
+        rec = {"schema": STORE_SCHEMA, "report_schema": REPORT_SCHEMA, "seq": seq, "report": dict(r), "prev": prev}
+        rec["hash"] = _digest(rec)
+        out.append(rec)
+        prev, seq = rec["hash"], seq + 1
+    return out
+
+
+def read_tail(path, start_seal) -> tuple[list[dict], dict]:
+    """Reads and verifies a tail segment; returns (reports, seal of the whole chain)."""
+    prev, seq, reps = start_seal["head"], start_seal["count"], []
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        rec = json.loads(line)
+        if rec.get("prev") != prev or rec.get("seq") != seq or _digest(rec) != rec.get("hash") \
+                or rec.get("schema") != STORE_SCHEMA:
+            raise StoreCorrupted(f"tail record {seq}")
+        check_report(rec["report"])
+        reps.append(rec["report"])
+        prev, seq = rec["hash"], seq + 1
+    return reps, {"count": seq, "head": prev}
+
+
+def write_state(directory, cp, tail_reports, crash_after=None) -> dict:
+    """Write protocol: (1) checkpoint file by hash, (2) tail segment file by checkpoint hash,
+    (3) trust record atomically (temp + rename), (4) delete files of older states.
+    `crash_after` in {1, 2, 3} stops after that step (interrupted-write tests). Returns the
+    trust record (the caller keeps a trusted copy outside the directory)."""
+    d = Path(directory)
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"checkpoint_{cp['hash']}.json").write_bytes(canonical(cp))
+    recs = tail_records(tail_reports, cp["archive_seal"])
+    trust = trust_record(cp, {"count": cp["archive_seal"]["count"] + len(recs),
+                              "head": recs[-1]["hash"] if recs else cp["archive_seal"]["head"]})
+    if crash_after == 1:
+        return trust
+    (d / f"tail_{cp['hash']}.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in recs),
+                                                 encoding="utf-8")
+    if crash_after == 2:
+        return trust
+    tmp = d / "trust.json.tmp"
+    tmp.write_bytes(canonical(trust))
+    os.replace(tmp, d / "trust.json")
+    if crash_after == 3:
+        return trust
+    for p in d.iterdir():
+        if p.name.startswith(("checkpoint_", "tail_")) and cp["hash"] not in p.name:
+            p.unlink()
+    return trust
+
+
+def load_state(directory, trust: dict | None = None):
+    """Load (checkpoint, tail reports) of the state the trust record names. The record is
+    read from the directory unless a trusted copy is given (the trust anchor kept outside
+    the checked data). Every check of section 6 (4) refuses with CheckpointRefused or
+    StoreCorrupted."""
+    d = Path(directory)
+    if trust is None:
+        trust = json.loads((d / "trust.json").read_text())
+    cp_path = d / f"checkpoint_{trust['checkpoint_hash']}.json"
+    raw = cp_path.read_bytes()
+    cp = json.loads(raw)
+    check_checkpoint(cp, trust)
+    if canonical(cp) != raw:
+        raise CheckpointRefused("checkpoint file not canonical")
+    tail, seal = read_tail(d / f"tail_{cp['hash']}.jsonl", cp["archive_seal"])
+    if seal != trust["tail_seal"]:
+        raise CheckpointRefused("tail seal differs from the trust record")
+    if tail and tail[0]["report_day"] <= cp["cut"]:
+        raise CheckpointRefused("tail starts inside the cut")
+    if any(r["report_id"] <= (cp["highest_id"] or "") for r in tail):
+        raise CheckpointRefused("tail report id at or below the checkpoint's highest id")
+    return cp, tail
+---END FILE episodic_lab/r43_consolidate.py---
+---FILE episodic_lab/r43_reference.py---
+"""Round 4.3 reference side (docs/ROUND_4_3.md sections 2, 3, 5, 6) - built ONLY on R's own
+step function and claim table (episodic_lab/r40_reference.py, unchanged) and on the
+original reports; no code of M, of the checkpoint or of H's digest is used here.
+
+- reference_state(reports, times): the standing claims of ALL facts at each knowledge time,
+  normalised as (subject, attribute, id, value, valid_from, rank, source, origin); the origin
+  is taken from the report whose id the claim carries (an assert or an effective
+  correction), looked up in the given reports;
+- effectiveness(reports): per correct / retract report, whether R's step changed its table;
+- reference_digest(reports, subject, attribute, k): the digest of section 3 from R's table;
+- synthetic_reports(claims, c): claims written as assert reports of day c.
+"""
+from __future__ import annotations
+
+import json
+
+from .r40_reference import _decide, _eval, _history, _step
+
+DIGEST_SCHEMA = "episodic_lab.r43_digest.v1"
+
+
+def _ordered(reports):
+    return sorted(reports, key=lambda r: (r["report_day"], r["report_id"]))
+
+
+def _norm_rows(table, origin_of):
+    return sorted((row["subject"], row["attribute"], row["id"], json.dumps(row["value"]), row["vf"], row["rank"],
+                   row["source"], origin_of[row["id"]]) for row in table if row["alive"])
+
+
+def reference_state(reports, times):
+    """{k: sorted normalised tuples of all standing claims at knowledge time k} (the value
+    is JSON-encoded inside the tuple so that values of different types sort)."""
+    reps = _ordered(reports)
+    origin_of = {r["report_id"]: r["origin"] for r in reps}
+    table, out, i = [], {}, 0
+    for k in sorted(set(times)):
+        while i < len(reps) and reps[i]["report_day"] <= k:
+            _step(table, reps[i])
+            i += 1
+        out[k] = _norm_rows(table, origin_of)
+    return out
+
+
+def effectiveness(reports):
+    """{report id: True / False} for every correct / retract report: did R's step change the
+    table (a row withdrawn or added)?"""
+    table, out = [], {}
+    for r in _ordered(reports):
+        before = (len(table), sum(row["alive"] for row in table))
+        _step(table, r)
+        if r["kind"] != "assert":
+            out[r["report_id"]] = (len(table), sum(row["alive"] for row in table)) != before
+    return out
+
+
+def table_at(reports, k):
+    table = []
+    for r in _ordered(reports):
+        if r["report_day"] > k:
+            break
+        _step(table, r)
+    return table
+
+
+def _entry(row, origin_of):
+    return {"id": row["id"], "value": row["value"], "valid_from": row["vf"], "source": row["source"],
+            "rank": row["rank"], "origin": origin_of[row["id"]]}
+
+
+def _vkey(v):
+    return json.dumps(v, sort_keys=True)
+
+
+def _groups(rows, origin_of):
+    by = {}
+    for row in rows:
+        by.setdefault(_vkey(row["value"]), (row["value"], []))[1].append(_entry(row, origin_of))
+    return [{"value": by[k][0], "claims": sorted(by[k][1], key=lambda e: e["id"])} for k in sorted(by)]
+
+
+def reference_digest(reports, subject, attribute, k):
+    """R's digest at knowledge time k: R's history merged into segments with support, agree,
+    dissent and independent origins; written without M's or H's code."""
+    origin_of = {r["report_id"]: r["origin"] for r in reports}
+    table = table_at(reports, k)
+    rows = [row for row in table if row["alive"] and row["subject"] == subject and row["attribute"] == attribute]
+    days = sorted({row["vf"] for row in rows})
+    versions = []
+    for n, d in enumerate(days):
+        at = [row for row in rows if row["vf"] == d]
+        dec = _decide(at)
+        top = max(row["rank"] for row in at)
+        versions.append({"vf": d, "to": days[n + 1] - 1 if n + 1 < len(days) else None, "dec": dec,
+                         "deciding": [row for row in at if row["rank"] == top],
+                         "lower": [row for row in at if row["rank"] < top]})
+    segments = []
+    for ver in versions:
+        vals = [ver["dec"]["value"]] if ver["dec"]["status"] == "value" else list(ver["dec"]["values"])
+        key = (ver["dec"]["status"], tuple(_vkey(v) for v in vals))
+        if segments and segments[-1]["_key"] == key:
+            seg = segments[-1]
+            seg["valid_to"] = ver["to"]
+        else:
+            seg = {"_key": key, "valid_from": ver["vf"], "valid_to": ver["to"], "status": ver["dec"]["status"],
+                   "_vals": vals, "_support": [], "_agree": [], "_dissent": []}
+            segments.append(seg)
+        seg["_support"] += ver["deciding"]
+        for row in ver["lower"]:
+            (seg["_agree"] if _vkey(row["value"]) in {_vkey(v) for v in vals} else seg["_dissent"]).append(row)
+    out = []
+    for seg in segments:
+        item = {"valid_from": seg["valid_from"], "valid_to": seg["valid_to"], "status": seg["status"],
+                "support": _groups(seg["_support"], origin_of), "agree": _groups(seg["_agree"], origin_of),
+                "dissent": sorted((_entry(r, origin_of) for r in seg["_dissent"]), key=lambda e: e["id"])}
+        if seg["status"] == "value":
+            item["value"] = seg["_vals"][0]
+        else:
+            item["values"] = sorted(seg["_vals"], key=_vkey)
+        origins = {}
+        for row in seg["_support"] + seg["_agree"]:
+            origins.setdefault(_vkey(row["value"]), set()).add(origin_of[row["id"]])
+        item["independent_origins"] = [{"value": json.loads(v), "n": len(origins[v])} for v in sorted(origins)]
+        out.append(item)
+    return {"schema": DIGEST_SCHEMA, "segments": out, "current": _eval(table, subject, attribute, k)}
+
+
+def synthetic_reports(claims, c):
+    """Claims {id, subject, attribute, value, valid_from, rank, source, origin} as assert
+    reports of day c (section 2, the independent check by R)."""
+    return [{"report_id": x["id"], "report_day": c, "source": x["source"], "rank": x["rank"], "origin": x["origin"],
+             "subject": x["subject"], "attribute": x["attribute"], "kind": "assert", "value": x["value"],
+             "valid_from": x["valid_from"], "target_report_id": None}
+            for x in sorted(claims, key=lambda x: x["id"])]
+
+
+def claims_at(reports, c, facts=None) -> list[dict]:
+    """The standing claims at knowledge time c from R's table, as claim dicts (origin from
+    the report whose id the claim carries); optionally only the given facts."""
+    origin_of = {r["report_id"]: r["origin"] for r in reports}
+    return [{"id": row["id"], "subject": row["subject"], "attribute": row["attribute"], "value": row["value"],
+             "valid_from": row["vf"], "rank": row["rank"], "source": row["source"], "origin": origin_of[row["id"]]}
+            for row in table_at(reports, c) if row["alive"]
+            and (facts is None or (row["subject"], row["attribute"]) in facts)]
+
+
+def control_claims(reports, c, kind) -> list[dict]:
+    """The lossy control checkpoints of section 5, derived from R's table at c (so that the
+    informative cases are known before any run of H): K1 the deciding claims of the current
+    version (R's value_at(c, c)), K2 the deciding claims of every version (R's history), K3
+    every standing claim with its id renamed rN -> r(99999 - N)."""
+    table = table_at(reports, c)
+    claims = claims_at(reports, c)
+    if kind == "K3":
+        return [dict(x, id=f"r{99999 - int(x['id'][1:]):05d}") for x in claims]
+    keep = set()
+    for f in sorted({(x["subject"], x["attribute"]) for x in claims}):
+        if kind == "K1":
+            keep |= set(_eval(table, f[0], f[1], c).get("ids", []))
+        elif kind == "K2":
+            keep |= {i for h in _history(table, f[0], f[1]) for i in h["ids"]}
+        else:
+            raise ValueError(kind)
+    return [x for x in claims if x["id"] in keep]
+---END FILE episodic_lab/r43_reference.py---
+---FILE episodic_lab/r43_world.py---
+"""Round 4.3 worlds, cuts and questions (docs/ROUND_4_3.md section 4) - model-free.
+
+The worlds are those of the round 4.0 generator (P1-P9) and the round 4.1 generator
+(T1-T5), rebuilt here with the round 4.3 seeds by the generators' own functions (their
+files are not changed). Per world: the family's questions (unchanged) plus the
+consolidation questions about the asked fact, and the cut grid.
+"""
+from __future__ import annotations
+
+from . import r40_world as W40
+from . import r41_world as W41
+from .rng import HashRng
+
+GENERATOR_VERSION = "r43.g1"
+FAMILIES = W40.FAMILIES + W41.FAMILIES
+DELAYS = W40.DELAYS
+PAIRS = {"dev": 10, "holdout": 40}
+SEEDS = {"dev": "r43-dev-1", "holdout": "r43-holdout-1"}
+
+
+def _instances(seed, fam, idx, spec, voc, start, fact, anchor):
+    out = []
+    for delay in DELAYS:
+        d_rng = HashRng(f"{seed}|{fam}|{idx}|delay|{delay}")
+        extra = W40.distractors(d_rng, voc, delay, start, tuple(fact), anchor)
+        base = list(spec["specs"]) + W40._with_offset(extra, len(spec["specs"]))
+        now = (start + (delay - 1) // W40.PER_DAY + 1) if delay else start
+        inst = {"delay": delay, "now": now, "n_relevant": len(spec["specs"])}
+        for world in ("A", "B"):
+            specs = [dict(s) for s in base]
+            if world == "B":
+                specs[spec["crit"]].update(spec["b_change"])
+            reports, ids = W40.finalize(specs, voc["ranks"])
+            relevant = {ids[i] for i in range(len(spec["specs"]))}
+            inst[world] = {"reports": reports, "relevant_ids": sorted(relevant)}
+        out.append(inst)
+    return out
+
+
+def iter_pairs(split: str):
+    seed = SEEDS[split]
+    for fam in FAMILIES:
+        for idx in range(PAIRS[split]):
+            voc = W40.vocabulary(HashRng(f"{seed}|{fam}|{idx}"))
+            fam_rng = HashRng(f"{seed}|{fam}|{idx}|family")
+            if fam.startswith("P"):
+                spec = W40._family(fam, fam_rng, voc, idx)
+                start, anchor, fam_qs = spec["last_day"] + 1, spec["anchor"], spec["questions"]
+            else:
+                spec = W41._family(fam, fam_rng, voc, idx)
+                start, anchor, fam_qs = spec["d3"] + 1, None, [{"op": "current"}]
+            pair = {"pair": f"{split}-{fam}-{idx:02d}", "family": fam, "index": idx, "fact": spec["fact"],
+                    "anchor": anchor, "ranks": voc["ranks"], "family_questions": fam_qs,
+                    "instances": _instances(seed, fam, idx, spec, voc, start, spec["fact"], anchor)}
+            for inst in pair["instances"]:
+                for world in ("A", "B"):
+                    w = inst[world]
+                    w["cuts"] = cuts(w["reports"], w["relevant_ids"], start, inst["now"])
+                    w["questions"] = questions(pair, inst, world)
+            yield pair
+
+
+def cuts(reports, relevant_ids, tail_start, now):
+    """0 (genesis), every day from the first to the last relevant report day + 1, the days
+    at 1/4, 1/2, 3/4 of the irrelevant tail, and now. A cut c covers ALL reports with
+    report_day <= c."""
+    rel_days = [r["report_day"] for r in reports if r["report_id"] in set(relevant_ids)]
+    out = {0, now}
+    out.update(range(min(rel_days), max(rel_days) + 2))
+    if now > tail_start:
+        out.update(tail_start + (now - tail_start) * q // 4 for q in (1, 2, 3))
+    return sorted(c for c in out if c <= now)
+
+
+def questions(pair, inst, world):
+    """The family's questions plus the consolidation questions about the asked fact."""
+    w = inst[world]
+    now = inst["now"]
+    subj, attr = pair["fact"]
+    rel = [r for r in w["reports"] if r["report_id"] in set(w["relevant_ids"])
+           and (r["subject"], r["attribute"]) == (subj, attr)]
+    vfs = sorted({r["valid_from"] for r in rel if r["valid_from"] is not None})
+    days = sorted({r["report_day"] for r in rel})
+    qs = [dict(q, role="family") for q in pair["family_questions"]]
+    qs += [{"op": op, "role": "consolidation"} for op in ("current", "history", "conflicts", "digest")]
+    qs += [{"op": "valid_at", "v": v, "role": "consolidation"} for v in vfs]
+    qs += [{"op": "believed_at", "t": t, "role": "consolidation"} for t in days]
+    qs += [{"op": "digest_at", "t": t, "role": "consolidation"} for t in days]
+    qs += [{"op": "why_changed", "v": v, "k1": t, "role": "consolidation"} for v in vfs for t in days if t < now]
+    out = []
+    for n, q in enumerate(qs):
+        q = dict(q, qid=f"{pair['pair']}-{world}-{inst['delay']}-q{n}", now=now, subject=subj, attribute=attr)
+        if q["op"] == "why_changed":
+            q["k2"] = now
+        out.append(q)
+    return out
+
+
+def needed_time(q) -> int:
+    """The smallest knowledge time a question needs."""
+    return {"believed_at": lambda: q["t"], "digest_at": lambda: q["t"],
+            "why_changed": lambda: q["k1"]}.get(q["op"], lambda: q["now"])()
+
+
+def ids_monotonic(reports) -> bool:
+    """Input contract of round 4.3: report ids strictly increase in total order."""
+    ids = [int(r["report_id"][1:]) for r in reports]
+    return all(a < b for a, b in zip(ids, ids[1:]))
+---END FILE episodic_lab/r43_world.py---
+---FILE bench/m3/run_round43.py---
+#!/usr/bin/env python3
+"""Round 4.3 run (docs/ROUND_4_3.md, design v3 approved): source-bound consolidation,
+model-free. One job runs the families given; collect_round43.py merges the jobs.
+
+  --phase audit   R only (no H): the bound counts, the id contract, the informative cases of
+                  the lossy controls (R on the control claim sets vs R on the full reports)
+  --phase run     everything: M / R gold, Mode A, every cut (composition, full state, R on
+                  the synthetic checkpoint, Mode T, source binding, controls), tamper,
+                  interrupted writes, persistence and a rebuild in a new process, measures;
+                  for the holdout only if the request's freeze matches
+
+usage: run_round43.py --phase audit|run --split dev|holdout --families P1,P2 --request config/round43.json --out DIR
+       run_round43.py --verify-process MANIFEST   (internal: the second process)
+"""
+from __future__ import annotations
+
+import argparse
+import collections
+import copy
+import gzip
+import hashlib
+import json
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+
+from episodic_lab import r43_consolidate as X  # noqa: E402
+from episodic_lab import r43_reference as RF  # noqa: E402
+from episodic_lab import r43_world as W  # noqa: E402
+from episodic_lab.r40_memory import Memory, StoreCorrupted  # noqa: E402
+from episodic_lab.r40_reference import reference_answers  # noqa: E402
+from episodic_lab.r40_schema import ANCHOR_ATTRIBUTE, ANCHOR_PREFIX  # noqa: E402
+
+CODE_FILES = ("episodic_lab/r43_consolidate.py", "episodic_lab/r43_reference.py", "episodic_lab/r43_world.py",
+              "episodic_lab/r40_memory.py", "episodic_lab/r40_reference.py", "episodic_lab/r40_schema.py",
+              "episodic_lab/r40_world.py", "episodic_lab/r41_world.py", "episodic_lab/rng.py",
+              "bench/m3/run_round43.py", "bench/m3/collect_round43.py", "config/round43_counts.json",
+              "tests/fixtures/r40_conformance.json")
+CONTROLS = ("K1", "K2", "K3")
+DIGEST_OPS = ("digest", "digest_at")
+MAX_VIOLATIONS = 200
+
+
+def code_hashes() -> dict:
+    return {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in CODE_FILES}
+
+
+def dumps(obj) -> bytes:
+    return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode()
+
+
+def facts_of(pair):
+    out = {tuple(pair["fact"])}
+    if pair["anchor"] is not None:
+        out.add((ANCHOR_PREFIX + pair["anchor"], ANCHOR_ATTRIBUTE))
+    return out
+
+
+def only(reports, facts):
+    return [r for r in reports if (r["subject"], r["attribute"]) in facts]
+
+
+def digest_time(q):
+    return q["now"] if q["op"] == "digest" else q["t"]
+
+
+def r_answers(reports, qs):
+    """R's answers: the operators of round 4.0 through R's reference_answers, the digest
+    through the reference digest (both on the reports given)."""
+    plain = [q for q in qs if q["op"] not in DIGEST_OPS]
+    out = reference_answers(reports, plain)[0] if plain else {}
+    for q in qs:
+        if q["op"] in DIGEST_OPS:
+            out[q["qid"]] = RF.reference_digest(reports, q["subject"], q["attribute"], digest_time(q))
+    return out
+
+
+def h_answers(h, qs):
+    return {q["qid"]: h.answer(q) for q in qs}
+
+
+def question_times(qs):
+    ts = set()
+    for q in qs:
+        ts.add(X.needed_time(q))
+        ts.add(q["now"])
+        if q["op"] == "why_changed":
+            ts.add(q["k2"])
+    return ts
+
+
+class Log:
+    def __init__(self):
+        self.count = collections.Counter()
+        self.items = []
+
+    def bad(self, rule, what):
+        self.count[rule] += 1
+        if len(self.items) < MAX_VIOLATIONS:
+            self.items.append(f"{rule}: {what}")
+
+
+# ------------------------------------------------------------------ source binding
+def cited_value_ids(ans):
+    """(id, digest entry or None) of every claim an answer cites as value evidence."""
+    out = []
+    if isinstance(ans, dict) and "segments" in ans:
+        for s in ans["segments"]:
+            for g in s["support"] + s["agree"]:
+                out += [(e["id"], e) for e in g["claims"]]
+            out += [(e["id"], e) for e in s["dissent"]]
+        ans = ans["current"]
+    if isinstance(ans, dict):
+        out += [(i, None) for i in ans.get("ids", [])]
+    elif isinstance(ans, list):
+        for item in ans:
+            if isinstance(item, dict):
+                out += [(i, None) for i in item.get("ids", [])]
+    return out
+
+
+def check_binding(log, where, q, ans, ref_at, tail_ids_days):
+    k = X.needed_time(q) if q["op"] in ("believed_at", "digest_at") else q["now"]
+    if q["op"] == "why_changed":
+        if isinstance(ans, list):
+            for i in ans:
+                day = tail_ids_days.get(i)
+                if day is None or not (q["k1"] < day <= q["k2"]):
+                    log.bad("r5_binding", f"{where} {q['qid']} change evidence {i}")
+        return
+    ref = {t[2]: t for t in ref_at[k]}
+    for i, entry in cited_value_ids(ans):
+        t = ref.get(i)
+        if t is None:
+            log.bad("r5_binding", f"{where} {q['qid']} {i} not standing at {k}")
+        elif entry is not None and (json.dumps(entry["value"]), entry["valid_from"], entry["rank"], entry["source"],
+                                    entry["origin"]) != t[3:]:
+            log.bad("r5_binding", f"{where} {q['qid']} {i} fields differ")
+
+
+# ------------------------------------------------------------------ tamper and interrupted writes
+def _rehash(cp):
+    return X._seal_checkpoint(cp)
+
+
+def tamper_cases(cp, tail, cp0, tail0, tmp):
+    """Each case writes a correct state, alters it, and loads with the TRUSTED record (kept
+    outside the directory). Claim cases use a checkpoint with claims (cp, tail); tail cases
+    use the genesis checkpoint and the whole world as its tail (cp0, tail0: >= 2 reports
+    in every world). Returns {case: detected?}."""
+    out = {}
+
+    def cp_file(d, c):
+        return d / f"checkpoint_{c['hash']}.json"
+
+    def tail_file(d, c):
+        return d / f"tail_{c['hash']}.jsonl"
+
+    def attempt(name, mutate, base=None):
+        c, t = base or (cp, tail)
+        d = Path(tmp) / name
+        trust = X.write_state(d, c, t)
+        mutate(d, c)
+        try:
+            X.load_state(d, trust=trust)
+            out[name] = False
+        except (X.CheckpointRefused, StoreCorrupted, json.JSONDecodeError, FileNotFoundError, KeyError):
+            out[name] = True
+
+    def edit_cp(fn, rehash):
+        def m(d, base):
+            c = json.loads(cp_file(d, base).read_text())
+            fn(c)
+            if rehash:
+                c = _rehash(c)
+            cp_file(d, base).write_bytes(X.canonical(c))
+        return m
+
+    def first_claim(c):
+        return c["facts"][0]["claims"][0]
+
+    attempt("claim_value_changed", edit_cp(lambda c: first_claim(c).update(value="TAMPERED"), False))
+    attempt("claim_value_changed_rehashed", edit_cp(lambda c: first_claim(c).update(value="TAMPERED"), True))
+    attempt("claim_rank_changed_rehashed", edit_cp(lambda c: first_claim(c).update(rank=1 if first_claim(c)["rank"] != 1 else 3), True))
+    attempt("claim_removed_rehashed", edit_cp(lambda c: c["facts"][0]["claims"].pop(), True))
+    attempt("claim_added_rehashed", edit_cp(lambda c: c["facts"][0]["claims"].insert(0, dict(first_claim(c), id="r00000")), True))
+    attempt("archive_seal_changed_rehashed", edit_cp(lambda c: c["archive_seal"].update(count=c["archive_seal"]["count"] + 1), True))
+    attempt("parent_changed_rehashed", edit_cp(lambda c: c.update(parent="f" * 64), True))
+
+    def edit_tail(fn):
+        def m(d, base):
+            lines = tail_file(d, base).read_text().splitlines()
+            tail_file(d, base).write_text("".join(x + "\n" for x in fn(lines)))
+        return m
+
+    def changed(lines):
+        rec = json.loads(lines[0])
+        rec["report"]["source"] = "tampered"
+        return [json.dumps(rec, sort_keys=True)] + lines[1:]
+
+    attempt("tail_record_changed", edit_tail(changed), (cp0, tail0))
+    attempt("tail_record_removed", edit_tail(lambda ls: ls[:1] + ls[2:]), (cp0, tail0))
+    attempt("tail_reordered", edit_tail(lambda ls: [ls[1], ls[0]] + ls[2:]), (cp0, tail0))
+    attempt("tail_cut_off_at_end", edit_tail(lambda ls: ls[:-1]), (cp0, tail0))
+    # a tail report id at or below the highest prefix id, written as a VALID chain with a
+    # trust record that matches it: only the id rule can refuse it
+    d = Path(tmp) / "tail_id_at_or_below_highest"
+    bad_tail = [dict(tail[0], report_id=cp["highest_id"])] + tail[1:] if cp["highest_id"] else tail
+    trust = X.write_state(d, cp, bad_tail)
+    try:
+        X.load_state(d, trust=trust)
+        out["tail_id_at_or_below_highest"] = False
+    except (X.CheckpointRefused, StoreCorrupted):
+        out["tail_id_at_or_below_highest"] = True
+    return out
+
+
+def lost_fact_detected(cp, asked, ref_c):
+    """Pass rule (8) negative test: drop the claims of one fact no question asks about,
+    recompute the hash (internally consistent); the full-state comparison must find it.
+    None if the checkpoint has no such fact."""
+    others = [f for f in cp["facts"] if (f["subject"], f["attribute"]) not in asked]
+    if not others:
+        return None
+    bad = copy.deepcopy(cp)
+    bad["facts"] = [f for f in bad["facts"]
+                    if (f["subject"], f["attribute"]) != (others[0]["subject"], others[0]["attribute"])]
+    bad = _rehash(bad)
+    X.check_checkpoint(bad, X.trust_record(bad, {"count": 0, "head": ""}))   # passes integrity
+    return X.normalised(X.checkpoint_claims(bad)) != ref_c
+
+
+def interrupted_writes(cp_a, tail_a, cp_b, tail_b, tmp):
+    """Crash after step 1 / 2 / 3 of the second write: the state loaded from the directory
+    is always a consistent pair - the old one before the trust record, the new one after."""
+    out = {}
+    for crash in (1, 2, 3):
+        d = Path(tmp) / f"crash{crash}"
+        X.write_state(d, cp_a, tail_a)
+        X.write_state(d, cp_b, tail_b, crash_after=crash)
+        cp, tail = X.load_state(d)
+        want = (cp_a, tail_a) if crash < 3 else (cp_b, tail_b)
+        out[f"crash_after_step_{crash}"] = cp["hash"] == want[0]["hash"] and tail == want[1]
+    return out
+
+
+# ------------------------------------------------------------------ one world
+def world_digest_update(h, pair, inst, world):
+    w = inst[world]
+    h.update(dumps([pair["pair"], inst["delay"], world, pair["ranks"], w["reports"], w["questions"], w["cuts"]]))
+
+
+def gold_digest(split, families):
+    """R's answers on every world of the families (for the freeze): {family: sha256}."""
+    hs = {}
+    for pair in W.iter_pairs(split):
+        if pair["family"] not in families:
+            continue
+        h = hs.setdefault(pair["family"], {"worlds": hashlib.sha256(), "gold": hashlib.sha256()})
+        for inst in pair["instances"]:
+            for world in ("A", "B"):
+                world_digest_update(h["worlds"], pair, inst, world)
+                w = inst[world]
+                h["gold"].update(dumps([pair["pair"], inst["delay"], world,
+                                        r_answers(only(w["reports"], facts_of(pair)), w["questions"])]))
+    return {f: {k: v.hexdigest() for k, v in d.items()} for f, d in hs.items()}
+
+
+def run_instance(pair, inst, world, log, ctl, meas, persist_dir, manifest, digests):
+    w = inst[world]
+    reps, qs, cuts = w["reports"], w["questions"], w["cuts"]
+    where0 = f"{pair['pair']} d{inst['delay']} {world}"
+    asked = facts_of(pair)
+    recs = X.chain_records(reps)
+    m = Memory(reps)
+    gold = {}
+    for q in qs:
+        fact = (q["subject"], q["attribute"])
+        gold[q["qid"]] = X.full_digest(m, fact, digest_time(q)) if q["op"] in DIGEST_OPS else m.answer(q)
+    r_full = r_answers(only(reps, asked), qs)
+    world_digest_update(digests["worlds"], pair, inst, world)
+    digests["gold"].update(dumps([pair["pair"], inst["delay"], world, r_full]))
+    for q in qs:
+        if r_full[q["qid"]] != gold[q["qid"]]:
+            log.bad("r1_M_vs_R", f"{where0} {q['qid']}")
+    times = question_times(qs)
+    ref = RF.reference_state(reps, times | set(cuts))
+    r_eff = RF.effectiveness(reps)
+    # Mode A
+    h_a, cps_a = X.mode_a(reps, recs)
+    all_days = {r["report_id"]: r["report_day"] for r in reps}
+    for q in qs:
+        got = h_a.answer(q)
+        if got != gold[q["qid"]]:
+            log.bad("r1_modeA", f"{where0} {q['qid']}")
+        check_binding(log, f"{where0} A", q, got, ref, all_days)
+    for k in times:
+        meas["state_checks_mode_a"] += 1
+        if X.normalised(h_a.state_at(k)) != ref[k]:
+            log.bad("r8_state", f"{where0} A k={k}")
+    if h_a.effectiveness() != r_eff:
+        log.bad("r5_binding", f"{where0} A effectiveness")
+    # cuts
+    parent, hashes = None, []
+    for c in cuts:
+        where = f"{where0} c={c}"
+        cp = X.build_checkpoint(reps, recs, c) if parent is None else X.extend_checkpoint(parent, reps, recs, c)
+        if X.canonical(X.build_checkpoint(reps, recs, c, cp["parent"])) != X.canonical(cp):
+            log.bad("r3_composition", f"{where} incremental != scratch")
+        if X.build_checkpoint(reps, recs, c)["facts"] != cp["facts"]:
+            log.bad("r3_composition", f"{where} payload depends on the chain")
+        meas["composition"] += parent is not None
+        hashes.append(cp["hash"])
+        parent = cp
+        meas["state_checks_cut"] += 1
+        if X.normalised(X.checkpoint_claims(cp)) != ref[c]:
+            log.bad("r8_state", f"{where} checkpoint")
+        if not X.verify_against_archive(cp, reps, recs):
+            log.bad("r4_integrity", f"{where} verification")
+        n = X.prefix_len(reps, c)
+        tail = reps[n:]
+        inscope = [q for q in qs if X.needed_time(q) >= c]
+        # R on the checkpoint written as synthetic reports + the tail
+        syn = RF.synthetic_reports([x for x in X.checkpoint_claims(cp) if (x["subject"], x["attribute"]) in asked], c)
+        r_syn = r_answers(syn + only(tail, asked), inscope)
+        for q in inscope:
+            if r_syn[q["qid"]] != r_full[q["qid"]]:
+                log.bad("r1_R_synthetic", f"{where} {q['qid']}")
+        # Mode T
+        h_t = X.mode_t(cp, reps, recs, X.trust_record(cp, X.seal_of(recs, len(reps))))
+        tail_days = {r["report_id"]: r["report_day"] for r in tail}
+        for q in qs:
+            meas["mode_t_evaluations"] += 1
+            got = h_t.answer(q)
+            if X.needed_time(q) < c:
+                if got != ("compacted" if q["op"] == "why_changed" else X.COMPACTED):
+                    log.bad("r2_modeT", f"{where} {q['qid']} not compacted")
+            else:
+                if got != gold[q["qid"]]:
+                    log.bad("r2_modeT", f"{where} {q['qid']}")
+                check_binding(log, f"{where} T", q, got, ref, tail_days)
+        for k in times:
+            if k >= c:
+                meas["state_checks_mode_t"] += 1
+                if X.normalised(h_t.state_at(k)) != ref[k]:
+                    log.bad("r8_state", f"{where} T k={k}")
+        eff_t = h_t.effectiveness()
+        if eff_t != {r["report_id"]: r_eff[r["report_id"]] for r in tail if r["kind"] != "assert"}:
+            log.bad("r5_binding", f"{where} T effectiveness")
+        cp_ids = {x["id"] for x in X.checkpoint_claims(cp)} | {r["report_id"] for r in tail}
+        for r in tail:
+            if r["kind"] != "assert" and eff_t.get(r["report_id"]) and r["target_report_id"] not in cp_ids:
+                log.bad("r5_binding", f"{where} effective target outside C and tail")
+        # lossy controls (test path)
+        for kind in CONTROLS:
+            claims = [x for x in RF.control_claims(reps, c, kind) if (x["subject"], x["attribute"]) in asked]
+            r_k = r_answers(RF.synthetic_reports(claims, c) + only(tail, asked), inscope)
+            h_k = X.control_memory(claims, c, reps)
+            for q in inscope:
+                got = h_k.answer(q)
+                if got != r_k[q["qid"]]:
+                    log.bad("r6_controls", f"{where} {kind} {q['qid']} H != R")
+                if r_k[q["qid"]] != gold[q["qid"]]:
+                    ctl[kind].append((pair["pair"], pair["family"], q["op"]))
+        # measures
+        meas["claims"] += sum(len(f["claims"]) for f in cp["facts"])
+        meas["prefix_reports"] += n
+        meas["checkpoint_bytes"] += len(X.canonical(cp))
+        meas["prefix_bytes"] += len(dumps(reps[:n]))
+        meas["checkpoint_gzip"] += len(gzip.compress(X.canonical(cp), mtime=0))
+        meas["prefix_gzip"] += len(gzip.compress(dumps(reps[:n]), mtime=0))
+    # integrity, interrupted writes, persistence at the first cut with claims and a tail
+    usable = [c for c in cuts if c > 0 and len(reps) - X.prefix_len(reps, c) >= 1]
+    chosen = None
+    for c in usable:
+        cp = X.build_checkpoint(reps, recs, c)
+        if cp["facts"]:
+            chosen = cp
+            break
+    if chosen is None:
+        log.bad("r4_integrity", f"{where0} no cut usable for the tamper cases")
+        return hashes
+    tail = reps[X.prefix_len(reps, chosen["cut"]):]
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, ok in tamper_cases(chosen, tail, X.build_checkpoint(reps, recs, 0), reps, tmp).items():
+            meas["tamper_cases"] += 1
+            if not ok:
+                log.bad("r4_integrity", f"{where0} tamper {name} not detected")
+        later = [c for c in cuts if c > chosen["cut"]]
+        cp_b = X.extend_checkpoint(chosen, reps, recs, later[0]) if later else chosen
+        tail_b = reps[X.prefix_len(reps, cp_b["cut"]):]
+        for name, ok in interrupted_writes(chosen, tail, cp_b, tail_b, tmp).items():
+            meas["interrupted_cases"] += 1
+            if not ok:
+                log.bad("r4_interrupted", f"{where0} {name}")
+    cp_now = X.build_checkpoint(reps, recs, cuts[-1])                 # the cut "now": distractors present
+    lost = lost_fact_detected(cp_now, asked, ref[cuts[-1]])
+    if lost is not None:
+        meas["lost_fact_tests"] += 1
+        if not lost:
+            log.bad("r8_state", f"{where0} lost unasked fact not detected")
+    d = Path(persist_dir) / f"{pair['pair']}_{inst['delay']}_{world}"
+    trust = X.write_state(d, chosen, tail)
+    h = X.Hot({chosen["cut"]: chosen}, tail, floor=chosen["cut"], highest_id=chosen["highest_id"])
+    manifest.append({"pair": pair["pair"], "delay": inst["delay"], "world": world, "dir": str(d), "trust": trust,
+                     "questions": qs, "answers_sha256": hashlib.sha256(dumps([h.answer(q) for q in qs])).hexdigest(),
+                     "chain_hashes": hashes})
+    return hashes
+
+
+# ------------------------------------------------------------------ the second process
+def verify_process(manifest_path):
+    """Reload every persisted state (trust copy from the manifest), answer, and rebuild every
+    checkpoint chain from the regenerated worlds."""
+    man = json.loads(Path(manifest_path).read_text())
+    out = {"answers": {}, "chains": {}}
+    want = {(x["pair"], x["delay"], x["world"]) for x in man["items"]}
+    for item in man["items"]:
+        cp, tail = X.load_state(item["dir"], trust=item["trust"])
+        h = X.Hot({cp["cut"]: cp}, tail, floor=cp["cut"], highest_id=cp["highest_id"])
+        out["answers"][f"{item['pair']}|{item['delay']}|{item['world']}"] = \
+            hashlib.sha256(dumps([h.answer(q) for q in item["questions"]])).hexdigest()
+    fams = set(man["families"])
+    for pair in W.iter_pairs(man["split"]):
+        if pair["family"] not in fams:
+            continue
+        for inst in pair["instances"]:
+            for world in ("A", "B"):
+                if (pair["pair"], inst["delay"], world) not in want:
+                    continue
+                reps = inst[world]["reports"]
+                recs = X.chain_records(reps)
+                parent, hs = None, []
+                for c in inst[world]["cuts"]:
+                    parent = X.build_checkpoint(reps, recs, c) if parent is None else \
+                        X.extend_checkpoint(parent, reps, recs, c)
+                    hs.append(parent["hash"])
+                out["chains"][f"{pair['pair']}|{inst['delay']}|{world}"] = hs
+    print(json.dumps(out))
+
+
+# ------------------------------------------------------------------ conformance
+def conformance(log):
+    d = json.loads((ROOT / "tests/fixtures/r40_conformance.json").read_text())
+    fields = ("report_id", "report_day", "source", "rank", "subject", "attribute", "kind", "value", "valid_from",
+              "target_report_id")
+    n = 0
+    for name, w in d["worlds"].items():
+        reps = sorted((dict(zip(fields, row), origin="o-" + row[0]) for row in w["reports"]),
+                      key=lambda r: (r["report_day"], r["report_id"]))
+        recs = X.chain_records(reps)
+        qs = [dict(c[1], qid=c[0], subject="key", attribute="loc") for c in w["checks"]]
+        exp = {c[0]: c[2] for c in w["checks"]}
+        h_a, _ = X.mode_a(reps, recs)
+        for q in qs:
+            n += 1
+            if h_a.answer(q) != exp[q["qid"]]:
+                log.bad("r7_conformance", f"{name} {q['qid']} A")
+        last = max(r["report_day"] for r in reps)
+        parent = None
+        for c in range(0, last + 2):
+            parent = X.build_checkpoint(reps, recs, c) if parent is None else X.extend_checkpoint(parent, reps, recs, c)
+            h_t = X.mode_t(parent, reps, recs, X.trust_record(parent, X.seal_of(recs, len(reps))))
+            for q in qs:
+                n += 1
+                got = h_t.answer(q)
+                want = exp[q["qid"]] if X.needed_time(q) >= c else ("compacted" if q["op"] == "why_changed"
+                                                                    else X.COMPACTED)
+                if got != want:
+                    log.bad("r7_conformance", f"{name} {q['qid']} T c={c}")
+    return n
+
+
+# ------------------------------------------------------------------ audit (R only)
+def audit(split, families):
+    counts = {}
+    ctl = {k: [] for k in CONTROLS}
+    contract, collisions, cross = 0, 0, 0
+    ids_all = set()
+    for pair in W.iter_pairs(split):
+        if pair["family"] not in families:
+            continue
+        f = counts.setdefault(pair["family"], {"pairs": 0, "instances": 0, "cuts": 0, "questions": 0,
+                                               "mode_t_evaluations": 0, "by_operator": collections.Counter()})
+        f["pairs"] += 1
+        asked = facts_of(pair)
+        for inst in pair["instances"]:
+            for world in ("A", "B"):
+                w = inst[world]
+                reps, qs = w["reports"], w["questions"]
+                f["instances"] += 1
+                f["cuts"] += len(w["cuts"])
+                f["questions"] += len(qs)
+                f["mode_t_evaluations"] += len(w["cuts"]) * len(qs)
+                for q in qs:
+                    f["by_operator"][q["op"]] += 1
+                contract += not W.ids_monotonic(reps)
+                fact_of = {r["report_id"]: (r["subject"], r["attribute"]) for r in reps}
+                cross += sum(1 for r in reps if r["target_report_id"] and r["target_report_id"] in fact_of
+                             and fact_of[r["target_report_id"]] != (r["subject"], r["attribute"]))
+                ids = {r["report_id"] for r in reps}
+                ids_all |= ids
+                collisions += any(f"r{99999 - int(i[1:]):05d}" in ids for i in ids)
+                r_full = r_answers(only(reps, asked), qs)
+                for c in w["cuts"]:
+                    tail = reps[X.prefix_len(reps, c):]
+                    inscope = [q for q in qs if X.needed_time(q) >= c]
+                    for kind in CONTROLS:
+                        claims = [x for x in RF.control_claims(reps, c, kind) if (x["subject"], x["attribute"]) in asked]
+                        r_k = r_answers(RF.synthetic_reports(claims, c) + only(tail, asked), inscope)
+                        ctl[kind] += [(pair["pair"], pair["family"], q["op"]) for q in inscope
+                                      if r_k[q["qid"]] != r_full[q["qid"]]]
+    for f in counts.values():
+        f["by_operator"] = dict(sorted(f["by_operator"].items()))
+    return {"counts": counts, "id_contract_violations": contract, "k3_collisions": collisions,
+            "cross_fact_targets": cross,
+            "controls": summarize_controls(ctl)}
+
+
+def summarize_controls(ctl):
+    return {k: {"informative": len(v), "pairs": len({x[0] for x in v}), "families": sorted({x[1] for x in v}),
+                "operators": dict(collections.Counter(x[2] for x in v))} for k, v in ctl.items()}
+
+
+# ------------------------------------------------------------------ main
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--phase", choices=("audit", "run"))
+    ap.add_argument("--split", choices=("dev", "holdout"))
+    ap.add_argument("--families", default=",".join(W.FAMILIES))
+    ap.add_argument("--request", default="config/round43.json")
+    ap.add_argument("--conformance", action="store_true")
+    ap.add_argument("--out")
+    ap.add_argument("--verify-process")
+    a = ap.parse_args()
+    if a.verify_process:
+        verify_process(a.verify_process)
+        return 0
+    fams = [f for f in a.families.split(",") if f]
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    t0 = time.perf_counter()
+    res = {"schema": "episodic_lab.round43_job.v1", "phase": a.phase, "split": a.split, "families": fams,
+           "generator": W.GENERATOR_VERSION, "code": code_hashes(), "status": "ERROR"}
+    try:
+        if a.phase == "audit":
+            res.update(audit(a.split, set(fams)))
+        else:
+            req = json.loads(Path(a.request).read_text())
+            if a.split == "holdout":
+                fr = req.get("freeze") or {}
+                if fr.get("code") != res["code"]:
+                    raise RuntimeError("holdout refused: the code differs from the freeze in the request")
+                pre = {}
+                for pair in W.iter_pairs(a.split):           # worlds checked BEFORE any run of H
+                    if pair["family"] in fams:
+                        h = pre.setdefault(pair["family"], hashlib.sha256())
+                        for inst in pair["instances"]:
+                            for world in ("A", "B"):
+                                world_digest_update(h, pair, inst, world)
+                if {f: h.hexdigest() for f, h in pre.items()} != {f: fr["families"][f]["worlds"] for f in fams}:
+                    raise RuntimeError("holdout refused: the worlds differ from the freeze")
+            log, ctl = Log(), {k: [] for k in CONTROLS}
+            meas = collections.Counter()
+            manifest = []
+            persist = Path(tempfile.mkdtemp(prefix="r43_persist_"))
+            counts, digests = {}, {}
+            for pair in W.iter_pairs(a.split):
+                if pair["family"] not in fams:
+                    continue
+                dg = digests.setdefault(pair["family"], {"worlds": hashlib.sha256(), "gold": hashlib.sha256()})
+                f = counts.setdefault(pair["family"], {"pairs": 0, "instances": 0, "cuts": 0, "questions": 0,
+                                                       "mode_t_evaluations": 0, "by_operator": collections.Counter()})
+                f["pairs"] += 1
+                for inst in pair["instances"]:
+                    for world in ("A", "B"):
+                        w = inst[world]
+                        f["instances"] += 1
+                        f["cuts"] += len(w["cuts"])
+                        f["questions"] += len(w["questions"])
+                        f["mode_t_evaluations"] += len(w["cuts"]) * len(w["questions"])
+                        for q in w["questions"]:
+                            f["by_operator"][q["op"]] += 1
+                        meas["mode_a_answers"] += len(w["questions"])
+                        run_instance(pair, inst, world, log, ctl, meas, persist, manifest, dg)
+            for f in counts.values():
+                f["by_operator"] = dict(sorted(f["by_operator"].items()))
+            mpath = persist / "manifest.json"
+            mpath.write_text(json.dumps({"split": a.split, "families": fams, "items": manifest}))
+            proc = subprocess.run([sys.executable, "-B", str(Path(__file__).resolve()), "--verify-process", str(mpath)],
+                                  capture_output=True, text=True, check=True)
+            second = json.loads(proc.stdout)
+            import shutil
+            shutil.rmtree(persist, ignore_errors=True)
+            for item in manifest:
+                key = f"{item['pair']}|{item['delay']}|{item['world']}"
+                meas["persistence_checks"] += 1
+                if second["answers"].get(key) != item["answers_sha256"]:
+                    log.bad("r4_persistence", f"{key} answers after reload")
+                if second["chains"].get(key) != item["chain_hashes"]:
+                    log.bad("r3_composition", f"{key} chain rebuilt in a new process")
+            conf_n = conformance(log) if a.conformance else 0
+            res.update(digests={f: {k: v.hexdigest() for k, v in d.items()} for f, d in digests.items()},
+                       counts=counts, violations=dict(log.count), violation_items=log.items,
+                       controls=summarize_controls(ctl), measures=dict(meas), conformance_checks=conf_n)
+        res["status"] = "OK"
+    except Exception as exc:  # noqa: BLE001
+        import traceback
+        res["error"] = f"{type(exc).__name__}: {exc}"
+        res["traceback"] = traceback.format_exc()[-4000:]
+    res["seconds"] = round(time.perf_counter() - t0, 1)
+    name = f"r43_{a.phase}_{a.split}_{'-'.join(fams)}.json"
+    (out / name).write_text(json.dumps(res, indent=1, sort_keys=True) + "\n")
+    print(json.dumps({k: res.get(k) for k in ("status", "error", "violations", "controls", "measures", "seconds")},
+                     indent=1, default=str)[:4000])
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/run_round43.py---
+---FILE bench/m3/collect_round43.py---
+#!/usr/bin/env python3
+"""Round 4.3 collector (docs/ROUND_4_3.md section 6): merges the job files of one split,
+checks the bound numbers against config/round43_counts.json and applies the pass rule.
+Writes SUMMARY.md, summary.json and VERDICT (PASS / FAIL / INCOMPLETE).
+
+usage: collect_round43.py --split dev|holdout --dir DIR [--counts config/round43_counts.json]
+"""
+from __future__ import annotations
+
+import argparse
+import collections
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+RULES = ("r1_M_vs_R", "r1_modeA", "r1_R_synthetic", "r2_modeT", "r3_composition", "r4_integrity",
+         "r4_interrupted", "r4_persistence", "r5_binding", "r6_controls", "r7_conformance", "r8_state")
+TAMPER_CASES, INTERRUPTED_CASES = 12, 3
+FAMILIES = ("P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "T1", "T2", "T3", "T4", "T5")
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--split", required=True)
+    ap.add_argument("--dir", required=True)
+    ap.add_argument("--counts", default=str(ROOT / "config/round43_counts.json"))
+    ap.add_argument("--request", default=str(ROOT / "config/round43.json"))
+    a = ap.parse_args()
+    d = Path(a.dir)
+    jobs = [json.loads(p.read_text()) for p in sorted(d.glob(f"r43_run_{a.split}_*.json"))]
+    frozen = json.loads(Path(a.counts).read_text())["splits"][a.split]
+    problems = []
+    if any(j["status"] != "OK" for j in jobs):
+        problems += [f"job {j['families']}: {j.get('error')}" for j in jobs if j["status"] != "OK"]
+    fams = [f for j in jobs for f in j.get("families", [])]
+    if sorted(fams) != sorted(FAMILIES):
+        problems.append(f"families covered: {sorted(fams)}")
+    if len({json.dumps(j["code"], sort_keys=True) for j in jobs}) > 1:
+        problems.append("jobs ran different code")
+    counts = {f: c for j in jobs for f, c in j.get("counts", {}).items()}
+    if counts != frozen["families"]:
+        problems.append("counts differ from config/round43_counts.json")
+    if a.split == "holdout":
+        fr = json.loads(Path(a.request).read_text()).get("freeze") or {}
+        got = {f: dg for j in jobs for f, dg in j.get("digests", {}).items()}
+        if got != fr.get("families"):
+            problems.append("world / R-answer digests differ from the freeze")
+        if any(j["code"] != fr.get("code") for j in jobs):
+            problems.append("code differs from the freeze")
+    viol = collections.Counter()
+    meas = collections.Counter()
+    ctl = {}
+    items = []
+    for j in jobs:
+        viol.update(j.get("violations", {}))
+        meas.update(j.get("measures", {}))
+        items += j.get("violation_items", [])
+        for k, v in j.get("controls", {}).items():
+            c = ctl.setdefault(k, {"informative": 0, "pairs": 0, "families": set(), "operators": collections.Counter()})
+            c["informative"] += v["informative"]
+            c["pairs"] += v["pairs"]
+            c["families"] |= set(v["families"])
+            c["operators"].update(v["operators"])
+    tot = frozen["total"]
+    conf = sum(j.get("conformance_checks", 0) for j in jobs)
+    expect = {"mode_a_answers": tot["questions"], "mode_t_evaluations": tot["mode_t_evaluations"],
+              "composition": tot["cuts"] - tot["instances"], "tamper_cases": TAMPER_CASES * tot["instances"],
+              "interrupted_cases": INTERRUPTED_CASES * tot["instances"], "persistence_checks": tot["instances"],
+              "lost_fact_tests": tot["instances"] * 3 // 4}
+    for k, v in expect.items():
+        if meas.get(k) != v:
+            problems.append(f"measure {k}: {meas.get(k)} != {v}")
+    if conf == 0:
+        problems.append("conformance set not run")
+    if sum(viol.values()):
+        problems.append(f"violations: {dict(viol)}")
+    controls_ok = all(c["informative"] >= 30 and c["pairs"] >= 10 for c in ctl.values()) and len(ctl) == 3
+    verdict = "FAIL" if problems else ("PASS" if controls_ok else "INCOMPLETE")
+    summary = {"split": a.split, "verdict": verdict, "problems": problems, "violations": dict(viol),
+               "measures": dict(meas), "conformance_checks": conf, "totals": tot,
+               "controls": {k: {"informative": v["informative"], "pairs": v["pairs"], "families": sorted(v["families"]),
+                                "operators": dict(v["operators"])} for k, v in ctl.items()},
+               "violation_items": items[:200], "seconds": {j["families"][0]: j.get("seconds") for j in jobs}}
+    (d / "summary.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n")
+    lines = [f"# Round 4.3 ({a.split}) - {verdict}", "",
+             f"Totals: {tot}", f"Measures: {dict(sorted(meas.items()))}", f"Conformance checks: {conf}",
+             f"Violations: {dict(viol) or 'none'}", "Controls:"]
+    lines += [f"- {k}: {v['informative']} informative cases, {v['pairs']} pairs, families {sorted(v['families'])}"
+              for k, v in sorted(ctl.items())]
+    lines += ["Problems:"] + [f"- {p}" for p in problems] if problems else ["Problems: none"]
+    (d / "SUMMARY.md").write_text("\n".join(lines) + "\n")
+    (d / "VERDICT").write_text(verdict + "\n")
+    print(verdict)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/collect_round43.py---
+---FILE bench/m3/freeze43.py---
+#!/usr/bin/env python3
+"""Round 4.3 holdout freeze (docs/ROUND_4_3.md): R only, H is NOT run. Generates the
+holdout, records per family the digests of the worlds (reports, questions, cuts) and of
+R's answers, the R-only audit (bound counts, id contract, K3 collisions, informative cases
+of the lossy controls), the SHA-256 of the counts file and of every code file. With --write
+the freeze is stored in the request; the holdout jobs refuse to start unless it matches.
+
+usage: freeze43.py config/round43.json [--write]
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import run_round43 as R  # noqa: E402
+
+
+def main():
+    path = Path(sys.argv[1])
+    fams = set(R.W.FAMILIES)
+    audit = R.audit("holdout", fams)
+    counts_file = json.loads((R.ROOT / "config/round43_counts.json").read_text())
+    ok = audit["counts"] == counts_file["splits"]["holdout"]["families"] and audit["id_contract_violations"] == 0 \
+        and audit["k3_collisions"] == 0 and audit["cross_fact_targets"] == 0
+    controls_ok = all(v["informative"] >= 30 and v["pairs"] >= 10 for v in audit["controls"].values())
+    freeze = {"generator": R.W.GENERATOR_VERSION, "families": R.gold_digest("holdout", fams),
+              "counts_sha256": hashlib.sha256((R.ROOT / "config/round43_counts.json").read_bytes()).hexdigest(),
+              "audit": {k: audit[k] for k in ("id_contract_violations", "k3_collisions", "cross_fact_targets", "controls")},
+              "audit_ok": ok, "controls_sufficient": controls_ok, "code": R.code_hashes()}
+    print(json.dumps({k: freeze[k] for k in ("audit_ok", "controls_sufficient", "audit")}, indent=1))
+    if not (ok and controls_ok):
+        print("NOT FROZEN: the audit or the controls fail (design revision needed before the freeze)")
+        return 1
+    if "--write" in sys.argv[2:]:
+        req = json.loads(path.read_text())
+        req["freeze"] = freeze
+        path.write_text(json.dumps(req, indent=1) + "\n")
+        print(f"freeze written to {path}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+---END FILE bench/m3/freeze43.py---
+---FILE tests/test_round43.py---
+"""Round 4.3 hand cases (docs/ROUND_4_3.md section 8): every equivalence of proof
+obligation 1, every citation role, composition, tamper and interrupted writes, the lost
+distractor fact, the digest grouping, the test-only control path, and the world module."""
+from __future__ import annotations
+
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from episodic_lab import r43_consolidate as X
+from episodic_lab import r43_reference as RF
+from episodic_lab import r43_world as W
+from episodic_lab.r40_memory import Memory, StoreCorrupted
+from episodic_lab.r40_reference import reference_answers
+
+
+def rep(i, day, src, rank, kind, value=None, vf=None, target=None, subject="key", attribute="loc", origin=None):
+    return {"report_id": f"r{i:05d}", "report_day": day, "source": src, "rank": rank,
+            "origin": origin or f"o-r{i:05d}", "subject": subject, "attribute": attribute, "kind": kind,
+            "value": value, "valid_from": vf, "target_report_id": target}
+
+
+def questions(now, days, vfs):
+    qs = [{"op": "current"}, {"op": "history"}, {"op": "conflicts"}, {"op": "digest"}]
+    qs += [{"op": "valid_at", "v": v} for v in vfs] + [{"op": "believed_at", "t": t} for t in days]
+    qs += [{"op": "digest_at", "t": t} for t in days]
+    qs += [{"op": "why_changed", "v": v, "k1": t, "k2": now} for v in vfs for t in days if t < now]
+    return [dict(q, qid=f"q{n}", now=now, subject="key", attribute="loc") for n, q in enumerate(qs)]
+
+
+def gold(reps, qs):
+    m = Memory(reps)
+    out = {}
+    for q in qs:
+        if q["op"] in ("digest", "digest_at"):
+            out[q["qid"]] = X.full_digest(m, ("key", "loc"), q["now"] if q["op"] == "digest" else q["t"])
+        else:
+            out[q["qid"]] = m.answer(q)
+    return out
+
+
+# worlds for proof obligation 1: a correction / retraction whose target is withdrawn,
+# claimless (an ineffective correction) or missing; plus effective ones
+WORLDS = {
+    "target_withdrawn": [rep(1, 1, "ana", 2, "assert", "mill", 1), rep(2, 2, "ana", 2, "retract", target="r00001"),
+                         rep(3, 4, "self", 3, "correct", "bridge", None, "r00001"),
+                         rep(4, 5, "ana", 2, "retract", target="r00001"), rep(5, 6, "self", 3, "assert", "forge", 6)],
+    "target_claimless": [rep(1, 1, "self", 3, "assert", "mill", 1), rep(2, 2, "ben", 1, "correct", "harbour", None, "r00001"),
+                         rep(3, 4, "self", 3, "correct", "bridge", None, "r00002"),
+                         rep(4, 5, "ben", 1, "retract", target="r00002"), rep(5, 6, "ana", 2, "assert", "forge", 6)],
+    "target_missing": [rep(1, 1, "self", 3, "assert", "mill", 1), rep(2, 3, "self", 3, "correct", "bridge", None, "r00099"),
+                       rep(3, 4, "ana", 2, "retract", target="r00099"), rep(4, 6, "ana", 2, "assert", "forge", 6)],
+    "effective_across_cut": [rep(1, 1, "ana", 2, "assert", "mill", 1), rep(2, 2, "ben", 1, "assert", "harbour", 1),
+                             rep(3, 3, "cara", 2, "assert", "dock", 1, origin="o-x"),
+                             rep(4, 5, "self", 3, "correct", "bridge", 2, "r00001"),
+                             rep(5, 6, "cara", 2, "retract", target="r00003"), rep(6, 7, "ben", 1, "assert", "mill", 7),
+                             rep(7, 8, "self", 3, "assert", "mill", 7, origin="o-r00006")],
+}
+
+
+class ProofObligations(unittest.TestCase):
+    def test_every_cut_mode_t_equals_m_and_r(self):
+        for name, reps in WORLDS.items():
+            recs = X.chain_records(reps)
+            now = reps[-1]["report_day"] + 1
+            days = sorted({r["report_day"] for r in reps})
+            vfs = sorted({r["valid_from"] for r in reps if r["valid_from"] is not None})
+            qs = questions(now, days, vfs)
+            g = gold(reps, qs)
+            plain = [q for q in qs if not q["op"].startswith("digest")]
+            r = reference_answers(reps, plain)[0]
+            for q in plain:
+                self.assertEqual(r[q["qid"]], g[q["qid"]], (name, q))
+            for q in qs:
+                if q["op"].startswith("digest"):
+                    k = q["now"] if q["op"] == "digest" else q["t"]
+                    self.assertEqual(RF.reference_digest(reps, "key", "loc", k), g[q["qid"]], (name, q))
+            ref = RF.reference_state(reps, range(0, now + 1))
+            for c in range(0, now + 1):
+                cp = X.build_checkpoint(reps, recs, c)
+                self.assertEqual(X.normalised(X.checkpoint_claims(cp)), ref[c], (name, c))
+                h = X.mode_t(cp, reps, recs, X.trust_record(cp, X.seal_of(recs, len(reps))))
+                for q in qs:
+                    got = h.answer(q)
+                    if X.needed_time(q) < c:
+                        self.assertIn(got, ("compacted", X.COMPACTED), (name, c, q))
+                    else:
+                        self.assertEqual(got, g[q["qid"]], (name, c, q))
+                for k in range(c, now + 1):
+                    self.assertEqual(X.normalised(h.state_at(k)), ref[k], (name, c, k))
+                # effectiveness of the tail's corrections / retractions = R's
+                tail = reps[X.prefix_len(reps, c):]
+                r_eff = RF.effectiveness(reps)
+                self.assertEqual(h.effectiveness(),
+                                 {x["report_id"]: r_eff[x["report_id"]] for x in tail if x["kind"] != "assert"})
+
+    def test_withdrawn_claimless_missing_are_all_ineffective(self):
+        eff = RF.effectiveness(WORLDS["target_withdrawn"])
+        self.assertEqual((eff["r00002"], eff["r00003"], eff["r00004"]), (True, False, False))
+        eff = RF.effectiveness(WORLDS["target_claimless"])
+        self.assertEqual((eff["r00002"], eff["r00003"], eff["r00004"]), (False, False, False))
+        eff = RF.effectiveness(WORLDS["target_missing"])
+        self.assertEqual((eff["r00002"], eff["r00003"]), (False, False))
+
+    def test_highest_id_belongs_to_a_withdrawn_or_ineffective_report(self):
+        # Astra's idea: the highest prefix id is a retraction / an ineffective correction
+        for name, cut in (("target_withdrawn", 2), ("target_claimless", 2)):
+            reps = WORLDS[name]
+            cp = X.build_checkpoint(reps, X.chain_records(reps), cut)
+            self.assertEqual(cp["highest_id"], "r00002")
+            self.assertNotIn("r00002", {x["id"] for x in X.checkpoint_claims(cp)})
+            tail = reps[X.prefix_len(reps, cut):]
+            with self.assertRaises(StoreCorrupted):
+                X.Hot({cut: cp}, [dict(tail[0], report_id="r00002")] + tail[1:], floor=cut, highest_id=cp["highest_id"])
+
+
+class Citations(unittest.TestCase):
+    def test_roles(self):
+        reps = WORLDS["effective_across_cut"]
+        recs = X.chain_records(reps)
+        cp = X.build_checkpoint(reps, recs, 4)
+        h = X.mode_t(cp, reps, recs, X.trust_record(cp, X.seal_of(recs, len(reps))))
+        q = {"qid": "w", "op": "why_changed", "v": 2, "k1": 4, "k2": 9, "now": 9, "subject": "key", "attribute": "loc"}
+        ids = h.answer(q)                                   # change evidence: reports of (k1, k2]
+        self.assertEqual(ids, ["r00004"])
+        self.assertTrue(all(4 < next(r for r in reps if r["report_id"] == i)["report_day"] <= 9 for i in ids))
+        cur = h.answer(dict(q, op="current"))               # value evidence: standing at now
+        standing = {t[2] for t in RF.reference_state(reps, [9])[9]}
+        self.assertTrue(set(cur["ids"]) <= standing)
+        eff = h.effectiveness()                             # target references
+        self.assertEqual(eff, {"r00004": True, "r00005": True})
+
+
+class Digest(unittest.TestCase):
+    def test_grouping(self):
+        reps = WORLDS["effective_across_cut"]
+        d = X.full_digest(Memory(reps), ("key", "loc"), 9)
+        self.assertEqual(d, RF.reference_digest(reps, "key", "loc", 9))
+        self.assertEqual(d["segments"][0]["value"], "harbour")   # day 1 at k = 9: mill corrected, dock retracted
+        d4 = X.full_digest(Memory(reps), ("key", "loc"), 4)       # k = 4: mill (ana) and dock (cara) conflict
+        self.assertEqual(d4, RF.reference_digest(reps, "key", "loc", 4))
+        seg1 = d4["segments"][0]
+        self.assertEqual((seg1["status"], seg1["values"]), ("conflict", ["dock", "mill"]))
+        self.assertEqual([e["id"] for e in seg1["dissent"]], ["r00002"])     # harbour, outranked
+        self.assertEqual([g["value"] for g in seg1["support"]], ["dock", "mill"])
+        last = d["segments"][-1]                            # day 7: own mill decides, ben's mill agrees
+        self.assertEqual([g["claims"][0]["id"] for g in last["agree"]], ["r00006"])
+        self.assertEqual(last["independent_origins"], [{"value": "mill", "n": 1}])   # same origin
+        entries = X.digest_entries(d)
+        self.assertEqual(sorted(e["id"] for e in entries),
+                         sorted(t[2] for t in RF.reference_state(reps, [9])[9]))   # partition
+        # a conflict segment and merged versions
+        reps2 = [rep(1, 1, "ana", 2, "assert", "A", 1), rep(2, 1, "ben", 2, "assert", "B", 1),
+                 rep(3, 2, "ana", 2, "assert", "A", 3), rep(4, 2, "ben", 2, "assert", "B", 3),
+                 rep(5, 3, "self", 3, "assert", "C", 5), rep(6, 3, "self", 3, "assert", "C", 6, origin="o-y")]
+        d2 = X.full_digest(Memory(reps2), ("key", "loc"), 4)
+        self.assertEqual(d2, RF.reference_digest(reps2, "key", "loc", 4))
+        self.assertEqual([(s["status"], s["valid_from"], s["valid_to"]) for s in d2["segments"]],
+                         [("conflict", 1, 4), ("value", 5, None)])
+        self.assertEqual([g["value"] for g in d2["segments"][0]["support"]], ["A", "B"])
+
+
+class IntegrityAndComposition(unittest.TestCase):
+    def setUp(self):
+        self.reps = WORLDS["effective_across_cut"]
+        self.recs = X.chain_records(self.reps)
+
+    def test_composition_and_parent(self):
+        c1 = X.build_checkpoint(self.reps, self.recs, 3)
+        c2 = X.extend_checkpoint(c1, self.reps, self.recs, 6)
+        self.assertEqual(X.canonical(c2), X.canonical(X.build_checkpoint(self.reps, self.recs, 6, c1["hash"])))
+        self.assertNotEqual(c2["hash"], X.build_checkpoint(self.reps, self.recs, 6)["hash"])   # other parent
+        self.assertEqual(c2["facts"], X.build_checkpoint(self.reps, self.recs, 6)["facts"])
+
+    def test_tamper_and_interrupted(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench/m3"))
+        import run_round43 as RUN
+        cp = X.build_checkpoint(self.reps, self.recs, 3)
+        tail = self.reps[X.prefix_len(self.reps, 3):]
+        with tempfile.TemporaryDirectory() as tmp:
+            res = RUN.tamper_cases(cp, tail, X.build_checkpoint(self.reps, self.recs, 0), self.reps, tmp)
+            self.assertEqual(len(res), RUN_TAMPER_CASES)
+            self.assertTrue(all(res.values()), res)
+            cp_b = X.extend_checkpoint(cp, self.reps, self.recs, 6)
+            res = RUN.interrupted_writes(cp, tail, cp_b, self.reps[X.prefix_len(self.reps, 6):], tmp)
+            self.assertTrue(all(res.values()), res)
+
+    def test_full_state_check_sees_every_field(self):
+        # Astra's idea: change origin, source, rank of one claim - the normalised comparison differs
+        cp = X.build_checkpoint(self.reps, self.recs, 9)
+        ref = RF.reference_state(self.reps, [9])[9]
+        for field, val in (("origin", "o-other"), ("source", "zed"), ("rank", 2), ("value", "zz"), ("valid_from", 99)):
+            bad = json.loads(json.dumps(cp))
+            bad["facts"][0]["claims"][0][field] = val
+            self.assertNotEqual(X.normalised(X.checkpoint_claims(bad)), ref, field)
+
+    def test_lost_unasked_fact(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "bench/m3"))
+        import run_round43 as RUN
+        reps = self.reps + [rep(8, 9, "ana", 2, "assert", "x", 9, subject="other", attribute="loc")]
+        recs = X.chain_records(reps)
+        cp = X.build_checkpoint(reps, recs, 9)
+        ref = RF.reference_state(reps, [9])[9]
+        self.assertTrue(RUN.lost_fact_detected(cp, {("key", "loc")}, ref))
+
+    def test_control_path_is_not_a_mode(self):
+        claims = RF.control_claims(self.reps, 4, "K3")
+        pseudo = {"facts": [], "cut": 4}
+        with self.assertRaises(Exception):
+            X.mode_t(pseudo, self.reps, self.recs, X.trust_record({"hash": "x", "archive_seal": {}}, {}))
+        h = X.control_memory(claims, 4, self.reps)          # the test path itself works
+        self.assertEqual(h.floor, 4)
+
+
+RUN_TAMPER_CASES = 12
+
+
+class WorldModule(unittest.TestCase):
+    def test_counts_file_and_contract(self):
+        frozen = json.loads((Path(__file__).resolve().parents[1] / "config/round43_counts.json").read_text())
+        self.assertEqual(frozen["seeds"], W.SEEDS)
+        pairs = list(W.iter_pairs("dev"))
+        self.assertEqual(len(pairs), 140)
+        self.assertTrue(all(W.ids_monotonic(i[w]["reports"]) for p in pairs for i in p["instances"] for w in "AB"))
+        self.assertEqual(sum(len(i[w]["cuts"]) for p in pairs for i in p["instances"] for w in "AB"),
+                         frozen["splits"]["dev"]["total"]["cuts"])
+
+
+if __name__ == "__main__":
+    unittest.main()
+---END FILE tests/test_round43.py---
+---FILE .github/workflows/round43.yml---
+name: round43
+# Round 4.3 (docs/ROUND_4_3.md): source-bound consolidation, model-free. One job per family
+# (phase run) or one job (phase audit), as requested in config/round43.json; runs only if
+# "enabled": true; the holdout jobs refuse to start unless the freeze in the request
+# matches the code and the worlds. Results go to the results branch. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round43.json"
+permissions:
+  contents: read
+concurrency:
+  group: round43
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      enabled: ${{ steps.plan.outputs.enabled }}
+      split: ${{ steps.plan.outputs.split }}
+      phase: ${{ steps.plan.outputs.phase }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("config/round43.json"))
+          fams = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "T1", "T2", "T3", "T4", "T5"]
+          cells = [{"families": f, "conformance": f == "P1"} for f in fams] if r["phase"] == "run" \
+              else [{"families": ",".join(fams), "conformance": False}]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"enabled={'true' if r.get('enabled') is True else 'false'}\n")
+              out.write(f"split={r['split']}\n")
+              out.write(f"phase={r['phase']}\n")
+              out.write(f"matrix={json.dumps({'include': cells})}\n")
+          PY
+
+  job:
+    needs: plan
+    if: needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -B -m unittest tests.test_round43 tests.test_round40
+      - name: Run
+        run: |
+          mkdir -p out
+          python -B bench/m3/run_round43.py --phase "${{ needs.plan.outputs.phase }}" --split "${{ needs.plan.outputs.split }}" \
+            --families "${{ matrix.families }}" ${{ matrix.conformance && '--conformance' || '' }} \
+            --request config/round43.json --out out
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r43-${{ strategy.job-index }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: [plan, job]
+    if: always() && needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: fetch
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: r43-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r . "$RUNNER_TEMP/code"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round43/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+          cp "$RUNNER_TEMP/code/config/round43.json" "$dest/request.json"
+          if [ "${{ needs.plan.outputs.phase }}" = "run" ]; then
+            python3 "$RUNNER_TEMP/code/bench/m3/collect_round43.py" --split "${{ needs.plan.outputs.split }}" --dir "$dest" \
+              --counts "$RUNNER_TEMP/code/config/round43_counts.json" --request "$RUNNER_TEMP/code/config/round43.json" \
+              || echo INCOMPLETE > "$dest/VERDICT"
+          else
+            echo AUDIT > "$dest/VERDICT"
+          fi
+          verdict=$(cat "$dest/VERDICT")
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} phase ${{ needs.plan.outputs.phase }} split ${{ needs.plan.outputs.split }} jobs ${{ needs.job.result }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add round43
+          git commit --quiet -m "Round 4.3 results (${{ needs.plan.outputs.phase }}, ${{ needs.plan.outputs.split }}), run ${GITHUB_RUN_ID}, ${verdict}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+---END FILE .github/workflows/round43.yml---
+
+Decision needed: approve the implementation of round 4.3 for the freeze and the single holdout run, or request changes.
+Prepared on lab main 5cbe464; holdout not frozen, not run by H.
+=== END OF LAB ROUND 4.3 IMPLEMENTATION v1 ===
