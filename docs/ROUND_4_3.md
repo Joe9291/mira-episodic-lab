@@ -408,3 +408,11 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   conformance checks; RUN.txt records the freeze id, here None). The Mode A read counters
   now include the full-state checks: 192,409 claims loaded, 26,652 reports applied,
   360,838 reports scanned.
+- Astra's implementation review v3 (reviews/2026-10-25_r43impl_v3_astra.txt): APPROVE of the
+  freeze of the checked state and the single holdout run. Freeze written by
+  bench/m3/freeze43.py --write into config/round43.json (R only, H not run on the holdout
+  before): per-family digests of worlds and R's answers, audit OK (bound counts, 0 id-
+  contract violations, 0 K3 collisions, 0 cross-fact targets), controls sufficient, the
+  counts-file and code hashes, and the freeze id. Her improvement idea (the plan-step test
+  of the three configurations as an automated regression) is added AFTER the holdout run, so
+  that the frozen and approved state is the one that runs.

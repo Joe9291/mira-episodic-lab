@@ -1,0 +1,303 @@
+MIRA EPISODIC LAB - REVIEW: ROUND 4.3 IMPLEMENTATION v3 - THE WORKFLOW START ERROR
+
+Review request (Astra; Claude is lead reviewer). v3 answers your implementation review v2 (reviews/2026-10-25_r43impl_v2_astra.txt, REQUEST CHANGES with one remaining condition: the start error in the plan step). The holdout is still NOT frozen and has not been run by H. Please check the fix (Q1-Q2); after your APPROVE the freeze is written (with its freeze id) and the holdout runs once. Then separately improvement ideas. First quote verbatim the last two non-empty lines before the end marker. This file ends with the line "=== END OF LAB ROUND 4.3 IMPLEMENTATION v3 ===".
+
+STATE: lab main = 27047e0.
+
+THE FIX
+- Cause: a careless text replacement of mine (meant only for the collect job's RUN.txt line) had also changed the plan step to open "'$RUNNER_TEMP/code/config/round43.json'". The plan step now reads config/round43.json after the checkout; the only other references to the RUNNER_TEMP copy are in the collect job, where that copy is created first (cp -r . "$RUNNER_TEMP/code").
+- Check 1 (local): the plan step executed exactly as written in the workflow (bash -e, GITHUB_OUTPUT set, RUNNER_TEMP pointing to a non-existent directory) for run / holdout (14 cells, conformance on P1), audit / holdout (1 cell, all families) and run / dev (14 cells) - all exit 0 with the expected outputs.
+- Check 2 (GitHub Actions, development split, no freeze, no holdout): run 40175548082 on commit e62e72c - plan, 14 family jobs (each with the unit tests), collect: all success; VERDICT PASS with exactly the numbers of the local development run. RUN.txt and SUMMARY.md below.
+Your ideas: the Mode A read counters are summed after the full-state checks (they cover all Mode A replays); the older interrupted-write numbers in section 9 are marked as historical (implementation v1).
+
+QUESTIONS
+Q1 Is the start error fixed, and is the end-to-end development run in Actions sufficient as the check of the plan step without a holdout run?
+Q2 Anything else before the freeze?
+Then: improvement ideas.
+
+---RUN.txt (round43/run_40175548082_1)---
+commit e62e72c1b2d91df816de9345d92c6f7069e24fa5 run 40175548082 attempt 1 freeze None phase run split dev jobs success verdict PASS
+---SUMMARY.md (round43/run_40175548082_1)---
+# Round 4.3 (dev) - PASS
+
+Freeze id: None
+Totals: {'cuts': 16672, 'digest_checks_mode_a': 5296, 'digest_checks_mode_t': 46920, 'instances': 1120, 'mode_t_evaluations': 546776, 'pairs': 140, 'questions': 31872, 'state_checks_cut': 16672, 'state_checks_mode_a': 5840, 'state_checks_mode_t': 50856}
+Measures: {'checkpoint_bytes': 59494863, 'checkpoint_gzip': 12990184, 'claims': 461418, 'composition': 15552, 'digest_partition_checks': 52216, 'digest_partition_checks_mode_a': 5296, 'digest_partition_checks_mode_t': 46920, 'interrupted_cases': 11200, 'lost_fact_tests': 840, 'mode_a_answers': 31872, 'mode_a_claims_loaded': 192409, 'mode_a_reports_applied': 26652, 'mode_a_reports_scanned': 360838, 'mode_t_evaluations': 546776, 'persistence_checks': 1120, 'prefix_bytes': 127129872, 'prefix_gzip': 12129411, 'prefix_reports': 583544, 'state_checks_cut': 16672, 'state_checks_mode_a': 5840, 'state_checks_mode_t': 50856, 'tamper_cases': 13440}
+Conformance checks: 544
+Violations: none
+Controls:
+- K1: 61420 informative cases, 135 pairs, families ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'T1', 'T2', 'T3', 'T4', 'T5']
+- K2: 4040 informative cases, 60 pairs, families ['P1', 'P7', 'P8', 'T3', 'T4', 'T5']
+- K3: 126828 informative cases, 140 pairs, families ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9', 'T1', 'T2', 'T3', 'T4', 'T5']
+Problems: none
+---DIFF 7372d59..27047e0 (bench/m3/run_round43.py, .github/workflows/round43.yml)---
+diff --git a/.github/workflows/round43.yml b/.github/workflows/round43.yml
+index ff86ac4..5868da5 100644
+--- a/.github/workflows/round43.yml
++++ b/.github/workflows/round43.yml
+@@ -29,7 +29,7 @@ jobs:
+         run: |
+           python3 - <<'PY'
+           import json, os
+-          r = json.load(open("'$RUNNER_TEMP/code/config/round43.json'"))
++          r = json.load(open("config/round43.json"))
+           fams = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "T1", "T2", "T3", "T4", "T5"]
+           cells = [{"families": f, "conformance": f == "P1"} for f in fams] if r["phase"] == "run" \
+               else [{"families": ",".join(fams), "conformance": False}]
+diff --git a/bench/m3/run_round43.py b/bench/m3/run_round43.py
+index 5df6a28..4776d54 100644
+--- a/bench/m3/run_round43.py
++++ b/bench/m3/run_round43.py
+@@ -324,14 +324,14 @@ def run_instance(pair, inst, world, log, ctl, meas, persist_dir, manifest, diges
+         if q["op"] in DIGEST_OPS:
+             meas["digest_partition_checks_mode_a"] += 1
+             check_partition(log, meas, f"{where0} A", q, got, ref)
+-    for loaded, applied, scanned in h_a.reads:
+-        meas["mode_a_claims_loaded"] += loaded
+-        meas["mode_a_reports_applied"] += applied
+-        meas["mode_a_reports_scanned"] += scanned
+     for k in times:
+         meas["state_checks_mode_a"] += 1
+         if X.normalised(h_a.state_at(k)) != ref[k]:
+             log.bad("r8_state", f"{where0} A k={k}")
++    for loaded, applied, scanned in h_a.reads:     # all Mode A replays: answers AND full-state checks
++        meas["mode_a_claims_loaded"] += loaded
++        meas["mode_a_reports_applied"] += applied
++        meas["mode_a_reports_scanned"] += scanned
+     if h_a.effectiveness() != r_eff:
+         log.bad("r5_binding", f"{where0} A effectiveness")
+     # cuts
+---FILE .github/workflows/round43.yml---
+name: round43
+# Round 4.3 (docs/ROUND_4_3.md): source-bound consolidation, model-free. One job per family
+# (phase run) or one job (phase audit), as requested in config/round43.json; runs only if
+# "enabled": true; the holdout jobs refuse to start unless the freeze in the request
+# matches the code and the worlds. Results go to the results branch. No secrets.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "config/round43.json"
+permissions:
+  contents: read
+concurrency:
+  group: round43
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      enabled: ${{ steps.plan.outputs.enabled }}
+      split: ${{ steps.plan.outputs.split }}
+      phase: ${{ steps.plan.outputs.phase }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        run: |
+          python3 - <<'PY'
+          import json, os
+          r = json.load(open("config/round43.json"))
+          fams = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "T1", "T2", "T3", "T4", "T5"]
+          cells = [{"families": f, "conformance": f == "P1"} for f in fams] if r["phase"] == "run" \
+              else [{"families": ",".join(fams), "conformance": False}]
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"enabled={'true' if r.get('enabled') is True else 'false'}\n")
+              out.write(f"split={r['split']}\n")
+              out.write(f"phase={r['phase']}\n")
+              out.write(f"matrix={json.dumps({'include': cells})}\n")
+          PY
+
+  job:
+    needs: plan
+    if: needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -B -m unittest tests.test_round43 tests.test_round40
+      - name: Run
+        run: |
+          mkdir -p out
+          python -B bench/m3/run_round43.py --phase "${{ needs.plan.outputs.phase }}" --split "${{ needs.plan.outputs.split }}" \
+            --families "${{ matrix.families }}" ${{ matrix.conformance && '--conformance' || '' }} \
+            --request config/round43.json --out out
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r43-${{ strategy.job-index }}
+          path: out/
+          if-no-files-found: warn
+
+  collect:
+    needs: [plan, job]
+    if: always() && needs.plan.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: fetch
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          path: incoming
+          pattern: r43-*
+          merge-multiple: true
+      - name: Store results on the results branch
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp -r . "$RUNNER_TEMP/code"
+          if git fetch --depth 1 origin results 2>/dev/null; then git checkout -B results FETCH_HEAD; else git checkout --orphan results; git rm -rf --quiet .; fi
+          dest="round43/run_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$dest"
+          if [ -d incoming ]; then cp -r incoming/. "$dest/"; fi
+          cp "$RUNNER_TEMP/code/config/round43.json" "$dest/request.json"
+          if [ "${{ needs.plan.outputs.phase }}" = "run" ]; then
+            python3 "$RUNNER_TEMP/code/bench/m3/collect_round43.py" --split "${{ needs.plan.outputs.split }}" --dir "$dest" \
+              --counts "$RUNNER_TEMP/code/config/round43_counts.json" --request "$RUNNER_TEMP/code/config/round43.json" \
+              || echo INCOMPLETE > "$dest/VERDICT"
+          else
+            echo AUDIT > "$dest/VERDICT"
+          fi
+          verdict=$(cat "$dest/VERDICT")
+          freeze_id=$(python3 -c 'import json, os; print((json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "code/config/round43.json"))).get("freeze") or {}).get("freeze_id"))' 2>/dev/null || echo none)
+          echo "commit ${GITHUB_SHA} run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} freeze ${freeze_id} phase ${{ needs.plan.outputs.phase }} split ${{ needs.plan.outputs.split }} jobs ${{ needs.job.result }} verdict ${verdict}" > "$dest/RUN.txt"
+          git add round43
+          git commit --quiet -m "Round 4.3 results (${{ needs.plan.outputs.phase }}, ${{ needs.plan.outputs.split }}), run ${GITHUB_RUN_ID}, ${verdict}"
+          pushed=no; for try in 1 2 3 4 5; do if git push origin results; then pushed=yes; break; fi; sleep $((try * 7)); git fetch --depth 50 origin results && git rebase FETCH_HEAD; done; [ "$pushed" = yes ]
+---END FILE---
+---docs/ROUND_4_3.md section 9---
+## 9. Implementation notes (after the APPROVE of v3)
+
+Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementation:
+- episodic_lab/r43_consolidate.py - checkpoints (scratch and incremental, canonical JSON,
+  own hash over the object without the hash field, header with cut, archive seal, highest
+  prefix id, parent, resolver hash); H = M's class with only `_claims_at` replaced (the
+  replay starts from the latest checkpoint <= k; M's file unchanged); Mode A (D = 5 from
+  C(0)) and Mode T (one checkpoint + tail, "compacted" below the cut); H's digest from H's
+  own standing claims with M's version function; the control test path `control_memory`
+  (no integrity checks; Modes A and T only accept checked checkpoints); disk layout: the
+  tail is a chain SEGMENT that continues the archive chain from the checkpoint's seal, and
+  the write order is checkpoint file -> tail file -> trust record (temp + rename) -> removal
+  of older files, so a crash leaves either the old or the new consistent pair.
+- episodic_lab/r43_reference.py - only R's step function and table plus the original
+  reports: the reference state over all facts (origin from the report whose id the claim
+  carries; checked for corrections and repeats by the hand cases), R's effectiveness of
+  every correction / retraction, R's digest (own code), the synthetic reports, and the
+  control claim sets K1-K3 - derived from R's table, so the informative cases are known
+  before any run of H (design section 5 says "the control's checkpoint"; deriving it from
+  R instead of from H's checkpoint keeps the controls R-only).
+- R's answers to the questions are computed on the reports of the asked fact and its
+  anchor only (an optimisation: M keeps claims per fact and every correction / retraction
+  targets a report of its own fact - audited on every world, 0 cross-fact targets on dev
+  and holdout); the full-state check always uses the whole world.
+- bench/m3/run_round43.py (phases audit / run, one job per family), collect_round43.py
+  (bound counts per family and operator, every rule, the expected numbers of tamper (12 per
+  world-delay instance), interrupted-write (3 in implementation v1 - historical; 10 since
+  implementation v2, see below), persistence (1) and lost-fact cases (one per
+  instance with an unasked fact, i.e. delays > 0: 3 / 4 of the instances)), freeze43.py
+  (R only), .github/workflows/round43.yml (14 family jobs + collect), tests/test_round43.py
+  (hand cases: proof obligation 1 for withdrawn, claimless and missing targets at every cut,
+  citation roles, digest grouping incl. a conflict segment, composition and parent, every
+  tamper and interrupted-write case, every field of the full-state comparison changed
+  (Astra's idea), a highest prefix id that belongs to a retraction / an ineffective
+  correction (Astra's idea), the lost unasked fact, the control path).
+- Tamper cases: the claim cases use the first cut with claims and a tail; the tail cases use
+  the genesis checkpoint with the whole world as its tail (every world has >= 2 reports).
+- Development result (docs/ROUND_4_3_dev_SUMMARY.md; run locally on commit 9308fa8, two jobs):
+  PASS - zero violations of every rule;
+  16,672 cuts, 31,872 Mode A answers, 546,776 Mode T evaluations, 15,552 composition pairs,
+  73,368 full-state comparisons (16,672 checkpoints, 5,840 Mode A times, 50,856 Mode T
+  times), 13,440 tamper and 3,360 interrupted-write cases (implementation v1, historical;
+  v2: 11,200, see below), 1,120 persistence checks and
+  840 lost-fact tests, 544 conformance checks; controls: K1 61,420 informative cases from
+  135 pairs, K2 4,040 from 60 pairs (families P1, P7, P8, T3, T4, T5 - where outranked
+  claims exist), K3 126,828 from 140 pairs. Measures: logical size of the checkpoints 461,418
+  claims for 583,544 prefix reports (79 %); canonical bytes 59.5 MB against 127.1 MB (47 %);
+  after generic compression (gzip) the checkpoints are LARGER than the raw prefixes (13.0 MB
+  against 12.1 MB) - the raw log compresses better than the consolidated JSON; the logical
+  gain does not carry over to compressed bytes in these worlds.
+- Holdout audit before the freeze (R only, freeze43.py without --write): bound counts equal
+  to config/round43_counts.json, 0 id-contract violations, 0 K3 collisions; controls K1 240,184 informative cases from 540 pairs, K2 16,884 from 240 pairs,
+  K3 503,144 from 560 pairs - each control sufficient (>= 30 cases, >= 10 pairs). The
+  cross-fact audit was added to the audit after that dry run and counted separately on all
+  4,480 holdout world-delay instances: 0 correction / retraction targets in another fact and
+  0 missing targets (it is part of the audit the freeze runs).
+- Joe's check: docs/ROUND_4_3_joe_cases.md (bench/m3/joe_cases43.py; five development cases
+  chosen by rule).
+- Astra's implementation review v1 (reviews/2026-10-25_r43impl_astra.txt, REQUEST CHANGES;
+  package reviews/packages/LAB_R43_IMPL_v1.txt) - both deviations (controls from R's table;
+  R's answers on the asked facts with the cross-fact audit) accepted; three changes
+  required before the freeze, all done:
+  (1) write protocol - a grown tail under the SAME checkpoint overwrote
+      tail_<checkpoint>.jsonl before the new trust record was committed (her reproduction:
+      a crash then left the old record pointing at an overwritten file). Now every state
+      file is content-addressed and written only once (temp + rename, never overwritten):
+      checkpoint_<hash>.json and tail_<hash>_<seal count>_<seal head>.jsonl; write_state
+      writes checkpoint, tail and the local record; the caller commits the record to its
+      EXTERNAL trusted copy and only then calls finish_state, which removes the files the
+      committed record does not name. The interrupted-write cases now restart through the
+      external record (the regular path): two scenarios (a new checkpoint; the same
+      checkpoint with a grown tail) x (crash after step 1 / 2 / 3 before the external
+      commit -> old state; after the commit, before and after finish_state -> new state) =
+      10 cases per world-delay instance; her reproduction is a hand case.
+  (2) the digest partition is checked in the full run for every digest answer of Mode A
+      and every in-scope one of Mode T: its claim entries equal the standing claims of the
+      fact at the digest's knowledge time (complete, equal fields, no duplicates).
+  (3) completeness counters bound: config/round43_counts.json v2 (bench/m3/counts43.py,
+      model-free from questions, cuts and the fixture) adds per family the expected numbers
+      of full-state comparisons (checkpoints, Mode A times, Mode T times) and of digest
+      partition checks (Mode A, Mode T) and the exact number of conformance checks (544);
+      the collector requires the executed counts to equal them (holdout: 66,392 + 23,096 +
+      200,088 full-state comparisons, 21,112 + 185,528 partition checks).
+  Her improvement ideas, done: a test that R on the whole world and R on the asked facts
+  agree (first pair of every family, delays 50 and 500); Mode A reads measured as claims
+  loaded / reports applied / reports scanned; a freeze id (SHA-256 of the freeze) recorded
+  in the freeze, the collector summary and RUN.txt of every run, so the freeze, the first
+  holdout run and any repeat attempt are logged together.
+  Development rerun (docs/ROUND_4_3_dev_SUMMARY.md): PASS, zero violations; the new
+  counters: 11,200 interrupted-write cases, 52,216 digest partition checks (5,296 + 46,920),
+  full-state comparisons 16,672 + 5,840 + 50,856, conformance 544 - all equal to the bound
+  numbers.
+- Astra's implementation review v2 (reviews/2026-10-25_r43impl_v2_astra.txt): the three
+  changes confirmed; one start error found - a careless text replacement of mine had also
+  changed the plan step of .github/workflows/round43.yml to open a file named literally
+  "'$RUNNER_TEMP/code/config/round43.json'" (the copy under RUNNER_TEMP exists only in the
+  collect job). Fixed (plan step reads config/round43.json after the checkout); the plan
+  step was executed exactly as written in the workflow for run / holdout, audit / holdout
+  and run / dev (all three produce the expected outputs and matrices), and the whole
+  workflow was then run once on the DEVELOPMENT split in GitHub Actions (no holdout, no
+  freeze) - see the next item. Her ideas: the Mode A read counters are now summed after
+  the full-state checks (they cover all Mode A replays, answers and full-state checks);
+  the older numbers of interrupted-write cases are marked as historical (implementation v1).
+- Workflow check on the development split in GitHub Actions (run 40175548082, commit
+  e62e72c, results branch round43/run_40175548082_1; no freeze, no holdout): plan, the 14
+  family jobs (each with the unit tests) and the collector all succeeded; verdict PASS with
+  exactly the numbers of the local development run (zero violations; 11,200 interrupted-
+  write cases, 52,216 digest partition checks, 73,368 full-state comparisons, 544
+  conformance checks; RUN.txt records the freeze id, here None). The Mode A read counters
+  now include the full-state checks: 192,409 claims loaded, 26,652 reports applied,
+  360,838 reports scanned.
+---END---
+
+Decision needed: approve implementation v3 of round 4.3 for the freeze and the single holdout run, or request changes.
+Prepared on lab main 27047e0; holdout not frozen, not run by H.
+=== END OF LAB ROUND 4.3 IMPLEMENTATION v3 ===

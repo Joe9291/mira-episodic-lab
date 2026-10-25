@@ -1,0 +1,21 @@
+1m 6s nachgedacht
+
+> Decision needed: approve implementation v3 of round 4.3 for the freeze and the single holdout run, or request changes. Prepared on lab main 27047e0; holdout not frozen, not run by H.
+
+APPROVE — Freigabe für den Freeze des geprüften Stands und den einmaligen Holdout-Lauf gemäß bestehendem Protokoll.
+
+Q1: Ja. Der Planungsschritt liest jetzt korrekt config/round43.json nach dem Checkout. Die verbleibenden Zugriffe auf die temporäre Kopie stehen im Collector nach deren Erstellung.
+
+Ich habe den unveränderten Planungsschritt selbst mit bash -e für alle drei Konfigurationen ausgeführt:
+
+- run/holdout: exakt die erwarteten 14 Zellen.
+- audit/holdout: eine Zelle mit allen Familien.
+- run/dev: exakt die erwarteten 14 Zellen.
+
+Alle Ausführungen bestanden auch ohne vorhandenes RUNNER_TEMP-Verzeichnis. Der im Paket dokumentierte Actions-Dev-Lauf ergänzt dies ausreichend: PASS, konsistente Zähler, 73.368 Vollzustandsvergleiche, 52.216 Partitionsprüfungen, 11.200 Unterbrechungsfälle und 544 Konformitätsprüfungen. Dafür ist kein vorheriger H-Holdout-Lauf erforderlich.
+
+Q2: Keine weitere Freigabebedingung. Auch die beiden optionalen Korrekturen sind nachvollziehbar umgesetzt: Die Mode-A-Lesezähler erfassen jetzt die Vollzustandsprüfungen; die früheren Unterbrechungszahlen sind als historischer Stand gekennzeichnet. Die letzte offene Bedingung aus v2 ist erfüllt.
+
+Verbesserungsidee:
+
+Den jetzt verwendeten Planungstest für die drei Konfigurationen als automatisierte Regression beibehalten, damit fehlerhafte Pfadersetzungen künftig unmittelbar auffallen.
