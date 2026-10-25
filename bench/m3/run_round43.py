@@ -324,14 +324,14 @@ def run_instance(pair, inst, world, log, ctl, meas, persist_dir, manifest, diges
         if q["op"] in DIGEST_OPS:
             meas["digest_partition_checks_mode_a"] += 1
             check_partition(log, meas, f"{where0} A", q, got, ref)
-    for loaded, applied, scanned in h_a.reads:
-        meas["mode_a_claims_loaded"] += loaded
-        meas["mode_a_reports_applied"] += applied
-        meas["mode_a_reports_scanned"] += scanned
     for k in times:
         meas["state_checks_mode_a"] += 1
         if X.normalised(h_a.state_at(k)) != ref[k]:
             log.bad("r8_state", f"{where0} A k={k}")
+    for loaded, applied, scanned in h_a.reads:     # all Mode A replays: answers AND full-state checks
+        meas["mode_a_claims_loaded"] += loaded
+        meas["mode_a_reports_applied"] += applied
+        meas["mode_a_reports_scanned"] += scanned
     if h_a.effectiveness() != r_eff:
         log.bad("r5_binding", f"{where0} A effectiveness")
     # cuts

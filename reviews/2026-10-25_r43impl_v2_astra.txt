@@ -1,0 +1,50 @@
+7m 32s nachgedacht
+
+> Decision needed: approve implementation v2 of round 4.3 for the freeze and the single holdout run, or request changes. Prepared on lab main 7372d59; holdout not frozen, not run by H.
+
+REQUEST CHANGES. Die drei geforderten Änderungen sind korrekt umgesetzt. Ein reproduzierbarer Startfehler im Workflow verhindert jedoch den vorgesehenen Holdout-Lauf.
+
+Q1 – Sind die drei Änderungen vollständig umgesetzt?
+
+Ja:
+
+- Checkpoint und Tail werden unter inhaltsadressierten Namen veröffentlicht. Ein wachsender Tail überschreibt die alte Version nicht; das Aufräumen erfolgt separat nach dem externen Commit.
+- Die Digest-Partition wird im Gesamtlauf gegen R geprüft: vollständige Claim-Menge, gleiche Felder, keine Duplikate. Die separat ausgegebene aktuelle Antwort wird korrekt ausgeschlossen.
+- Der Collector verlangt die ausgeführten Vollzustands- und Partitionszähler sowie exakt 544 Konformitätsprüfungen. Fehlende Prüfungen verhindern PASS.
+
+Q2 – Ist das Unterbrechungsprotokoll sicher?
+
+Ja, im beschriebenen Modell eines einzelnen Schreibers mit atomarem externem Commit:
+
+Unterbrechungsstelle	Wiederanlauf über den externen Vertrauensanker
+Während temporärer Schreibvorgänge oder nach Veröffentlichung einzelner Dateien	Der alte Zustand bleibt vollständig verfügbar.
+Während beziehungsweise nach Aktualisierung des lokalen Records, vor externem Commit	Weiterhin der alte Zustand; der lokale Record entscheidet nicht.
+Beim atomaren externen Commit	Entweder der alte oder der vollständig geschriebene neue Zustand.
+Nach Commit, einschließlich teilweise ausgeführtem Aufräumen	Der neue Zustand; dessen Dateien werden nicht gelöscht.
+
+Die zehn eingebetteten Fälle sowie 31 zusätzliche isolierte Abbruch- und Wiederholungsfälle bestanden, einschließlich partieller temporärer Dateien und unterbrochener Löschungen. Eine Zusicherung für Stromausfälle folgt daraus ohne fsync nicht.
+
+Q3 – Genügen Zähler und Collector?
+
+Ja, für diesen Testumfang. Der SHA-256 der Zählungsdatei stimmt; die Familiensummen entsprechen den Gesamtsummen. Für den Holdout sind 289.576 Vollzustandsvergleiche und 206.640 Partitionsprüfungen gebunden. Isolierte Negativprüfungen bestätigen: Jeder der fünf fehlenden Zähler sowie 543 statt 544 Konformitätsprüfungen führen zu FAIL.
+
+Q4 – Was fehlt vor dem Freeze?
+
+Im Planungsschritt von .github/workflows/round43.yml steht:
+
+r = json.load(open("'$RUNNER_TEMP/code/config/round43.json'"))
+
+Python öffnet damit einen Dateinamen mit wörtlichem $RUNNER_TEMP und zusätzlichen Anführungszeichen. Der unverändert ausgeführte Planungscode scheitert reproduzierbar mit FileNotFoundError, obwohl config/round43.json vorhanden ist. Die Kopie unter RUNNER_TEMP/code entsteht außerdem erst im Collector.
+
+Nach dem Checkout genügt dort:
+
+r = json.load(open("config/round43.json"))
+
+Diesen Startfehler beheben und den Planungsschritt ohne H-Holdout-Lauf prüfen. Das ist die einzige verbleibende Freigabebedingung.
+
+Prüfumfang: Acht Pythonblöcke kompilieren; die genannten isolierten Prüfungen wurden ausgeführt. Dabei wurden fehlende R40-Hilfsfunktionen für den Dateiprotokolltest ersetzt. Die vollständige Dev-Suite habe ich nicht erneut ausgeführt.
+
+Verbesserungsideen:
+
+- Die Mode-A-Lesezähler werden vor den Vollzustandsprüfungen aufsummiert. Für den angegebenen Umfang einschließlich dieser Prüfungen die Summierung verschieben oder die Beschreibung präzisieren.
+- In Abschnitt 9 die älteren Angaben von drei Unterbrechungsfällen pro Instanz deutlicher als historischen v1-Stand kennzeichnen.

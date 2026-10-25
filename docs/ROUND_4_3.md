@@ -323,7 +323,8 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   and holdout); the full-state check always uses the whole world.
 - bench/m3/run_round43.py (phases audit / run, one job per family), collect_round43.py
   (bound counts per family and operator, every rule, the expected numbers of tamper (12 per
-  world-delay instance), interrupted-write (3), persistence (1) and lost-fact cases (one per
+  world-delay instance), interrupted-write (3 in implementation v1 - historical; 10 since
+  implementation v2, see below), persistence (1) and lost-fact cases (one per
   instance with an unasked fact, i.e. delays > 0: 3 / 4 of the instances)), freeze43.py
   (R only), .github/workflows/round43.yml (14 family jobs + collect), tests/test_round43.py
   (hand cases: proof obligation 1 for withdrawn, claimless and missing targets at every cut,
@@ -337,7 +338,8 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   PASS - zero violations of every rule;
   16,672 cuts, 31,872 Mode A answers, 546,776 Mode T evaluations, 15,552 composition pairs,
   73,368 full-state comparisons (16,672 checkpoints, 5,840 Mode A times, 50,856 Mode T
-  times), 13,440 tamper and 3,360 interrupted-write cases, 1,120 persistence checks and
+  times), 13,440 tamper and 3,360 interrupted-write cases (implementation v1, historical;
+  v2: 11,200, see below), 1,120 persistence checks and
   840 lost-fact tests, 544 conformance checks; controls: K1 61,420 informative cases from
   135 pairs, K2 4,040 from 60 pairs (families P1, P7, P8, T3, T4, T5 - where outranked
   claims exist), K3 126,828 from 140 pairs. Measures: logical size of the checkpoints 461,418
@@ -387,3 +389,14 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   counters: 11,200 interrupted-write cases, 52,216 digest partition checks (5,296 + 46,920),
   full-state comparisons 16,672 + 5,840 + 50,856, conformance 544 - all equal to the bound
   numbers.
+- Astra's implementation review v2 (reviews/2026-10-25_r43impl_v2_astra.txt): the three
+  changes confirmed; one start error found - a careless text replacement of mine had also
+  changed the plan step of .github/workflows/round43.yml to open a file named literally
+  "'$RUNNER_TEMP/code/config/round43.json'" (the copy under RUNNER_TEMP exists only in the
+  collect job). Fixed (plan step reads config/round43.json after the checkout); the plan
+  step was executed exactly as written in the workflow for run / holdout, audit / holdout
+  and run / dev (all three produce the expected outputs and matrices), and the whole
+  workflow was then run once on the DEVELOPMENT split in GitHub Actions (no holdout, no
+  freeze) - see the next item. Her ideas: the Mode A read counters are now summed after
+  the full-state checks (they cover all Mode A replays, answers and full-state checks);
+  the older numbers of interrupted-write cases are marked as historical (implementation v1).
