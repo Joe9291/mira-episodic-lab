@@ -400,3 +400,11 @@ Astra approved v3 on 2026-10-24 (reviews/2026-10-24_r43v3_astra.txt). Implementa
   freeze) - see the next item. Her ideas: the Mode A read counters are now summed after
   the full-state checks (they cover all Mode A replays, answers and full-state checks);
   the older numbers of interrupted-write cases are marked as historical (implementation v1).
+- Workflow check on the development split in GitHub Actions (run 40175548082, commit
+  e62e72c, results branch round43/run_40175548082_1; no freeze, no holdout): plan, the 14
+  family jobs (each with the unit tests) and the collector all succeeded; verdict PASS with
+  exactly the numbers of the local development run (zero violations; 11,200 interrupted-
+  write cases, 52,216 digest partition checks, 73,368 full-state comparisons, 544
+  conformance checks; RUN.txt records the freeze id, here None). The Mode A read counters
+  now include the full-state checks: 192,409 claims loaded, 26,652 reports applied,
+  360,838 reports scanned.

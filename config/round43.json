@@ -1,7 +1,7 @@
 {
  "schema": "episodic_lab.round43_request.v1",
- "enabled": true,
- "note": "Round 4.3: workflow check on the DEVELOPMENT split (Astra's implementation review v2: plan step fixed, to be checked without a holdout run). No freeze, no holdout.",
+ "enabled": false,
+ "note": "Round 4.3: development workflow check done (run 40175548082, PASS). Waiting for the implementation approval; then the freeze is written here and the holdout is requested.",
  "phase": "run",
  "split": "dev"
 }
